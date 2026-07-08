@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EuroScout · European Basketball Scouting</title>
+<style>
+:root{
+  --bg:#0d1017; --bg2:#141925; --panel:#181e2b; --panel2:#1f2637; --line:#2a3346;
+  --txt:#e8edf6; --muted:#8b96ab; --accent:#ff7a2f; --accent2:#3b82f6;
+  --good:#22c55e; --mid:#eab308; --bad:#ef4444; --chip:#232b3d;
+  --radius:12px; font-synthesis:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--accent2);text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#2c3548;border-radius:6px}
+
+/* Header */
+header{position:sticky;top:0;z-index:50;background:rgba(13,16,23,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hwrap{display:flex;align-items:center;gap:18px;padding:12px 20px;max-width:1400px;margin:0 auto;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:.3px}
+.logo .mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#ff9d5c);
+  display:grid;place-items:center;color:#0d1017;font-weight:900}
+.logo b{color:var(--accent)}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap}
+nav.tabs button{background:transparent;border:0;color:var(--muted);padding:8px 14px;border-radius:8px;
+  font-size:14px;font-weight:600}
+nav.tabs button.active{background:var(--panel2);color:var(--txt)}
+nav.tabs button:hover{color:var(--txt)}
+.spacer{flex:1}
+.leaguesel,.authbtn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600}
+.leaguesel{appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b96ab'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center}
+
+/* Layout */
+main{max-width:1400px;margin:0 auto;padding:22px 20px 80px}
+.view{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+h1.title{font-size:24px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+.sub b{color:var(--txt)}
+
+/* Controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input[type=text],select.f{background:var(--panel);border:1px solid var(--line);color:var(--txt);
+  padding:9px 12px;border-radius:8px;font-size:13px;outline:none}
+input[type=text]:focus,select.f:focus{border-color:var(--accent2)}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;border:0;color:var(--muted);padding:8px 12px;font-size:12.5px;font-weight:600}
+.seg button.active{background:var(--accent);color:#0d1017}
+.hint{color:var(--muted);font-size:12px}
+
+/* Table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}
+thead th{position:sticky;top:0;background:var(--panel2);color:var(--muted);text-align:right;
+  padding:10px 12px;font-weight:700;font-size:11.5px;letter-spacing:.4px;cursor:pointer;user-select:none;border-bottom:1px solid var(--line)}
+thead th.l{text-align:left}
+thead th:hover{color:var(--txt)}
+thead th.sorted{color:var(--accent)}
+tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid #212838}
+tbody td.l{text-align:left}
+tbody tr:hover{background:var(--panel2)}
+tbody tr{cursor:pointer}
+.pname{font-weight:700;color:var(--txt)}
+.pteam{color:var(--muted);font-size:11.5px}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10.5px;font-weight:700;background:var(--chip);color:var(--muted)}
+.badge.role{background:#22304a;color:#9cc2ff}
+.starbtn{background:none;border:0;font-size:16px;color:#3d465c;padding:0 2px}
+.starbtn.on{color:var(--accent)}
+.qbadge{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--good)}
+
+/* Cards / panels */
+.grid{display:grid;gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.panel h3{margin:0 0 12px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* Percentile bars */
+.barrow{display:grid;grid-template-columns:130px 1fr 52px;gap:12px;align-items:center;margin:8px 0;font-size:13px}
+.barrow .lab{color:var(--muted)}
+.bartrack{height:22px;background:var(--bg2);border-radius:6px;overflow:hidden;position:relative}
+.barfill{height:100%;border-radius:6px;transition:width .5s ease}
+.barval{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.pctnum{font-size:11px;color:var(--muted)}
+
+/* Profile */
+.profhead{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:6px}
+.avatar{width:66px;height:66px;border-radius:14px;background:linear-gradient(135deg,var(--accent2),#7c3aed);
+  display:grid;place-items:center;font-size:26px;font-weight:800;color:#fff;flex-shrink:0}
+.profhead h1{margin:0;font-size:26px}
+.profmeta{color:var(--muted);font-size:13.5px;margin-top:4px}
+.statline{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}
+.statline .s{text-align:center}
+.statline .s .v{font-size:22px;font-weight:800}
+.statline .s .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.twocol{grid-template-columns:1fr}}
+.btn{background:var(--accent);color:#0d1017;border:0;padding:9px 16px;border-radius:8px;font-weight:700;font-size:13px}
+.btn.ghost{background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+.btn.sm{padding:6px 11px;font-size:12px}
+textarea{width:100%;min-height:150px;background:var(--bg2);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:12px;font-family:inherit;font-size:13.5px;line-height:1.55;resize:vertical;outline:none}
+textarea:focus{border-color:var(--accent2)}
+.rating{display:flex;gap:4px;margin:6px 0}
+.rating button{background:none;border:0;font-size:24px;color:#3d465c;padding:0}
+.rating button.on{color:var(--accent)}
+.tagsin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.tag{background:var(--chip);padding:4px 10px;border-radius:20px;font-size:12px;color:#cdd6e6;display:flex;gap:6px;align-items:center}
+.tag button{background:none;border:0;color:var(--muted);font-size:13px}
+.savestate{font-size:12px;color:var(--muted);margin-left:10px}
+
+/* radar */
+.radar{width:100%;max-width:360px;margin:0 auto;display:block}
+.legend{display:flex;gap:16px;justify-content:center;font-size:12px;margin-top:6px}
+.legend span{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%}
+
+/* compare */
+.cmpsel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.cmpsel{grid-template-columns:1fr}}
+.cmptable td.p1{color:#9cc2ff}.cmptable td.p2{color:#ffb27a}
+
+/* bigboard */
+.bb{display:flex;flex-direction:column;gap:8px}
+.bbrow{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:10px 14px}
+.bbrank{font-size:20px;font-weight:800;color:var(--accent);width:34px;text-align:center}
+.bbinfo{flex:1}.bbinfo .n{font-weight:700}.bbinfo .m{font-size:12px;color:var(--muted)}
+.bbrow .ctrl button{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  width:30px;height:30px;border-radius:7px;font-size:14px;margin-left:4px}
+.empty{color:var(--muted);text-align:center;padding:50px 20px;border:1px dashed var(--line);border-radius:12px}
+
+/* glossary */
+.gloss dt{font-weight:700;margin-top:14px;color:var(--accent)}
+.gloss dd{margin:3px 0 0;color:var(--muted);font-size:13.5px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(5,7,11,.72);z-index:100;display:grid;place-items:center;padding:20px}
+.modalbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:420px;width:100%;padding:24px}
+.modalbox h3{margin:0 0 6px}
+.modalbox p{color:var(--muted);font-size:13px;margin:0 0 14px}
+.close{position:absolute;top:14px;right:16px;background:none;border:0;color:var(--muted);font-size:22px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--panel2);
+  border:1px solid var(--line);padding:12px 20px;border-radius:10px;z-index:200;font-size:13.5px;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);opacity:0;transition:opacity .2s}
+.toast.show{opacity:1}
+.pillbtn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.backlink{background:none;border:0;color:var(--muted);font-size:13px;margin-bottom:12px;padding:0}
+.tierchip{font-size:11px;background:var(--chip);color:var(--muted);padding:3px 9px;border-radius:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="logo"><span class="mark">E</span>Euro<b>Scout</b></div>
+    <nav class="tabs" id="tabs">
+      <button data-view="players" class="active">Players</button>
+      <button data-view="compare">Compare</button>
+      <button data-view="bigboard">Big Board</button>
+      <button data-view="watchlist">Watchlist</button>
+      <button data-view="teams">Teams</button>
+      <button data-view="glossary">Glossary</button>
+    </nav>
+    <span class="spacer"></span>
+    <select class="leaguesel" id="leagueSel"></select>
+    <button class="authbtn" id="authBtn">Sign in</button>
+  </div>
+</header>
+<main id="app"><div class="empty">Loading data…</div></main>
+<div id="toast" class="toast"></div>
+
+<script src="config.js"></script>
+<script src="data/data.js"></script>
+<script>
+/* ============================ EuroScout app ============================ */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const fmt = (v,d=1)=> (v===undefined||v===null||isNaN(v))?"—":Number(v).toFixed(d);
+const initials = n => n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
+
+const STATE = {data:null, league:null, view:"players",
+  filters:{q:"",team:"",role:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
+  compare:{a:null,b:null}};
+
+/* Metric definitions for tables/bars */
+const PG_COLS = [
+  {k:"ppg",t:"PPG"},{k:"rpg",t:"RPG"},{k:"apg",t:"APG"},{k:"spg",t:"SPG"},
+  {k:"bpg",t:"BPG"},{k:"topg",t:"TO"},{k:"fgp",t:"FG%"},{k:"f3p",t:"3P%"},
+  {k:"ftp",t:"FT%"},{k:"ts",t:"TS%"},{k:"eff",t:"EFF"}];
+const P40_COLS = [
+  {k:"pts40",t:"PTS/40"},{k:"reb40",t:"REB/40"},{k:"ast40",t:"AST/40"},
+  {k:"stl40",t:"STL/40"},{k:"blk40",t:"BLK/40"},{k:"tov40",t:"TO/40"},
+  {k:"usg",t:"USG*"},{k:"ts",t:"TS%"},{k:"efg",t:"eFG%"},{k:"eff",t:"EFF"}];
+const RADAR = [
+  {k:"pts40",t:"Scoring"},{k:"ts",t:"Efficiency"},{k:"reb40",t:"Rebounding"},
+  {k:"ast40",t:"Playmaking"},{k:"stl40",t:"Steals"},{k:"blk40",t:"Rim Protect"}];
+const BARSET = [
+  {k:"ppg",t:"Points"},{k:"rpg",t:"Rebounds"},{k:"apg",t:"Assists"},
+  {k:"spg",t:"Steals"},{k:"bpg",t:"Blocks"},{k:"ts",t:"True Shooting"},
+  {k:"f3p",t:"3PT %"},{k:"eff",t:"Efficiency"}];
+
+/* ---------- Storage: Supabase if configured + signed in, else localStorage ---------- */
+const Store = (()=>{
+  const cfg = window.EUROSCOUT_CONFIG||{};
+  const enabled = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
+  let sb=null, user=null, cache={};
+  const LKEY="euroscout:records";
+  const local = {
+    all(){try{return JSON.parse(localStorage.getItem(LKEY))||{}}catch(e){return{}}},
+    set(o){localStorage.setItem(LKEY,JSON.stringify(o))}
+  };
+  async function initSB(){
+    if(!enabled) return;
+    await new Promise((res,rej)=>{const s=document.createElement("script");
+      s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
+      s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+    const {data}=await sb.auth.getSession();
+    user=data.session?.user||null;
+    sb.auth.onAuthStateChange((_e,sess)=>{user=sess?.user||null;renderAuth();});
+  }
+  async function load(){
+    cache = local.all();               // local cache first (instant)
+    if(sb && user){
+      const {data,error}=await sb.from("scouting").select("*").eq("user_id",user.id);
+      if(!error && data){data.forEach(r=>{cache[r.player_id]={report:r.report||"",
+        rating:r.rating||0,tags:r.tags||[],watch:!!r.watch,board:r.board??null};});
+        local.set(cache);}
+    }
+    return cache;
+  }
+  function get(id){return cache[id]||{report:"",rating:0,tags:[],watch:false,board:null};}
+  async function save(id,rec){
+    cache[id]={...get(id),...rec}; local.set(cache);
+    if(sb && user){
+      const r=cache[id];
+      await sb.from("scouting").upsert({user_id:user.id,player_id:id,report:r.report,
+        rating:r.rating,tags:r.tags,watch:r.watch,board:r.board,updated_at:new Date().toISOString()},
+        {onConflict:"user_id,player_id"});
+    }
+  }
+  return {
+    get enabled(){return enabled}, get user(){return user},
+    initSB, load, get, save,
+    async signIn(email){if(!sb)return;const {error}=await sb.auth.signInWithOtp({email});
+      if(error)throw error;},
+    async signOut(){if(sb)await sb.auth.signOut();user=null;},
+    allCache(){return cache;}
+  };
+})();
+
+/* ---------------------------- boot ---------------------------- */
+async function boot(){
+  try{ await Store.initSB(); }catch(e){ console.warn("Supabase init failed",e); }
+  let raw;
+  try{ raw = await (await fetch("data/data.json")).json(); }
+  catch(e){ raw = window.EUROSCOUT_INLINE || null; }
+  if(!raw){ $("#app").innerHTML='<div class="empty">Could not load data. Make sure '+
+    '<code>data/data.json</code> (or <code>data/data.js</code>) is present — see README.</div>'; return; }
+  STATE.data = raw;
+  await Store.load();
+  const sel=$("#leagueSel"); sel.innerHTML="";
+  raw.leagues.forEach(l=>{const o=document.createElement("option");o.value=l.meta.id;
+    o.textContent=`${l.meta.name} ${l.meta.season}`;sel.appendChild(o);});
+  // placeholder for leagues not yet loaded
+  ["Liga ACB (Spain)","Lega A (Italy)","ABA / Adriatic"].forEach(n=>{
+    const o=document.createElement("option");o.disabled=true;o.textContent=n+" — add via scraper";
+    sel.appendChild(o);});
+  sel.onchange=e=>{STATE.league=raw.leagues.find(l=>l.meta.id===e.target.value)||raw.leagues[0];render();};
+  STATE.league = raw.leagues[0];
+  $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;
+    $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
+  $("#authBtn").onclick=authClick;
+  renderAuth(); render();
+}
+
+function renderAuth(){
+  const b=$("#authBtn");
+  if(!Store.enabled){b.textContent="Local mode";b.title="Cloud backend not configured — data saved in this browser. See README.";return;}
+  b.textContent = Store.user ? (Store.user.email.split("@")[0]+" · Sign out") : "Sign in";
+}
+function authClick(){
+  if(!Store.enabled){showModal(`<h3>Local mode</h3>
+    <p>You're running without the cloud backend, so scouting reports, ratings, your
+    watchlist and big board are saved in <b>this browser</b> only. To sync across
+    devices, add your Supabase URL + anon key in <code>config.js</code> (setup steps
+    in the README).</p><button class="btn" onclick="hideModal()">Got it</button>`);return;}
+  if(Store.user){Store.signOut().then(()=>{renderAuth();render();toast("Signed out");});return;}
+  showModal(`<h3>Sign in</h3><p>Enter your email and we'll send a magic sign-in link.</p>
+    <input type="text" id="mEmail" placeholder="you@example.com" style="width:100%;margin-bottom:12px"/>
+    <button class="btn" id="mGo">Send link</button>`);
+  $("#mGo").onclick=async()=>{const em=$("#mEmail").value.trim();if(!em)return;
+    try{await Store.signIn(em);hideModal();toast("Check your email for the sign-in link");}
+    catch(e){toast("Sign-in error: "+e.message);}};
+}
+
+/* ---------------------------- render ---------------------------- */
+function render(){
+  const v=STATE.view;
+  if(v==="players")   renderPlayers();
+  else if(v==="compare") renderCompare();
+  else if(v==="bigboard") renderBigBoard();
+  else if(v==="watchlist") renderWatchlist();
+  else if(v==="teams") renderTeams();
+  else if(v==="glossary") renderGlossary();
+}
+
+function leaguePlayers(){return STATE.league.players;}
+function player(id){return leaguePlayers().find(p=>p.id===id);}
+
+/* ---------- Players table ---------- */
+function renderPlayers(){
+  const L=STATE.league, f=STATE.filters;
+  const cols = f.mode==="pg"?PG_COLS:P40_COLS;
+  const teams=[...new Set(L.players.map(p=>p.team))].sort()
+    .map(c=>L.teams.find(t=>t.code===c));
+  $("#app").innerHTML=`
+  <div class="view">
+    <h1 class="title">${L.meta.name} <span class="tierchip">${L.meta.tier}</span></h1>
+    <div class="sub">${L.meta.season} season · <b>${L.meta.playerCount}</b> players ·
+      percentiles vs <b>${L.meta.qualifiedCount}</b> qualified players
+      (≥${L.meta.minGames} games, ≥${L.meta.minMpg} mpg) · source: ${L.meta.source}</div>
+    <div class="controls">
+      <input type="text" id="q" placeholder="Search player…" value="${f.q}" style="min-width:200px"/>
+      <select class="f" id="teamF"><option value="">All teams</option>
+        ${teams.map(t=>`<option value="${t.code}" ${f.team===t.code?"selected":""}>${t.name}</option>`).join("")}</select>
+      <select class="f" id="roleF"><option value="">All roles</option>
+        ${["Guard","Wing","Big"].map(r=>`<option ${f.role===r?"selected":""}>${r}</option>`).join("")}</select>
+      <div class="seg"><button data-m="pg" class="${f.mode==="pg"?"active":""}">Per game</button>
+        <button data-m="p40" class="${f.mode==="p40"?"active":""}">Per 40</button></div>
+      <label class="hint" style="display:flex;gap:6px;align-items:center">
+        <input type="checkbox" id="qual" ${f.qual?"checked":""}/> Qualified only</label>
+      <span class="spacer"></span>
+      <span class="hint">Click a row for the scouting profile</span>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr>
+        <th class="l">#</th><th class="l sorted-name" data-k="name">PLAYER</th>
+        <th class="l" data-k="team">TEAM</th><th data-k="g">G</th><th data-k="mpg">MPG</th>
+        ${cols.map(c=>`<th data-k="${c.k}">${c.t}</th>`).join("")}
+        <th></th>
+      </tr></thead><tbody id="tb"></tbody>
+    </table></div>
+  </div>`;
+  const upd=()=>{const rows=filterSort();$("#tb").innerHTML=rows.map((p,i)=>{
+    const rec=Store.get(p.id);
+    return `<tr data-id="${p.id}">
+      <td class="l" style="color:var(--muted)">${i+1}</td>
+      <td class="l"><span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</td>
+      <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
+      <td>${p.g}</td><td>${fmt(p.mpg)}</td>
+      ${cols.map(c=>`<td>${fmt(p[c.k])}</td>`).join("")}
+      <td><button class="starbtn ${rec.watch?"on":""}" title="Watchlist" data-star="${p.id}">${rec.watch?"★":"☆"}</button></td>
+    </tr>`;}).join("");
+    $$("#tb tr").forEach(tr=>tr.onclick=e=>{
+      if(e.target.dataset.star){e.stopPropagation();toggleWatch(e.target.dataset.star);upd();return;}
+      openProfile(tr.dataset.id);});
+    // sort indicators
+    $$("thead th").forEach(th=>th.classList.toggle("sorted",th.dataset.k===STATE.sort.key));
+  };
+  $("#q").oninput=e=>{f.q=e.target.value;upd();};
+  $("#teamF").onchange=e=>{f.team=e.target.value;upd();};
+  $("#roleF").onchange=e=>{f.role=e.target.value;upd();};
+  $("#qual").onchange=e=>{f.qual=e.target.checked;upd();};
+  $$(".seg button").forEach(b=>b.onclick=()=>{f.mode=b.dataset.m;renderPlayers();});
+  $$("thead th[data-k]").forEach(th=>th.onclick=()=>{
+    const k=th.dataset.k;
+    if(STATE.sort.key===k)STATE.sort.dir*=-1;
+    else STATE.sort={key:k,dir:(k==="name"||k==="team")?1:-1};
+    upd();});
+  upd();
+}
+function filterSort(){
+  const f=STATE.filters;let rows=leaguePlayers().slice();
+  if(f.qual)rows=rows.filter(p=>p.qualified);
+  if(f.team)rows=rows.filter(p=>p.team===f.team);
+  if(f.role)rows=rows.filter(p=>p.role===f.role);
+  if(f.q){const q=f.q.toLowerCase();rows=rows.filter(p=>p.name.toLowerCase().includes(q));}
+  const {key,dir}=STATE.sort;
+  rows.sort((a,b)=>{let x=a[key],y=b[key];
+    if(typeof x==="string")return x.localeCompare(y)*dir;
+    return (x-y)*dir;});
+  return rows;
+}
+
+/* ---------- percentile helpers ---------- */
+function pctColor(p){ if(p>=80)return"var(--good)"; if(p>=55)return"#84cc16";
+  if(p>=40)return"var(--mid)"; if(p>=20)return"#f97316"; return"var(--bad)"; }
+function barRow(p,def){const pct=p.pct[def.k]??50;
+  return `<div class="barrow"><span class="lab">${def.t}</span>
+    <div class="bartrack"><div class="barfill" style="width:${pct}%;background:${pctColor(pct)}"></div></div>
+    <span class="barval">${fmt(p[def.k])}<div class="pctnum">${Math.round(pct)}%ile</div></span></div>`;}
+
+/* ---------- radar chart (SVG) ---------- */
+function radarSVG(players,colors){
+  const size=320,cx=size/2,cy=size/2,R=115,N=RADAR.length;
+  const ang=i=>(-Math.PI/2)+i*2*Math.PI/N;
+  const pt=(i,r)=>[cx+Math.cos(ang(i))*r, cy+Math.sin(ang(i))*r];
+  let g="";
+  for(let ring=1;ring<=4;ring++){const rr=R*ring/4;
+    g+=`<polygon points="${RADAR.map((_,i)=>pt(i,rr).join(",")).join(" ")}" fill="none" stroke="#2a3346" stroke-width="1"/>`;}
+  RADAR.forEach((d,i)=>{const[x,y]=pt(i,R);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#2a3346"/>`;
+    const[lx,ly]=pt(i,R+22);g+=`<text x="${lx}" y="${ly}" fill="#8b96ab" font-size="11" text-anchor="middle" dominant-baseline="middle">${d.t}</text>`;});
+  players.forEach((p,pi)=>{if(!p)return;
+    const pts=RADAR.map((d,i)=>{const v=Math.max(0,Math.min(100,p.pct[d.k]??50));return pt(i,R*v/100);});
+    g+=`<polygon points="${pts.map(a=>a.join(",")).join(" ")}" fill="${colors[pi]}33" stroke="${colors[pi]}" stroke-width="2"/>`;
+    pts.forEach(a=>g+=`<circle cx="${a[0]}" cy="${a[1]}" r="2.5" fill="${colors[pi]}"/>`);});
+  return `<svg class="radar" viewBox="0 0 ${size} ${size}">${g}</svg>`;
+}
+
+/* ---------- Player profile ---------- */
+let CURRENT=null;
+function openProfile(id){CURRENT=id;STATE.view="profile";
+  $$("#tabs button").forEach(x=>x.classList.remove("active"));renderProfile();}
+function renderProfile(){
+  const p=player(CURRENT),L=STATE.league,rec=Store.get(p.id);
+  const t=L.teams.find(x=>x.code===p.team);
+  $("#app").innerHTML=`<div class="view">
+    <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">← Back to players</button>
+    <div class="panel">
+      <div class="profhead">
+        <div class="avatar">${initials(p.name)}</div>
+        <div style="flex:1;min-width:220px">
+          <h1>${p.name}</h1>
+          <div class="profmeta">${t?t.name+" · "+t.city+", "+t.country:p.teamName} ·
+            <span class="badge role">${p.role}</span> · ${L.meta.name} ${L.meta.season}
+            ${p.multiTeam?' · <span class="badge">Multiple teams</span>':''}
+            ${p.qualified?'':' · <span class="badge">below qualifying minutes</span>'}</div>
+          <div class="statline">
+            ${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],["ts","TS%"],["eff","EFF"]]
+              .map(([k,lab])=>`<div class="s"><div class="v">${fmt(p[k])}</div><div class="k">${lab}</div></div>`).join("")}
+            <div class="s"><div class="v">${p.g}</div><div class="k">Games</div></div>
+            <div class="s"><div class="v">${fmt(p.mpg)}</div><div class="k">MPG</div></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn ghost sm" id="watchToggle">${rec.watch?"★ On watchlist":"☆ Add to watchlist"}</button>
+          <button class="btn ghost sm" id="boardToggle">${rec.board!=null?"On big board":"+ Add to big board"}</button>
+          <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[1].classList.add('active');render()">Compare ▸</button>
+        </div>
+      </div>
+    </div>
+    <div class="twocol" style="margin-top:16px">
+      <div class="panel"><h3>Percentile vs league (${L.meta.qualifiedCount} qualified)</h3>
+        ${BARSET.map(d=>barRow(p,d)).join("")}
+        <p class="hint" style="margin-top:10px">Bars show where this player ranks among qualified ${L.meta.name} players — 100% = league leader.</p>
+      </div>
+      <div class="panel"><h3>Statistical profile (per-40 percentiles)</h3>
+        ${radarSVG([p],["#3b82f6"])}
+        <div class="legend"><span><span class="dot" style="background:#3b82f6"></span>${p.name}</span></div>
+        <div style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.7">
+          Shooting: <b style="color:var(--txt)">${p.fgma}</b> FG (${fmt(p.fgp)}%),
+          <b style="color:var(--txt)">${p.f3ma}</b> 3P (${fmt(p.f3p)}%),
+          <b style="color:var(--txt)">${p.ftma}</b> FT (${fmt(p.ftp)}%).<br>
+          Per 40: ${fmt(p.pts40)} pts · ${fmt(p.reb40)} reb · ${fmt(p.ast40)} ast ·
+          ${fmt(p.stl40)} stl · ${fmt(p.blk40)} blk · ${fmt(p.tov40)} to.
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>Scouting report <span class="savestate" id="saveState"></span></h3>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+        <div><div class="k" style="font-size:11px;color:var(--muted);text-transform:uppercase">Grade</div>
+          <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${rec.rating>=n?"on":""}">★</button>`).join("")}</div></div>
+        <div style="flex:1;min-width:220px"><div class="k" style="font-size:11px;color:var(--muted);text-transform:uppercase">Tags</div>
+          <div class="tagsin" id="tags"></div></div>
+      </div>
+      <textarea id="report" placeholder="Write your scouting notes: strengths, weaknesses, role projection, fit, comparisons, verdict…">${rec.report||""}</textarea>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
+        <button class="btn" id="saveBtn">Save report</button>
+        <span class="hint">${Store.enabled?(Store.user?"Saving to your cloud account":"Sign in to sync to cloud — saving locally for now"):"Local mode — saved in this browser"}</span>
+      </div>
+    </div>
+  </div>`;
+  // rating
+  $$("#rating button").forEach(b=>b.onclick=async()=>{const n=+b.dataset.n;
+    const cur=Store.get(p.id).rating; const val=(cur===n)?0:n;
+    await Store.save(p.id,{rating:val});renderProfile();});
+  // tags
+  renderTags(p);
+  // watch/board
+  $("#watchToggle").onclick=async()=>{await toggleWatch(p.id);renderProfile();};
+  $("#boardToggle").onclick=async()=>{await toggleBoard(p.id);renderProfile();};
+  // save
+  $("#saveBtn").onclick=async()=>{await Store.save(p.id,{report:$("#report").value});
+    $("#saveState").textContent="✓ saved "+new Date().toLocaleTimeString();toast("Report saved");};
+  let tmr;$("#report").oninput=()=>{$("#saveState").textContent="editing…";
+    clearTimeout(tmr);tmr=setTimeout(async()=>{await Store.save(p.id,{report:$("#report").value});
+      $("#saveState").textContent="✓ autosaved";},1200);};
+}
+function renderTags(p){
+  const rec=Store.get(p.id),host=$("#tags");
+  const preset=["Buy","Watch","Pass","Upside","Ready now","Shooter","Defender","Playmaker","Injury risk"];
+  host.innerHTML=rec.tags.map(t=>`<span class="tag">${t}<button data-del="${t}">✕</button></span>`).join("")
+    +`<select class="f" id="tagAdd" style="padding:4px 8px"><option value="">+ tag</option>
+      ${preset.filter(t=>!rec.tags.includes(t)).map(t=>`<option>${t}</option>`).join("")}</select>`;
+  $$("#tags [data-del]").forEach(b=>b.onclick=async()=>{
+    await Store.save(p.id,{tags:Store.get(p.id).tags.filter(x=>x!==b.dataset.del)});renderTags(p);});
+  $("#tagAdd").onchange=async e=>{if(!e.target.value)return;
+    await Store.save(p.id,{tags:[...Store.get(p.id).tags,e.target.value]});renderTags(p);};
+}
+async function toggleWatch(id){const r=Store.get(id);await Store.save(id,{watch:!r.watch});
+  toast(!r.watch?"Added to watchlist":"Removed from watchlist");}
+async function toggleBoard(id){const r=Store.get(id);
+  if(r.board!=null){await Store.save(id,{board:null});toast("Removed from big board");}
+  else{const max=Math.max(0,...leaguePlayers().map(p=>Store.get(p.id).board??0));
+    await Store.save(id,{board:max+1});toast("Added to big board");}}
+
+/* ---------- Compare ---------- */
+function renderCompare(){
+  const L=STATE.league, opts=L.players.filter(p=>p.qualified)
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  const sel=(id,cur)=>`<select class="f" id="${id}" style="width:100%">
+    <option value="">— select player —</option>
+    ${opts.map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</select>`;
+  const a=STATE.compare.a?player(STATE.compare.a):null;
+  const b=STATE.compare.b?player(STATE.compare.b):null;
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Compare players</h1>
+    <div class="sub">Side-by-side percentiles and rates within <b>${L.meta.name}</b>. Cross-league
+      comparison uses per-40 rates and z-scores once you load more leagues.</div>
+    <div class="cmpsel">${sel("cmpA",STATE.compare.a)}${sel("cmpB",STATE.compare.b)}</div>
+    ${(a||b)?`
+    <div class="twocol">
+      <div class="panel"><h3>Overlay (per-40 percentiles)</h3>
+        ${radarSVG([a,b],["#3b82f6","#ff7a2f"])}
+        <div class="legend">${a?`<span><span class="dot" style="background:#3b82f6"></span>${a.name}</span>`:""}
+          ${b?`<span><span class="dot" style="background:#ff7a2f"></span>${b.name}</span>`:""}</div>
+      </div>
+      <div class="panel"><h3>Head to head</h3>
+        <div class="tablewrap" style="border:0">
+        <table class="cmptable"><thead><tr><th class="l">STAT</th>
+          <th class="p1">${a?a.name.split(" ").slice(-1):"—"}</th>
+          <th class="p2">${b?b.name.split(" ").slice(-1):"—"}</th></tr></thead>
+        <tbody>${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],
+          ["topg","TO"],["fgp","FG%"],["f3p","3P%"],["ftp","FT%"],["ts","TS%"],
+          ["pts40","PTS/40"],["reb40","REB/40"],["ast40","AST/40"],["eff","EFF"],["mpg","MPG"]]
+          .map(([k,lab])=>{const av=a?a[k]:null,bv=b?b[k]:null;
+            const aw=(a&&b)&&av>bv,bw=(a&&b)&&bv>av;
+            return `<tr><td class="l" style="color:var(--muted)">${lab}</td>
+              <td class="p1" style="font-weight:${aw?800:400}">${fmt(av)}</td>
+              <td class="p2" style="font-weight:${bw?800:400}">${fmt(bv)}</td></tr>`;}).join("")}
+        </tbody></table></div>
+      </div>
+    </div>`:'<div class="empty">Pick one or two players to compare.</div>'}
+  </div>`;
+  $("#cmpA").onchange=e=>{STATE.compare.a=e.target.value||null;renderCompare();};
+  $("#cmpB").onchange=e=>{STATE.compare.b=e.target.value||null;renderCompare();};
+}
+
+/* ---------- Big board ---------- */
+function renderBigBoard(){
+  const L=STATE.league;
+  let list=L.players.filter(p=>Store.get(p.id).board!=null)
+    .sort((a,b)=>Store.get(a.id).board-Store.get(b.id).board);
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Big Board</h1>
+    <div class="sub">Your personal ranking. Add players from their profile, then reorder.
+      ${Store.enabled&&!Store.user?"<b>Sign in to sync across devices.</b>":""}</div>
+    ${list.length?`<div class="bb" id="bb">${list.map((p,i)=>`
+      <div class="bbrow" data-id="${p.id}">
+        <div class="bbrank">${i+1}</div>
+        <div class="bbinfo"><div class="n">${p.name}</div>
+          <div class="m">${p.teamName} · ${p.role} · ${fmt(p.ppg)} pts / ${fmt(p.rpg)} reb / ${fmt(p.apg)} ast · EFF ${fmt(p.eff)}</div></div>
+        <div class="ctrl">
+          <button data-up="${p.id}" ${i===0?"disabled":""}>▲</button>
+          <button data-down="${p.id}" ${i===list.length-1?"disabled":""}>▼</button>
+          <button data-open="${p.id}">↗</button>
+          <button data-rm="${p.id}">✕</button>
+        </div>
+      </div>`).join("")}</div>`:'<div class="empty">No players yet. Open a player and hit “Add to big board”.</div>'}
+  </div>`;
+  const reindex=async(arr)=>{for(let i=0;i<arr.length;i++)await Store.save(arr[i].id,{board:i+1});};
+  $$("#bb [data-up]").forEach(b=>b.onclick=async()=>{const i=list.findIndex(p=>p.id===b.dataset.up);
+    [list[i-1],list[i]]=[list[i],list[i-1]];await reindex(list);renderBigBoard();});
+  $$("#bb [data-down]").forEach(b=>b.onclick=async()=>{const i=list.findIndex(p=>p.id===b.dataset.down);
+    [list[i+1],list[i]]=[list[i],list[i+1]];await reindex(list);renderBigBoard();});
+  $$("#bb [data-rm]").forEach(b=>b.onclick=async()=>{await Store.save(b.dataset.rm,{board:null});
+    list=list.filter(p=>p.id!==b.dataset.rm);await reindex(list);renderBigBoard();});
+  $$("#bb [data-open]").forEach(b=>b.onclick=()=>openProfile(b.dataset.open));
+}
+
+/* ---------- Watchlist ---------- */
+function renderWatchlist(){
+  const L=STATE.league;
+  const list=L.players.filter(p=>Store.get(p.id).watch);
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Watchlist</h1>
+    <div class="sub">${list.length} player${list.length!==1?"s":""} flagged in ${L.meta.name}.</div>
+    ${list.length?`<div class="tablewrap"><table>
+      <thead><tr><th class="l">PLAYER</th><th class="l">TEAM</th><th>PPG</th><th>RPG</th>
+        <th>APG</th><th>TS%</th><th>EFF</th><th>GRADE</th><th></th></tr></thead>
+      <tbody>${list.map(p=>{const r=Store.get(p.id);
+        return `<tr data-id="${p.id}"><td class="l"><span class="pname">${p.name}</span></td>
+          <td class="l pteam">${p.teamName}</td><td>${fmt(p.ppg)}</td><td>${fmt(p.rpg)}</td>
+          <td>${fmt(p.apg)}</td><td>${fmt(p.ts)}</td><td>${fmt(p.eff)}</td>
+          <td>${r.rating?"★".repeat(r.rating):"—"}</td>
+          <td><button class="starbtn on" data-star="${p.id}">★</button></td></tr>`;}).join("")}
+      </tbody></table></div>`:'<div class="empty">No players yet. Tap the ☆ on any player to add them.</div>'}
+  </div>`;
+  $$("#app tbody tr").forEach(tr=>tr.onclick=e=>{
+    if(e.target.dataset.star){e.stopPropagation();toggleWatch(e.target.dataset.star).then(renderWatchlist);return;}
+    openProfile(tr.dataset.id);});
+}
+
+/* ---------- Teams ---------- */
+function renderTeams(){
+  const L=STATE.league;const teams=L.teams.slice().sort((a,b)=>a.rank-b.rank);
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">${L.meta.name} teams</h1>
+    <div class="sub">Regular season standings, ${L.meta.season}.</div>
+    <div class="tablewrap"><table>
+      <thead><tr><th class="l">#</th><th class="l">TEAM</th><th class="l">COUNTRY</th>
+        <th>W</th><th>L</th><th>WIN%</th><th>PPG</th><th>OPP PPG</th><th>NET</th><th>ROSTER</th></tr></thead>
+      <tbody>${teams.map(t=>`<tr><td class="l" style="color:var(--muted)">${t.rank}</td>
+        <td class="l"><span class="pname">${t.name}</span> <span class="pteam">${t.city}</span></td>
+        <td class="l pteam">${t.country}</td><td>${t.w}</td><td>${t.l}</td><td>${fmt(t.winPct)}</td>
+        <td>${fmt(t.ppg)}</td><td>${fmt(t.oppg)}</td>
+        <td style="color:${t.net>0?"var(--good)":"var(--bad)"}">${t.net>0?"+":""}${fmt(t.net)}</td>
+        <td>${t.rosterCount}</td></tr>`).join("")}
+      </tbody></table></div>
+  </div>`;
+}
+
+/* ---------- Glossary ---------- */
+function renderGlossary(){
+  const items=[
+    ["PPG / RPG / APG","Points, rebounds and assists per game."],
+    ["Per 40","Stats projected to 40 minutes of play — useful for comparing players with different minutes/roles."],
+    ["FG% / 3P% / FT%","Field-goal, three-point and free-throw shooting percentages."],
+    ["eFG%","Effective field-goal %, which credits threes as worth 1.5× a two: (FG + 0.5·3P) / FGA."],
+    ["TS%","True shooting %, points per shooting possession including free throws: PTS / (2·(FGA + 0.44·FTA))."],
+    ["EFF","Efficiency: (PTS+REB+AST+STL+BLK) − missed FG − missed FT − turnovers. A quick all-round value proxy (approximates EuroLeague PIR; PIR also adds fouls drawn and subtracts fouls/blocks against, which aren't in this dataset)."],
+    ["USG*","Usage proxy: (FGA + 0.44·FTA + TOV) per 40 — how much offense a player shoulders."],
+    ["Percentile","Where a player ranks among qualified players in this league. 90th percentile = better than 90% of peers."],
+    ["Qualified","Players meeting the minutes/games minimum, used as the baseline for percentiles and leaderboards."],
+    ["Z-score","How many standard deviations above/below the league average — the basis for fair cross-league comparison."],
+    ["2TM","Player suited up for two teams this season; totals are combined."],
+  ];
+  $("#app").innerHTML=`<div class="view"><h1 class="title">Glossary</h1>
+    <div class="sub">What the numbers mean.</div>
+    <div class="panel"><dl class="gloss">${items.map(([t,d])=>`<dt>${t}</dt><dd>${d}</dd>`).join("")}</dl></div></div>`;
+}
+
+/* ---------- modal ---------- */
+function showModal(html){let m=$("#modal");if(!m){m=document.createElement("div");m.id="modal";m.className="modal";
+  document.body.appendChild(m);}m.innerHTML=`<div class="modalbox" style="position:relative">
+    <button class="close" onclick="hideModal()">✕</button>${html}</div>`;
+  m.onclick=e=>{if(e.target===m)hideModal();};}
+function hideModal(){const m=$("#modal");if(m)m.remove();}
+
+// expose for inline event handlers (which run in global scope)
+Object.assign(window,{STATE,render,hideModal,openProfile,$,$$});
+
+boot();
+</script>
+</body>
+</html>
