@@ -49,6 +49,8 @@ LEAGUES = [
          rs_games=38, teams=EL_TEAMS, standings=EL_STANDINGS),
     dict(id="eurocup", name="EuroCup", season="2025-26", tier="Continental (Tier 2)",
          rs_games=18, teams=None, standings=None, standings_file="eurocup_standings.txt"),
+    dict(id="aba", name="ABA League", season="2025-26", tier="Regional (Adriatic)",
+         rs_games=26, teams=None, standings=None, clubs_file="aba_clubs.txt"),
 ]
 
 def capword(w): return "-".join(p.capitalize() for p in w.split("-"))
@@ -59,6 +61,7 @@ def titlecase(raw):
                      " ".join(capword(w) for w in surname.split()).strip()).split())
 def img_url(fu):
     if not fu or len(fu)<2: return ""
+    if fu.startswith("http"): return fu
     host="cortextech.io" if fu[0]=="c" else "incrowdsports.com"
     return f"https://media-cdn.{host}/{fu[1:]}.png"
 def age_from(b):
@@ -112,7 +115,7 @@ def build_league(cfg):
         if len(f)!=21: continue
         logs.setdefault(f[0],[]).append(f)
 
-    teams_reg = cfg["teams"] or load_clubs("eurocup_clubs.txt")
+    teams_reg = cfg["teams"] or load_clubs(cfg.get("clubs_file","eurocup_clubs.txt"))
     groups = {}
     if cfg.get("standings_file"):
         standings = {}
@@ -224,7 +227,12 @@ def build_league(cfg):
             "statMeta":stat_meta,"teams":teams,"players":players}
 
 def main():
-    leagues=[build_league(c) for c in LEAGUES]
+    def _has_raw(c):
+        need=[f"{c['id']}_games.txt", f"{c['id']}_bio.txt", f"{c['id']}_gamelog.txt"]
+        missing=[n for n in need if not os.path.exists(os.path.join(RAW,n))]
+        if missing: print(f"skipping {c['id']}: missing {', '.join(missing)} (run its scraper first)")
+        return not missing
+    leagues=[build_league(c) for c in LEAGUES if _has_raw(c)]
     # cross-competition index: person code -> competitions
     idx={}
     for L in leagues:

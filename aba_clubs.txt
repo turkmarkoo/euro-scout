@@ -1,0 +1,18 @@
+DUB~Dubai Basketball~UAE~Dubai
+PAR~Partizan Mozzart Bet~Serbia~Belgrade
+CZV~Crvena zvezda Meridianbet~Serbia~Belgrade
+BUD~Buducnost VOLI~Montenegro~Podgorica
+CLU~U-BT Cluj-Napoca~Romania~Cluj-Napoca
+COL~Cedevita Olimpija~Slovenia~Ljubljana
+BOS~Bosna BH Telecom~Bosnia and Herzegovina~Sarajevo
+IGO~Igokea m:tel~Bosnia and Herzegovina~Laktasi
+SPR~Spartak Office Shoes~Serbia~Subotica
+ZAD~Zadar~Croatia~Zadar
+MEG~Mega Superbet~Serbia~Belgrade
+FMP~FMP~Serbia~Belgrade
+KRK~Krka~Slovenia~Novo mesto
+ILI~Perspektiva Ilirija~Slovenia~Ljubljana
+VIE~Vienna~Austria~Vienna
+SCD~SC Derby~Montenegro~Podgorica
+BOR~Borac Mozzart~Serbia~Cacak
+SPL~Split~Croatia~Split

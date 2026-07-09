@@ -509,13 +509,24 @@ function rebuildLinks(){
   const parent={}; all.forEach(p=>parent[p.id]=p.id);
   const find=x=>{while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;};
   const uni=(a,b)=>{if(byId[a]&&byId[b]){const ra=find(a),rb=find(b);if(ra!==rb)parent[ra]=rb;}};
-  const byCode={},byNB={};
-  all.forEach(p=>{(byCode[p.code]=byCode[p.code]||[]).push(p.id);const k=normName(p.name)+"|"+(p.born||"");(byNB[k]=byNB[k]||[]).push(p.id);});
+  const nameKey=p=>normName(p.name).split(" ").filter(Boolean).sort().join(" ");
+  const byCode={},byName={};
+  all.forEach(p=>{(byCode[p.code]=byCode[p.code]||[]).push(p.id);(byName[nameKey(p)]=byName[nameKey(p)]||[]).push(p.id);});
   Object.values(byCode).forEach(a=>{for(let i=1;i<a.length;i++)uni(a[0],a[i]);});
-  Object.values(byNB).forEach(a=>{for(let i=1;i<a.length;i++)uni(a[0],a[i]);});
+  // same (token-sorted) name links entries when birth years agree OR either side lacks one
+  Object.values(byName).forEach(a=>{for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){
+    const A=byId[a[i]],B=byId[a[j]];
+    if(!A.born||!B.born||A.born===B.born)uni(a[i],a[j]);}});
   (OVR.links||[]).forEach(pr=>uni(pr[0],pr[1]));
   const groups={}; all.forEach(p=>{const r=find(p.id);(groups[r]=groups[r]||[]).push(p);});
   all.forEach(p=>{p._grp=groups[find(p.id)];});
+  // backfill missing bio fields within a merged person (e.g. ABA entry inherits weight/pos from EuroLeague entry)
+  Object.values(groups).forEach(g=>{if(g.length<2)return;
+    ["height","weight","country","pos","born","img","jersey"].forEach(k=>{
+      const src=g.find(x=>x[k]&&x[k]!=="-");if(!src)return;
+      g.forEach(x=>{if(!x[k]||x[k]==="-")x[k]=src[k];});});
+    const role=g.find(x=>x.role)&&g.find(x=>x.role).role;
+    if(role)g.forEach(x=>{if(!x.role)x.role=role;});});
   STATE._idx=null;
 }
 function gid(p){return (p&&p._grp&&p._grp.length)?p._grp.map(x=>x.id).sort()[0]:(p?p.id:null);}
@@ -598,7 +609,7 @@ async function boot(){
     '<code>data/data.json</code> (or <code>data/data.js</code>) is present — see README.</div>'; return; }
   STATE.data = raw;
   raw.leagues.forEach(L=>L.players.forEach(p=>{
-    const g=p.gameLog||[], t={min:0,pts:0,fgm:0,fga:0,f3m:0,f3a:0,ftm:0,fta:0,reb:0,ast:0,stl:0,blk:0,tov:0,pir:0};
+    const g=p.gameLog||[]; if(!g.length){p.astto=(p.topg>0)?Math.round(p.apg/p.topg*100)/100:(p.apg>0?p.apg:0);return;} const t={min:0,pts:0,fgm:0,fga:0,f3m:0,f3a:0,ftm:0,fta:0,reb:0,ast:0,stl:0,blk:0,tov:0,pir:0};
     for(const r of g){t.min+=r[6]||0;t.pts+=r[7]||0;t.fgm+=r[8]||0;t.fga+=r[9]||0;t.f3m+=r[10]||0;t.f3a+=r[11]||0;t.ftm+=r[12]||0;t.fta+=r[13]||0;t.reb+=r[14]||0;t.ast+=r[15]||0;t.stl+=r[16]||0;t.blk+=r[17]||0;t.tov+=r[18]||0;t.pir+=r[19]||0;}
     p.t_min=Math.round(t.min);p.t_pts=t.pts;p.t_reb=t.reb;p.t_ast=t.ast;p.t_stl=t.stl;p.t_blk=t.blk;p.t_tov=t.tov;
     p.t_fgm=t.fgm;p.t_fga=t.fga;p.t_f3m=t.f3m;p.t_f3a=t.f3a;p.t_ftm=t.ftm;p.t_fta=t.fta;p.t_pir=Math.round(t.pir);
@@ -611,7 +622,7 @@ async function boot(){
   const allOpt=document.createElement("option");allOpt.value="__all__";allOpt.textContent="All leagues";sel.appendChild(allOpt);
   raw.leagues.forEach(l=>{const o=document.createElement("option");o.value=l.meta.id;
     o.textContent=`${l.meta.name} ${l.meta.season}`;sel.appendChild(o);});
-  ["Liga ACB (Spain)","Lega A (Italy)","ABA / Adriatic"].forEach(n=>{
+  ["Liga ACB (Spain)","Lega A (Italy)"].forEach(n=>{
     const o=document.createElement("option");o.disabled=true;o.textContent=n+" — add via scraper";
     sel.appendChild(o);});
   sel.onchange=e=>{ if(e.target.value==="__all__"){STATE.allLeagues=true;}
@@ -780,7 +791,7 @@ function renderPlayers(){
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
-      ${all?`<td class="l"><span class="badge">${lg?lg.meta.name.replace("Euro","E"):''}</span></td>`:''}
+      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k],c.d==null?1:c.d)}</td>`).join("")}
