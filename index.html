@@ -41,8 +41,7 @@ input,textarea,select{font-family:inherit}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
 
 /* Header */
-header{position:sticky;top:0;z-index:90;background:color-mix(in srgb, var(--bg) 92%, transparent);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:90;background:var(--bg);border-bottom:1px solid var(--line)}
 .hwrap{display:flex;align-items:center;gap:16px;padding:12px 20px;max-width:1440px;margin:0 auto;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.02em;cursor:pointer;user-select:none;line-height:1}
 .logo:hover{opacity:.92}
@@ -461,12 +460,16 @@ textarea.notesec{min-height:94px}
 .sttbl .stgrouprow td{font-family:var(--disp);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-deep);background:var(--accent-soft);padding:6px 10px}
 .sttbl .pfpa{font-family:var(--mono);color:var(--muted);font-size:12px}
 /* sticky profile header must sit under the site header */
-.stickyhead{position:sticky;top:var(--stick-top,120px);z-index:70;box-shadow:var(--shadow-lift)}
-.teamhead-panel{position:sticky;top:var(--stick-top,120px);z-index:70;box-shadow:var(--shadow-lift)}
+.stickyhead{position:sticky;top:var(--stick-top,116px);z-index:70;box-shadow:var(--shadow-lift)}
+.teamhead-panel{position:sticky;top:var(--stick-top,116px);z-index:70;box-shadow:var(--shadow-lift)}
+.stickyhead::before,.teamhead-panel::before{content:"";position:absolute;left:0;right:0;top:-14px;height:14px;background:var(--bg)}
 
 .scopeflag{font-family:var(--mono);font-size:10.5px;color:var(--muted2);letter-spacing:.04em;padding:3px 8px;border:1px dashed var(--line);border-radius:6px}
 .matchup{display:flex!important}
 .mucbx{display:inline-block!important}
+
+.pnav-sel{max-width:150px;font-size:12.5px}
+@media(max-width:620px){.pnav-sel{display:none}}
 </style>
 </head>
 <body>
@@ -485,19 +488,19 @@ textarea.notesec{min-height:94px}
       <input type="text" id="globalSearch" placeholder="Search player…" autocomplete="off" aria-label="Search players"/>
       <div class="gsresults hidden" id="gsResults"></div>
     </div>
-    <button class="authbtn" id="authBtn">Sign in</button>
-  </div>
-  <div class="hwrap hrow2">
-    <div class="seg hdr-scope" id="scopeSeg" title="Ranking scope used on player profiles">
-      <button data-scope="league" class="active">vs&nbsp;<span id="scopeLg">League</span></button>
-      <button data-scope="all">vs&nbsp;All</button>
-    </div>
     <div class="matchup" id="matchupBar" title="Live scouting: pick the two teams playing">
       <span class="mulab">▸ MATCHUP</span>
       <span class="mucbx"><input type="text" id="muA" placeholder="Team A" autocomplete="off"/><div class="cbxres hidden" id="muAres"></div></span>
       <span class="muvs">vs</span>
       <span class="mucbx"><input type="text" id="muB" placeholder="Team B" autocomplete="off"/><div class="cbxres hidden" id="muBres"></div></span>
       <span class="mupills" id="muPills"></span>
+    </div>
+    <button class="authbtn" id="authBtn">Sign in</button>
+  </div>
+  <div class="hwrap hrow2">
+    <div class="seg hdr-scope" id="scopeSeg" title="Ranking scope used on player profiles">
+      <button data-scope="league" class="active">vs&nbsp;<span id="scopeLg">League</span></button>
+      <button data-scope="all">vs&nbsp;All</button>
     </div>
     <span class="spacer"></span>
     <select class="leaguesel" id="leagueSel"></select>
@@ -802,7 +805,7 @@ async function boot(){
     if(STATE.view==="profile")renderProfile();});
   updateScopeLabel();
   wireGlobalSearch();
-  syncStickyTop();
+  scheduleSticky();
   renderAuth(); render();
 }
 
@@ -890,7 +893,7 @@ function authClick(){
 }
 
 /* ---------------------------- render ---------------------------- */
-function render(){if(typeof syncStickyTop==="function")setTimeout(syncStickyTop,0);
+function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   const v=STATE.view;
   if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
@@ -1139,6 +1142,14 @@ function wireProfileNav(p){
   const pv=$("#pnavPrev"),nx=$("#pnavNext");
   if(pv)pv.onclick=()=>go(-1);
   if(nx)nx.onclick=()=>go(1);
+  const dd=$("#pnavSel");
+  if(dd){
+    const Lp=leagueOf(p), mates=Lp.players.filter(x=>x.team===p.team).sort((a,b)=>{const ja=(a.jersey===0||a.jersey==="0")?0:(parseInt(a.jersey)||999),jb=(b.jersey===0||b.jersey==="0")?0:(parseInt(b.jersey)||999);return ja-jb||b.ppg-a.ppg;});
+    const og=dd.querySelector("#pnavTeam");
+    og.label=(p.teamName||"Team")+" roster";
+    og.innerHTML=mates.map(m=>`<option value="${m.id}" ${m.id===p.id?"selected":""}>${m.jersey!=null&&m.jersey!==""?"#"+m.jersey+"  ":""}${m.name}</option>`).join("");
+    dd.onchange=()=>{if(dd.value&&dd.value!==p.id)openProfile(dd.value);};
+  }
   const inp=$("#pnavSearch"),box=$("#pnavRes");if(!inp||!box)return;
   let res=[];
   const close=()=>{box.classList.add("hidden");box.innerHTML="";};
@@ -1159,9 +1170,12 @@ function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===
   if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
 function applyTheme(t){document.documentElement.dataset.theme="light";}
 function syncStickyTop(){const h=document.querySelector("header");if(!h)return;
-  const hb=h.getBoundingClientRect(); const off=(getComputedStyle(h).position==="sticky"?hb.height:0)+10;
+  const off=Math.round(h.getBoundingClientRect().height);
   document.documentElement.style.setProperty("--stick-top",off+"px");}
-window.addEventListener("resize",()=>{clearTimeout(window.__st);window.__st=setTimeout(syncStickyTop,120);});
+function scheduleSticky(){requestAnimationFrame(()=>requestAnimationFrame(syncStickyTop));setTimeout(syncStickyTop,60);setTimeout(syncStickyTop,300);}
+window.addEventListener("resize",()=>{clearTimeout(window.__st);window.__st=setTimeout(syncStickyTop,100);});
+window.addEventListener("load",scheduleSticky);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(scheduleSticky);
 function toggleTheme(){}
 /* ---------- profile ranking helpers + leaderboards ---------- */
 const STAT_FMT={ppg:1,rpg:1,apg:1,spg:1,bpg:1,topg:1,mpg:1,pir:1,eff:1,usg:1,
@@ -1285,6 +1299,9 @@ function renderProfile(){
         <input type="text" id="pnavSearch" placeholder="Switch player\u2026" autocomplete="off" value="${p.name}"/>
         <div class="pnav-res hidden" id="pnavRes"></div>
       </div>
+      <select class="pnav-sel f" id="pnavSel" title="Jump to a teammate">
+        <optgroup label="${t?t.name+' roster':'Teammates'}" id="pnavTeam"></optgroup>
+      </select>
       <button class="pnav-btn" id="pnavNext" title="Next player">\u203a</button>
     </div>
     <div class="panel stickyhead">
@@ -1605,26 +1622,32 @@ function openTeamBoard(k,label,hi){
 }
 function renderTeams(){
   const all=STATE.allLeagues;
+  const q=normName(STATE.teamQ||"");
   const pool=all?allTeamsFlat():STATE.league.teams.map(t=>({...t,_lid:STATE.league.meta.id}));
-  const teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
+  let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
+  if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
   const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA"};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
     <div class="sub">${all?`Every club across <b>${STATE.data.leagues.length}</b> competitions \u00b7 use the chips to narrow`:`Regular season standings \u00b7 ${STATE.league.meta.season}`}</div>
     ${scopeChips()}
+    <div class="controls"><input type="text" id="teamSearch" placeholder="Search teams\u2026" value="${STATE.teamQ||""}" style="min-width:220px"/>
+      ${STATE.teamQ?`<span class="hint">${teams.length} match${teams.length===1?"":"es"}</span>`:""}</div>
     <div class="tablewrap"><table>
-      <thead><tr><th class="l">#</th><th class="l">TEAM</th>${all?'<th class="l">LG</th>':''}<th class="l">COUNTRY</th>
+      <thead><tr>${all?"":'<th class="l">#</th>'}<th class="l">TEAM</th>${all?'<th class="l">LG</th>':''}<th class="l">COUNTRY</th>
         <th>W</th><th>L</th><th>WIN%</th><th>PPG</th><th>OPP PPG</th><th>NET</th><th>ROSTER</th></tr></thead>
-      <tbody>${teams.map(t=>`<tr class="clickteam" data-team="${t.code}" data-lg="${t._lid}"><td class="l" style="color:var(--muted)">${t.group?t.group+t.rank:t.rank}</td>
+      <tbody>${teams.length?teams.map(t=>`<tr class="clickteam" data-team="${t.code}" data-lg="${t._lid}">${all?"":`<td class="l" style="color:var(--muted)">${t.group?t.group+t.rank:t.rank}</td>`}
         <td class="l"><span class="pname">${t.name}</span> <span class="pteam">${t.city}</span></td>
         ${all?`<td class="l"><span class="badge">${LGB[t._lid]||t._lid}</span></td>`:''}
         <td class="l pteam">${t.country}</td><td>${t.w}</td><td>${t.l}</td><td>${fmt(t.winPct)}</td>
         <td>${fmt(t.ppg)}</td><td>${fmt(t.oppg)}</td>
         <td style="color:${t.net>0?"var(--good)":"var(--bad)"}">${t.net>0?"+":""}${fmt(t.net)}</td>
-        <td>${t.rosterCount}</td></tr>`).join("")}
+        <td>${t.rosterCount}</td></tr>`).join(""):`<tr><td colspan="11" class="l" style="padding:16px;color:var(--muted)">No teams match “${STATE.teamQ}”.</td></tr>`}
       </tbody></table></div>
     <p class="hint" style="margin-top:10px">Click a team for its roster, stats, standings and game log.</p>
   </div>`;
+  const ts=$("#teamSearch");
+  if(ts){ts.oninput=()=>{STATE.teamQ=ts.value;const pos=ts.selectionStart;renderTeams();const el=$("#teamSearch");if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(e){}}};}
   $$("#app tbody tr.clickteam").forEach(tr=>tr.onclick=()=>openTeamIn(tr.dataset.lg,tr.dataset.team));
 }
 
@@ -1657,11 +1680,11 @@ function renderTeam(){
       <td class="l">${home?"vs ":"@ "}<span class="tlink" onclick="openTeamIn('${L.meta.id}','${opp}')">${on}</span></td>
       <td class="l" style="color:${win?"var(--good)":"var(--bad)"};font-weight:700">${win?"W":"L"}</td>
       <td style="font-family:var(--mono)">${ts}\u2013${os}</td></tr>`;}).join("");
-  const stTeams=L.teams.slice().sort((a,b)=>(a.group||"").localeCompare(b.group||"")||a.rank-b.rank);
-  const hasGroups=stTeams.some(x=>x.group);
-  let lastG=null,strows="";
+  const myGroup=t.group||"";
+  const stTeams=L.teams.filter(x=>(x.group||"")===myGroup).sort((a,b)=>a.rank-b.rank);
+  let strows="";
+  if(myGroup)strows+=`<tr class="stgrouprow"><td colspan="8">Group ${myGroup}</td></tr>`;
   stTeams.forEach(x=>{
-    if(hasGroups&&x.group!==lastG){lastG=x.group;strows+=`<tr class="stgrouprow"><td colspan="8">Group ${x.group}</td></tr>`;}
     strows+=`<tr class="${x.code===t.code?"me":""}" data-tc="${x.code}">
       <td class="rk">${x.rank}</td><td class="l">${x.name}</td>
       <td>${x.w}</td><td>${x.l}</td><td class="pfpa">${x.pf!=null?x.pf:"–"}</td><td class="pfpa">${x.pa!=null?x.pa:"–"}</td>
@@ -1697,7 +1720,7 @@ function renderTeam(){
       <p class="hint" style="margin-top:8px">Tap any stat for the full ${L.teams.length}-team ranking \u00b7 badge = rank vs. the league${STATE.tsMode==='adv'?' \u00b7 ratings per 100 possessions':''}.</p>
     </div>
     <div class="twocol" style="margin-top:16px">
-      <div class="panel"><h3>Standings \u00b7 ${L.meta.name}</h3>
+      <div class="panel"><h3>Standings \u00b7 ${L.meta.name}${t.group?" \u00b7 Group "+t.group:""}</h3>
         <div class="tablewrap stwrap"><table class="sttbl">
           <thead><tr><th class="rk">#</th><th class="l">TEAM</th><th>W</th><th>L</th><th title="Points for">PF</th><th title="Points against">PA</th><th>NET</th></tr></thead>
           <tbody>${strows}</tbody></table></div>
