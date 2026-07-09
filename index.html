@@ -155,6 +155,15 @@ textarea:focus{border-color:var(--accent2)}
 .pillbtn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600}
 .backlink{background:none;border:0;color:var(--muted);font-size:13px;margin-bottom:12px;padding:0}
 .tierchip{font-size:11px;background:var(--chip);color:var(--muted);padding:3px 9px;border-radius:20px}
+.tavatar{width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:top;vertical-align:middle;margin-right:9px;background:#222b3d;flex-shrink:0}
+.pcell{display:inline-flex;align-items:center}
+.avatar img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:14px}
+.biochips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.biochip{background:var(--chip);border-radius:8px;padding:5px 10px;font-size:12px;color:#cdd6e6}
+.biochip b{color:var(--txt)}
+table.glog{font-size:12px}
+table.glog th,table.glog td{padding:6px 9px}
+.glogscroll{max-height:520px;overflow:auto}
 </style>
 </head>
 <body>
@@ -196,18 +205,18 @@ const STATE = {data:null, league:null, view:"players",
 const PG_COLS = [
   {k:"ppg",t:"PPG"},{k:"rpg",t:"RPG"},{k:"apg",t:"APG"},{k:"spg",t:"SPG"},
   {k:"bpg",t:"BPG"},{k:"topg",t:"TO"},{k:"fgp",t:"FG%"},{k:"f3p",t:"3P%"},
-  {k:"ftp",t:"FT%"},{k:"ts",t:"TS%"},{k:"eff",t:"EFF"}];
+  {k:"ftp",t:"FT%"},{k:"ts",t:"TS%"},{k:"pir",t:"PIR"}];
 const P40_COLS = [
   {k:"pts40",t:"PTS/40"},{k:"reb40",t:"REB/40"},{k:"ast40",t:"AST/40"},
   {k:"stl40",t:"STL/40"},{k:"blk40",t:"BLK/40"},{k:"tov40",t:"TO/40"},
-  {k:"usg",t:"USG*"},{k:"ts",t:"TS%"},{k:"efg",t:"eFG%"},{k:"eff",t:"EFF"}];
+  {k:"usg",t:"USG*"},{k:"ts",t:"TS%"},{k:"efg",t:"eFG%"},{k:"pir",t:"PIR"}];
 const RADAR = [
   {k:"pts40",t:"Scoring"},{k:"ts",t:"Efficiency"},{k:"reb40",t:"Rebounding"},
   {k:"ast40",t:"Playmaking"},{k:"stl40",t:"Steals"},{k:"blk40",t:"Rim Protect"}];
 const BARSET = [
   {k:"ppg",t:"Points"},{k:"rpg",t:"Rebounds"},{k:"apg",t:"Assists"},
   {k:"spg",t:"Steals"},{k:"bpg",t:"Blocks"},{k:"ts",t:"True Shooting"},
-  {k:"f3p",t:"3PT %"},{k:"eff",t:"Efficiency"}];
+  {k:"f3p",t:"3PT %"},{k:"pir",t:"PIR"}];
 
 /* ---------- Storage: Supabase if configured + signed in, else localStorage ---------- */
 const Store = (()=>{
@@ -356,7 +365,7 @@ function renderPlayers(){
     const rec=Store.get(p.id);
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
-      <td class="l"><span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</td>
+      <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k])}</td>`).join("")}
@@ -418,6 +427,26 @@ function radarSVG(players,colors){
   return `<svg class="radar" viewBox="0 0 ${size} ${size}">${g}</svg>`;
 }
 
+/* ---------- Game log ---------- */
+function gameLogTable(p){
+  if(!p.gameLog||!p.gameLog.length) return '<p class="hint">No game log available.</p>';
+  const rows=p.gameLog.slice().reverse(); // most recent first
+  return `<div class="glogscroll tablewrap"><table class="glog">
+    <thead><tr><th class="l">DATE</th><th class="l">OPP</th><th class="l">RESULT</th><th>MIN</th>
+      <th>PTS</th><th>FG</th><th>3P</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th>
+      <th>TO</th><th>PIR</th><th>+/-</th></tr></thead>
+    <tbody>${rows.map(g=>{const[dt,opp,ha,win,tp,op,mn,pts,fgm,fga,f3m,f3a,ftm,fta,reb,ast,stl,blk,tov,pir,pm]=g;
+      const tn=(STATE.league.teams.find(t=>t.code===opp)||{}).name||opp;
+      return `<tr><td class="l" style="color:var(--muted)">${dt?dt.slice(5):'—'}</td>
+        <td class="l">${ha==='A'?'@ ':'vs '}${tn}</td>
+        <td class="l" style="color:${win?'var(--good)':'var(--bad)'}">${win?'W':'L'} ${tp}–${op}</td>
+        <td>${mn}</td><td><b>${pts}</b></td><td>${fgm}-${fga}</td><td>${f3m}-${f3a}</td><td>${ftm}-${fta}</td>
+        <td>${reb}</td><td>${ast}</td><td>${stl}</td><td>${blk}</td><td>${tov}</td>
+        <td style="font-weight:700">${pir}</td>
+        <td style="color:${pm>0?'var(--good)':pm<0?'var(--bad)':'var(--muted)'}">${pm>0?'+':''}${pm}</td></tr>`;}).join('')}
+    </tbody></table></div>`;
+}
+
 /* ---------- Player profile ---------- */
 let CURRENT=null;
 function openProfile(id){CURRENT=id;STATE.view="profile";
@@ -429,15 +458,22 @@ function renderProfile(){
     <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">← Back to players</button>
     <div class="panel">
       <div class="profhead">
-        <div class="avatar">${initials(p.name)}</div>
+        <div class="avatar">${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
         <div style="flex:1;min-width:220px">
           <h1>${p.name}</h1>
           <div class="profmeta">${t?t.name+" · "+t.city+", "+t.country:p.teamName} ·
-            <span class="badge role">${p.role}</span> · ${L.meta.name} ${L.meta.season}
+            <span class="badge role">${p.pos&&p.pos!=='-'?p.pos:p.role}</span> · ${L.meta.name} ${L.meta.season}
             ${p.multiTeam?' · <span class="badge">Multiple teams</span>':''}
             ${p.qualified?'':' · <span class="badge">below qualifying minutes</span>'}</div>
+          <div class="biochips">
+            ${p.jersey?`<span class="biochip">#<b>${p.jersey}</b></span>`:''}
+            ${p.height?`<span class="biochip">Height <b>${p.height} cm</b></span>`:''}
+            ${p.weight?`<span class="biochip">Weight <b>${p.weight} kg</b></span>`:''}
+            ${p.age?`<span class="biochip">Age <b>${p.age}</b></span>`:''}
+            ${p.country?`<span class="biochip"><b>${p.country}</b></span>`:''}
+          </div>
           <div class="statline">
-            ${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],["ts","TS%"],["eff","EFF"]]
+            ${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],["ts","TS%"],["pir","PIR"]]
               .map(([k,lab])=>`<div class="s"><div class="v">${fmt(p[k])}</div><div class="k">${lab}</div></div>`).join("")}
             <div class="s"><div class="v">${p.g}</div><div class="k">Games</div></div>
             <div class="s"><div class="v">${fmt(p.mpg)}</div><div class="k">MPG</div></div>
@@ -466,6 +502,10 @@ function renderProfile(){
           ${fmt(p.stl40)} stl · ${fmt(p.blk40)} blk · ${fmt(p.tov40)} to.
         </div>
       </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>Game log · ${p.g} games · ${L.meta.season}</h3>
+      ${gameLogTable(p)}
     </div>
     <div class="panel" style="margin-top:16px">
       <h3>Scouting report <span class="savestate" id="saveState"></span></h3>
@@ -544,7 +584,7 @@ function renderCompare(){
           <th class="p2">${b?b.name.split(" ").slice(-1):"—"}</th></tr></thead>
         <tbody>${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],
           ["topg","TO"],["fgp","FG%"],["f3p","3P%"],["ftp","FT%"],["ts","TS%"],
-          ["pts40","PTS/40"],["reb40","REB/40"],["ast40","AST/40"],["eff","EFF"],["mpg","MPG"]]
+          ["pts40","PTS/40"],["reb40","REB/40"],["ast40","AST/40"],["pir","PIR"],["mpg","MPG"]]
           .map(([k,lab])=>{const av=a?a[k]:null,bv=b?b[k]:null;
             const aw=(a&&b)&&av>bv,bw=(a&&b)&&bv>av;
             return `<tr><td class="l" style="color:var(--muted)">${lab}</td>
@@ -571,7 +611,7 @@ function renderBigBoard(){
       <div class="bbrow" data-id="${p.id}">
         <div class="bbrank">${i+1}</div>
         <div class="bbinfo"><div class="n">${p.name}</div>
-          <div class="m">${p.teamName} · ${p.role} · ${fmt(p.ppg)} pts / ${fmt(p.rpg)} reb / ${fmt(p.apg)} ast · EFF ${fmt(p.eff)}</div></div>
+          <div class="m">${p.teamName} · ${p.role} · ${fmt(p.ppg)} pts / ${fmt(p.rpg)} reb / ${fmt(p.apg)} ast · PIR ${fmt(p.pir)}</div></div>
         <div class="ctrl">
           <button data-up="${p.id}" ${i===0?"disabled":""}>▲</button>
           <button data-down="${p.id}" ${i===list.length-1?"disabled":""}>▼</button>
@@ -599,7 +639,7 @@ function renderWatchlist(){
     <div class="sub">${list.length} player${list.length!==1?"s":""} flagged in ${L.meta.name}.</div>
     ${list.length?`<div class="tablewrap"><table>
       <thead><tr><th class="l">PLAYER</th><th class="l">TEAM</th><th>PPG</th><th>RPG</th>
-        <th>APG</th><th>TS%</th><th>EFF</th><th>GRADE</th><th></th></tr></thead>
+        <th>APG</th><th>TS%</th><th>PIR</th><th>GRADE</th><th></th></tr></thead>
       <tbody>${list.map(p=>{const r=Store.get(p.id);
         return `<tr data-id="${p.id}"><td class="l"><span class="pname">${p.name}</span></td>
           <td class="l pteam">${p.teamName}</td><td>${fmt(p.ppg)}</td><td>${fmt(p.rpg)}</td>
@@ -638,10 +678,11 @@ function renderGlossary(){
     ["PPG / RPG / APG","Points, rebounds and assists per game."],
     ["Per 40","Stats projected to 40 minutes of play — useful for comparing players with different minutes/roles."],
     ["FG% / 3P% / FT%","Field-goal, three-point and free-throw shooting percentages."],
-    ["eFG%","Effective field-goal %, which credits threes as worth 1.5× a two: (FG + 0.5·3P) / FGA."],
-    ["TS%","True shooting %, points per shooting possession including free throws: PTS / (2·(FGA + 0.44·FTA))."],
-    ["EFF","Efficiency: (PTS+REB+AST+STL+BLK) − missed FG − missed FT − turnovers. A quick all-round value proxy (approximates EuroLeague PIR; PIR also adds fouls drawn and subtracts fouls/blocks against, which aren't in this dataset)."],
-    ["USG*","Usage proxy: (FGA + 0.44·FTA + TOV) per 40 — how much offense a player shoulders."],
+    ["eFG%","Effective field-goal %, which credits threes as worth 1.5x a two: (FG + 0.5*3P) / FGA."],
+    ["TS%","True shooting %, points per shooting possession including free throws: PTS / (2*(FGA + 0.44*FTA))."],
+    ["PIR","Performance Index Rating — EuroLeague's official all-round value metric (valuation), taken straight from the box score and averaged per game."],
+    ["Game log","Every game a player appeared in this season, with the box score line and +/- for each. Pulled from official EuroLeague box scores."],
+    ["USG*","Usage proxy: (FGA + 0.44*FTA + TOV) per 40 — how much offense a player shoulders."],
     ["Percentile","Where a player ranks among qualified players in this league. 90th percentile = better than 90% of peers."],
     ["Qualified","Players meeting the minutes/games minimum, used as the baseline for percentiles and leaderboards."],
     ["Z-score","How many standard deviations above/below the league average — the basis for fair cross-league comparison."],
