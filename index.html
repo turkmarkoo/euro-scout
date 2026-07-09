@@ -414,6 +414,20 @@ textarea.notesec{min-height:94px}
 .mucbx input:focus{border-color:var(--accent2)}
 .mucbx .cbxres{min-width:230px}
 @media(max-width:1250px){.mucbx{display:none}}
+
+/* card grid base (was missing!), 5-up small cards, team header, sticky glog separators */
+.cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px}
+.cardgrid.smgrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+@media(max-width:920px){.cardgrid.smgrid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}}
+.teamhead .phname h1{font-size:30px}
+.teamcrest{min-width:70px;height:70px;font-size:24px;border-radius:18px}
+.glogscroll thead th{position:sticky;top:0;background:var(--panel);z-index:3;box-shadow:0 1px 0 var(--line)}
+.glog .glogsep td{position:sticky;top:31px;z-index:2;cursor:pointer}
+.glog .glogsep:hover td{filter:brightness(1.06)}
+.glcaret{display:inline-block;transition:.15s;margin-right:4px}
+.glogsep.closed .glcaret{transform:rotate(-90deg)}
+.glog .glogsep td{font-family:var(--mono)!important;font-size:11px}
+.glog .glogsep td.l{font-family:var(--disp)!important;font-size:10.5px}
 </style>
 </head>
 <body>
@@ -1037,12 +1051,19 @@ function gameLogTable(p){
   if(!secs.length) return '<p class="hint">No game log available.</p>';
   const head=`<thead><tr><th class="l">DATE</th><th class="l">OPP</th><th class="l">RESULT</th><th>MIN</th><th>PTS</th><th>FG</th><th>3P</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PIR</th><th>+/-</th></tr></thead>`;
   let body="";
-  secs.forEach(x=>{const Lx=leagueOf(x);
-    if(grp.length>1) body+=`<tr class="glogsep"><td class="l" colspan="15">${Lx.meta.name} \u00b7 ${x.teamName} \u00b7 ${x.g} games</td></tr>`;
+  secs.forEach((x,si)=>{const Lx=leagueOf(x);
+    if(grp.length>1){
+      const pm=x.gameLog.reduce((s,r)=>s+(r[20]||0),0)/x.gameLog.length;
+      body+=`<tr class="glogsep" data-sec="${si}" onclick="glToggle(this)" title="Tap to collapse / expand this competition">
+        <td class="l" colspan="3"><span class="glcaret">\u25be</span> ${Lx.meta.name} \u00b7 ${x.teamName} \u00b7 ${x.g} games \u2014 averages:</td>
+        <td>${fmt(x.mpg)}</td><td><b>${fmt(x.ppg)}</b></td><td>${fmt(x.fgp)}%</td><td>${fmt(x.f3p)}%</td><td>${fmt(x.ftp)}%</td>
+        <td>${fmt(x.rpg)}</td><td>${fmt(x.apg)}</td><td>${fmt(x.spg)}</td><td>${fmt(x.bpg)}</td><td>${fmt(x.topg)}</td>
+        <td style="font-weight:700">${fmt(x.pir)}</td><td>${pm>0?"+":""}${fmt(pm)}</td></tr>`;
+    }
     const rows=x.gameLog.slice().reverse();
     body+=rows.map(g=>{const[dt,opp,ha,win,tp,op,mn,pts,fgm,fga,f3m,f3a,ftm,fta,reb,ast,stl,blk,tov,pir,pm]=g;
       const tn=(Lx.teams.find(tt=>tt.code===opp)||{}).name||opp;
-      return `<tr><td class="l" style="color:var(--muted);white-space:nowrap">${fullDate(dt)}</td>
+      return `<tr data-sec="${si}"><td class="l" style="color:var(--muted);white-space:nowrap">${fullDate(dt)}</td>
         <td class="l">${ha==='A'?'@ ':'vs '}<span class="tlink" onclick="openTeamIn('${Lx.meta.id}','${opp}')">${tn}</span></td>
         <td class="l" style="color:${win?'var(--good)':'var(--bad)'}">${win?'W':'L'} ${tp}\u2013${op}</td>
         <td>${mn}</td><td><b>${pts}</b></td><td>${fgm}-${fga}</td><td>${f3m}-${f3a}</td><td>${ftm}-${fta}</td>
@@ -1051,6 +1072,11 @@ function gameLogTable(p){
         <td style="color:${pm>0?'var(--good)':pm<0?'var(--bad)':'var(--muted)'}">${pm>0?'+':''}${pm}</td></tr>`;}).join('');
   });
   return `<div class="glogscroll tablewrap"><table class="glog">${head}<tbody>${body}</tbody></table></div>`;
+}
+function glToggle(tr){
+  const sec=tr.dataset.sec, tb=tr.closest("tbody");
+  const hidden=tr.classList.toggle("closed");
+  tb.querySelectorAll(`tr[data-sec="${sec}"]:not(.glogsep)`).forEach(r=>r.style.display=hidden?"none":"");
 }
 
 /* ---------- Player profile ---------- */
@@ -1511,7 +1537,7 @@ function openTeam(code){CURRENT_TEAM=code;STATE.view="team";
 function renderTeam(){
   const L=STATE.league, t=L.teams.find(x=>x.code===CURRENT_TEAM);
   if(!t){STATE.view="teams";render();return;}
-  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>b.ppg-a.ppg);
+  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>(parseInt(a.jersey)||999)-(parseInt(b.jersey)||999)||b.ppg-a.ppg);
   const grp=teamGroup(L.meta.id,t.code);
   const agg=teamAgg(L)[t.code]||{};
   const mkCards=list=>list.map(([k,lab,hi])=>{
@@ -1540,9 +1566,13 @@ function renderTeam(){
     <div class="panel">
       <div class="teamhead">
         <div class="teamcrest">${t.code}</div>
-        <div style="flex:1;min-width:200px">
-          <h1 style="margin:0;font-size:24px">${t.name}</h1>
-          <div class="profmeta">${t.city}, ${t.country} \u00b7 ${L.meta.name} ${L.meta.season}${t.group?" \u00b7 Group "+t.group:""}</div>
+        <div style="flex:1;min-width:220px">
+          <div class="phname"><h1>${t.name}</h1></div>
+          <div class="phclub">
+            <span class="tlink" onclick="setScope('${L.meta.id}');STATE.view='players';render()">${L.meta.name} ${L.meta.season}</span>
+            <span class="phsep">\u00b7</span><span>${t.city}, ${t.country}</span>
+            ${t.group?`<span class="phsep">\u00b7</span><span>Group ${t.group}</span>`:""}
+          </div>
           ${grp.length>1?`<div class="comptabs" style="margin-top:8px"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${grp.map(x=>`<button class="comptab ${x.league===L.meta.id&&x.code===t.code?"active":""}" onclick="openTeamIn('${x.league}','${x.code}')" title="${x.L.meta.name} \u00b7 ${x.team.name}">${x.L.meta.name}</button>`).join("")}</div>`:""}
         </div>
         <div class="statline">
@@ -1553,11 +1583,12 @@ function renderTeam(){
       </div>
     </div>
     <div class="panel" style="margin-top:16px">
-      <h3>Team averages \u00b7 ${L.meta.name}</h3>
-      <div class="cardgrid smgrid">${cards}</div>
-      <div class="nlab" style="margin-top:16px">Advanced</div>
-      <div class="cardgrid smgrid">${advCards}</div>
-      <p class="hint" style="margin-top:8px">Tap any stat for the full ${L.teams.length}-team ranking \u00b7 badge = rank vs. the league \u00b7 ratings per 100 possessions.</p>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px">
+        <h3 style="margin:0">Team averages \u00b7 ${L.meta.name}</h3>
+        <div class="seg"><button class="${(STATE.tsMode||'basic')==='basic'?'active':''}" onclick="STATE.tsMode='basic';renderTeam()">Basic</button><button class="${STATE.tsMode==='adv'?'active':''}" onclick="STATE.tsMode='adv';renderTeam()">Advanced</button></div>
+      </div>
+      <div class="cardgrid smgrid">${STATE.tsMode==='adv'?advCards:cards}</div>
+      <p class="hint" style="margin-top:8px">Tap any stat for the full ${L.teams.length}-team ranking \u00b7 badge = rank vs. the league${STATE.tsMode==='adv'?' \u00b7 ratings per 100 possessions':''}.</p>
     </div>
     <div class="twocol" style="margin-top:16px">
       <div class="panel"><h3>Standings \u00b7 ${L.meta.name}</h3>
@@ -1637,7 +1668,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
 
 boot();
 </script>
