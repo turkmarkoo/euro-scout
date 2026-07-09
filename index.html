@@ -345,6 +345,12 @@ textarea.notesec{min-height:94px}
 .cmpshot{border-top:3px solid var(--cc);border-radius:10px;padding-top:8px}
 .cmpshot-nm{text-align:center;font-size:13px;font-weight:600;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--disp)}
 .cmpshot-nm .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* compare comboboxes */
+.cbx{position:relative}
+.cbxin{width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:10px 13px;border-radius:9px;font-size:13px;outline:none;box-shadow:var(--shadow)}
+.cbxin:focus{border-color:var(--accent2)}
+.cbxres{position:absolute;top:calc(100% + 6px);left:0;right:0;max-height:320px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lift);z-index:80;padding:6px}
 </style>
 </head>
 <body>
@@ -510,6 +516,7 @@ function rebuildLinks(){
   (OVR.links||[]).forEach(pr=>uni(pr[0],pr[1]));
   const groups={}; all.forEach(p=>{const r=find(p.id);(groups[r]=groups[r]||[]).push(p);});
   all.forEach(p=>{p._grp=groups[find(p.id)];});
+  STATE._idx=null;
 }
 function gid(p){return (p&&p._grp&&p._grp.length)?p._grp.map(x=>x.id).sort()[0]:(p?p.id:null);}
 function recOf(p){return Store.get(gid(p));}
@@ -634,10 +641,16 @@ function goHome(){
 }
 
 /* ---------------------------- global search (all leagues) ---------------------------- */
+function lastGameDate(p){let m="";(p.gameLog||[]).forEach(r=>{if(r[0]&&r[0]>m)m=r[0];});return m;}
+function newestOf(p){if(!p._grp||p._grp.length<2)return p;
+  return p._grp.slice().sort((a,b)=>lastGameDate(b).localeCompare(lastGameDate(a)))[0];}
 function allPlayersIndexed(){
   if(STATE._idx) return STATE._idx;
-  const idx=[];
-  STATE.data.leagues.forEach(L=>L.players.forEach(p=>idx.push({p,L})));
+  const idx=[],seen=new Set();
+  STATE.data.leagues.forEach(L=>L.players.forEach(p=>{
+    const g=gid(p); if(seen.has(g))return; seen.add(g);
+    const n=newestOf(p); idx.push({p:n,L:leagueOf(n)});
+  }));
   STATE._idx=idx; return idx;
 }
 function openGlobal(leagueId,id){
@@ -871,6 +884,13 @@ function shotChartSVG(p){
 }
 
 /* ---------- Game log ---------- */
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function fullDate(dt){if(!dt||dt.length<10)return dt||"\u2014";
+  const y=dt.slice(0,4),m=+dt.slice(5,7),d=+dt.slice(8,10);
+  return d+" "+(MONTHS[m-1]||"")+" "+y;}
+function openTeamIn(leagueId,code){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
+  if(L){STATE.allLeagues=false;STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;updateScopeLabel();}
+  openTeam(code);}
 function gameLogTable(p){
   const grp=(p._grp&&p._grp.length>1)?p._grp:[p];
   const secs=grp.filter(x=>x.gameLog&&x.gameLog.length);
@@ -882,8 +902,8 @@ function gameLogTable(p){
     const rows=x.gameLog.slice().reverse();
     body+=rows.map(g=>{const[dt,opp,ha,win,tp,op,mn,pts,fgm,fga,f3m,f3a,ftm,fta,reb,ast,stl,blk,tov,pir,pm]=g;
       const tn=(Lx.teams.find(tt=>tt.code===opp)||{}).name||opp;
-      return `<tr><td class="l" style="color:var(--muted)">${dt?dt.slice(5):'\u2014'}</td>
-        <td class="l">${ha==='A'?'@ ':'vs '}${tn}</td>
+      return `<tr><td class="l" style="color:var(--muted);white-space:nowrap">${fullDate(dt)}</td>
+        <td class="l">${ha==='A'?'@ ':'vs '}<span class="tlink" onclick="openTeamIn('${Lx.meta.id}','${opp}')">${tn}</span></td>
         <td class="l" style="color:${win?'var(--good)':'var(--bad)'}">${win?'W':'L'} ${tp}\u2013${op}</td>
         <td>${mn}</td><td><b>${pts}</b></td><td>${fgm}-${fga}</td><td>${f3m}-${f3a}</td><td>${ftm}-${fta}</td>
         <td>${reb}</td><td>${ast}</td><td>${stl}</td><td>${blk}</td><td>${tov}</td>
@@ -1142,11 +1162,13 @@ const CMP_ROWS=[["PTS","ppg",1],["REB","rpg",1],["AST","apg",1],["STL","spg",1],
 function cmpBioRow(la,lab,lb){return `<tr><td class="v">${la||"\u2013"}</td><td class="lbl">${lab}</td><td class="v">${lb||"\u2013"}</td></tr>`;}
 function renderCompare(){
   const groups=[]; const seen=new Set();
-  allPlayersFlat().filter(p=>p.qualified).forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);groups.push(p);});
+  allPlayersFlat().forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);
+    const n=newestOf(p); if(n.qualified||p._grp&&p._grp.some(x=>x.qualified))groups.push(n);});
   groups.sort((a,b)=>a.name.localeCompare(b.name));
-  const sel=(id,cur)=>`<select class="f" id="${id}" style="width:100%">
-    <option value="">\u2014 select player \u2014</option>
-    ${STATE.data.leagues.map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("")}</select>`;
+  const sel=(id,cur)=>{const curP=cur?player(cur):null;
+    return `<div class="cbx" data-cbx="${id}">
+      <input type="text" class="cbxin" id="${id}" placeholder="Search player\u2026" autocomplete="off" value="${curP?curP.name+" ("+curP.teamName+")":""}"/>
+      <div class="cbxres hidden"></div></div>`;};
   const a=STATE.compare.a?player(STATE.compare.a):null;
   const b=STATE.compare.b?player(STATE.compare.b):null;
   const cA="#D2925E", cB="#7FB3AB", ST="\u2605";
@@ -1189,8 +1211,27 @@ function renderCompare(){
     <div class="cmpsel">${sel("cmpA",STATE.compare.a)}${sel("cmpB",STATE.compare.b)}</div>
     ${body}
   </div>`;
-  $("#cmpA").onchange=e=>{STATE.compare.a=e.target.value||null;renderCompare();};
-  $("#cmpB").onchange=e=>{STATE.compare.b=e.target.value||null;renderCompare();};
+  const wireCbx=(id,slot)=>{
+    const root=$(`[data-cbx="${id}"]`); if(!root)return;
+    const inp=root.querySelector(".cbxin"), box=root.querySelector(".cbxres");
+    let results=[];
+    const close=()=>{box.classList.add("hidden");box.innerHTML="";};
+    const paint=()=>{box.innerHTML=results.map((p,i)=>{const Lp=leagueOf(p);
+      return `<div class="gsitem" data-i="${i}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<img alt=""/>'}<div class="gi"><div class="gn">${p.name}</div><div class="gm">${p.teamName} \u00b7 ${fmt(p.ppg)} pts</div></div><span class="glg">${Lp.meta.name}</span></div>`;}).join("");
+      box.classList.remove("hidden");
+      box.querySelectorAll(".gsitem").forEach(el=>el.onmousedown=e=>{e.preventDefault();
+        const p=results[+el.dataset.i]; STATE.compare[slot]=p.id; renderCompare();});};
+    inp.oninput=()=>{const q=inp.value.trim().toLowerCase();
+      if(q.length<2){close();return;}
+      results=groups.filter(p=>p.name.toLowerCase().includes(q)).slice(0,8);
+      if(!results.length){box.innerHTML='<div class="gsempty">No players found</div>';box.classList.remove("hidden");return;}
+      paint();};
+    inp.onfocus=()=>{inp.select();};
+    inp.onblur=()=>setTimeout(close,150);
+    inp.onkeydown=e=>{if(e.key==="Enter"&&results.length){STATE.compare[slot]=results[0].id;renderCompare();}
+      else if(e.key==="Escape")close();};
+  };
+  wireCbx("cmpA","a"); wireCbx("cmpB","b");
 }
 
 
@@ -1319,7 +1360,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openTeamIn,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
 
 boot();
 </script>
