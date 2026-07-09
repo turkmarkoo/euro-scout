@@ -41,7 +41,7 @@ input,textarea,select{font-family:inherit}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
 
 /* Header */
-header{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--bg) 82%, transparent);
+header{position:sticky;top:0;z-index:90;background:color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .hwrap{display:flex;align-items:center;gap:16px;padding:12px 20px;max-width:1440px;margin:0 auto;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.02em;cursor:pointer;user-select:none;line-height:1}
@@ -365,8 +365,8 @@ textarea.notesec{min-height:94px}
 .mupill{font-family:var(--mono);font-weight:700;font-size:11px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:5px 9px;cursor:pointer;transition:.12s}
 .mupill:hover{border-color:var(--accent)}
 .mupill.on{background:var(--accent);border-color:var(--accent);color:#fff}
-@media(max-width:1250px){.matchup select{display:none}.mulab{display:none}}
-@media(max-width:900px){.matchup{display:none}}
+
+
 
 /* scope chips, roster cards, sticky head, small stat cards, matchup cbx */
 .scopechips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 14px}
@@ -394,7 +394,7 @@ textarea.notesec{min-height:94px}
 .pc-stats .s:last-child{border-right:0}
 .pc-stats .v{font-family:var(--mono);font-weight:600;font-size:14.5px}
 .pc-stats .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-top:2px}
-.stickyhead{position:sticky;top:10px;z-index:60;box-shadow:var(--shadow-lift)}
+
 .cardgrid.smgrid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:9px}
 .statcard.sm{padding:9px 6px 8px;border-radius:9px}
 .statcard.sm .sc-v{font-size:16px}
@@ -404,7 +404,7 @@ textarea.notesec{min-height:94px}
 .mucbx input{width:118px;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 8px;font-size:12px;outline:none}
 .mucbx input:focus{border-color:var(--accent2)}
 .mucbx .cbxres{min-width:230px}
-@media(max-width:1250px){.mucbx{display:none}}
+
 
 /* card grid base (was missing!), 5-up small cards, team header, sticky glog separators */
 .cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px}
@@ -428,19 +428,18 @@ textarea.notesec{min-height:94px}
 .glosstab{display:inline-flex;align-items:center;gap:6px}
 .glosslab{font-size:13px}
 .cbxsel{margin-top:7px;width:100%}
-@media(max-width:1100px){
-  header{position:static}
+@media(max-width:1180px){
   .logotext{display:none}
-  .hrow2{flex-wrap:wrap}
-  .mucbx{display:inline-block!important}
-  .mucbx input{width:104px}
-  nav.tabs button{padding:7px 11px;font-size:13px}
   .glosslab{display:none}
+  nav.tabs button{padding:7px 11px;font-size:13px}
+  .mucbx input{width:120px}
 }
 @media(max-width:760px){
-  .hwrap{gap:10px;padding:10px 14px}
-  .gsearch input{min-width:150px}
+  .hwrap{gap:10px;padding:9px 13px}
+  .gsearch input{min-width:140px}
   .matchup .mulab{display:none}
+  .mucbx input{width:104px}
+  .hrow2{gap:8px}
 }
 
 /* profile switcher */
@@ -462,7 +461,12 @@ textarea.notesec{min-height:94px}
 .sttbl .stgrouprow td{font-family:var(--disp);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-deep);background:var(--accent-soft);padding:6px 10px}
 .sttbl .pfpa{font-family:var(--mono);color:var(--muted);font-size:12px}
 /* sticky profile header must sit under the site header */
-.stickyhead{top:8px;z-index:40}
+.stickyhead{position:sticky;top:var(--stick-top,120px);z-index:70;box-shadow:var(--shadow-lift)}
+.teamhead-panel{position:sticky;top:var(--stick-top,120px);z-index:70;box-shadow:var(--shadow-lift)}
+
+.scopeflag{font-family:var(--mono);font-size:10.5px;color:var(--muted2);letter-spacing:.04em;padding:3px 8px;border:1px dashed var(--line);border-radius:6px}
+.matchup{display:flex!important}
+.mucbx{display:inline-block!important}
 </style>
 </head>
 <body>
@@ -794,9 +798,11 @@ async function boot(){
   if(home){home.onclick=goHome;home.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();goHome();}}}
   $$("#scopeSeg button").forEach(b=>b.onclick=()=>{STATE.profileScope=b.dataset.scope;
     $$("#scopeSeg button").forEach(x=>x.classList.toggle("active",x===b));
+    if(STATE.view==="team"){renderTeam();return;}
     if(STATE.view==="profile")renderProfile();});
   updateScopeLabel();
   wireGlobalSearch();
+  syncStickyTop();
   renderAuth(); render();
 }
 
@@ -884,7 +890,7 @@ function authClick(){
 }
 
 /* ---------------------------- render ---------------------------- */
-function render(){
+function render(){if(typeof syncStickyTop==="function")setTimeout(syncStickyTop,0);
   const v=STATE.view;
   if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
@@ -1152,6 +1158,10 @@ function openProfile(id){CURRENT=id;const _p=player(id);if(_p){const _L=leagueOf
 function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
   if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
 function applyTheme(t){document.documentElement.dataset.theme="light";}
+function syncStickyTop(){const h=document.querySelector("header");if(!h)return;
+  const hb=h.getBoundingClientRect(); const off=(getComputedStyle(h).position==="sticky"?hb.height:0)+10;
+  document.documentElement.style.setProperty("--stick-top",off+"px");}
+window.addEventListener("resize",()=>{clearTimeout(window.__st);window.__st=setTimeout(syncStickyTop,120);});
 function toggleTheme(){}
 /* ---------- profile ranking helpers + leaderboards ---------- */
 const STAT_FMT={ppg:1,rpg:1,apg:1,spg:1,bpg:1,topg:1,mpg:1,pir:1,eff:1,usg:1,
@@ -1522,6 +1532,7 @@ function teamGroup(lid,code){
   out.sort((a,b)=>STATE.data.leagues.findIndex(x=>x.meta.id===a.league)-STATE.data.leagues.findIndex(x=>x.meta.id===b.league));
   return out;
 }
+function teamScopeAll(){return STATE.profileScope==="all";}
 function teamAgg(L){
   STATE._tagg=STATE._tagg||{};
   if(STATE._tagg[L.meta.id])return STATE._tagg[L.meta.id];
@@ -1563,8 +1574,15 @@ const TEAM_CARDS_ADV=[["pace","PACE",1],["ortg","ORTG",1],["drtg","DRTG",0],["ef
   ["astpct","AST%",1],["tovpct","TOV%",0],["f3ar","3PA RATE",1],["ftr","FT RATE",1],
   ["orebdiff","REB DIFF",1],["oppfgp","OPP FG%",0],["oppf3p","OPP 3P%",0],["oppefg","OPP eFG%",0]];
 function teamRank(L,code,k,hi){
+  let vals;
+  if(teamScopeAll()){
+    vals=[];STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))vals.push({c:Lx.meta.id+":"+t.code,v});});});
+    vals.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
+    const i=vals.findIndex(x=>x.c===L.meta.id+":"+code);
+    return {rank:i+1,n:vals.length};
+  }
   const agg=teamAgg(L);
-  const vals=L.teams.map(t=>({c:t.code,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));
+  vals=L.teams.map(t=>({c:t.code,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));
   vals.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
   const i=vals.findIndex(x=>x.c===code);
   return {rank:i+1,n:vals.length};
@@ -1573,13 +1591,16 @@ function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]
 function tRankColor(rank,n){const pct=n>1?(n-rank)/(n-1)*100:50;
   return pct>=67?"var(--good)":pct>=34?"#C99A3C":"var(--accent-deep)";}
 function openTeamBoard(k,label,hi){
-  const L=STATE.league,agg=teamAgg(L);
-  const rows=L.teams.map(t=>({t,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));
+  const all=teamScopeAll();
+  let rows=[];
+  if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
+  else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  showModal('<h3>'+label+' \u2014 '+L.meta.name+' teams</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
-    rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM?"me":"")+'" data-tc="'+r.t.code+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+'</td><td class="v">'+(k==="net"&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA"};
+  showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
+    rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
-  $$("#modal tr[data-tc]").forEach(tr=>tr.onclick=()=>{hideModal();openTeam(tr.dataset.tc);});
+  $$("#modal tr[data-tc]").forEach(tr=>tr.onclick=()=>{hideModal();openTeamIn(tr.dataset.lg,tr.dataset.tc);});
   const me=$("#modal tr.me");if(me)me.scrollIntoView({block:"center"});
 }
 function renderTeams(){
@@ -1614,7 +1635,8 @@ function openTeam(code){CURRENT_TEAM=code;STATE.view="team";
 function renderTeam(){
   const L=STATE.league, t=L.teams.find(x=>x.code===CURRENT_TEAM);
   if(!t){STATE.view="teams";render();return;}
-  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>(parseInt(a.jersey)||999)-(parseInt(b.jersey)||999)||b.ppg-a.ppg);
+  const jn=p=>{const v=(p.jersey===0||p.jersey==="0")?0:parseInt(p.jersey);return isNaN(v)?999:v;};
+  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>jn(a)-jn(b)||b.ppg-a.ppg);
   const grp=teamGroup(L.meta.id,t.code);
   const agg=teamAgg(L)[t.code]||{};
   const mkCards=list=>list.map(([k,lab,hi])=>{
@@ -1646,7 +1668,7 @@ function renderTeam(){
       <td style="color:${x.net>0?"var(--good)":x.net<0?"var(--bad)":"var(--muted)"}">${x.net>0?"+":""}${fmt(x.net)}</td></tr>`;});
   $("#app").innerHTML=`<div class="view">
     <button class="backlink" onclick="STATE.view='teams';render()">\u2190 Back to teams</button>
-    <div class="panel">
+    <div class="panel teamhead-panel">
       <div class="teamhead">
         <div class="teamcrest">${t.code}</div>
         <div style="flex:1;min-width:220px">
@@ -1669,6 +1691,7 @@ function renderTeam(){
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px">
         <h3 style="margin:0">Team averages \u00b7 ${L.meta.name}</h3>
         <div class="seg"><button class="${(STATE.tsMode||'basic')==='basic'?'active':''}" onclick="STATE.tsMode='basic';renderTeam()">Basic</button><button class="${STATE.tsMode==='adv'?'active':''}" onclick="STATE.tsMode='adv';renderTeam()">Advanced</button></div>
+        <span class="scopeflag">ranked ${STATE.profileScope==='all'?'across all competitions':'in '+L.meta.name}</span>
       </div>
       <div class="cardgrid smgrid">${STATE.tsMode==='adv'?advCards:cards}</div>
       <p class="hint" style="margin-top:8px">Tap any stat for the full ${L.teams.length}-team ranking \u00b7 badge = rank vs. the league${STATE.tsMode==='adv'?' \u00b7 ratings per 100 possessions':''}.</p>
