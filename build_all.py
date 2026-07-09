@@ -173,6 +173,23 @@ def build_league(cfg):
             "qualified":G>=MIN_GAMES and (mp/G)>=MIN_MPG,"gameLog":glog,
         })
 
+    sp=os.path.join(RAW,f"{lid}_shots.txt")
+    if os.path.exists(sp):
+        smap={}
+        for line in open(sp,encoding="utf-8"):
+            parts=line.strip().split("|")
+            if len(parts)<2: continue
+            z={}
+            for seg in parts[1:]:
+                if ":" not in seg or "-" not in seg: continue
+                zone,ma=seg.split(":",1); m,at=ma.split("-",1)
+                try: z[zone]=[int(m),int(at)]
+                except: pass
+            if z: smap[parts[0]]=z
+        n=0
+        for p in players:
+            if p["code"] in smap: p["shots"]=smap[p["code"]]; n+=1
+        print(f"  {lid}: merged shots for {n} players")
     metrics=["ppg","rpg","apg","spg","bpg","topg","fgp","f3p","ftp","efg","ts","pir","eff",
              "pts40","reb40","ast40","stl40","blk40","usg","mpg"]
     qual=[p for p in players if p["qualified"]]

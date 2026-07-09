@@ -11,6 +11,24 @@
   --good:#22c55e; --mid:#eab308; --bad:#ef4444; --chip:#232b3d;
   --radius:12px; font-synthesis:none;
 }
+html[data-theme="light"]{
+  --bg:#eceef2; --bg2:#e1e6ec; --panel:#ffffff; --panel2:#f2f4f8; --line:#d5dbe4;
+  --txt:#1a2230; --muted:#5c6675; --accent:#f97316; --accent2:#16a34a;
+  --good:#15a34a; --mid:#d97706; --bad:#dc2626; --chip:#e9edf3;
+}
+html[data-theme="light"] header{background:rgba(255,255,255,.9)}
+html[data-theme="light"] .badge.role{background:#dcfce7;color:#15803d}
+html[data-theme="light"] .btn,html[data-theme="light"] .seg button.active,html[data-theme="light"] .comptab.active{color:#fff}
+html[data-theme="light"] .logo .mark{color:#fff}
+html[data-theme="light"] ::-webkit-scrollbar-thumb{background:#c4ccd8}
+html[data-theme="light"] .avatar{color:#fff}
+.shotchart{width:100%;max-width:330px;display:block;margin:2px auto}
+.shotwrap{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center}
+.shotkey{font-size:11px;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.shotkey i{width:11px;height:11px;border-radius:3px;display:inline-block;vertical-align:-1px}
+html[data-theme="light"] .tag{color:#334155}
+html[data-theme="light"] .starbtn{color:#b3bdcc}
+html[data-theme="light"] .rating button{color:#c2cad6}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--txt);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -66,7 +84,7 @@ thead th{position:sticky;top:0;background:var(--panel2);color:var(--muted);text-
 thead th.l{text-align:left}
 thead th:hover{color:var(--txt)}
 thead th.sorted{color:var(--accent)}
-tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid #212838}
+tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line)}
 tbody td.l{text-align:left}
 tbody tr:hover{background:var(--panel2)}
 tbody tr{cursor:pointer}
@@ -183,6 +201,7 @@ table.glog th,table.glog td{padding:6px 9px}
     </nav>
     <span class="spacer"></span>
     <select class="leaguesel" id="leagueSel"></select>
+    <button class="authbtn" id="themeBtn" title="Toggle light/dark">☀ Light</button>
     <button class="authbtn" id="authBtn">Sign in</button>
   </div>
 </header>
@@ -193,6 +212,7 @@ table.glog th,table.glog td{padding:6px 9px}
 <script src="data/data.js"></script>
 <script>
 /* ============================ EuroScout app ============================ */
+try{document.documentElement.dataset.theme=localStorage.getItem('euroscout:theme')||'dark';}catch(e){}
 const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
 const fmt = (v,d=1)=> (v===undefined||v===null||isNaN(v))?"—":Number(v).toFixed(d);
@@ -293,6 +313,7 @@ async function boot(){
   $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;
     $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
   $("#authBtn").onclick=authClick;
+  $("#themeBtn").onclick=toggleTheme; applyTheme(document.documentElement.dataset.theme||"dark");
   renderAuth(); render();
 }
 
@@ -430,6 +451,42 @@ function radarSVG(players,colors){
   return `<svg class="radar" viewBox="0 0 ${size} ${size}">${g}</svg>`;
 }
 
+/* ---------- Shot chart ---------- */
+const SHOT_ZONES={
+  W3_L:[6,18,80,120,3],TOP3:[100,8,100,64,3],W3_R:[214,18,80,120,3],
+  C3_L:[6,146,80,106,3],C3_R:[214,146,80,106,3],
+  MID_C:[100,80,100,52,2],MID_L:[86,136,42,116,2],MID_R:[172,136,42,116,2],
+  PAINT:[128,118,44,82,2],RIM:[126,204,48,48,2]};
+function ppaColor(m,a,three){const ppa=(m*(three?3:2))/a;
+  const t=Math.max(0,Math.min(1,(ppa-0.7)/(1.4-0.7)));
+  const r=Math.round(239-(239-34)*t),g=Math.round(68+(197-68)*t),b=Math.round(68+(94-68)*t);
+  return `rgb(${r},${g},${b})`;}
+function shotChartSVG(p){
+  const S=p.shots;
+  if(!S||!Object.keys(S).length) return '<p class="hint">Shot-location data not loaded for this player. Run <code>scraper_shots.py</code> to populate shot charts (see README).</p>';
+  const maxA=Math.max(1,...Object.values(S).map(v=>v[1]));
+  let tm=0,ta=0,t3m=0,t3a=0,svg=`<svg viewBox="0 0 300 260" class="shotchart">`;
+  svg+=`<rect x="1.5" y="1.5" width="297" height="257" rx="8" fill="var(--bg2)" stroke="var(--line)"/>`;
+  for(const z in SHOT_ZONES){const [x,y,w,ht,pts]=SHOT_ZONES[z];const v=S[z];
+    if(v&&v[1]>0){const [m,a]=v;const three=pts===3;const op=(0.28+0.6*(a/maxA)).toFixed(2);
+      ta+=a;tm+=m;if(three){t3a+=a;t3m+=m;}
+      svg+=`<rect x="${x}" y="${y}" width="${w}" height="${ht}" rx="5" fill="${ppaColor(m,a,three)}" fill-opacity="${op}" stroke="var(--line)"/>`;
+      svg+=`<text x="${x+w/2}" y="${y+ht/2-1}" text-anchor="middle" font-size="12" font-weight="800" fill="#0d1017">${m}/${a}</text>`;
+      svg+=`<text x="${x+w/2}" y="${y+ht/2+11}" text-anchor="middle" font-size="9" fill="#0d1017" opacity="0.8">${Math.round(m/a*100)}%</text>`;
+    } else svg+=`<rect x="${x}" y="${y}" width="${w}" height="${ht}" rx="5" fill="none" stroke="var(--line)" stroke-dasharray="2 3"/>`;
+  }
+  svg+=`<circle cx="150" cy="228" r="7" fill="none" stroke="var(--muted)" stroke-width="1.5"/>`;
+  svg+=`<path d="M18 254 A146 150 0 0 1 282 254" fill="none" stroke="var(--muted)" stroke-dasharray="3 3" opacity="0.55"/>`;
+  svg+=`</svg>`;
+  const fg=ta?Math.round(tm/ta*100):0, tp=t3a?Math.round(t3m/t3a*100):0;
+  return `<div class="shotwrap">${svg}<div><div class="shotkey"><span>Colour = points per attempt:</span><i style="background:rgb(239,68,68)"></i>cold <i style="background:rgb(136,133,80)"></i> <i style="background:rgb(34,197,94)"></i>hot</div>
+    <div style="margin-top:10px;font-size:13px;color:var(--muted);line-height:1.8">
+    Field goals: <b style="color:var(--txt)">${tm}/${ta}</b> (${fg}%)<br>
+    Two-pointers: <b style="color:var(--txt)">${tm-t3m}/${ta-t3a}</b><br>
+    Three-pointers: <b style="color:var(--txt)">${t3m}/${t3a}</b> (${tp}%)<br>
+    <span class="hint">Box size = shot volume · label = made/attempted.</span></div></div></div>`;
+}
+
 /* ---------- Game log ---------- */
 function gameLogTable(p){
   if(!p.gameLog||!p.gameLog.length) return '<p class="hint">No game log available.</p>';
@@ -456,6 +513,9 @@ function openProfile(id){CURRENT=id;STATE.view="profile";
   $$("#tabs button").forEach(x=>x.classList.remove("active"));renderProfile();}
 function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
   if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
+function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('euroscout:theme',t);}catch(e){}
+  const b=$("#themeBtn");if(b)b.textContent=(t==='light')?'☾ Dark':'☀ Light';}
+function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='light'?'dark':'light');}
 function renderProfile(){
   const p=player(CURRENT),L=STATE.league,rec=Store.get(p.id);
   const t=L.teams.find(x=>x.code===p.team);
@@ -508,6 +568,10 @@ function renderProfile(){
           ${fmt(p.stl40)} stl · ${fmt(p.blk40)} blk · ${fmt(p.tov40)} to.
         </div>
       </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>Shot chart · ${L.meta.season}</h3>
+      ${shotChartSVG(p)}
     </div>
     <div class="panel" style="margin-top:16px">
       <h3>Game log · ${p.g} games · ${L.meta.season}</h3>
@@ -707,7 +771,7 @@ function showModal(html){let m=$("#modal");if(!m){m=document.createElement("div"
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,toggleTheme,$,$$});
 
 boot();
 </script>
