@@ -321,6 +321,30 @@ textarea.notesec{min-height:94px}
 .lnkres{max-height:220px;overflow:auto;margin-top:6px}
 #linkSearch{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;outline:none;margin-top:6px}
 #linkSearch:focus{border-color:var(--accent2)}
+
+/* big watch star, avatar zoom, compare */
+.bigstar{background:none;border:0;font-size:30px;line-height:1;color:var(--muted2);padding:0 2px;cursor:pointer;transition:.12s}
+.bigstar:hover{color:var(--accent);transform:scale(1.12)}
+.bigstar.on{color:var(--accent)}
+.avatar.zoomable{cursor:zoom-in}
+.avatar.zoomable:hover{box-shadow:0 0 0 2px var(--accent)}
+.photobox{position:relative;max-width:min(430px,92vw)}
+.photobox img{width:100%;border-radius:18px;display:block;box-shadow:var(--shadow-lift);background:var(--panel2)}
+.photobox .close{top:8px;right:10px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.photoname{text-align:center;font-family:var(--disp);font-weight:600;font-size:16px;margin-top:10px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.cmptbl{width:100%;border-collapse:collapse}
+.cmptbl th,.cmptbl td{padding:7px 8px;border-bottom:1px solid var(--line-soft)}
+.cmptbl .nm{font-family:var(--disp);font-weight:700;font-size:15px;text-align:center;cursor:pointer}
+.cmptbl .nm:hover{text-decoration:underline}
+.cmptbl .lbl{color:var(--muted);text-align:center;width:82px;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono)}
+.cmptbl td.v{text-align:center;font-size:14px;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--txt)}
+.cmptbl td.win{color:var(--accent-deep);font-weight:700;background:var(--accent-soft)}
+.cmptbl tr.cmpdiv td{padding:0;border-bottom:2px solid var(--line)}
+.cmpshots{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.cmpshots{grid-template-columns:1fr}}
+.cmpshot{border-top:3px solid var(--cc);border-radius:10px;padding-top:8px}
+.cmpshot-nm{text-align:center;font-size:13px;font-weight:600;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--disp)}
+.cmpshot-nm .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
 </style>
 </head>
 <body>
@@ -487,6 +511,33 @@ function rebuildLinks(){
   const groups={}; all.forEach(p=>{const r=find(p.id);(groups[r]=groups[r]||[]).push(p);});
   all.forEach(p=>{p._grp=groups[find(p.id)];});
 }
+function gid(p){return (p&&p._grp&&p._grp.length)?p._grp.map(x=>x.id).sort()[0]:(p?p.id:null);}
+function recOf(p){return Store.get(gid(p));}
+async function saveRec(p,patch){return Store.save(gid(p),patch);}
+function mergeGroupRecords(){
+  const seen=new Set();
+  allPlayersFlat().forEach(p=>{
+    if(!p._grp||p._grp.length<2)return;
+    const g=gid(p); if(seen.has(g))return; seen.add(g);
+    const recs=p._grp.map(x=>Store.get(x.id));
+    const base={...Store.get(g)};
+    let dirty=false;
+    for(const r of recs){
+      if(r.rating>(base.rating||0)){base.rating=r.rating;dirty=true;}
+      if(r.watch&&!base.watch){base.watch=true;dirty=true;}
+      (r.tags||[]).forEach(t=>{base.tags=base.tags||[];if(!base.tags.includes(t)){base.tags.push(t);dirty=true;}});
+      if(r.report&&r.report!==base.report){
+        const a=parseReport(base.report||""),b=parseReport(r.report);
+        const keys=["nAth","nOff","nDef","nIntel","nProj"];let ch=false;
+        keys.forEach(k=>{const av=(a[k]||"").trim(),bv=(b[k]||"").trim();
+          if(!av&&bv){a[k]=bv;ch=true;}
+          else if(av&&bv&&av!==bv&&!av.includes(bv)){a[k]=av+"\n\u2014\n"+bv;ch=true;}});
+        if(ch){base.report=JSON.stringify(a);dirty=true;}
+      }
+    }
+    if(dirty)Store.save(g,base);
+  });
+}
 function ovrExportBlob(){ const body="window.EUROSCOUT_OVERRIDES="+JSON.stringify(ovrMerged(),null,2)+";\n";
   const blob=new Blob([body],{type:"application/javascript"}); const url=URL.createObjectURL(blob);
   const a=document.createElement("a"); a.href=url; a.download="overrides.js"; a.click(); setTimeout(()=>URL.revokeObjectURL(url),3000);
@@ -548,6 +599,7 @@ async function boot(){
   }));
   OVR=ovrMerged(); applyOverrides(); rebuildLinks();
   await Store.load();
+  mergeGroupRecords();
   const sel=$("#leagueSel"); sel.innerHTML="";
   const allOpt=document.createElement("option");allOpt.value="__all__";allOpt.textContent="All leagues";sel.appendChild(allOpt);
   raw.leagues.forEach(l=>{const o=document.createElement("option");o.value=l.meta.id;
@@ -654,7 +706,6 @@ function render(){
   const v=STATE.view;
   if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
-  else if(v==="bigboard") renderBigBoard();
   else if(v==="watchlist") renderWatchlist();
   else if(v==="teams") renderTeams();
   else if(v==="glossary") renderGlossary();
@@ -712,7 +763,7 @@ function renderPlayers(){
     </table></div>
   </div>`;
   const upd=()=>{const rows=filterSort();$("#tb").innerHTML=rows.map((p,i)=>{
-    const rec=Store.get(p.id), lg=leagueOf(p);
+    const rec=recOf(p), lg=leagueOf(p);
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
@@ -960,7 +1011,7 @@ function openLeaguePlayers(lgid){const L=STATE.data.leagues.find(l=>l.meta.id===
 function renderProfile(){
   const p=player(CURRENT);
   if(!p){STATE.view="players";$$("#tabs button").forEach((x,i)=>x.classList.toggle("active",i===0));renderPlayers();return;}
-  const L=STATE.league,rec=Store.get(p.id);
+  const L=STATE.league,rec=recOf(p);
   const t=L.teams.find(x=>x.code===p.team);
   const rep=parseReport(rec.report);
   const pool=scopePool(p), scopeName=leagueOf(p).meta.name;
@@ -969,16 +1020,16 @@ function renderProfile(){
     <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">\u2190 Back to players</button>
     <div class="panel">
       <div class="profhead">
-        <div class="avatar">${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
+        <div class="avatar${p.img?' zoomable':''}" ${p.img?`onclick="showPhoto('${p.img}','${p.name.replace(/'/g,"")}')" title="View photo"`:''}>${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
         <div class="phmain">
-          <div class="phname">${p.jersey?`<span class="jnum">#${p.jersey}</span>`:''}<h1>${p.name}</h1>${rec.rating?`<span class="phstars">${"★".repeat(rec.rating)}</span>`:""}</div>
+          <div class="phname">${p.jersey?`<span class="jnum">#${p.jersey}</span>`:''}<h1>${p.name}</h1><button class="bigstar ${rec.watch?'on':''}" id="watchToggle" title="${rec.watch?'On watchlist — tap to remove':'Add to watchlist'}">${rec.watch?'★':'☆'}</button>${rec.rating?`<span class="phstars">${"★".repeat(rec.rating)}</span>`:""}</div>
           <div class="phclub">
             ${t?`<span class="tlink" onclick="openTeam('${t.code}')">${t.name}</span>`:`<span>${p.teamName}</span>`}
             <span class="phsep">·</span>
             <span class="tlink" onclick="openLeaguePlayers('${p.league}')">${L.meta.name} ${L.meta.season}</span>
             ${p.multiTeam?' <span class="badge">2 clubs</span>':''}
             ${p.qualified?'':' <span class="badge">below min</span>'}
-            ${p._ext?` <a class="extlink" href="${p._ext}" target="_blank" rel="noopener">↗ profile</a>`:''}
+            ${p._ext?` <a class="extlink" href="${p._ext}" target="_blank" rel="noopener">↗ Eurobasket profile</a>`:''}
           </div>
           <div class="biochips">
             ${p.height?`<span class="biochip"><b>${(p.height/100).toFixed(2)} m</b></span>`:''}
@@ -990,7 +1041,6 @@ function renderProfile(){
           ${(p._grp&&p._grp.length>1)?`<div class="comptabs"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${p._grp.map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')" title="${leagueOf(c).meta.name} · ${c.teamName}">${leagueOf(c).meta.name}</button>`).join('')}</div>`:''}
         </div>
         <div class="phactions">
-          <button class="btn ghost sm" id="watchToggle">${rec.watch?"★ On watchlist":"☆ Watchlist"}</button>
           <button class="btn ghost sm" onclick="document.getElementById('reportPanel').scrollIntoView({behavior:'smooth',block:'start'})">Notes</button>
           <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[1].classList.add('active');render()">Compare ▸</button>
           <button class="btn ghost sm" onclick="openEditModal('${p.id}')">✎ Edit</button>
@@ -1059,8 +1109,8 @@ function renderProfile(){
     </div>
   </div>`;
   $$("#rating button").forEach(b=>b.onclick=async()=>{const n=+b.dataset.n;
-    const cur=Store.get(p.id).rating; const val=(cur===n)?0:n;
-    await Store.save(p.id,{rating:val});renderProfile();});
+    const cur=recOf(p).rating; const val=(cur===n)?0:n;
+    await saveRec(p,{rating:val});renderProfile();});
   $$("#app [data-mode]").forEach(b=>b.onclick=()=>{STATE.statMode=b.dataset.mode;renderProfile();});
   $$("#app .statcard.clk").forEach(c=>c.onclick=()=>openLeaderboard(c.dataset.k,c.querySelector('.sc-k').textContent));
   $$("#app .biochip.clk").forEach(c=>c.onclick=()=>filterByAttr(c.dataset.filter,c.dataset.val,c.dataset.lab));
@@ -1068,114 +1118,94 @@ function renderProfile(){
   $("#watchToggle").onclick=async()=>{await toggleWatch(p.id);renderProfile();};
   const NKEYS=["nAth","nOff","nDef","nIntel","nProj"];
   const gather=()=>{const o={};NKEYS.forEach(k=>{const el=$("#"+k);if(el)o[k]=el.value;});return o;};
-  const saveReport=async(msg)=>{await Store.save(p.id,{report:JSON.stringify(gather())});$("#saveState").textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
+  const saveReport=async(msg)=>{await saveRec(p,{report:JSON.stringify(gather())});$("#saveState").textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
   $("#saveBtn").onclick=()=>{saveReport("saved").then(()=>toast("Report saved"));};
   let tmr;NKEYS.forEach(k=>{const el=$("#"+k);if(el)el.oninput=()=>{$("#saveState").textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};});
 }
 
 function renderTags(p){
-  const rec=Store.get(p.id),host=$("#tags");
+  const rec=recOf(p),host=$("#tags");
   const preset=["Buy","Watch","Pass","Upside","Ready now","Shooter","Defender","Playmaker","Injury risk"];
   host.innerHTML=rec.tags.map(t=>`<span class="tag">${t}<button data-del="${t}">✕</button></span>`).join("")
     +`<select class="f" id="tagAdd" style="padding:4px 8px"><option value="">+ tag</option>
       ${preset.filter(t=>!rec.tags.includes(t)).map(t=>`<option>${t}</option>`).join("")}</select>`;
   $$("#tags [data-del]").forEach(b=>b.onclick=async()=>{
-    await Store.save(p.id,{tags:Store.get(p.id).tags.filter(x=>x!==b.dataset.del)});renderTags(p);});
+    await saveRec(p,{tags:recOf(p).tags.filter(x=>x!==b.dataset.del)});renderTags(p);});
   $("#tagAdd").onchange=async e=>{if(!e.target.value)return;
-    await Store.save(p.id,{tags:[...Store.get(p.id).tags,e.target.value]});renderTags(p);};
+    await saveRec(p,{tags:[...recOf(p).tags,e.target.value]});renderTags(p);};
 }
-async function toggleWatch(id){const r=Store.get(id);await Store.save(id,{watch:!r.watch});
+async function toggleWatch(id){const p=player(id)||{id};const r=recOf(p);await saveRec(p,{watch:!r.watch});
   toast(!r.watch?"Added to watchlist":"Removed from watchlist");}
-async function toggleBoard(id){const r=Store.get(id);
-  if(r.board!=null){await Store.save(id,{board:null});toast("Removed from big board");}
-  else{const max=Math.max(0,...leaguePlayers().map(p=>Store.get(p.id).board??0));
-    await Store.save(id,{board:max+1});toast("Added to big board");}}
 
 /* ---------- Compare ---------- */
+const CMP_ROWS=[["PTS","ppg",1],["REB","rpg",1],["AST","apg",1],["STL","spg",1],["BLK","bpg",1],["TO","topg",0],["MIN","mpg",1],["FG%","fgp",1],["3P%","f3p",1],["FT%","ftp",1],["TS%","ts",1],["USG%","usg",1],["A/TO","astto",1],["PIR","pir",1]];
+function cmpBioRow(la,lab,lb){return `<tr><td class="v">${la||"\u2013"}</td><td class="lbl">${lab}</td><td class="v">${lb||"\u2013"}</td></tr>`;}
 function renderCompare(){
-  const L=STATE.league, opts=L.players.filter(p=>p.qualified)
-    .sort((a,b)=>a.name.localeCompare(b.name));
+  const groups=[]; const seen=new Set();
+  allPlayersFlat().filter(p=>p.qualified).forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);groups.push(p);});
+  groups.sort((a,b)=>a.name.localeCompare(b.name));
   const sel=(id,cur)=>`<select class="f" id="${id}" style="width:100%">
-    <option value="">— select player —</option>
-    ${opts.map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</select>`;
+    <option value="">\u2014 select player \u2014</option>
+    ${STATE.data.leagues.map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("")}</select>`;
   const a=STATE.compare.a?player(STATE.compare.a):null;
   const b=STATE.compare.b?player(STATE.compare.b):null;
-  $("#app").innerHTML=`<div class="view">
-    <h1 class="title">Compare players</h1>
-    <div class="sub">Side-by-side percentiles and rates within <b>${L.meta.name}</b>. Cross-league
-      comparison uses per-40 rates and z-scores once you load more leagues.</div>
-    <div class="cmpsel">${sel("cmpA",STATE.compare.a)}${sel("cmpB",STATE.compare.b)}</div>
-    ${(a||b)?`
+  const cA="#D2925E", cB="#7FB3AB", ST="\u2605";
+  let body='<div class="empty">Pick two players to compare.</div>';
+  if(a&&b&&a!==b){
+    const statRows=CMP_ROWS.map(([lab,k,hi])=>{
+      const va=a[k],vb=b[k];let wa="",wb="";
+      if(va!=null&&vb!=null&&!isNaN(va)&&!isNaN(vb)&&va!==vb){const aw=hi?va>vb:va<vb;if(aw)wa=" win";else wb=" win";}
+      return `<tr><td class="v${wa}">${wa?ST+" ":""}${statVal(a,k)}</td><td class="lbl">${lab}</td><td class="v${wb}">${statVal(b,k)}${wb?" "+ST:""}</td></tr>`;}).join("");
+    const bioRows=cmpBioRow(a.height?(a.height/100).toFixed(2)+" m":"","HEIGHT",b.height?(b.height/100).toFixed(2)+" m":"")
+      +cmpBioRow(a.born,"BORN",b.born)
+      +cmpBioRow(a.teamName,"CLUB",b.teamName)
+      +cmpBioRow((a.pos&&a.pos!=="-")?a.pos:a.role,"POS",(b.pos&&b.pos!=="-")?b.pos:b.role)
+      +cmpBioRow(a.country,"COUNTRY",b.country)
+      +cmpBioRow(leagueOf(a).meta.name,"LEAGUE",leagueOf(b).meta.name);
+    body=`
     <div class="twocol">
-      <div class="panel"><h3>Overlay (per-40 percentiles)</h3>
-        ${radarSVG([a,b],["#7FB3AB","#D2925E"])}
-        <div class="legend">${a?`<span><span class="dot" style="background:#7FB3AB"></span>${a.name}</span>`:""}
-          ${b?`<span><span class="dot" style="background:#D2925E"></span>${b.name}</span>`:""}</div>
+      <div class="panel"><h3>Percentile overlay (per-40)</h3>
+        ${radarSVG([a,b],[cB,cA])}
+        <div class="legend"><span><span class="dot" style="background:${cB}"></span>${a.name}</span><span><span class="dot" style="background:${cA}"></span>${b.name}</span></div>
       </div>
       <div class="panel"><h3>Head to head</h3>
-        <div class="tablewrap" style="border:0">
-        <table class="cmptable"><thead><tr><th class="l">STAT</th>
-          <th class="p1">${a?a.name.split(" ").slice(-1):"—"}</th>
-          <th class="p2">${b?b.name.split(" ").slice(-1):"—"}</th></tr></thead>
-        <tbody>${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],
-          ["topg","TO"],["fgp","FG%"],["f3p","3P%"],["ftp","FT%"],["ts","TS%"],
-          ["pts40","PTS/40"],["reb40","REB/40"],["ast40","AST/40"],["pir","PIR"],["mpg","MPG"]]
-          .map(([k,lab])=>{const av=a?a[k]:null,bv=b?b[k]:null;
-            const aw=(a&&b)&&av>bv,bw=(a&&b)&&bv>av;
-            return `<tr><td class="l" style="color:var(--muted)">${lab}</td>
-              <td class="p1" style="font-weight:${aw?800:400}">${fmt(av)}</td>
-              <td class="p2" style="font-weight:${bw?800:400}">${fmt(bv)}</td></tr>`;}).join("")}
-        </tbody></table></div>
+        <table class="cmptbl">
+          <thead><tr><th class="nm" onclick="openProfile('${a.id}')" style="color:${cB}">${a.name}</th><th class="k"></th><th class="nm" onclick="openProfile('${b.id}')" style="color:${cA}">${b.name}</th></tr></thead>
+          <tbody>${bioRows}<tr class="cmpdiv"><td colspan="3"></td></tr>${statRows}</tbody>
+        </table>
+        <p class="hint" style="margin-top:8px">${ST} = better value \u00b7 stats within each player's own competition.</p>
       </div>
-    </div>`:'<div class="empty">Pick one or two players to compare.</div>'}
+    </div>
+    <div class="panel" style="margin-top:16px"><h3>Shot chart by zones</h3>
+      <div class="cmpshots">
+        <div class="cmpshot" style="--cc:${cB}">${shotChartSVG(a)}<div class="cmpshot-nm"><span class="sw" style="background:${cB}"></span>${a.name}</div></div>
+        <div class="cmpshot" style="--cc:${cA}">${shotChartSVG(b)}<div class="cmpshot-nm"><span class="sw" style="background:${cA}"></span>${b.name}</div></div>
+      </div>
+    </div>`;
+  }
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Compare players</h1>
+    <div class="sub">Pick any two players from any competition \u00b7 bio, stats head-to-head and shot charts.</div>
+    <div class="cmpsel">${sel("cmpA",STATE.compare.a)}${sel("cmpB",STATE.compare.b)}</div>
+    ${body}
   </div>`;
   $("#cmpA").onchange=e=>{STATE.compare.a=e.target.value||null;renderCompare();};
   $("#cmpB").onchange=e=>{STATE.compare.b=e.target.value||null;renderCompare();};
 }
 
-/* ---------- Big board ---------- */
-function renderBigBoard(){
-  const L=STATE.league;
-  let list=L.players.filter(p=>Store.get(p.id).board!=null)
-    .sort((a,b)=>Store.get(a.id).board-Store.get(b.id).board);
-  $("#app").innerHTML=`<div class="view">
-    <h1 class="title">Big Board</h1>
-    <div class="sub">Your personal ranking. Add players from their profile, then reorder.
-      ${Store.enabled&&!Store.user?"<b>Sign in to sync across devices.</b>":""}</div>
-    ${list.length?`<div class="bb" id="bb">${list.map((p,i)=>`
-      <div class="bbrow" data-id="${p.id}">
-        <div class="bbrank">${i+1}</div>
-        <div class="bbinfo"><div class="n">${p.name}</div>
-          <div class="m">${p.teamName} · ${p.role} · ${fmt(p.ppg)} pts / ${fmt(p.rpg)} reb / ${fmt(p.apg)} ast · PIR ${fmt(p.pir)}</div></div>
-        <div class="ctrl">
-          <button data-up="${p.id}" ${i===0?"disabled":""}>▲</button>
-          <button data-down="${p.id}" ${i===list.length-1?"disabled":""}>▼</button>
-          <button data-open="${p.id}">↗</button>
-          <button data-rm="${p.id}">✕</button>
-        </div>
-      </div>`).join("")}</div>`:'<div class="empty">No players yet. Open a player and hit “Add to big board”.</div>'}
-  </div>`;
-  const reindex=async(arr)=>{for(let i=0;i<arr.length;i++)await Store.save(arr[i].id,{board:i+1});};
-  $$("#bb [data-up]").forEach(b=>b.onclick=async()=>{const i=list.findIndex(p=>p.id===b.dataset.up);
-    [list[i-1],list[i]]=[list[i],list[i-1]];await reindex(list);renderBigBoard();});
-  $$("#bb [data-down]").forEach(b=>b.onclick=async()=>{const i=list.findIndex(p=>p.id===b.dataset.down);
-    [list[i+1],list[i]]=[list[i],list[i+1]];await reindex(list);renderBigBoard();});
-  $$("#bb [data-rm]").forEach(b=>b.onclick=async()=>{await Store.save(b.dataset.rm,{board:null});
-    list=list.filter(p=>p.id!==b.dataset.rm);await reindex(list);renderBigBoard();});
-  $$("#bb [data-open]").forEach(b=>b.onclick=()=>openProfile(b.dataset.open));
-}
 
 /* ---------- Watchlist ---------- */
 function renderWatchlist(){
   const L=STATE.league;
-  const list=L.players.filter(p=>Store.get(p.id).watch);
+  const seen=new Set();
+  const list=L.players.filter(p=>{if(!recOf(p).watch)return false;const g=gid(p);if(seen.has(g))return false;seen.add(g);return true;});
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Watchlist</h1>
     <div class="sub">${list.length} player${list.length!==1?"s":""} flagged in ${L.meta.name}.</div>
     ${list.length?`<div class="tablewrap"><table>
       <thead><tr><th class="l">PLAYER</th><th class="l">TEAM</th><th>PPG</th><th>RPG</th>
         <th>APG</th><th>TS%</th><th>PIR</th><th>GRADE</th><th></th></tr></thead>
-      <tbody>${list.map(p=>{const r=Store.get(p.id);
+      <tbody>${list.map(p=>{const r=recOf(p);
         return `<tr data-id="${p.id}"><td class="l"><span class="pname">${p.name}</span></td>
           <td class="l pteam">${p.teamName}</td><td>${fmt(p.ppg)}</td><td>${fmt(p.rpg)}</td>
           <td>${fmt(p.apg)}</td><td>${fmt(p.ts)}</td><td>${fmt(p.eff)}</td>
@@ -1241,7 +1271,7 @@ function renderTeam(){
       <div class="tablewrap"><table>
         <thead><tr><th class="l">PLAYER</th><th class="l">POS</th><th>G</th><th>MPG</th>
           <th>PPG</th><th>RPG</th><th>APG</th><th>SPG</th><th>BPG</th><th>TS%</th><th>PIR</th><th></th></tr></thead>
-        <tbody>${roster.length?roster.map(p=>{const rec=Store.get(p.id);
+        <tbody>${roster.length?roster.map(p=>{const rec=recOf(p);
           return `<tr data-id="${p.id}">
           <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
           <td class="l"><span class="badge role">${p.pos&&p.pos!=='-'?p.pos:p.role}</span></td>
@@ -1278,6 +1308,10 @@ function renderGlossary(){
 }
 
 /* ---------- modal ---------- */
+function showPhoto(src,name){let m=$("#modal");
+  if(!m){m=document.createElement("div");m.id="modal";m.className="modal";document.body.appendChild(m);}
+  m.innerHTML='<div class="photobox"><button class="close" onclick="hideModal()">\u2715</button><img src="'+src+'" alt=""/><div class="photoname">'+name+'</div></div>';
+  m.onclick=e=>{if(e.target===m)hideModal();};}
 function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement("div");m.id="modal";m.className="modal";
   document.body.appendChild(m);}m.innerHTML=`<div class="modalbox${wide?' wide':''}" style="position:relative">
     <button class="close" onclick="hideModal()">✕</button>${html}</div>`;
@@ -1285,7 +1319,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openGlobal,openLeaguePlayers,openEditModal,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
 
 boot();
 </script>
