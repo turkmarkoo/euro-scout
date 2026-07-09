@@ -185,6 +185,29 @@ textarea:focus{border-color:var(--accent2)}
 table.glog{font-size:12px}
 table.glog th,table.glog td{padding:6px 9px}
 .glogscroll{max-height:520px;overflow:auto}
+
+/* global search */
+.gsearch{position:relative}
+.gsearch input{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:8px 12px;border-radius:8px;font-size:13px;width:180px;outline:none;transition:width .18s ease}
+.gsearch input:focus{border-color:var(--accent2);width:230px}
+.gsresults{position:absolute;top:calc(100% + 6px);right:0;width:330px;max-height:64vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.45);z-index:120;padding:6px}
+.gsitem{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.gsitem:hover,.gsitem.active{background:var(--panel2)}
+.gsitem img{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;background:#222b3d;flex-shrink:0}
+.gsitem .gi{flex:1;min-width:0}
+.gsitem .gn{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gsitem .gm{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gsitem .glg{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--chip);color:var(--muted);flex-shrink:0}
+.gsempty{padding:16px;color:var(--muted);font-size:12.5px;text-align:center}
+@media(max-width:640px){.gsearch input{width:130px}.gsearch input:focus{width:150px}.gsresults{width:280px}}
+
+/* team page */
+.teamhead{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.teamcrest{min-width:60px;height:60px;padding:0 10px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#ff9d5c);display:grid;place-items:center;font-weight:900;font-size:20px;color:#0d1017;flex-shrink:0}
+tbody tr.clickteam{cursor:pointer}
+tbody tr.clickteam:hover .pname{color:var(--accent)}
+.tlink{color:var(--accent2);cursor:pointer}
+.tlink:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -200,6 +223,10 @@ table.glog th,table.glog td{padding:6px 9px}
       <button data-view="glossary">Glossary</button>
     </nav>
     <span class="spacer"></span>
+    <div class="gsearch">
+      <input type="text" id="globalSearch" placeholder="Search all leagues…" autocomplete="off" aria-label="Search players across all leagues"/>
+      <div class="gsresults hidden" id="gsResults"></div>
+    </div>
     <select class="leaguesel" id="leagueSel"></select>
     <button class="authbtn" id="themeBtn" title="Toggle light/dark">☀ Light</button>
     <button class="authbtn" id="authBtn">Sign in</button>
@@ -314,7 +341,56 @@ async function boot(){
     $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
   $("#authBtn").onclick=authClick;
   $("#themeBtn").onclick=toggleTheme; applyTheme(document.documentElement.dataset.theme||"dark");
+  wireGlobalSearch();
   renderAuth(); render();
+}
+
+/* ---------------------------- global search (all leagues) ---------------------------- */
+function allPlayersIndexed(){
+  if(STATE._idx) return STATE._idx;
+  const idx=[];
+  STATE.data.leagues.forEach(L=>L.players.forEach(p=>idx.push({p,L})));
+  STATE._idx=idx; return idx;
+}
+function openGlobal(leagueId,id){
+  const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
+  if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}
+  const inp=$("#globalSearch");if(inp)inp.value="";
+  const box=$("#gsResults");if(box){box.classList.add("hidden");box.innerHTML="";}
+  openProfile(id);
+}
+function wireGlobalSearch(){
+  const inp=$("#globalSearch"),box=$("#gsResults");if(!inp||!box)return;
+  let active=-1,results=[];
+  const close=()=>{box.classList.add("hidden");box.innerHTML="";active=-1;};
+  const paint=()=>{
+    box.innerHTML=results.map(({p,L},i)=>`<div class="gsitem${i===active?" active":""}" data-i="${i}">
+      ${p.img?`<img src="${p.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<img alt=""/>'}
+      <div class="gi"><div class="gn">${p.name}</div><div class="gm">${p.teamName} · ${fmt(p.ppg)} pts · PIR ${fmt(p.pir)}</div></div>
+      <span class="glg">${L.meta.name}</span></div>`).join("");
+    $$("#gsResults .gsitem").forEach(el=>el.onclick=()=>{const r=results[+el.dataset.i];openGlobal(r.L.meta.id,r.p.id);});
+    box.classList.remove("hidden");
+  };
+  const search=()=>{
+    const q=inp.value.trim().toLowerCase();active=-1;
+    if(q.length<2){close();return;}
+    results=allPlayersIndexed().filter(({p})=>p.name.toLowerCase().includes(q))
+      .sort((a,b)=>(b.p.pir||0)-(a.p.pir||0)).slice(0,12);
+    if(!results.length){box.innerHTML='<div class="gsempty">No players found</div>';box.classList.remove("hidden");return;}
+    paint();
+  };
+  const move=d=>{if(!results.length)return;active=(active+d+results.length)%results.length;paint();
+    const el=$$("#gsResults .gsitem")[active];if(el)el.scrollIntoView({block:"nearest"});};
+  inp.oninput=search;
+  inp.onfocus=()=>{if(inp.value.trim().length>=2)search();};
+  inp.onkeydown=e=>{
+    if(box.classList.contains("hidden"))return;
+    if(e.key==="ArrowDown"){move(1);e.preventDefault();}
+    else if(e.key==="ArrowUp"){move(-1);e.preventDefault();}
+    else if(e.key==="Enter"){if(active>=0){const r=results[active];openGlobal(r.L.meta.id,r.p.id);}}
+    else if(e.key==="Escape"){close();inp.blur();}
+  };
+  document.addEventListener("click",e=>{if(!e.target.closest(".gsearch"))close();});
 }
 
 function renderAuth(){
@@ -346,6 +422,8 @@ function render(){
   else if(v==="watchlist") renderWatchlist();
   else if(v==="teams") renderTeams();
   else if(v==="glossary") renderGlossary();
+  else if(v==="team") renderTeam();
+  else if(v==="profile") renderProfile();
 }
 
 function leaguePlayers(){return STATE.league.players;}
@@ -517,7 +595,9 @@ function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage
   const b=$("#themeBtn");if(b)b.textContent=(t==='light')?'☾ Dark':'☀ Light';}
 function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='light'?'dark':'light');}
 function renderProfile(){
-  const p=player(CURRENT),L=STATE.league,rec=Store.get(p.id);
+  const p=player(CURRENT);
+  if(!p){STATE.view="players";$$("#tabs button").forEach((x,i)=>x.classList.toggle("active",i===0));renderPlayers();return;}
+  const L=STATE.league,rec=Store.get(p.id);
   const t=L.teams.find(x=>x.code===p.team);
   $("#app").innerHTML=`<div class="view">
     <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">← Back to players</button>
@@ -526,7 +606,7 @@ function renderProfile(){
         <div class="avatar">${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
         <div style="flex:1;min-width:220px">
           <h1>${p.name}</h1>
-          <div class="profmeta">${t?t.name+" · "+t.city+", "+t.country:p.teamName} ·
+          <div class="profmeta">${t?`<span class="tlink" onclick="openTeam('${t.code}')">${t.name}</span> · ${t.city}, ${t.country}`:p.teamName} ·
             <span class="badge role">${p.pos&&p.pos!=='-'?p.pos:p.role}</span> · ${L.meta.name} ${L.meta.season}
             ${p.multiTeam?' · <span class="badge">Multiple teams</span>':''}
             ${p.qualified?'':' · <span class="badge">below qualifying minutes</span>'}</div>
@@ -732,14 +812,63 @@ function renderTeams(){
     <div class="tablewrap"><table>
       <thead><tr><th class="l">#</th><th class="l">TEAM</th><th class="l">COUNTRY</th>
         <th>W</th><th>L</th><th>WIN%</th><th>PPG</th><th>OPP PPG</th><th>NET</th><th>ROSTER</th></tr></thead>
-      <tbody>${teams.map(t=>`<tr><td class="l" style="color:var(--muted)">${t.group?t.group+t.rank:t.rank}</td>
+      <tbody>${teams.map(t=>`<tr class="clickteam" data-team="${t.code}"><td class="l" style="color:var(--muted)">${t.group?t.group+t.rank:t.rank}</td>
         <td class="l"><span class="pname">${t.name}</span> <span class="pteam">${t.city}</span></td>
         <td class="l pteam">${t.country}</td><td>${t.w}</td><td>${t.l}</td><td>${fmt(t.winPct)}</td>
         <td>${fmt(t.ppg)}</td><td>${fmt(t.oppg)}</td>
         <td style="color:${t.net>0?"var(--good)":"var(--bad)"}">${t.net>0?"+":""}${fmt(t.net)}</td>
         <td>${t.rosterCount}</td></tr>`).join("")}
       </tbody></table></div>
+    <p class="hint" style="margin-top:10px">Click a team for its roster and season splits.</p>
   </div>`;
+  $$("#app tbody tr.clickteam").forEach(tr=>tr.onclick=()=>openTeam(tr.dataset.team));
+}
+
+/* ---------- Team page ---------- */
+let CURRENT_TEAM=null;
+function openTeam(code){CURRENT_TEAM=code;STATE.view="team";
+  $$("#tabs button").forEach(x=>x.classList.remove("active"));renderTeam();}
+function renderTeam(){
+  const L=STATE.league, t=L.teams.find(x=>x.code===CURRENT_TEAM);
+  if(!t){STATE.view="teams";render();return;}
+  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>b.ppg-a.ppg);
+  $("#app").innerHTML=`<div class="view">
+    <button class="backlink" onclick="STATE.view='teams';render()">← Back to teams</button>
+    <div class="panel">
+      <div class="teamhead">
+        <div class="teamcrest">${t.code}</div>
+        <div style="flex:1;min-width:200px">
+          <h1 style="margin:0;font-size:24px">${t.name}</h1>
+          <div class="profmeta">${t.city}, ${t.country} · ${L.meta.name} ${L.meta.season}${t.group?" · Group "+t.group:""}</div>
+        </div>
+        <div class="statline">
+          <div class="s"><div class="v">${t.w}-${t.l}</div><div class="k">Record</div></div>
+          <div class="s"><div class="v">${fmt(t.winPct)}</div><div class="k">Win%</div></div>
+          <div class="s"><div class="v">${fmt(t.ppg)}</div><div class="k">PPG</div></div>
+          <div class="s"><div class="v">${fmt(t.oppg)}</div><div class="k">Opp PPG</div></div>
+          <div class="s"><div class="v" style="color:${t.net>0?'var(--good)':'var(--bad)'}">${t.net>0?'+':''}${fmt(t.net)}</div><div class="k">Net</div></div>
+          <div class="s"><div class="v">${t.group?t.group+t.rank:t.rank}</div><div class="k">Rank</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>Roster · ${roster.length} players</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th class="l">PLAYER</th><th class="l">POS</th><th>G</th><th>MPG</th>
+          <th>PPG</th><th>RPG</th><th>APG</th><th>SPG</th><th>BPG</th><th>TS%</th><th>PIR</th><th></th></tr></thead>
+        <tbody>${roster.length?roster.map(p=>{const rec=Store.get(p.id);
+          return `<tr data-id="${p.id}">
+          <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
+          <td class="l"><span class="badge role">${p.pos&&p.pos!=='-'?p.pos:p.role}</span></td>
+          <td>${p.g}</td><td>${fmt(p.mpg)}</td><td><b>${fmt(p.ppg)}</b></td><td>${fmt(p.rpg)}</td>
+          <td>${fmt(p.apg)}</td><td>${fmt(p.spg)}</td><td>${fmt(p.bpg)}</td><td>${fmt(p.ts)}</td><td>${fmt(p.pir)}</td>
+          <td><button class="starbtn ${rec.watch?"on":""}" title="Watchlist" data-star="${p.id}">${rec.watch?"★":"☆"}</button></td></tr>`;}).join(""):`<tr><td colspan="12" class="l" style="color:var(--muted);padding:16px">No players matched to this team (mid-season transfers show under their combined 2TM entry).</td></tr>`}
+        </tbody></table></div>
+    </div>
+  </div>`;
+  $$("#app tbody tr[data-id]").forEach(tr=>tr.onclick=e=>{
+    if(e.target.dataset.star){e.stopPropagation();toggleWatch(e.target.dataset.star).then(renderTeam);return;}
+    openProfile(tr.dataset.id);});
 }
 
 /* ---------- Glossary ---------- */
@@ -771,7 +900,7 @@ function showModal(html){let m=$("#modal");if(!m){m=document.createElement("div"
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openGlobal,toggleTheme,$,$$});
 
 boot();
 </script>
