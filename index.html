@@ -461,8 +461,7 @@ textarea.notesec{min-height:94px}
 .sttbl .pfpa{font-family:var(--mono);color:var(--muted);font-size:12px}
 /* sticky profile header must sit under the site header */
 .stickyhead{position:sticky;top:var(--stick-top,116px);z-index:70;box-shadow:var(--shadow-lift)}
-.teamhead-panel{position:sticky;top:var(--stick-top,116px);z-index:70;box-shadow:var(--shadow-lift)}
-.stickyhead::before,.teamhead-panel::before{content:"";position:absolute;left:0;right:0;top:-14px;height:14px;background:var(--bg)}
+.stickyhead::before{content:"";position:absolute;left:0;right:0;top:-14px;height:14px;background:var(--bg)}
 
 .scopeflag{font-family:var(--mono);font-size:10.5px;color:var(--muted2);letter-spacing:.04em;padding:3px 8px;border:1px dashed var(--line);border-radius:6px}
 .matchup{display:flex!important}
@@ -1136,15 +1135,16 @@ function profileSiblings(){
   return base;
 }
 function wireProfileNav(p){
-  const sibs=profileSiblings();
-  const idx=sibs.findIndex(x=>gid(x)===gid(p));
-  const go=d=>{if(idx<0)return;const n=sibs[(idx+d+sibs.length)%sibs.length];if(n)openProfile(newestOf(n).id);};
+  const Lp=leagueOf(p);
+  const mates=Lp.players.filter(x=>x.team===p.team).sort((a,b)=>{const ja=(a.jersey===0||a.jersey==="0")?0:(parseInt(a.jersey)||999),jb=(b.jersey===0||b.jersey==="0")?0:(parseInt(b.jersey)||999);return ja-jb||b.ppg-a.ppg;});
+  const mIdx=mates.findIndex(x=>x.id===p.id);
+  // arrows step through THIS club's roster (wrap around), matching the dropdown order
+  const go=d=>{if(mIdx<0||!mates.length)return;const n=mates[(mIdx+d+mates.length)%mates.length];if(n&&n.id!==p.id)openProfile(n.id);};
   const pv=$("#pnavPrev"),nx=$("#pnavNext");
-  if(pv)pv.onclick=()=>go(-1);
-  if(nx)nx.onclick=()=>go(1);
+  if(pv){pv.onclick=()=>go(-1);pv.disabled=mates.length<2;pv.title="Previous teammate";}
+  if(nx){nx.onclick=()=>go(1);nx.disabled=mates.length<2;nx.title="Next teammate";}
   const dd=$("#pnavSel");
   if(dd){
-    const Lp=leagueOf(p), mates=Lp.players.filter(x=>x.team===p.team).sort((a,b)=>{const ja=(a.jersey===0||a.jersey==="0")?0:(parseInt(a.jersey)||999),jb=(b.jersey===0||b.jersey==="0")?0:(parseInt(b.jersey)||999);return ja-jb||b.ppg-a.ppg;});
     const og=dd.querySelector("#pnavTeam");
     og.label=(p.teamName||"Team")+" roster";
     og.innerHTML=mates.map(m=>`<option value="${m.id}" ${m.id===p.id?"selected":""}>${m.jersey!=null&&m.jersey!==""?"#"+m.jersey+"  ":""}${m.name}</option>`).join("");
@@ -1691,7 +1691,7 @@ function renderTeam(){
       <td style="color:${x.net>0?"var(--good)":x.net<0?"var(--bad)":"var(--muted)"}">${x.net>0?"+":""}${fmt(x.net)}</td></tr>`;});
   $("#app").innerHTML=`<div class="view">
     <button class="backlink" onclick="STATE.view='teams';render()">\u2190 Back to teams</button>
-    <div class="panel teamhead-panel">
+    <div class="panel">
       <div class="teamhead">
         <div class="teamcrest">${t.code}</div>
         <div style="flex:1;min-width:220px">
