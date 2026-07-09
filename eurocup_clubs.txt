@@ -1,0 +1,20 @@
+ARI~Aris Thessaloniki~Greece~Thessaloniki
+BAH~Bahcesehir College~Turkey~Istanbul
+MAN~BAXI Manresa~Spain~Manresa
+BES~Besiktas Istanbul~Turkey~Istanbul
+BUD~Buducnost Podgorica~Montenegro~Podgorica
+LJU~Cedevita Olimpija~Slovenia~Ljubljana
+BOU~JL Bourg-en-Bresse~France~Bourg-en-Bresse
+TRN~Dolomiti Energia Trento~Italy~Trento
+JER~Hapoel Jerusalem~Israel~Jerusalem
+LKB~Lietkabelis~Lithuania~Panevezys
+LLI~London Lions~United Kingdom~London
+KLA~Neptunas Klaipeda~Lithuania~Klaipeda
+NIN~NINERS Chemnitz~Germany~Chemnitz
+NIO~Panionios Athens~Greece~Athens
+ULM~ratiopharm ulm~Germany~Ulm
+WRO~Slask Wroclaw~Poland~Wroclaw
+TTK~Turk Telekom Ankara~Turkey~Ankara
+CLU~U-BT Cluj-Napoca~Romania~Cluj-Napoca
+VNC~Reyer Venice~Italy~Venice
+HAM~Veolia Towers Hamburg~Germany~Hamburg

@@ -161,6 +161,9 @@ textarea:focus{border-color:var(--accent2)}
 .biochips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .biochip{background:var(--chip);border-radius:8px;padding:5px 10px;font-size:12px;color:#cdd6e6}
 .biochip b{color:var(--txt)}
+.comptabs{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.comptab{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:700}
+.comptab.active{background:var(--accent);color:#0d1017;border-color:var(--accent)}
 table.glog{font-size:12px}
 table.glog th,table.glog td{padding:6px 9px}
 .glogscroll{max-height:520px;overflow:auto}
@@ -451,6 +454,8 @@ function gameLogTable(p){
 let CURRENT=null;
 function openProfile(id){CURRENT=id;STATE.view="profile";
   $$("#tabs button").forEach(x=>x.classList.remove("active"));renderProfile();}
+function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
+  if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
 function renderProfile(){
   const p=player(CURRENT),L=STATE.league,rec=Store.get(p.id);
   const t=L.teams.find(x=>x.code===p.team);
@@ -472,6 +477,7 @@ function renderProfile(){
             ${p.age?`<span class="biochip">Age <b>${p.age}</b></span>`:''}
             ${p.country?`<span class="biochip"><b>${p.country}</b></span>`:''}
           </div>
+          ${(STATE.data.crossPlayers&&STATE.data.crossPlayers[p.code]&&STATE.data.crossPlayers[p.code].length>1)?`<div class="comptabs"><span class="hint" style="align-self:center;margin-right:2px">Competition:</span>${STATE.data.crossPlayers[p.code].map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')">${c.name}</button>`).join('')}</div>`:''}
           <div class="statline">
             ${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],["ts","TS%"],["pir","PIR"]]
               .map(([k,lab])=>`<div class="s"><div class="v">${fmt(p[k])}</div><div class="k">${lab}</div></div>`).join("")}
@@ -655,14 +661,14 @@ function renderWatchlist(){
 
 /* ---------- Teams ---------- */
 function renderTeams(){
-  const L=STATE.league;const teams=L.teams.slice().sort((a,b)=>a.rank-b.rank);
+  const L=STATE.league;const teams=L.teams.slice().sort((a,b)=>(a.group||'').localeCompare(b.group||'')||a.rank-b.rank);const grp=teams.some(t=>t.group);
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${L.meta.name} teams</h1>
-    <div class="sub">Regular season standings, ${L.meta.season}.</div>
+    <div class="sub">${grp?"Regular season standings by group":"Regular season standings"} · ${L.meta.season}.</div>
     <div class="tablewrap"><table>
       <thead><tr><th class="l">#</th><th class="l">TEAM</th><th class="l">COUNTRY</th>
         <th>W</th><th>L</th><th>WIN%</th><th>PPG</th><th>OPP PPG</th><th>NET</th><th>ROSTER</th></tr></thead>
-      <tbody>${teams.map(t=>`<tr><td class="l" style="color:var(--muted)">${t.rank}</td>
+      <tbody>${teams.map(t=>`<tr><td class="l" style="color:var(--muted)">${t.group?t.group+t.rank:t.rank}</td>
         <td class="l"><span class="pname">${t.name}</span> <span class="pteam">${t.city}</span></td>
         <td class="l pteam">${t.country}</td><td>${t.w}</td><td>${t.l}</td><td>${fmt(t.winPct)}</td>
         <td>${fmt(t.ppg)}</td><td>${fmt(t.oppg)}</td>
@@ -701,7 +707,7 @@ function showModal(html){let m=$("#modal");if(!m){m=document.createElement("div"
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,$,$$});
 
 boot();
 </script>
