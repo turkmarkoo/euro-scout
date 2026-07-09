@@ -6,7 +6,7 @@
 <title>EuroScout · European Basketball Scouting</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#16181C; --bg2:#1B1E23; --panel:#202329; --panel2:#2A2E35; --line:#33373F; --line-soft:#2A2E35;
@@ -14,8 +14,8 @@
   --accent:#D2925E; --accent-deep:#E1A877; --accent-soft:#37291C;
   --sage:#7FB3AB; --accent2:#7FB3AB;
   --good:#83BA7E; --mid:#C9A15A; --bad:#DD8C72; --chip:#2A2E35;
-  --disp:"Saira Condensed","Oswald",system-ui,sans-serif;
-  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --disp:"Space Grotesk","Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --radius:13px;
   --shadow:0 1px 2px rgba(0,0,0,.45); --shadow-lift:0 12px 30px rgba(0,0,0,.55);
@@ -52,7 +52,7 @@ input,textarea,select{font-family:inherit}
 /* Header */
 header{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.hwrap{display:flex;align-items:center;gap:16px;padding:12px 20px;max-width:1180px;margin:0 auto;flex-wrap:wrap}
+.hwrap{display:flex;align-items:center;gap:16px;padding:12px 20px;max-width:1440px;margin:0 auto;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.02em;cursor:pointer;user-select:none;line-height:1}
 .logo:hover{opacity:.92}
 .logo:hover .mark{transform:rotate(-4deg)}
@@ -71,7 +71,7 @@ nav.tabs button:hover{color:var(--txt)}
   background-repeat:no-repeat;background-position:right 10px center}
 
 /* Layout */
-main{max-width:1180px;margin:0 auto;padding:24px 20px 90px}
+main{max-width:1440px;margin:0 auto;padding:24px 20px 90px}
 .view{animation:fade .25s ease}
 @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.view{animation:none}*{transition:none!important}}
@@ -262,6 +262,22 @@ tbody tr.clickteam:hover .pname{color:var(--accent)}
 .lrow .lm{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lrow .lright{font-family:var(--mono);font-size:12px;font-weight:600;display:flex;align-items:center;flex:none}
 .lrow .llg{font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:6px;padding:2px 7px;flex:none}
+
+/* wider header scope, filter chips, sectioned notes */
+.hdr-scope{flex-shrink:0}
+.hdr-scope button{white-space:nowrap}
+.filterchips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:-4px 0 14px}
+.filterchip{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--accent) 15%,var(--panel));border:1px solid var(--accent);color:var(--txt);border-radius:20px;padding:4px 6px 4px 12px;font-size:12px;font-family:var(--mono)}
+.filterchip b{color:var(--accent-deep)}
+.filterchip button{background:none;border:0;color:var(--muted);font-size:13px;line-height:1;padding:0 4px}
+.filterchip button:hover{color:var(--accent)}
+.clearall{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:5px 12px;font-size:12px;font-family:var(--mono)}
+.clearall:hover{color:var(--txt);border-color:var(--accent)}
+.notesgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.notesgrid{grid-template-columns:1fr}}
+.nsec{display:flex;flex-direction:column}
+.nlab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-bottom:6px}
+textarea.notesec{min-height:94px}
 </style>
 </head>
 <body>
@@ -271,14 +287,17 @@ tbody tr.clickteam:hover .pname{color:var(--accent)}
     <nav class="tabs" id="tabs">
       <button data-view="players" class="active">Players</button>
       <button data-view="compare">Compare</button>
-      <button data-view="bigboard">Big Board</button>
       <button data-view="watchlist">Watchlist</button>
       <button data-view="teams">Teams</button>
-      <button data-view="glossary">Glossary</button>
+      <button data-view="glossary" title="Glossary" aria-label="Glossary">📖</button>
     </nav>
     <span class="spacer"></span>
+    <div class="seg hdr-scope" id="scopeSeg" title="Ranking scope used on player profiles">
+      <button data-scope="league" class="active">vs&nbsp;<span id="scopeLg">League</span></button>
+      <button data-scope="all">vs&nbsp;All</button>
+    </div>
     <div class="gsearch">
-      <input type="text" id="globalSearch" placeholder="Search all leagues…" autocomplete="off" aria-label="Search players across all leagues"/>
+      <input type="text" id="globalSearch" placeholder="Search player" autocomplete="off" aria-label="Search players"/>
       <div class="gsresults hidden" id="gsResults"></div>
     </div>
     <select class="leaguesel" id="leagueSel"></select>
@@ -301,8 +320,8 @@ const initials = n => n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCas
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
 
-const STATE = {data:null, league:null, view:"players",
-  filters:{q:"",team:"",role:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
+const STATE = {data:null, league:null, view:"players", allLeagues:false,
+  filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
   compare:{a:null,b:null}, profileScope:"league", statMode:"pg"};
 
 /* Metric definitions for tables/bars */
@@ -383,13 +402,15 @@ async function boot(){
   STATE.data = raw;
   await Store.load();
   const sel=$("#leagueSel"); sel.innerHTML="";
+  const allOpt=document.createElement("option");allOpt.value="__all__";allOpt.textContent="All leagues";sel.appendChild(allOpt);
   raw.leagues.forEach(l=>{const o=document.createElement("option");o.value=l.meta.id;
     o.textContent=`${l.meta.name} ${l.meta.season}`;sel.appendChild(o);});
-  // placeholder for leagues not yet loaded
   ["Liga ACB (Spain)","Lega A (Italy)","ABA / Adriatic"].forEach(n=>{
     const o=document.createElement("option");o.disabled=true;o.textContent=n+" — add via scraper";
     sel.appendChild(o);});
-  sel.onchange=e=>{STATE.league=raw.leagues.find(l=>l.meta.id===e.target.value)||raw.leagues[0];render();};
+  sel.onchange=e=>{ if(e.target.value==="__all__"){STATE.allLeagues=true;}
+    else {STATE.allLeagues=false;STATE.league=raw.leagues.find(l=>l.meta.id===e.target.value)||raw.leagues[0];}
+    updateScopeLabel(); render(); };
   STATE.league = raw.leagues[0];
   $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;
     $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
@@ -397,6 +418,10 @@ async function boot(){
   $("#themeBtn").onclick=toggleTheme; applyTheme(document.documentElement.dataset.theme||"dark");
   const home=$("#homeLogo");
   if(home){home.onclick=goHome;home.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();goHome();}}}
+  $$("#scopeSeg button").forEach(b=>b.onclick=()=>{STATE.profileScope=b.dataset.scope;
+    $$("#scopeSeg button").forEach(x=>x.classList.toggle("active",x===b));
+    if(STATE.view==="profile")renderProfile();});
+  updateScopeLabel();
   wireGlobalSearch();
   renderAuth(); render();
 }
@@ -490,26 +515,35 @@ function render(){
   else if(v==="profile") renderProfile();
 }
 
-function leaguePlayers(){return STATE.league.players;}
-function player(id){return leaguePlayers().find(p=>p.id===id);}
+function allPlayersFlat(){const a=[];STATE.data.leagues.forEach(L=>L.players.forEach(p=>a.push(p)));return a;}
+function leaguePlayers(){return STATE.allLeagues?allPlayersFlat():STATE.league.players;}
+function player(id){for(const L of STATE.data.leagues){const p=L.players.find(x=>x.id===id);if(p)return p;}return null;}
 
 /* ---------- Players table ---------- */
 function renderPlayers(){
-  const L=STATE.league, f=STATE.filters;
+  const all=STATE.allLeagues, f=STATE.filters;
   const cols = f.mode==="pg"?PG_COLS:P40_COLS;
-  const teams=[...new Set(L.players.map(p=>p.team))].sort()
-    .map(c=>L.teams.find(t=>t.code===c));
+  const teams = all?[]:[...new Set(STATE.league.players.map(p=>p.team))].sort().map(c=>STATE.league.teams.find(t=>t.code===c)).filter(Boolean);
+  const base = all?allPlayersFlat():STATE.league.players;
+  const totalP=base.length, totalQ=base.filter(p=>p.qualified).length;
+  const title = all?`All players`:`${STATE.league.meta.name} <span class="tierchip">${STATE.league.meta.tier}</span>`;
+  const sub = all
+    ? `All competitions \u00b7 <b>${totalP}</b> players \u00b7 <b>${totalQ}</b> qualified \u00b7 pick a league top-right to narrow`
+    : `${STATE.league.meta.season} season \u00b7 <b>${STATE.league.meta.playerCount}</b> players \u00b7 percentiles vs <b>${STATE.league.meta.qualifiedCount}</b> qualified (\u2265${STATE.league.meta.minGames} G, \u2265${STATE.league.meta.minMpg} mpg)`;
+  const chips=[];
+  if(f.country)chips.push(`<span class="filterchip">Country: <b>${f.country}</b><button data-clear="country" title="Clear">\u2715</button></span>`);
+  if(f.born)chips.push(`<span class="filterchip">Born: <b>${f.born}</b><button data-clear="born" title="Clear">\u2715</button></span>`);
+  if(f.role)chips.push(`<span class="filterchip">Position: <b>${f.role}</b><button data-clear="role" title="Clear">\u2715</button></span>`);
+  if(!all && f.team){const tn=(STATE.league.teams.find(t=>t.code===f.team)||{}).name||f.team;chips.push(`<span class="filterchip">Team: <b>${tn}</b><button data-clear="team" title="Clear">\u2715</button></span>`);}
   $("#app").innerHTML=`
   <div class="view">
-    <h1 class="title">${L.meta.name} <span class="tierchip">${L.meta.tier}</span></h1>
-    <div class="sub">${L.meta.season} season · <b>${L.meta.playerCount}</b> players ·
-      percentiles vs <b>${L.meta.qualifiedCount}</b> qualified players
-      (≥${L.meta.minGames} games, ≥${L.meta.minMpg} mpg) · source: ${L.meta.source}</div>
+    <h1 class="title">${title}</h1>
+    <div class="sub">${sub}</div>
     <div class="controls">
-      <input type="text" id="q" placeholder="Search player…" value="${f.q}" style="min-width:200px"/>
-      <select class="f" id="teamF"><option value="">All teams</option>
-        ${teams.map(t=>`<option value="${t.code}" ${f.team===t.code?"selected":""}>${t.name}</option>`).join("")}</select>
-      <select class="f" id="roleF"><option value="">All roles</option>
+      <input type="text" id="q" placeholder="Search player" value="${f.q}" style="min-width:200px"/>
+      ${all?'':`<select class="f" id="teamF"><option value="">All teams</option>
+        ${teams.map(t=>`<option value="${t.code}" ${f.team===t.code?"selected":""}>${t.name}</option>`).join("")}</select>`}
+      <select class="f" id="roleF"><option value="">All positions</option>
         ${["Guard","Wing","Big"].map(r=>`<option ${f.role===r?"selected":""}>${r}</option>`).join("")}</select>
       <div class="seg"><button data-m="pg" class="${f.mode==="pg"?"active":""}">Per game</button>
         <button data-m="p40" class="${f.mode==="p40"?"active":""}">Per 40</button></div>
@@ -518,9 +552,11 @@ function renderPlayers(){
       <span class="spacer"></span>
       <span class="hint">Click a row for the scouting profile</span>
     </div>
+    ${chips.length?`<div class="filterchips">${chips.join("")}<button class="clearall" data-clear="__all">Clear filters</button></div>`:''}
     <div class="tablewrap"><table>
       <thead><tr>
-        <th class="l">#</th><th class="l sorted-name" data-k="name">PLAYER</th>
+        <th class="l">#</th><th class="l" data-k="name">PLAYER</th>
+        ${all?'<th class="l" data-k="league">LG</th>':''}
         <th class="l" data-k="team">TEAM</th><th data-k="g">G</th><th data-k="mpg">MPG</th>
         ${cols.map(c=>`<th data-k="${c.k}">${c.t}</th>`).join("")}
         <th></th>
@@ -528,41 +564,47 @@ function renderPlayers(){
     </table></div>
   </div>`;
   const upd=()=>{const rows=filterSort();$("#tb").innerHTML=rows.map((p,i)=>{
-    const rec=Store.get(p.id);
+    const rec=Store.get(p.id), lg=leagueOf(p);
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
+      ${all?`<td class="l"><span class="badge">${lg?lg.meta.name.replace("Euro","E"):''}</span></td>`:''}
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k])}</td>`).join("")}
-      <td><button class="starbtn ${rec.watch?"on":""}" title="Watchlist" data-star="${p.id}">${rec.watch?"★":"☆"}</button></td>
+      <td><button class="starbtn ${rec.watch?"on":""}" title="Watchlist" data-star="${p.id}">${rec.watch?"\u2605":"\u2606"}</button></td>
     </tr>`;}).join("");
     $$("#tb tr").forEach(tr=>tr.onclick=e=>{
       if(e.target.dataset.star){e.stopPropagation();toggleWatch(e.target.dataset.star);upd();return;}
       openProfile(tr.dataset.id);});
-    // sort indicators
     $$("thead th").forEach(th=>th.classList.toggle("sorted",th.dataset.k===STATE.sort.key));
   };
   $("#q").oninput=e=>{f.q=e.target.value;upd();};
-  $("#teamF").onchange=e=>{f.team=e.target.value;upd();};
+  const tf=$("#teamF"); if(tf) tf.onchange=e=>{f.team=e.target.value;upd();};
   $("#roleF").onchange=e=>{f.role=e.target.value;upd();};
   $("#qual").onchange=e=>{f.qual=e.target.checked;upd();};
-  $$(".seg button").forEach(b=>b.onclick=()=>{f.mode=b.dataset.m;renderPlayers();});
+  $$(".controls .seg button").forEach(b=>b.onclick=()=>{f.mode=b.dataset.m;renderPlayers();});
+  $$(".filterchips [data-clear]").forEach(b=>b.onclick=()=>{const w=b.dataset.clear;
+    if(w==="__all"){f.country="";f.born="";f.role="";f.team="";}else{f[w]="";}renderPlayers();});
   $$("thead th[data-k]").forEach(th=>th.onclick=()=>{
     const k=th.dataset.k;
     if(STATE.sort.key===k)STATE.sort.dir*=-1;
-    else STATE.sort={key:k,dir:(k==="name"||k==="team")?1:-1};
+    else STATE.sort={key:k,dir:(k==="name"||k==="team"||k==="league")?1:-1};
     upd();});
   upd();
 }
 function filterSort(){
   const f=STATE.filters;let rows=leaguePlayers().slice();
   if(f.qual)rows=rows.filter(p=>p.qualified);
-  if(f.team)rows=rows.filter(p=>p.team===f.team);
+  if(!STATE.allLeagues && f.team)rows=rows.filter(p=>p.team===f.team);
   if(f.role)rows=rows.filter(p=>p.role===f.role);
+  if(f.country)rows=rows.filter(p=>p.country===f.country);
+  if(f.born)rows=rows.filter(p=>String(p.born)===String(f.born));
   if(f.q){const q=f.q.toLowerCase();rows=rows.filter(p=>p.name.toLowerCase().includes(q));}
   const {key,dir}=STATE.sort;
-  rows.sort((a,b)=>{let x=a[key],y=b[key];
+  rows.sort((a,b)=>{let x,y;
+    if(key==="league"){x=(leagueOf(a)||{meta:{}}).meta.name||"";y=(leagueOf(b)||{meta:{}}).meta.name||"";}
+    else{x=a[key];y=b[key];}
     if(typeof x==="string")return x.localeCompare(y)*dir;
     return (x-y)*dir;});
   return rows;
@@ -651,7 +693,8 @@ function gameLogTable(p){
 
 /* ---------- Player profile ---------- */
 let CURRENT=null;
-function openProfile(id){CURRENT=id;STATE.view="profile";
+function openProfile(id){CURRENT=id;const _p=player(id);if(_p){const _L=leagueOf(_p);if(_L)STATE.league=_L;}
+  STATE.view="profile";updateScopeLabel();
   $$("#tabs button").forEach(x=>x.classList.remove("active"));renderProfile();}
 function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
   if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
@@ -724,11 +767,27 @@ function openDbFilter(kind,val){
   const title=kind==="country"?("Players from "+val):("Players born in "+val);
   showListModal(title,list.length+" player"+(list.length!==1?"s":"")+" in the database (all competitions)",rows);}
 
+function parseReport(raw){if(!raw)return{};if(typeof raw==="object")return raw;
+  try{const o=JSON.parse(raw);if(o&&typeof o==="object")return o;}catch(e){}return {nProj:raw};}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function noteSec(id,label,ph,rep){return '<div class="nsec"><div class="nlab">'+label+'</div>'
+  +'<textarea class="notesec" id="'+id+'" placeholder="'+ph+'">'+esc(rep[id]||"")+'</textarea></div>';}
+function filterByAttr(kind,val,label){
+  STATE.allLeagues=true;
+  if(kind==="country")STATE.filters.country=val;
+  else if(kind==="born")STATE.filters.born=String(val);
+  else if(kind==="role")STATE.filters.role=val;
+  STATE.filters.q="";STATE.filters.team="";
+  STATE.view="players";const sel=$("#leagueSel");if(sel)sel.value="__all__";updateScopeLabel();
+  $$("#tabs button").forEach((x,i)=>x.classList.toggle("active",i===0));
+  renderPlayers();try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){}}
+function updateScopeLabel(){const e=$("#scopeLg");if(e)e.textContent=STATE.allLeagues?"League":(STATE.league?STATE.league.meta.name:"League");}
 function renderProfile(){
   const p=player(CURRENT);
   if(!p){STATE.view="players";$$("#tabs button").forEach((x,i)=>x.classList.toggle("active",i===0));renderPlayers();return;}
   const L=STATE.league,rec=Store.get(p.id);
   const t=L.teams.find(x=>x.code===p.team);
+  const rep=parseReport(rec.report);
   const pool=scopePool(p), scopeName=leagueOf(p).meta.name;
   const grid=(STATE.statMode==="p40"?CARD_ADV:CARD_PG);
   $("#app").innerHTML=`<div class="view">
@@ -743,17 +802,18 @@ function renderProfile(){
             ${p.multiTeam?' \u00b7 <span class="badge">Multiple teams</span>':''}
             ${p.qualified?'':' \u00b7 <span class="badge">below qualifying minutes</span>'}</div>
           <div class="biochips">
-            ${p.country?`<span class="biochip clk" data-filter="country" data-val="${p.country}" title="Show all ${p.country} players">${p.country}</span>`:''}
+            ${p.country?`<span class="biochip clk" data-filter="country" data-val="${p.country}" data-lab="${p.country}" title="Show all ${p.country} players">${p.country}</span>`:''}
+            ${p.role?`<span class="biochip clk" data-filter="role" data-val="${p.role}" data-lab="${p.role}" title="Show all ${p.role} players">${p.pos&&p.pos!=='-'?p.pos:p.role}</span>`:''}
             ${p.jersey?`<span class="biochip">#<b>${p.jersey}</b></span>`:''}
             ${p.height?`<span class="biochip"><b>${(p.height/100).toFixed(2)} m</b></span>`:''}
             ${p.weight?`<span class="biochip">${p.weight} kg</span>`:''}
-            ${p.born?`<span class="biochip clk" data-filter="born" data-val="${p.born}" title="Show all players born in ${p.born}">b. <b>${p.born}</b></span>`:''}
+            ${p.born?`<span class="biochip clk" data-filter="born" data-val="${p.born}" data-lab="${p.born}" title="Show all players born in ${p.born}">b. <b>${p.born}</b></span>`:''}
           </div>
           ${(STATE.data.crossPlayers&&STATE.data.crossPlayers[p.code]&&STATE.data.crossPlayers[p.code].length>1)?`<div class="comptabs"><span class="hint" style="align-self:center;margin-right:2px">Competition:</span>${STATE.data.crossPlayers[p.code].map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')">${c.name}</button>`).join('')}</div>`:''}
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <button class="btn ghost sm" id="watchToggle">${rec.watch?"\u2605 On watchlist":"\u2606 Add to watchlist"}</button>
-          <button class="btn ghost sm" id="boardToggle">${rec.board!=null?"On big board":"+ Add to big board"}</button>
+          <button class="btn ghost sm" onclick="document.getElementById('reportPanel').scrollIntoView({behavior:'smooth',block:'start'})">Notes</button>
           <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[1].classList.add('active');render()">Compare \u25b8</button>
         </div>
       </div>
@@ -762,11 +822,31 @@ function renderProfile(){
     <div class="panel" style="margin-top:16px">
       <h3>Event averages \u00b7 ${p.g} GP</h3>
       <div class="scope-row">
-        <div class="seg"><button data-scope="league" class="${STATE.profileScope==='league'?'active':''}">vs ${scopeName}</button><button data-scope="all" class="${STATE.profileScope==='all'?'active':''}">vs All players</button></div>
         <div class="seg"><button data-mode="pg" class="${STATE.statMode==='pg'?'active':''}">Per game</button><button data-mode="p40" class="${STATE.statMode==='p40'?'active':''}">Advanced</button></div>
         <span class="hint">Tap any stat for its full leaderboard \u00b7 rank = place / qualified players</span>
       </div>
       <div class="statgrid">${grid.map(([k,lab])=>statCard(p,pool,k,lab)).join("")}</div>
+    </div>
+    <div class="panel" id="reportPanel" style="margin-top:16px">
+      <h3>Scouting report <span class="savestate" id="saveState"></span></h3>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+        <div><div class="nlab">Grade</div>
+          <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${rec.rating>=n?"on":""}">\u2605</button>`).join("")}</div></div>
+        <div style="flex:1;min-width:220px"><div class="nlab">Tags</div>
+          <div class="tagsin" id="tags"></div></div>
+      </div>
+      <div class="notesgrid">
+        ${noteSec("nAth","Athleticism","Frame, length, wingspan, explosiveness, speed, motor, conditioning\u2026",rep)}
+        ${noteSec("nOff","Offense","Shooting form & range, handle, finishing, shot creation, decisions, off-ball movement\u2026",rep)}
+        ${noteSec("nDef","Defense","On-ball, screen navigation, help, rim protection, rebounding, effort & discipline\u2026",rep)}
+        ${noteSec("nIntel","Intel","Role & minutes, coach trust, leadership, character, injuries, development timeline, off-court\u2026",rep)}
+      </div>
+      <div style="margin-top:14px"><div class="nlab">Projection / verdict</div>
+        <textarea class="notesec" id="nProj" placeholder="Role projection, ceiling & floor, fit, comparisons, overall verdict\u2026">${esc(rep.nProj||rep.overall||"")}</textarea></div>
+      <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+        <button class="btn" id="saveBtn">Save report</button>
+        <span class="hint">${Store.enabled?(Store.user?"Saving to your cloud account":"Sign in to sync to cloud \u2014 saving locally for now"):"Local mode \u2014 saved in this browser"}</span>
+      </div>
     </div>
 
     <div class="twocol" style="margin-top:16px">
@@ -798,36 +878,20 @@ function renderProfile(){
       <h3>Game log \u00b7 ${p.g} games \u00b7 ${L.meta.season}</h3>
       ${gameLogTable(p)}
     </div>
-    <div class="panel" style="margin-top:16px">
-      <h3>Scouting report <span class="savestate" id="saveState"></span></h3>
-      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
-        <div><div class="k" style="font-size:11px;color:var(--muted);text-transform:uppercase">Grade</div>
-          <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${rec.rating>=n?"on":""}">\u2605</button>`).join("")}</div></div>
-        <div style="flex:1;min-width:220px"><div class="k" style="font-size:11px;color:var(--muted);text-transform:uppercase">Tags</div>
-          <div class="tagsin" id="tags"></div></div>
-      </div>
-      <textarea id="report" placeholder="Write your scouting notes: strengths, weaknesses, role projection, fit, comparisons, verdict\u2026">${rec.report||""}</textarea>
-      <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
-        <button class="btn" id="saveBtn">Save report</button>
-        <span class="hint">${Store.enabled?(Store.user?"Saving to your cloud account":"Sign in to sync to cloud \u2014 saving locally for now"):"Local mode \u2014 saved in this browser"}</span>
-      </div>
-    </div>
   </div>`;
   $$("#rating button").forEach(b=>b.onclick=async()=>{const n=+b.dataset.n;
     const cur=Store.get(p.id).rating; const val=(cur===n)?0:n;
     await Store.save(p.id,{rating:val});renderProfile();});
-  $$("#app [data-scope]").forEach(b=>b.onclick=()=>{STATE.profileScope=b.dataset.scope;renderProfile();});
   $$("#app [data-mode]").forEach(b=>b.onclick=()=>{STATE.statMode=b.dataset.mode;renderProfile();});
   $$("#app .statcard.clk").forEach(c=>c.onclick=()=>openLeaderboard(c.dataset.k,c.querySelector('.sc-k').textContent));
-  $$("#app .biochip.clk").forEach(c=>c.onclick=()=>openDbFilter(c.dataset.filter,c.dataset.val));
+  $$("#app .biochip.clk").forEach(c=>c.onclick=()=>filterByAttr(c.dataset.filter,c.dataset.val,c.dataset.lab));
   renderTags(p);
   $("#watchToggle").onclick=async()=>{await toggleWatch(p.id);renderProfile();};
-  $("#boardToggle").onclick=async()=>{await toggleBoard(p.id);renderProfile();};
-  $("#saveBtn").onclick=async()=>{await Store.save(p.id,{report:$("#report").value});
-    $("#saveState").textContent="\u2713 saved "+new Date().toLocaleTimeString();toast("Report saved");};
-  let tmr;$("#report").oninput=()=>{$("#saveState").textContent="editing\u2026";
-    clearTimeout(tmr);tmr=setTimeout(async()=>{await Store.save(p.id,{report:$("#report").value});
-      $("#saveState").textContent="\u2713 autosaved";},1200);};
+  const NKEYS=["nAth","nOff","nDef","nIntel","nProj"];
+  const gather=()=>{const o={};NKEYS.forEach(k=>{const el=$("#"+k);if(el)o[k]=el.value;});return o;};
+  const saveReport=async(msg)=>{await Store.save(p.id,{report:JSON.stringify(gather())});$("#saveState").textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
+  $("#saveBtn").onclick=()=>{saveReport("saved").then(()=>toast("Report saved"));};
+  let tmr;NKEYS.forEach(k=>{const el=$("#"+k);if(el)el.oninput=()=>{$("#saveState").textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};});
 }
 
 function renderTags(p){
