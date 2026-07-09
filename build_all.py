@@ -54,11 +54,21 @@ LEAGUES = [
 ]
 
 def capword(w): return "-".join(p.capitalize() for p in w.split("-"))
+try:
+    from diacritics import DIA
+except Exception:
+    DIA={}
+def _restore_dia(name):
+    key=''.join(c for c in name.lower() if ord(c)<128 or c==' ')
+    import unicodedata
+    key=unicodedata.normalize('NFKD',name).encode('ascii','ignore').decode().lower().strip()
+    return DIA.get(key,name)
 def titlecase(raw):
     raw = raw.strip()
     surname, first = (raw.split(",",1)+[""])[:2] if "," in raw else (raw,"")
-    return " ".join((" ".join(capword(w) for w in first.split()).strip()+" "+
+    out=" ".join((" ".join(capword(w) for w in first.split()).strip()+" "+
                      " ".join(capword(w) for w in surname.split()).strip()).split())
+    return _restore_dia(out)
 def img_url(fu):
     if not fu or len(fu)<2: return ""
     if fu.startswith("http"): return fu
@@ -215,16 +225,18 @@ def build_league(cfg):
                       "group":groups.get(code,""),
                       "w":w,"l":l,"winPct":round(w/g*100,1) if g else 0,
                       "ppg":round(pf/g,1) if g else 0,"oppg":round(pa/g,1) if g else 0,
-                      "net":round((pf-pa)/g,1) if g else 0,
+                      "net":round((pf-pa)/g,1) if g else 0,"pf":pf,"pa":pa,
                       "rosterCount":sum(1 for p in players if p["team"]==code)})
     teams.sort(key=lambda t:(t.get("group",""),t["rank"]))
+    games_out=sorted(({"id":gid,"rnd":g["rnd"],"date":g["date"],"h":g["h"],"hs":g["hs"],
+                       "a":g["a"],"as":g["as"]} for gid,g in games.items()), key=lambda x:x["date"])
     return {"meta":{"id":lid,"name":cfg["name"],"season":cfg["season"],"tier":cfg["tier"],
                     "source":"EuroLeague official feeds (euroleaguebasketball.net)",
                     "minGames":MIN_GAMES,"minMpg":MIN_MPG,"playerCount":len(players),
                     "qualifiedCount":len(qual),
                     "gameLogCols":["date","opp","ha","win","teamPts","oppPts","min","pts","fgm","fga",
                                    "fg3m","fg3a","ftm","fta","reb","ast","stl","blk","tov","pir","pm"]},
-            "statMeta":stat_meta,"teams":teams,"players":players}
+            "statMeta":stat_meta,"teams":teams,"players":players,"games":games_out}
 
 def main():
     def _has_raw(c):

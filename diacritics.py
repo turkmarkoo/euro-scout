@@ -1,0 +1,26 @@
+# Curated ASCII->diacritic restorations for EuroLeague/EuroCup feeds (which arrive stripped).
+# Keyed on lowercased ASCII "first last". ABA source already carries diacritics.
+DIA = {
+"uros trifunovic":"Uroš Trifunović","sasha vezenkov":"Sasha Vezenkov","nikola jokic":"Nikola Jokić",
+"luka doncic":"Luka Dončić","vasilije micic":"Vasilije Micić","nikola kalinic":"Nikola Kalinić",
+"dzanan musa":"Džanan Musa","bogdan bogdanovic":"Bogdan Bogdanović","boban marjanovic":"Boban Marjanović",
+"nikola milutinov":"Nikola Milutinov","ognjen jaramaz":"Ognjen Jaramaz","filip petrusev":"Filip Petrušev",
+"marko guduric":"Marko Gudurić","stefan jovic":"Stefan Jović","vanja marinkovic":"Vanja Marinković",
+"aleksa avramovic":"Aleksa Avramović","dejan davidovac":"Dejan Davidovac","dusan ristic":"Dušan Ristić",
+"nemanja nedovic":"Nemanja Nedović","zach leday":"Zach LeDay","kevin punter":"Kevin Punter",
+"sertac sanli":"Sertaç Şanlı","sehmus hazer":"Şehmus Hazer","dogus ozdemiroglu":"Doğuş Özdemiroğlu",
+"furkan korkmaz":"Furkan Korkmaz","cedi osman":"Cedi Osman","sasa vezenkov":"Sasha Vezenkov",
+"tibor pleiss":"Tibor Pleiß","nando de colo":"Nando De Colo","juan nunez":"Juan Núñez",
+"willy hernangomez":"Willy Hernangómez","dario brizuela":"Darío Brizuela","sergio llull":"Sergio Llull",
+"edy tavares":"Edy Tavares","xavier rathan-mayes":"Xavier Rathan-Mayes","matias lessort":"Mathias Lessort",
+"nikola mirotic":"Nikola Mirotić","dzordze curcic":"Đorđe Ćurčić","dordje curcic":"Đorđe Ćurčić",
+"kenan kamenjas":"Kenan Kamenjaš","aleksandar krunic":"Aleksandar Krunić","uros carapic":"Uroš Ćarapić",
+"nemanja dangubic":"Nemanja Dangubić","danilo andjusic":"Danilo Anđušić","danilo andzusic":"Danilo Anđušić",
+"stefan fundic":"Stefan Fundić","petar radovic":"Petar Radović","marko josilo":"Marko Jošilo",
+"nikola manojlovic":"Nikola Manojlović","ziga dimec":"Žiga Dimec","klemen prepelic":"Klemen Prepelič",
+"awudu abass":"Awudu Abass","borisa simanic":"Boriša Simanić","ivica zubac":"Ivica Zubac",
+"dovydas giedraitis":"Dovydas Giedraitis","marko simonovic":"Marko Simonović","filip krampelj":"Filip Krampelj",
+"gregor hrovat":"Gregor Hrovat","edo muric":"Edo Murić","luka scuka":"Luka Ščuka",
+"jaka blazic":"Jaka Blažič","alen omic":"Alen Omić","zoran dragic":"Zoran Dragić",
+"leon stergar":"Leon Štergar","rok stipcevic":"Rok Stipčević","codi miller-mcintyre":"Cody Miller-McIntyre",
+}

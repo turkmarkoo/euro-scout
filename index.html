@@ -9,28 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#16181C; --bg2:#1B1E23; --panel:#202329; --panel2:#2A2E35; --line:#33373F; --line-soft:#2A2E35;
-  --txt:#E7E4DD; --muted:#9AA1AC; --muted2:#727A86;
-  --accent:#D2925E; --accent-deep:#E1A877; --accent-soft:#37291C;
-  --sage:#7FB3AB; --accent2:#7FB3AB;
-  --good:#83BA7E; --mid:#C9A15A; --bad:#DD8C72; --chip:#2A2E35;
-  --disp:"Space Grotesk","Bricolage Grotesque",system-ui,sans-serif;
-  --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --radius:13px;
-  --shadow:0 1px 2px rgba(0,0,0,.45); --shadow-lift:0 12px 30px rgba(0,0,0,.55);
-  font-synthesis:none;
-}
-html{color-scheme:dark}
-html[data-theme="light"]{
-  color-scheme:light;
   --bg:#F6F4EE; --bg2:#F0ECE3; --panel:#FFFFFF; --panel2:#FBFAF5; --line:#E7E2D6; --line-soft:#EFEBE1;
   --txt:#2F333B; --muted:#747C88; --muted2:#A0A6B0;
   --accent:#C5824E; --accent-deep:#A96A38; --accent-soft:#F2E4D4;
   --sage:#6FA39B; --accent2:#6FA39B;
   --good:#6E9F6A; --mid:#C6975B; --bad:#C6755B; --chip:#F0ECE3;
+  --disp:"Space Grotesk","Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:13px;
   --shadow:0 1px 2px rgba(47,51,59,.05); --shadow-lift:0 10px 28px rgba(47,51,59,.12);
+  font-synthesis:none;
 }
+html{color-scheme:light}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{
@@ -428,27 +419,74 @@ textarea.notesec{min-height:94px}
 .glogsep.closed .glcaret{transform:rotate(-90deg)}
 .glog .glogsep td{font-family:var(--mono)!important;font-size:11px}
 .glog .glogsep td.l{font-family:var(--disp)!important;font-size:10.5px}
+
+/* header: two rows, iPad-friendly */
+.hrow2{padding-top:0;padding-bottom:10px;gap:10px;border-top:1px solid var(--line-soft);margin-top:2px}
+.logo .mark{width:30px;height:30px;font-size:16px}
+.logo{font-size:19px;gap:9px}
+.t-secondary{opacity:.9}
+.glosstab{display:inline-flex;align-items:center;gap:6px}
+.glosslab{font-size:13px}
+.cbxsel{margin-top:7px;width:100%}
+@media(max-width:1100px){
+  header{position:static}
+  .logotext{display:none}
+  .hrow2{flex-wrap:wrap}
+  .mucbx{display:inline-block!important}
+  .mucbx input{width:104px}
+  nav.tabs button{padding:7px 11px;font-size:13px}
+  .glosslab{display:none}
+}
+@media(max-width:760px){
+  .hwrap{gap:10px;padding:10px 14px}
+  .gsearch input{min-width:150px}
+  .matchup .mulab{display:none}
+}
+
+/* profile switcher */
+.profnav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.pnav-spacer{flex:1}
+.pnav-btn{width:34px;height:34px;border:1px solid var(--line);background:var(--panel);border-radius:9px;font-size:18px;color:var(--muted);line-height:1;transition:.12s}
+.pnav-btn:hover{border-color:var(--accent);color:var(--accent-deep)}
+.pnav-cbx{position:relative;width:230px}
+.pnav-cbx input{width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:8px 11px;font-size:13px;font-family:var(--disp);font-weight:600;outline:none}
+.pnav-cbx input:focus{border-color:var(--accent2)}
+.pnav-res{position:absolute;top:calc(100% + 6px);left:0;right:0;max-height:340px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lift);z-index:75;padding:6px;min-width:280px}
+@media(max-width:620px){.pnav-cbx{width:160px}}
+/* team stat cards now match player statcard sizing; keep 5-up compact grid */
+.cardgrid.smgrid .statcard{padding:12px 8px 10px}
+.cardgrid.smgrid .sc-v{font-size:22px}
+.cardgrid.smgrid .sc-k{font-size:9px;margin-top:5px}
+.cardgrid.smgrid .sc-rank{margin-top:8px;font-size:10px;padding:2px 7px}
+/* standings groups + pf/pa */
+.sttbl .stgrouprow td{font-family:var(--disp);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-deep);background:var(--accent-soft);padding:6px 10px}
+.sttbl .pfpa{font-family:var(--mono);color:var(--muted);font-size:12px}
+/* sticky profile header must sit under the site header */
+.stickyhead{top:8px;z-index:40}
 </style>
 </head>
 <body>
 <header>
   <div class="hwrap">
-    <div class="logo" id="homeLogo" title="Back to players" role="button" tabindex="0"><span class="mark">E</span>Euro<b>Scout</b></div>
+    <div class="logo" id="homeLogo" title="Back to players" role="button" tabindex="0"><span class="mark">E</span><span class="logotext">Euro<b>Scout</b></span></div>
     <nav class="tabs" id="tabs">
       <button data-view="players" class="active">Players</button>
-      <button data-view="compare">Compare</button>
-      <button data-view="watchlist">Watchlist</button>
       <button data-view="teams">Teams</button>
-      <button data-view="glossary" title="Glossary" aria-label="Glossary">📖</button>
+      <button data-view="watchlist">Watchlist</button>
+      <button data-view="compare" class="t-secondary">Compare</button>
+      <button data-view="glossary" class="glosstab" title="Glossary" aria-label="Glossary">📖<span class="glosslab">Glossary</span></button>
     </nav>
     <span class="spacer"></span>
+    <div class="gsearch">
+      <input type="text" id="globalSearch" placeholder="Search player…" autocomplete="off" aria-label="Search players"/>
+      <div class="gsresults hidden" id="gsResults"></div>
+    </div>
+    <button class="authbtn" id="authBtn">Sign in</button>
+  </div>
+  <div class="hwrap hrow2">
     <div class="seg hdr-scope" id="scopeSeg" title="Ranking scope used on player profiles">
       <button data-scope="league" class="active">vs&nbsp;<span id="scopeLg">League</span></button>
       <button data-scope="all">vs&nbsp;All</button>
-    </div>
-    <div class="gsearch">
-      <input type="text" id="globalSearch" placeholder="Search player" autocomplete="off" aria-label="Search players"/>
-      <div class="gsresults hidden" id="gsResults"></div>
     </div>
     <div class="matchup" id="matchupBar" title="Live scouting: pick the two teams playing">
       <span class="mulab">▸ MATCHUP</span>
@@ -457,9 +495,8 @@ textarea.notesec{min-height:94px}
       <span class="mucbx"><input type="text" id="muB" placeholder="Team B" autocomplete="off"/><div class="cbxres hidden" id="muBres"></div></span>
       <span class="mupills" id="muPills"></span>
     </div>
+    <span class="spacer"></span>
     <select class="leaguesel" id="leagueSel"></select>
-    <button class="authbtn" id="themeBtn" title="Toggle light/dark">☀ Light</button>
-    <button class="authbtn" id="authBtn">Sign in</button>
   </div>
 </header>
 <main id="app"><div class="empty">Loading data…</div></main>
@@ -470,7 +507,7 @@ textarea.notesec{min-height:94px}
 <script src="data/data.js"></script>
 <script>
 /* ============================ EuroScout app ============================ */
-try{document.documentElement.dataset.theme=localStorage.getItem('euroscout:theme')||'dark';}catch(e){}
+document.documentElement.dataset.theme='light';
 const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
 const fmt = (v,d=1)=> (v===undefined||v===null||isNaN(v))?"—":Number(v).toFixed(d);
@@ -587,7 +624,7 @@ function applyOverrides(){
     p._ext=OVR.ext[p.id]||null;
   }));
 }
-function normName(x){return (x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z ]/g,"").trim();}
+function normName(x){return (x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[\u0111\u0142]/g,"d").replace(/\u0142/g,"l").replace(/[\u015f\u0219]/g,"s").replace(/[\u0131]/g,"i").replace(/[\u0127]/g,"h").replace(/[\u00f0]/g,"d").replace(/[\u00f8]/g,"o").replace(/[\u00e6]/g,"ae").replace(/[^a-z ]/g,"").trim();}
 function rebuildLinks(){
   const all=allPlayersFlat(); const byId={}; all.forEach(p=>byId[p.id]=p);
   const parent={}; all.forEach(p=>parent[p.id]=p.id);
@@ -753,7 +790,6 @@ async function boot(){
   $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;
     $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
   $("#authBtn").onclick=authClick;
-  $("#themeBtn").onclick=toggleTheme; applyTheme(document.documentElement.dataset.theme||"dark");
   const home=$("#homeLogo");
   if(home){home.onclick=goHome;home.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();goHome();}}}
   $$("#scopeSeg button").forEach(b=>b.onclick=()=>{STATE.profileScope=b.dataset.scope;
@@ -807,7 +843,8 @@ function wireGlobalSearch(){
   const search=()=>{
     const q=inp.value.trim().toLowerCase();active=-1;
     if(q.length<2){close();return;}
-    results=allPlayersIndexed().filter(({p})=>p.name.toLowerCase().includes(q))
+    const qn=normName(q);
+    results=allPlayersIndexed().filter(({p})=>normName(p.name).includes(qn)||p.name.toLowerCase().includes(q))
       .sort((a,b)=>(b.p.pir||0)-(a.p.pir||0)).slice(0,12);
     if(!results.length){box.innerHTML='<div class="gsempty">No players found</div>';box.classList.remove("hidden");return;}
     paint();
@@ -983,8 +1020,8 @@ function barRow(p,def){const pct=p.pct[def.k]??50;
     <span class="barval">${fmt(p[def.k])}<div class="pctnum">${Math.round(pct)}%ile</div></span></div>`;}
 
 /* ---------- radar chart (SVG) ---------- */
-function radarSVG(players,colors){
-  const size=320,cx=size/2,cy=size/2,R=115,N=RADAR.length;
+function radarSVG(players,colors){const LBL=arguments[2]!==false;
+  const size=248,cx=size/2,cy=size/2,R=92,N=RADAR.length;
   const ang=i=>(-Math.PI/2)+i*2*Math.PI/N;
   const pt=(i,r)=>[cx+Math.cos(ang(i))*r, cy+Math.sin(ang(i))*r];
   let g="";
@@ -1080,15 +1117,42 @@ function glToggle(tr){
 }
 
 /* ---------- Player profile ---------- */
+function profileSiblings(){
+  // players in the CURRENT scope/order used on the Players list (respects league scope + qualified)
+  const all=STATE.allLeagues, f=STATE.filters||{};
+  let base=all?allPlayersIndexed().map(x=>x.p):STATE.league.players.slice();
+  if(!all){const seen=new Set();base=base.filter(p=>{const g=gid(p);if(seen.has(g))return false;seen.add(g);return true;});}
+  base=base.filter(p=>!f.qual||p.qualified);
+  base.sort((a,b)=>(b.pir||0)-(a.pir||0));
+  return base;
+}
+function wireProfileNav(p){
+  const sibs=profileSiblings();
+  const idx=sibs.findIndex(x=>gid(x)===gid(p));
+  const go=d=>{if(idx<0)return;const n=sibs[(idx+d+sibs.length)%sibs.length];if(n)openProfile(newestOf(n).id);};
+  const pv=$("#pnavPrev"),nx=$("#pnavNext");
+  if(pv)pv.onclick=()=>go(-1);
+  if(nx)nx.onclick=()=>go(1);
+  const inp=$("#pnavSearch"),box=$("#pnavRes");if(!inp||!box)return;
+  let res=[];
+  const close=()=>{box.classList.add("hidden");box.innerHTML="";};
+  inp.onfocus=()=>inp.select();
+  inp.onblur=()=>setTimeout(close,160);
+  inp.oninput=()=>{const q=normName(inp.value.trim());if(q.length<2){close();return;}
+    res=allPlayersIndexed().map(x=>x.p).filter(pp=>normName(pp.name).includes(q)).sort((a,b)=>(b.pir||0)-(a.pir||0)).slice(0,8);
+    box.innerHTML=res.length?res.map((pp,i)=>`<div class="gsitem" data-i="${i}">${pp.img?`<img src="${pp.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<img alt=""/>'}<div class="gi"><div class="gn">${pp.name}</div><div class="gm">${pp.teamName} \u00b7 ${fmt(pp.ppg)} pts</div></div><span class="glg">${leagueOf(pp).meta.name}</span></div>`).join(""):'<div class="gsempty">No players</div>';
+    box.classList.remove("hidden");
+    box.querySelectorAll(".gsitem").forEach(el=>el.onmousedown=e=>{e.preventDefault();openProfile(res[+el.dataset.i].id);});};
+  inp.onkeydown=e=>{if(e.key==="Enter"&&res.length){openProfile(res[0].id);}else if(e.key==="Escape"){close();inp.blur();}};
+}
 let CURRENT=null;
 function openProfile(id){CURRENT=id;const _p=player(id);if(_p){const _L=leagueOf(_p);if(_L)STATE.league=_L;}
   STATE.view="profile";updateScopeLabel();
   $$("#tabs button").forEach(x=>x.classList.remove("active"));renderProfile();}
 function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
   if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
-function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('euroscout:theme',t);}catch(e){}
-  const b=$("#themeBtn");if(b)b.textContent=(t==='light')?'☾ Dark':'☀ Light';}
-function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='light'?'dark':'light');}
+function applyTheme(t){document.documentElement.dataset.theme="light";}
+function toggleTheme(){}
 /* ---------- profile ranking helpers + leaderboards ---------- */
 const STAT_FMT={ppg:1,rpg:1,apg:1,spg:1,bpg:1,topg:1,mpg:1,pir:1,eff:1,usg:1,
   pts40:1,reb40:1,ast40:1,stl40:1,blk40:1,tov40:1,g:0,
@@ -1203,7 +1267,16 @@ function renderProfile(){
   const pool=scopePool(p), scopeName=leagueOf(p).meta.name;
   const grid=(STATE.statMode==="adv"?CARD_ADV:CARD_PG);
   $("#app").innerHTML=`<div class="view">
-    <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">\u2190 Back to players</button>
+    <div class="profnav">
+      <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">\u2190 Players</button>
+      <span class="pnav-spacer"></span>
+      <button class="pnav-btn" id="pnavPrev" title="Previous player">\u2039</button>
+      <div class="pnav-cbx">
+        <input type="text" id="pnavSearch" placeholder="Switch player\u2026" autocomplete="off" value="${p.name}"/>
+        <div class="pnav-res hidden" id="pnavRes"></div>
+      </div>
+      <button class="pnav-btn" id="pnavNext" title="Next player">\u203a</button>
+    </div>
     <div class="panel stickyhead">
       <div class="profhead">
         <div class="avatar${p.img?' zoomable':''}" ${p.img?`onclick="showPhoto('${p.img}','${p.name.replace(/'/g,"")}')" title="View photo"`:''}>${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
@@ -1299,6 +1372,7 @@ function renderProfile(){
     await saveRec(p,{rating:val});renderProfile();});
   $$("#app [data-mode]").forEach(b=>b.onclick=()=>{STATE.statMode=b.dataset.mode;renderProfile();});
   $$("#app .statcard.clk").forEach(c=>c.onclick=()=>openLeaderboard(c.dataset.k,c.querySelector('.sc-k').textContent));
+  wireProfileNav(p);
   $$("#app .biochip.clk").forEach(c=>c.onclick=()=>filterByAttr(c.dataset.filter,c.dataset.val,c.dataset.lab));
   renderTags(p);
   $("#watchToggle").onclick=async()=>{await toggleWatch(p.id);renderProfile();};
@@ -1331,9 +1405,11 @@ function renderCompare(){
   allPlayersFlat().forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);
     const n=newestOf(p); if(n.qualified||p._grp&&p._grp.some(x=>x.qualified))groups.push(n);});
   groups.sort((a,b)=>a.name.localeCompare(b.name));
-  const sel=(id,cur)=>{const curP=cur?player(cur):null;
+  const sel=(id,cur)=>{
+    const opts=STATE.data.leagues.map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("");
     return `<div class="cbx" data-cbx="${id}">
-      <input type="text" class="cbxin" id="${id}" placeholder="Search player\u2026" autocomplete="off" value="${curP?curP.name+" ("+curP.teamName+")":""}"/>
+      <input type="text" class="cbxin" id="${id}in" placeholder="Type to search\u2026" autocomplete="off" value="${cur?player(cur).name:""}"/>
+      <select class="cbxsel f" id="${id}"><option value="">\u2014 or pick from list \u2014</option>${opts}</select>
       <div class="cbxres hidden"></div></div>`;};
   const a=STATE.compare.a?player(STATE.compare.a):null;
   const b=STATE.compare.b?player(STATE.compare.b):null;
@@ -1379,7 +1455,7 @@ function renderCompare(){
   </div>`;
   const wireCbx=(id,slot)=>{
     const root=$(`[data-cbx="${id}"]`); if(!root)return;
-    const inp=root.querySelector(".cbxin"), box=root.querySelector(".cbxres");
+    const inp=root.querySelector(".cbxin"), sel=root.querySelector(".cbxsel"), box=root.querySelector(".cbxres");
     let results=[];
     const close=()=>{box.classList.add("hidden");box.innerHTML="";};
     const paint=()=>{box.innerHTML=results.map((p,i)=>{const Lp=leagueOf(p);
@@ -1387,13 +1463,14 @@ function renderCompare(){
       box.classList.remove("hidden");
       box.querySelectorAll(".gsitem").forEach(el=>el.onmousedown=e=>{e.preventDefault();
         const p=results[+el.dataset.i]; STATE.compare[slot]=p.id; renderCompare();});};
-    inp.oninput=()=>{const q=inp.value.trim().toLowerCase();
+    if(sel)sel.onchange=()=>{if(sel.value){STATE.compare[slot]=sel.value;renderCompare();}};
+    inp.oninput=()=>{const q=normName(inp.value.trim());
       if(q.length<2){close();return;}
-      results=groups.filter(p=>p.name.toLowerCase().includes(q)).slice(0,8);
+      results=groups.filter(p=>normName(p.name).includes(q)).slice(0,8);
       if(!results.length){box.innerHTML='<div class="gsempty">No players found</div>';box.classList.remove("hidden");return;}
       paint();};
     inp.onfocus=()=>{inp.select();};
-    inp.onblur=()=>setTimeout(close,150);
+    inp.onblur=()=>setTimeout(close,160);
     inp.onkeydown=e=>{if(e.key==="Enter"&&results.length){STATE.compare[slot]=results[0].id;renderCompare();}
       else if(e.key==="Escape")close();};
   };
@@ -1543,10 +1620,11 @@ function renderTeam(){
   const mkCards=list=>list.map(([k,lab,hi])=>{
     const v=agg[k];if(v==null||isNaN(v))return "";
     const r=teamRank(L,t.code,k,hi);
-    return `<div class="statcard sm clk" data-tk="${k}" data-tl="${lab}" data-th="${hi}" title="Tap for the ${lab} team ranking">
+    const rstyle=`color:${tRankColor(r.rank,r.n)};background:color-mix(in srgb,${tRankColor(r.rank,r.n)} 15%,var(--panel));border:1px solid color-mix(in srgb,${tRankColor(r.rank,r.n)} 30%,var(--line))`;
+    return `<div class="statcard clk" data-tk="${k}" data-tl="${lab}" data-th="${hi}" title="Tap for the ${lab} team ranking">
       <div class="sc-v">${(k==="net"||k==="orebdiff")&&v>0?"+":""}${fmt(v)}${lab.includes("%")&&!lab.includes("RATE")?"%":""}</div>
       <div class="sc-k">${lab}</div>
-      <div class="sc-r"><span class="rankpill" style="color:${tRankColor(r.rank,r.n)}">${ordinal(r.rank)}/${r.n}</span></div>
+      <div class="sc-rank" style="${rstyle}">${ordinal(r.rank)}/${r.n}</div>
     </div>`;}).join("");
   const cards=mkCards(TEAM_CARDS), advCards=mkCards(TEAM_CARDS_ADV);
   const games=(L.games||[]).filter(g=>g.h===t.code||g.a===t.code).sort((a,b)=>a.date.localeCompare(b.date));
@@ -1558,9 +1636,14 @@ function renderTeam(){
       <td class="l" style="color:${win?"var(--good)":"var(--bad)"};font-weight:700">${win?"W":"L"}</td>
       <td style="font-family:var(--mono)">${ts}\u2013${os}</td></tr>`;}).join("");
   const stTeams=L.teams.slice().sort((a,b)=>(a.group||"").localeCompare(b.group||"")||a.rank-b.rank);
-  const strows=stTeams.map(x=>`<tr class="${x.code===t.code?"me":""}" data-tc="${x.code}">
-      <td class="rk">${x.group?x.group+x.rank:x.rank}</td><td class="l">${x.name}</td>
-      <td>${x.w}</td><td>${x.l}</td><td style="color:${x.net>0?"var(--good)":x.net<0?"var(--bad)":"var(--muted)"}">${x.net>0?"+":""}${fmt(x.net)}</td></tr>`).join("");
+  const hasGroups=stTeams.some(x=>x.group);
+  let lastG=null,strows="";
+  stTeams.forEach(x=>{
+    if(hasGroups&&x.group!==lastG){lastG=x.group;strows+=`<tr class="stgrouprow"><td colspan="8">Group ${x.group}</td></tr>`;}
+    strows+=`<tr class="${x.code===t.code?"me":""}" data-tc="${x.code}">
+      <td class="rk">${x.rank}</td><td class="l">${x.name}</td>
+      <td>${x.w}</td><td>${x.l}</td><td class="pfpa">${x.pf!=null?x.pf:"–"}</td><td class="pfpa">${x.pa!=null?x.pa:"–"}</td>
+      <td style="color:${x.net>0?"var(--good)":x.net<0?"var(--bad)":"var(--muted)"}">${x.net>0?"+":""}${fmt(x.net)}</td></tr>`;});
   $("#app").innerHTML=`<div class="view">
     <button class="backlink" onclick="STATE.view='teams';render()">\u2190 Back to teams</button>
     <div class="panel">
@@ -1593,7 +1676,7 @@ function renderTeam(){
     <div class="twocol" style="margin-top:16px">
       <div class="panel"><h3>Standings \u00b7 ${L.meta.name}</h3>
         <div class="tablewrap stwrap"><table class="sttbl">
-          <thead><tr><th class="rk">#</th><th class="l">TEAM</th><th>W</th><th>L</th><th>NET</th></tr></thead>
+          <thead><tr><th class="rk">#</th><th class="l">TEAM</th><th>W</th><th>L</th><th title="Points for">PF</th><th title="Points against">PA</th><th>NET</th></tr></thead>
           <tbody>${strows}</tbody></table></div>
       </div>
       <div class="panel"><h3>Game log \u00b7 ${games.length} games</h3>
@@ -1668,7 +1751,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
 
 boot();
 </script>
