@@ -1,0 +1,372 @@
+811|Boban Marjanović|ILI|0|Center||222||1988-08-15|Serbia|https://www.aba-liga.com/stats/img/foto/811.png
+819|Zoran Dragić|SPL|0|Guard||196||1989-06-22|SVN|https://www.aba-liga.com/stats/img/foto/819.png
+935|Leon Radošević|SPL|0|Center||208||1990-02-26|HRV|https://www.aba-liga.com/stats/img/foto/935.png
+960|Vladimir Mihailović|ZAD|0|Guard||193||1990-08-10|Montenegro|https://www.aba-liga.com/stats/img/foto/960.png
+1076|Dragan Milosavljević|IGO|0|Guard||198||1989-05-11|Serbia|https://www.aba-liga.com/stats/img/foto/1076.png
+1146|Miralem Halilović|BOS|0|Forward||208||1991-07-22|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/1146.png
+1175|Edo Murić|ILI|0|Forward||202||1991-11-27|SVN|https://www.aba-liga.com/stats/img/foto/1175.png
+1178|Danilo Anđušić|DUB|0|Guard||195||1991-04-22|Serbia|https://www.aba-liga.com/stats/img/foto/1178.png
+1190|Nikola Kalinić|CZV|0|Forward||203||1991-11-08|Serbia|https://www.aba-liga.com/stats/img/foto/1190.png
+1221|Marko Ramljak|ZAD|0|Forward||201||1993-03-14|HRV|https://www.aba-liga.com/stats/img/foto/1221.png
+2034|Davis Bertans|DUB|0|Forward||208||1992-11-12|LVA|https://www.aba-liga.com/stats/img/foto/2034.png
+2077|Jaka Blažič|COL|0|Guard||196||1990-06-30|SVN|https://www.aba-liga.com/stats/img/foto/2077.png
+2083|Nemanja Dangubić|DUB|0|Forward||204||1993-04-13|Serbia|https://www.aba-liga.com/stats/img/foto/2083.png
+2096|Žiga Dimec|BOR|0|Center||210||1993-02-20|SVN|https://www.aba-liga.com/stats/img/foto/2096.png
+2101|Klemen Prepelič|DUB|0|Guard||191||1992-10-20|SVN|https://www.aba-liga.com/stats/img/foto/2101.png
+2102|Matic Rebec|SCD|0|Guard||181||1995-01-24|SVN|https://www.aba-liga.com/stats/img/foto/2102.png
+2112|Danilo Nikolić|SPR|0|Forward||205||1993-04-08|Montenegro|https://www.aba-liga.com/stats/img/foto/2112.png
+2151|Jakov Mustapić|IGO|0|Guard||192||1994-08-22|HRV|https://www.aba-liga.com/stats/img/foto/2151.png
+2198|Paolo Marinelli|SPL|0|Guard||191||1995-04-10|HRV|https://www.aba-liga.com/stats/img/foto/2198.png
+2203|Lovro Mazalin|ZAD|0|Forward||205||1997-06-28|HRV|https://www.aba-liga.com/stats/img/foto/2203.png
+2281|Marko Luković|MEG|0|Forward||207||1992-05-26|Serbia|https://www.aba-liga.com/stats/img/foto/2281.png
+2312|Nikola Rebić|SPR|0|Guard||188||1995-01-22|Serbia|https://www.aba-liga.com/stats/img/foto/2312.png
+2321|Đoko Šalić|BOS|0|Center||210||1995-09-18|Serbia|https://www.aba-liga.com/stats/img/foto/2321.png
+2334|Vojislav Stojanović|VIE|0|Guard||196||1997-04-14|Serbia|https://www.aba-liga.com/stats/img/foto/2334.png
+2340|Blaž Mahkovic|KRK|0|Forward||201||1990-03-21|SVN|https://www.aba-liga.com/stats/img/foto/2340.png
+2357|Karlo Žganec|ZAD|0|Forward||206||1995-07-25|HRV|https://www.aba-liga.com/stats/img/foto/2357.png
+2359|Ognjen Jaramaz|COL|1|Guard||192||1995-09-01|Serbia|https://www.aba-liga.com/stats/img/foto/2359.png
+2366|Vasilije Baćović|SCD|0|Forward||208||1996-05-11|Montenegro|https://www.aba-liga.com/stats/img/foto/2366.png
+2369|Vanja Marinković|PAR|0|Guard||195||1997-01-09|Serbia|https://www.aba-liga.com/stats/img/foto/2369.png
+2393|Marko Jošilo|BOR|0|Forward||200||1992-10-16|Serbia|https://www.aba-liga.com/stats/img/foto/2393.png
+2407|Adem Mekić|ZAD|0|Guard||195||1995-12-28|North Macedonia|https://www.aba-liga.com/stats/img/foto/2407.png
+2434|Aleksa Radanov|PAR|0|Guard||202||1998-02-01|Serbia|https://www.aba-liga.com/stats/img/foto/2434.png
+2472|Glenn Miller Cosey|SPL|0|Guard||183||1992-02-17|USA|https://www.aba-liga.com/stats/img/foto/2472.png
+2474|Novak Musić|IGO|0|Guard||188||1998-05-27|Serbia|https://www.aba-liga.com/stats/img/foto/2474.png
+2481|Aleksa Ilić|SCD|0|Forward||205||1996-09-17|Montenegro|https://www.aba-liga.com/stats/img/foto/2481.png
+2482|Andrija Slavković|BUD|0|Forward||203||1999-02-15|Montenegro|https://www.aba-liga.com/stats/img/foto/2482.png
+2483|Nikola Pavlićević|SCD|0|Guard||192||1988-08-13|Montenegro|https://www.aba-liga.com/stats/img/foto/2483.png
+2495|Boriša Simanić|IGO|0|Forward||211||1998-03-20|Serbia|https://www.aba-liga.com/stats/img/foto/2495.png
+2502|Džanan Musa|DUB|0|Guard||204||1999-05-08|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/2502.png
+2525|Uroš Plavšić|CZV|0|Center||217||1998-12-22|Serbia|https://www.aba-liga.com/stats/img/foto/2525.png
+2535|Dejan Davidovac|CZV|0|Forward||202||1995-01-17|Serbia|https://www.aba-liga.com/stats/img/foto/2535.png
+2540|Ognjen Dobrić|CZV|0|Guard||200||1994-10-27|Serbia|https://www.aba-liga.com/stats/img/foto/2540.png
+2544|Marko Radovanović|FMP|0|Forward||209||1996-04-03|Serbia|https://www.aba-liga.com/stats/img/foto/2544.png
+2546|Leon Šantelj|KRK|0|Forward||205||1995-04-25|SVN|https://www.aba-liga.com/stats/img/foto/2546.png
+2560|Emir Hadžibegović|SCD|0|Forward||206||1996-08-24|Montenegro|https://www.aba-liga.com/stats/img/foto/2560.png
+2562|Zoran Nikolić|BUD|0|Center||212||1996-04-01|Montenegro|https://www.aba-liga.com/stats/img/foto/2562.png
+2594|Petar Popović|IGO|1|Guard||195||1996-09-13|Montenegro|https://www.aba-liga.com/stats/img/foto/2594.png
+2618|Lovro Buljević|ZAD|1|Center||210||1998-08-12|HRV|https://www.aba-liga.com/stats/img/foto/2618.png
+2627|Nikola Tanasković|BUD|0|Forward||204||1997-10-21|Serbia|https://www.aba-liga.com/stats/img/foto/2627.png
+2630|Darko Bajo|VIE|0|Forward||204||1999-03-14|HRV|https://www.aba-liga.com/stats/img/foto/2630.png
+2633|Antonio Jordano|SPL|0|Guard||188||1999-02-25|HRV|https://www.aba-liga.com/stats/img/foto/2633.png
+2640|Dalibor Ilić|SPR|0|Forward||202||2000-03-04|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/2640.png
+2667|Stefan Momirov|SPR|0|Guard||198||1999-12-18|Serbia|https://www.aba-liga.com/stats/img/foto/2667.png
+2669|Aleksa Uskoković|BOR|1|Guard||189||1999-08-30|Serbia|https://www.aba-liga.com/stats/img/foto/2669.png
+2699|Stefan Fundić|BOR|0|Forward||200||1994-06-30|Serbia|https://www.aba-liga.com/stats/img/foto/2699.png
+2708|Aleksandar Lazić|IGO|0|Forward||203||1996-06-10|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/2708.png
+2746|Dušan Beslać|CLU|0|Forward||205||1998-10-06|Serbia|https://www.aba-liga.com/stats/img/foto/2746.png
+2755|Uroš Čarapić|BOR|0|Guard||195||1996-09-24|Serbia|https://www.aba-liga.com/stats/img/foto/2755.png
+2810|Strahinja Gavrilović|IGO|0|Forward||206||1993-04-05|Serbia|https://www.aba-liga.com/stats/img/foto/2810.png
+2850|Jure Zubac|BOS|0|Forward||204||1995-03-15|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/2850.png
+2852|Dario Drežnjak|SPL|0|Forward||204||1998-03-24|HRV|https://www.aba-liga.com/stats/img/foto/2852.png
+2853|Mateo Drežnjak|SCD|0|Guard||195||1999-03-08|HRV|https://www.aba-liga.com/stats/img/foto/2853.png
+2860|Marko Jeremić|IGO|0|Guard||192||1991-11-23|Serbia|https://www.aba-liga.com/stats/img/foto/2860.png
+2866|Marko Kovačević|FMP|0|Guard||201||1999-07-29|Serbia|https://www.aba-liga.com/stats/img/foto/2866.png
+2898|Gregor Glas|VIE|0|Guard||192||2001-04-29|SVN|https://www.aba-liga.com/stats/img/foto/2898.png
+2922|Sandro Antunović|IGO|0|Forward||207||1998-05-07|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/2922.png
+2928|Ranko Simović|BOR|0|Forward||199||1999-06-07|Serbia|https://www.aba-liga.com/stats/img/foto/2928.png
+2931|Arijan Lakić|PAR|0|Guard||197||2000-01-20|Serbia|https://www.aba-liga.com/stats/img/foto/2931.png
+2937|Nikola Manojlović|IGO|1|Guard||201||2002-02-14|Serbia|https://www.aba-liga.com/stats/img/foto/2937.png
+2957|Miha Cerkvenik|COL|0|Guard||201||2001-11-09|SVN|https://www.aba-liga.com/stats/img/foto/2957.png
+2982|Luka Cerovina|SPR|0|Forward||200||2000-04-08|Serbia|https://www.aba-liga.com/stats/img/foto/2982.png
+2983|Igor Drobnjak|SPR|0|Guard||188||2000-04-21|Montenegro|https://www.aba-liga.com/stats/img/foto/2983.png
+3006|Balša Živanović|BOR|1|Guard||188||2001-04-06|Montenegro|https://www.aba-liga.com/stats/img/foto/3006.png
+3036|Marko Pavićević|VIE|0|Center||209||2001-05-08|Serbia|https://www.aba-liga.com/stats/img/foto/3036.png
+3049|Rok Radović|COL|0|Forward||200||2001-02-04|SVN|https://www.aba-liga.com/stats/img/foto/3049.png
+3051|Matej Bošnjak|SPL|0|Center||204||2002-01-08|HRV|https://www.aba-liga.com/stats/img/foto/3051.png
+3058|Petar Mijović|SCD|0|||||1982-02-23||https://www.aba-liga.com/stats/img/foto/3058.png
+3109|Luka Ašćerić|VIE|0|Guard||201||1997-01-10|Serbia|https://www.aba-liga.com/stats/img/foto/3109.png
+3119|Jan Rebec|KRK|0|Guard||192||1993-09-28|SVN|https://www.aba-liga.com/stats/img/foto/3119.png
+3124|Aleksej Nikolić|COL|0|Guard||191||1995-02-21|SVN|https://www.aba-liga.com/stats/img/foto/3124.png
+3143|Urban Oman|KRK|0|Forward||198||1998-12-02|SVN|https://www.aba-liga.com/stats/img/foto/3143.png
+3152|Kenan Kamenjaš|DUB|0|Center||207||2000-01-17|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/3152.png
+3158|Vojin Ilić|IGO|0|Forward||200||2000-08-09|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/3158.png
+3168|Amar Gegić|SCD|1|Forward||200||1998-02-14|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/3168.png
+3203|Bine Prepelič|ILI|0|Forward||200||2001-08-05|SVN|https://www.aba-liga.com/stats/img/foto/3203.png
+3212|Ivan Perasović|SPL|0|Forward||200||2002-04-23|HRV|https://www.aba-liga.com/stats/img/foto/3212.png
+3213|Lovre Runjić|VIE|0|Forward||197||2000-09-09|HRV|https://www.aba-liga.com/stats/img/foto/3213.png
+3215|Edin Atić|BOS|0|Forward||201||1997-01-19|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/3215.png
+3241|Noa Svoboda|SPL|0|Guard||190||2003-01-22|HRV|https://www.aba-liga.com/stats/img/foto/3241.png
+3260|Jaka Klobučar|KRK|0|Guard||202||2003-03-27|SVN|https://www.aba-liga.com/stats/img/foto/3260.png
+3281|Mihailo Mušikić|BOR|0|Center||213||2002-03-25|Serbia|https://www.aba-liga.com/stats/img/foto/3281.png
+3284|Saša Nikitović|FMP|0|||||1979-06-12||https://www.aba-liga.com/stats/img/foto/3284.png
+3316|Robert Jurković|ILI|0|Forward||208||2002-06-14|SVN|https://www.aba-liga.com/stats/img/foto/3316.png
+3317|Žiga Daneu|COL|0|Forward||211||2002-08-10|SVN|https://www.aba-liga.com/stats/img/foto/3317.png
+3336|Lazar Stefanović|FMP|1|Forward||201||2002-04-27|Serbia|https://www.aba-liga.com/stats/img/foto/3336.png
+3361|Kosta Kondić|DUB|0|Guard||193||2001-08-05|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/3361.png
+3372|Danijel Jusup|ZAD|0|||||1961-09-08||https://www.aba-liga.com/stats/img/foto/3372.png
+3434|Codi Miller-McIntyre|CZV|0|Guard||191||1994-06-01|USA|https://www.aba-liga.com/stats/img/foto/3434.png
+3444|Dušan Miletić|CLU|0|Center||212||1998-07-30|Serbia|https://www.aba-liga.com/stats/img/foto/3444.png
+3483|Zoran Vučeljić|SCD|0|Guard||197||2003-09-09|Montenegro|https://www.aba-liga.com/stats/img/foto/3483.png
+3512|Đorđe Topolović|IGO|0|Center||208||2001-07-07|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/3512.png
+3548|Nikola Đurišić|MEG|0|Guard||204||2004-02-23|Serbia|https://www.aba-liga.com/stats/img/foto/3548.png
+3551|Petar Kovačević|BOS|1|Forward||203||2002-10-30|Serbia|https://www.aba-liga.com/stats/img/foto/3551.png
+3564|Krševan Klarica|ZAD|0|Forward||200||2003-11-10|HRV|https://www.aba-liga.com/stats/img/foto/3564.png
+3565|Antonio Sikirić|SPL|0|Forward||201||2003-10-27|HRV|https://www.aba-liga.com/stats/img/foto/3565.png
+3583|Nikola Šaranović|SCD|0|Forward||200||2003-08-20|Serbia|https://www.aba-liga.com/stats/img/foto/3583.png
+3596|Andrej Žakelj|BUD|0|||||1978-11-17||https://www.aba-liga.com/stats/img/foto/3596.png
+3617|Vladimir Jovanović|SPR|0|||||1973-07-04||https://www.aba-liga.com/stats/img/foto/3617.png
+3636|Matija Belić|FMP|0|Forward||200||2003-05-16|Serbia|https://www.aba-liga.com/stats/img/foto/3636.png
+3644|Borna Kapusta|ZAD|0|Guard||182||1996-07-24|HRV|https://www.aba-liga.com/stats/img/foto/3644.png
+3653|Filip Petrušev|DUB|0|Forward||211||2000-04-15|Serbia|https://www.aba-liga.com/stats/img/foto/3653.png
+3675|Filip Barna|FMP|0|Forward||201||1999-12-05|Serbia|https://www.aba-liga.com/stats/img/foto/3675.png
+3717|Nikola Popović|IGO|0|Center||211||1997-07-19|Serbia|https://www.aba-liga.com/stats/img/foto/3717.png
+3737|Fletcher Magee|BUD|0|Guard||193||1996-11-13|USA|https://www.aba-liga.com/stats/img/foto/3737.png
+3750|Đorđije Jovanović|BUD|0|Guard||197||2003-05-15|Montenegro|https://www.aba-liga.com/stats/img/foto/3750.png
+3755|Ebuka Izundu|CZV|0|Center||208||1996-06-28|NGA|https://www.aba-liga.com/stats/img/foto/3755.png
+3783|Đorđe Ćurčić M.|BOR|0|Guard||195||2005-04-17|Serbia|https://www.aba-liga.com/stats/img/foto/3783.png
+3784|Pavle Nikolić|BOR|0|Forward||200||2005-09-04|Serbia|https://www.aba-liga.com/stats/img/foto/3784.png
+3797|Marko Vukčević|MEG|0|Forward||204||2003-05-06|Serbia|https://www.aba-liga.com/stats/img/foto/3797.png
+3799|Aleksa Milenković|MEG|0|Forward||204||2004-04-18|Serbia|https://www.aba-liga.com/stats/img/foto/3799.png
+3819|Filip Anđušić|SCD|0|Center||207||2002-01-22|Montenegro|https://www.aba-liga.com/stats/img/foto/3819.png
+3826|Lazar Gačić|MEG|0|Center||214||2005-01-31|Serbia|https://www.aba-liga.com/stats/img/foto/3826.png
+3833|Bogoljub Marković|MEG|0|Forward||212||2005-07-12|Serbia|https://www.aba-liga.com/stats/img/foto/3833.png
+3857|Aleksa Avramović|DUB|0|Guard||192||1994-10-25|Serbia|https://www.aba-liga.com/stats/img/foto/3857.png
+3860|Boris Tišma|ZAD|0|Forward||205||2002-02-20|HRV|https://www.aba-liga.com/stats/img/foto/3860.png
+3892|Uroš Banjac|SPR|0|Guard||196||2001-03-22|Serbia|https://www.aba-liga.com/stats/img/foto/3892.png
+3929|Diante Raynard Baldwin|BOR|0|Guard||185||1994-10-17|USA|https://www.aba-liga.com/stats/img/foto/3929.png
+4001|Ognjen Radošić|CZV|0|Guard||197||2006-05-26|Serbia|https://www.aba-liga.com/stats/img/foto/4001.png
+4020|Andrej Mušicki|MEG|0|Guard||189||2005-02-14|Serbia|https://www.aba-liga.com/stats/img/foto/4020.png
+4021|Asim Đulović|MEG|0|Forward||205||2005-07-30|Serbia|https://www.aba-liga.com/stats/img/foto/4021.png
+4033|Domen Zevnik|KRK|0|||||1994-04-05||https://www.aba-liga.com/stats/img/foto/4033.png
+4054|Vasilije Todorović|SCD|0|Guard||196||2005-01-21|Montenegro|https://www.aba-liga.com/stats/img/foto/4054.png
+4064|Manuel Dundović|ZAD|0|Forward||192||2005-10-25|HRV|https://www.aba-liga.com/stats/img/foto/4064.png
+4065|Toni Torbarina|ZAD|0|Guard||186||2006-09-19|HRV|https://www.aba-liga.com/stats/img/foto/4065.png
+4099|Roko Jemo|SPL|0|Guard||191||2007-04-25|HRV|https://www.aba-liga.com/stats/img/foto/4099.png
+4104|Kevin Duane Ferrell Jr|BUD|0|Guard||183||1993-05-09|USA|https://www.aba-liga.com/stats/img/foto/4104.png
+4116|Dontay Caruthers|BOS|0|Guard||185||1995-06-23|USA|https://www.aba-liga.com/stats/img/foto/4116.png
+4139|Ahmaad Malik Rorie|IGO|0|Guard||185||1995-09-15|USA|https://www.aba-liga.com/stats/img/foto/4139.png
+4140|Lewis Henry Beech III|ZAD|0|Forward||201||1994-03-01|USA|https://www.aba-liga.com/stats/img/foto/4140.png
+4141|Daron Fatts Russell|CLU|0|Guard||180||1998-05-06|USA|https://www.aba-liga.com/stats/img/foto/4141.png
+4152|Haris Delalić|BOS|1|Forward||203||1994-04-24|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/4152.png
+4181|Mario Nakić|PAR|0|Forward||202||2001-06-14|Serbia|https://www.aba-liga.com/stats/img/foto/4181.png
+4209|Niko Bačvić|KRK|0|Guard||191||1997-09-23|SVN|https://www.aba-liga.com/stats/img/foto/4209.png
+4260|Ognjen Srzentić|MEG|0|Guard||202||2007-03-18|Serbia|https://www.aba-liga.com/stats/img/foto/4260.png
+4261|Abdramane Siby|MEG|0|Center||213||2006-10-02|Serbia|https://www.aba-liga.com/stats/img/foto/4261.png
+4300|Žak Smrekar|KRK|0|Guard||196||2006-08-10|SVN|https://www.aba-liga.com/stats/img/foto/4300.png
+4309|Vlado Komnenović|SCD|0|Guard||182||2007-03-12|Montenegro|https://www.aba-liga.com/stats/img/foto/4309.png
+4323|Petar Ostojić|FMP|0|Center||215||2007-05-04|Serbia|https://www.aba-liga.com/stats/img/foto/4323.png
+4332|Luka Bičić|ZAD|0|Guard||177||2007-10-02|HRV|https://www.aba-liga.com/stats/img/foto/4332.png
+4335|Marko Vučković|FMP|0|Forward||206||2005-06-25|Serbia|https://www.aba-liga.com/stats/img/foto/4335.png
+4366|Armin Hrštić|IGO|0|Guard||196||2000-05-30|HRV|https://www.aba-liga.com/stats/img/foto/4366.png
+4397|Savo Drezgić|MEG|0|Guard||192||2006-08-11|Serbia|https://www.aba-liga.com/stats/img/foto/4397.png
+4403|Urban Kroflič|MEG|0|Guard||198||2006-03-28|SVN|https://www.aba-liga.com/stats/img/foto/4403.png
+4412|Stefan Miljenović|CZV|0|Guard||190||2001-08-21|Serbia|https://www.aba-liga.com/stats/img/foto/4412.png
+4418|Vito Kučić|SPL|0|Guard||191||2002-03-28|HRV|https://www.aba-liga.com/stats/img/foto/4418.png
+4421|Ivan Bogdanović|SCD|0|Forward||201||2004-07-13|HRV|https://www.aba-liga.com/stats/img/foto/4421.png
+4423|Joel Bolomboy|CZV|0|Center||203||1994-01-28|USA|https://www.aba-liga.com/stats/img/foto/4423.png
+4431|McKinley Wright IV|DUB|0|Guard||180||1998-10-25|USA|https://www.aba-liga.com/stats/img/foto/4431.png
+4437|Filip Rebrača|FMP|0|Forward||206||1997-09-03|Serbia|https://www.aba-liga.com/stats/img/foto/4437.png
+4452|Nenad Stefanović|IGO|0|||||1985-08-31||https://www.aba-liga.com/stats/img/foto/4452.png
+4462|Emir Likić|BOS|0|Forward||203||2004-12-01||https://www.aba-liga.com/stats/img/foto/4462.png
+4467|Luka Kureš|ILI|0|Guard||190||1998-09-28|SVN|https://www.aba-liga.com/stats/img/foto/4467.png
+4468|Mark Padjen|ILI|0|Guard||196||2006-01-25|SVN|https://www.aba-liga.com/stats/img/foto/4468.png
+4476|Stipe Modrić|ILI|0|||||1979-05-08||https://www.aba-liga.com/stats/img/foto/4476.png
+4485|Dewayne Stewart JR|COL|0|Guard||198||1999-07-28|USA|https://www.aba-liga.com/stats/img/foto/4485.png
+4503|Petar Radović|BOR|0|Guard||185||2007-11-05|Serbia|https://www.aba-liga.com/stats/img/foto/4503.png
+4505|Dušan Radosavljević|FMP|0|Forward||203||2001-11-03|Serbia|https://www.aba-liga.com/stats/img/foto/4505.png
+4520|Vojin Medarević|SPR|0|Forward||206||2002-06-07|Serbia|https://www.aba-liga.com/stats/img/foto/4520.png
+4530|Yago Dos Santos|CZV|0|Guard||178||1999-03-09|Brazil|https://www.aba-liga.com/stats/img/foto/4530.png
+4544|Jarrod West II|BOS|0|Guard||183||1999-03-29|USA|https://www.aba-liga.com/stats/img/foto/4544.png
+4591|Bruno Caboclo|DUB|0|Center||208||1995-09-21|Brazil|https://www.aba-liga.com/stats/img/foto/4591.png
+4598|Martin Tonejc|COL|0|Forward||204||2006-04-14|SVN|https://www.aba-liga.com/stats/img/foto/4598.png
+4607|Luka Gulan|ZAD|0|Forward||197||2007-10-07|HRV|https://www.aba-liga.com/stats/img/foto/4607.png
+4628|Aleksandar Krunić|BOR|0|Guard||199||2008-07-25|Serbia|https://www.aba-liga.com/stats/img/foto/4628.png
+4660|Nikola Karalić|MEG|0|Forward||202||2008-09-20|Serbia|https://www.aba-liga.com/stats/img/foto/4660.png
+4661|Pavle Bačko|MEG|0|Center||213||2007-07-11|Serbia|https://www.aba-liga.com/stats/img/foto/4661.png
+4664|Vuk Danilović|MEG|0|Guard||193||2008-01-02|Serbia|https://www.aba-liga.com/stats/img/foto/4664.png
+4666|Bine Gabrijel|ILI|0|Guard||188||2007-05-18|SVN|https://www.aba-liga.com/stats/img/foto/4666.png
+4672|Jazon Krošelj|KRK|0|Guard||185||2008-09-20|SVN|https://www.aba-liga.com/stats/img/foto/4672.png
+4700|Mićo Milovanović|IGO|0|Guard||191||2008-09-19|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/4700.png
+4716|Uroš Danilović|PAR|0|Guard||201||2007-09-15|Serbia|https://www.aba-liga.com/stats/img/foto/4716.png
+4722|Derin Can Ustun|COL|0|Guard||192||2007-03-07|Turkiye|https://www.aba-liga.com/stats/img/foto/4722.png
+4724|Rašid Mahalbašić|VIE|0|Center||211||1990-11-07|Austria|https://www.aba-liga.com/stats/img/foto/4724.png
+4755|Tim Tomažič|ILI|0|Guard||200||1999-09-19|SVN|https://www.aba-liga.com/stats/img/foto/4755.png
+4758|Danilo Nikezić|SCD|0|Guard||201||2007-02-01|Montenegro|https://www.aba-liga.com/stats/img/foto/4758.png
+4760|Zvezdan Mitrović|COL|0|||||1970-02-19||https://www.aba-liga.com/stats/img/foto/4760.png
+4769|Rasheed Sulaimon|BUD|0|Guard||190||1994-03-09|USA|https://www.aba-liga.com/stats/img/foto/4769.png
+4772|David Škara|COL|0|Forward||205||1995-02-26|HRV|https://www.aba-liga.com/stats/img/foto/4772.png
+4776|Nikola Gašić|FMP|0|Center||212||2001-11-17|Serbia|https://www.aba-liga.com/stats/img/foto/4776.png
+4779|Saša Ocokoljić|BOR|0|||||1976-10-21||https://www.aba-liga.com/stats/img/foto/4779.png
+4780|Aleksa Stanojević|FMP|0|Forward||204||2006-09-02|Serbia|https://www.aba-liga.com/stats/img/foto/4780.png
+4781|Juwan Morgan|BUD|0|Forward||201||1997-04-17|USA|https://www.aba-liga.com/stats/img/foto/4781.png
+4787|Awudu Abass|DUB|0|Forward||198||1993-01-27|Italy|https://www.aba-liga.com/stats/img/foto/4787.png
+4788|Tayler Persons|BOS|0|Guard||191||1995-08-31|USA|https://www.aba-liga.com/stats/img/foto/4788.png
+4799|Isaac Bonga|PAR|0|Forward||204||1999-11-08|DEU|https://www.aba-liga.com/stats/img/foto/4799.png
+4800|Mitar Bošnjaković|PAR|0|Forward||200||2006-08-24|Serbia|https://www.aba-liga.com/stats/img/foto/4800.png
+4801|Sterling Brown|PAR|0|Guard||197||1995-02-10|USA|https://www.aba-liga.com/stats/img/foto/4801.png
+4804|Aleksej Pokuševski|PAR|0|Forward||212||2001-12-26|Serbia|https://www.aba-liga.com/stats/img/foto/4804.png
+4805|Tyrique Jones|PAR|0|Center||206||1997-05-03|USA|https://www.aba-liga.com/stats/img/foto/4805.png
+4806|Duane Washington|PAR|0|Guard||190||2000-03-24|USA|https://www.aba-liga.com/stats/img/foto/4806.png
+4807|Carlik Jones|PAR|0|Guard||185||1997-12-23|South Sudan|https://www.aba-liga.com/stats/img/foto/4807.png
+4831|Asim Gutić|BOS|0|Guard||190||2001-12-12|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/4831.png
+4838|Gašper Škorjanc|ILI|0|Guard||188||2004-02-19|SVN|https://www.aba-liga.com/stats/img/foto/4838.png
+4844|Joshua Micah Aaron Scott|FMP|0|Guard||192||1998-01-19|USA|https://www.aba-liga.com/stats/img/foto/4844.png
+4848|Lovro Urbiha|KRK|0|Forward||204||2003-10-27|SVN|https://www.aba-liga.com/stats/img/foto/4848.png
+4873|Boris Bodrožić|SPR|0|Center||211||2004-09-24|Serbia|https://www.aba-liga.com/stats/img/foto/4873.png
+4883|Uroš Šuput|MEG|0|Guard||193||2006-07-20|Serbia|https://www.aba-liga.com/stats/img/foto/4883.png
+4887|Milan Šuput|MEG|0|Forward||198||2004-06-08|Serbia|https://www.aba-liga.com/stats/img/foto/4887.png
+4890|Lovro Faganel|ILI|0|Guard||200||2007-09-05|SVN|https://www.aba-liga.com/stats/img/foto/4890.png
+4907|Umoja Adeyemi Gibson|COL|0|Guard||185||1998-07-04|USA|https://www.aba-liga.com/stats/img/foto/4907.png
+4922|Timotej Balažić|KRK|0|Guard||192||2008-03-08|SVN|https://www.aba-liga.com/stats/img/foto/4922.png
+4945|Vanja Mlađenović|SPR|0|Guard||190||2006-02-20|Serbia|https://www.aba-liga.com/stats/img/foto/4945.png
+4957|Alexander Božiković|ZAD|0|Center||207||2008-12-19|HRV|https://www.aba-liga.com/stats/img/foto/4957.png
+4973|Aleksa Stiković|MEG|0|Guard||196||2008-11-10|Serbia|https://www.aba-liga.com/stats/img/foto/4973.png
+4994|Aleksa Obrenić|BOR|0|Guard||193||2008-03-16|Serbia|https://www.aba-liga.com/stats/img/foto/4994.png
+4999|Zvonimir Dujaković|SCD|0|Forward||208||2008-05-08|HRV|https://www.aba-liga.com/stats/img/foto/4999.png
+5006|Aleksej Nedeljković|CZV|0|Guard||200||2008-05-05|Serbia|https://www.aba-liga.com/stats/img/foto/5006.png
+5011|Novak Pavlović|CZV|0|Guard||192||2008-12-05|Serbia|https://www.aba-liga.com/stats/img/foto/5011.png
+5012|Sava Đurić|CZV|0|Center||209||2007-04-07|Serbia|https://www.aba-liga.com/stats/img/foto/5012.png
+5016|Andrija Đaletić|SCD|0|Forward||205||2007-04-22|Montenegro|https://www.aba-liga.com/stats/img/foto/5016.png
+5017|Balša Mugoša|SCD|0|Guard||195||2008-04-05|Montenegro|https://www.aba-liga.com/stats/img/foto/5017.png
+5018|Marko Savić|MEG|0|Guard||188||2008-09-01|Serbia|https://www.aba-liga.com/stats/img/foto/5018.png
+5020|Vuk Todorović|SCD|0|Guard||199||2007-10-13|Montenegro|https://www.aba-liga.com/stats/img/foto/5020.png
+5021|Đorđe Gnjato|MEG|0|Forward||202||2008-04-01|Serbia|https://www.aba-liga.com/stats/img/foto/5021.png
+5023|Lazar Rakočević|SCD|0|Forward||203||2007-11-16|Montenegro|https://www.aba-liga.com/stats/img/foto/5023.png
+5024|Vuk Ivelja|SCD|0|Guard||184||2008-11-07|Montenegro|https://www.aba-liga.com/stats/img/foto/5024.png
+5025|Tomislav Vuckovic|DUB|0|Guard||192||2008-01-30|HRV|https://www.aba-liga.com/stats/img/foto/5025.png
+5027|Marko Popović|SCD|0|Forward||200||2009-08-06|Montenegro|https://www.aba-liga.com/stats/img/foto/5027.png
+5028|Uroš Mijailović|PAR|0|Guard||195||2008-03-06|Serbia|https://www.aba-liga.com/stats/img/foto/5028.png
+5037|Damjan Radulović|BOR|0|Guard||190||2008-07-23|Serbia|https://www.aba-liga.com/stats/img/foto/5037.png
+5053|Jerry Franck Boutsiele|BUD|0|Center||207||1992-12-16|France|https://www.aba-liga.com/stats/img/foto/5053.png
+5061|Jacob Geno Stephens|SPL|0|Center||211||1999-11-05|USA|https://www.aba-liga.com/stats/img/foto/5061.png
+5068|Petar Grojić|FMP|0|Guard||195||2001-03-06|Serbia|https://www.aba-liga.com/stats/img/foto/5068.png
+5071|Janari Joesaar|BOS|0|Guard||198||1993-12-08|Estonia|https://www.aba-liga.com/stats/img/foto/5071.png
+5072|Oleksandr Kovliar|BUD|0|Guard||191||2002-06-26|Ukraine|https://www.aba-liga.com/stats/img/foto/5072.png
+5073|Axel Bouteille|BUD|0|Forward||201||1995-04-14|France|https://www.aba-liga.com/stats/img/foto/5073.png
+5074|Jordan Nwora|CZV|0|Forward||203||1998-09-09|NGA|https://www.aba-liga.com/stats/img/foto/5074.png
+5076|Chima Moneke|CZV|0|Forward||199||1995-12-24|NGA|https://www.aba-liga.com/stats/img/foto/5076.png
+5077|Semi Ojeleye|CZV|0|Forward||198||1994-12-05|NGA|https://www.aba-liga.com/stats/img/foto/5077.png
+5078|Mouhammadou Jaiteh|DUB|0|Center||211||1994-11-27|France|https://www.aba-liga.com/stats/img/foto/5078.png
+5080|Justin Anderson|DUB|0|Forward||196||1993-11-19|USA|https://www.aba-liga.com/stats/img/foto/5080.png
+5081|Christyon Eugene|FMP|0|Guard||191||2001-03-19|USA|https://www.aba-liga.com/stats/img/foto/5081.png
+5082|John Ojiako|FMP|0|Forward||207||2000-06-15|NGA|https://www.aba-liga.com/stats/img/foto/5082.png
+5085|Sukhmail Mathon|KRK|0|Center||208||1998-05-01|USA|https://www.aba-liga.com/stats/img/foto/5085.png
+5087|Nikolaos Chougkaz|COL|0|Forward||207||2000-10-04|GRC|https://www.aba-liga.com/stats/img/foto/5087.png
+5089|Luka Brajković|COL|0|Center||206||1999-06-26|Austria|https://www.aba-liga.com/stats/img/foto/5089.png
+5091|Luigi Suigo|MEG|0|Center||220||2007-01-29|Italy|https://www.aba-liga.com/stats/img/foto/5091.png
+5092|Vuk Radojičić|MEG|0|Guard||183||2001-06-29|Serbia|https://www.aba-liga.com/stats/img/foto/5092.png
+5093|Vule Avdalović|MEG|0|||||1981-11-24||https://www.aba-liga.com/stats/img/foto/5093.png
+5094|Nighael Ceaser|IGO|1|Forward||203||2000-02-03|USA|https://www.aba-liga.com/stats/img/foto/5094.png
+5096|Javon Anthony Bess|IGO|1|Guard||198||1996-04-01|USA|https://www.aba-liga.com/stats/img/foto/5096.png
+5097|Breein Tyree|IGO|0|Guard||188||1998-01-13|USA|https://www.aba-liga.com/stats/img/foto/5097.png
+5099|Jabari Parker|PAR|0|Forward||203||1995-03-15|USA|https://www.aba-liga.com/stats/img/foto/5099.png
+5100|Dylan Osetkowski|PAR|0|Center||206||1996-08-08|USA|https://www.aba-liga.com/stats/img/foto/5100.png
+5103|Jyare Davis|SCD|0|Forward||200||2002-01-08|USA|https://www.aba-liga.com/stats/img/foto/5103.png
+5104|Lazar Stojković|CZV|0|Center||212||2007-10-22|Serbia|https://www.aba-liga.com/stats/img/foto/5104.png
+5105|Joseph Girard III|COL|0|Guard||185||2000-11-27|USA|https://www.aba-liga.com/stats/img/foto/5105.png
+5107|Victor Bailey Jr.|KRK|0|Guard||193||1998-09-28|USA|https://www.aba-liga.com/stats/img/foto/5107.png
+5108|Tristan Vukotić|ILI|0|Forward||200||2005-05-17|SVN|https://www.aba-liga.com/stats/img/foto/5108.png
+5109|Shake Milton|PAR|0|Guard||196||1996-09-26|USA|https://www.aba-liga.com/stats/img/foto/5109.png
+5110|Keondre Kennedy|SPR|0|Forward||198||2000-01-17|USA|https://www.aba-liga.com/stats/img/foto/5110.png
+5111|Shevon Thompson|SPR|0|Center||213||1993-06-10|Jamaica|https://www.aba-liga.com/stats/img/foto/5111.png
+5112|Mitchell Creek|CLU|0|Forward||198||1992-04-27|Australia|https://www.aba-liga.com/stats/img/foto/5112.png
+5113|Chase Audige|BOS|0|Guard||193||1999-06-29|USA|https://www.aba-liga.com/stats/img/foto/5113.png
+5115|Nathan Mensah|CLU|0|Center||210||1998-04-09|Ghana|https://www.aba-liga.com/stats/img/foto/5115.png
+5116|Trey Woodbury|CLU|0|Guard||193||1999-09-17|USA|https://www.aba-liga.com/stats/img/foto/5116.png
+5117|Skylar Mays|BUD|0|Guard||191||1997-09-05|USA|https://www.aba-liga.com/stats/img/foto/5117.png
+5118|Devonte' Graham|CZV|0|Guard||185||1995-02-22|USA|https://www.aba-liga.com/stats/img/foto/5118.png
+5119|Enoch Boakye|SCD|0|Center||211||2003-03-24|Canada|https://www.aba-liga.com/stats/img/foto/5119.png
+5122|Olivier Hanlan|SPR|0|Guard||193||1993-02-15|Canada|https://www.aba-liga.com/stats/img/foto/5122.png
+5123|Bogdan Zimonjić|FMP|0|Guard||191||2003-01-27|Serbia|https://www.aba-liga.com/stats/img/foto/5123.png
+5130|Simas Jarumbauskas|VIE|0|Forward||198||2000-07-01|Lithuania|https://www.aba-liga.com/stats/img/foto/5130.png
+5133|Aron Stazić|VIE|0|Forward||207||2007-09-22|DEU|https://www.aba-liga.com/stats/img/foto/5133.png
+5134|Ben-Avi-Albert Altit|CLU|0|Center||208||1993-04-04|Romania|https://www.aba-liga.com/stats/img/foto/5134.png
+5135|Darius Kordell Johnson|SCD|0|Guard||185||2002-02-05|USA|https://www.aba-liga.com/stats/img/foto/5135.png
+5136|Darius Paul Miron|CLU|0|Guard||193||2009-02-05|Romania|https://www.aba-liga.com/stats/img/foto/5136.png
+5137|Dwayne Lee Bacon JR|DUB|0|Forward||201||1995-08-30|USA|https://www.aba-liga.com/stats/img/foto/5137.png
+5138|Igor Stanković|SPL|0|Guard||188||2009-11-28|HRV|https://www.aba-liga.com/stats/img/foto/5138.png
+5139|Iverson Latrell Molinar Jones|BUD|1|Guard||193||1999-12-03|PAN|https://www.aba-liga.com/stats/img/foto/5139.png
+5140|James Thompson|BUD|0|Center||208||1995-01-18|USA|https://www.aba-liga.com/stats/img/foto/5140.png
+5141|Jasiel Rivero Fernandez|CZV|0|Center||206||1993-10-31|Cuba|https://www.aba-liga.com/stats/img/foto/5141.png
+5142|Jeffery Matthew Taylor|CLU|0|Forward||201||1989-05-23|Sweden|https://www.aba-liga.com/stats/img/foto/5142.png
+5143|Jequan Demonte Lewis|IGO|0|Guard||185||1994-09-07|USA|https://www.aba-liga.com/stats/img/foto/5143.png
+5144|Karel Guzman Abreu|CLU|0|Forward||188||1995-02-07|Cuba|https://www.aba-liga.com/stats/img/foto/5144.png
+5145|Kerem Yilmazer|VIE|0|Guard||184||2007-09-02|Austria|https://www.aba-liga.com/stats/img/foto/5145.png
+5146|Lenny Steven Benczak|VIE|0|Guard||198||2008-12-02|Austria|https://www.aba-liga.com/stats/img/foto/5146.png
+5147|Lovro Pjević|SPL|0|Center||208||2009-03-20|HRV|https://www.aba-liga.com/stats/img/foto/5147.png
+5148|Lukas Cvetkova|VIE|0|Guard||192||2007-02-07|Austria|https://www.aba-liga.com/stats/img/foto/5148.png
+5149|Maks Ciperle|COL|0|Guard||200||2008-09-24|SVN|https://www.aba-liga.com/stats/img/foto/5149.png
+5150|Mario Ihring|KRK|0|Guard||193||1998-06-13|Slovakia|https://www.aba-liga.com/stats/img/foto/5150.png
+5151|Marko Goranović|VIE|0|Center||206||2000-09-29|Austria|https://www.aba-liga.com/stats/img/foto/5151.png
+5152|Mfiondu Tshimanga Kabengele|DUB|0|Forward||206||1997-08-14|Canada|https://www.aba-liga.com/stats/img/foto/5152.png
+5153|Michael Lamor Young Jr|BOS|0|Forward||206||1994-09-05|USA|https://www.aba-liga.com/stats/img/foto/5153.png
+5154|Patrick Neal Richard II|CLU|0|Guard||196||1990-01-25|Romania|https://www.aba-liga.com/stats/img/foto/5154.png
+5156|Radu-Andrei Cepoi|CLU|0|Guard||186||2008-10-09|Romania|https://www.aba-liga.com/stats/img/foto/5156.png
+5157|Tudor-Alexis Petric|CLU|0|Forward||193||2007-06-09|Romania|https://www.aba-liga.com/stats/img/foto/5157.png
+5183|Tyson Gregory Carter|CZV|0|Guard||193||1998-01-14|USA|https://www.aba-liga.com/stats/img/foto/5183.png
+5203|Thomas Joseph Patrick Kennedy|COL|0|Center||206||2000-09-01|Ireland|https://www.aba-liga.com/stats/img/foto/5203.png
+5213|Cameron Toussaint Selidji Houindo|COL|0|Center||206||2008-01-10|France|https://www.aba-liga.com/stats/img/foto/5213.png
+5217|Joshua Andreas Pierre-Louis|BOR|0|Guard||193||2001-05-08|USA|https://www.aba-liga.com/stats/img/foto/5217.png
+5221|Jayden Luis Martinez|ZAD|0|Forward||200||2000-01-10|USA|https://www.aba-liga.com/stats/img/foto/5221.png
+5223|Grant Ryan Anticevich|SPL|0|Forward||205||1998-04-14|HRV|https://www.aba-liga.com/stats/img/foto/5223.png
+5224|Teyvon Taffarie Myers|SPL|0|Guard||188||1994-06-20|USA|https://www.aba-liga.com/stats/img/foto/5224.png
+5226|Sertaç Şanli|DUB|0|Center||212||1991-08-05|Turkiye|https://www.aba-liga.com/stats/img/foto/5226.png
+5229|Matija Tomašević|SCD|0|Forward||205||2005-04-06|Serbia|https://www.aba-liga.com/stats/img/foto/5229.png
+5231|Đorđe Lilić|MEG|0|Forward||197||2008-09-22|Serbia|https://www.aba-liga.com/stats/img/foto/5231.png
+5232|Mihai Vlad Silvasan|CLU|0|||||1985-01-20||https://www.aba-liga.com/stats/img/foto/5232.png
+5233|Mike Coffin|VIE|0|||||1970-08-30||https://www.aba-liga.com/stats/img/foto/5233.png
+5234|Leon Bulić|VIE|0|Center||211||2001-07-21|HRV|https://www.aba-liga.com/stats/img/foto/5234.png
+5235|Samuel Andrew Hunter|VIE|0|Forward||206||2000-11-28|BHS|https://www.aba-liga.com/stats/img/foto/5235.png
+5237|Wendell Jerome Green Jr|ILI|0|Guard||180||2002-08-07|USA|https://www.aba-liga.com/stats/img/foto/5237.png
+5238|Borislav Georgiev Mladenov|VIE|0|Guard||202||2000-08-15|BGR|https://www.aba-liga.com/stats/img/foto/5238.png
+5239|Souleymane Boum JR|VIE|0|Guard||190||1999-01-26|USA|https://www.aba-liga.com/stats/img/foto/5239.png
+5240|Tekele Mozet Cotton|VIE|0|Guard||188||1993-05-27|USA|https://www.aba-liga.com/stats/img/foto/5240.png
+5241|Radoslav Stanislav Raykov|ILI|0|Forward||199||2006-04-18|BGR|https://www.aba-liga.com/stats/img/foto/5241.png
+5249|Andrei-Tudor Szabo|CLU|0|Forward||200||2008-01-30|Romania|https://www.aba-liga.com/stats/img/foto/5249.png
+5255|Miikka Muurinen|PAR|0|Forward||211||2007-03-04|Finland|https://www.aba-liga.com/stats/img/foto/5255.png
+5256|Donatas Motiejunas|CZV|0|Center||213||1990-09-20|Lithuania|https://www.aba-liga.com/stats/img/foto/5256.png
+5260|Lian Boisa|ILI|0|Guard||194||2007-08-14|SVN|https://www.aba-liga.com/stats/img/foto/5260.png
+5261|Noah Ali Farrakhan|IGO|0|Guard||188||2000-12-03|USA|https://www.aba-liga.com/stats/img/foto/5261.png
+5263|Taran Jet Armstrong|DUB|0|Guard||196||2002-01-15|Australia|https://www.aba-liga.com/stats/img/foto/5263.png
+5282|Saulius Kulvietis|CLU|0|Forward||206||1991-02-14|Lithuania|https://www.aba-liga.com/stats/img/foto/5282.png
+5286|Tevin Thomas Olison|BOR|0|Guard||194||1998-09-28|USA|https://www.aba-liga.com/stats/img/foto/5286.png
+5288|Rejean Amor Ellis|DUB|0|Guard||188||2000-12-12|USA|https://www.aba-liga.com/stats/img/foto/5288.png
+5289|Oluwasimisola Shittu|ILI|0|Center||208||1999-11-07|Canada|https://www.aba-liga.com/stats/img/foto/5289.png
+5290|Bruno Fernando|PAR|0|Center||208||1998-08-15|AGO|https://www.aba-liga.com/stats/img/foto/5290.png
+5291|Jared Butler|CZV|0|Guard||191||2000-08-25|USA|https://www.aba-liga.com/stats/img/foto/5291.png
+5292|Nicholas Calathes|PAR|0|Guard||198||1989-02-07|GRC|https://www.aba-liga.com/stats/img/foto/5292.png
+5304|Novak Manojlović|BOS|0|Center||205||2007-10-01|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/5304.png
+5314|Ognjen Simjanovski|CZV|0|Guard||191||2009-09-28|Serbia|https://www.aba-liga.com/stats/img/foto/5314.png
+5325|William Gerald Scott McNair Jr|COL|0|Center||210||2000-05-25|USA|https://www.aba-liga.com/stats/img/foto/5325.png
+5344|Benjamin Teletović|MEG|0|Guard||193||2008-07-20|Bosnia and Herzegovina|https://www.aba-liga.com/stats/img/foto/5344.png
+5381|Petar Bjelica|MEG|0|Center||208||2009-02-14|Serbia|https://www.aba-liga.com/stats/img/foto/5381.png
+5440|Lautaro Tomas Lopez|BOS|0|Guard||188||1999-01-08|Argentina|https://www.aba-liga.com/stats/img/foto/5440.png
+5445|Loudon Love|VIE|0|Forward||201||1998-04-21|USA|https://www.aba-liga.com/stats/img/foto/5445.png
+5446|Kasey Juwan Shepherd|BOS|0|Guard||192||1994-06-05|USA|https://www.aba-liga.com/stats/img/foto/5446.png
+5447|Bogdan Škarban|FMP|0|Guard||190||2006-04-09|Serbia|https://www.aba-liga.com/stats/img/foto/5447.png
+5448|Kyrell Luc|MEG|0|Guard||178||2002-05-21|USA|https://www.aba-liga.com/stats/img/foto/5448.png
+5449|Alfonso Roy Plummer Torres|BOS|0|Guard||185||1997-09-04|PRI|https://www.aba-liga.com/stats/img/foto/5449.png
+5451|Muhamed Pašalić|BOS|0|||||1987-08-27||https://www.aba-liga.com/stats/img/foto/5451.png
+5452|Matthew Richard Ryan|DUB|0|Forward||198||1997-04-17|USA|https://www.aba-liga.com/stats/img/foto/5452.png
+5457|Krišs Helmanis|KRK|0|Center||211||2002-04-07|LVA|https://www.aba-liga.com/stats/img/foto/5457.png
+5459|Nathaniel Amir Pierre-Louis|IGO|0|Guard||193||1998-12-23|USA|https://www.aba-liga.com/stats/img/foto/5459.png
+5461|Javontae Aaron Hawkins|SPR|0|Forward||196||1993-11-13|USA|https://www.aba-liga.com/stats/img/foto/5461.png
+5466|Cameron Payne|PAR|0|Guard||191||1994-08-08|USA|https://www.aba-liga.com/stats/img/foto/5466.png
+5467|Ivan Tkachenko|ZAD|0|Forward||197||1997-04-23|Ukraine|https://www.aba-liga.com/stats/img/foto/5467.png
+5468|Joan Penarroya|PAR|0|||||1969-04-20||https://www.aba-liga.com/stats/img/foto/5468.png
+5469|Filip Malešević|FMP|0|Center||222||2005-08-15|Serbia|https://www.aba-liga.com/stats/img/foto/5469.png
+5473|Tonye Frank Jekiri|PAR|0|Center||212||1994-07-23|NGA|https://www.aba-liga.com/stats/img/foto/5473.png
+5474|Matthew Christopher Hurt|COL|0|Forward||206||2000-04-20|USA|https://www.aba-liga.com/stats/img/foto/5474.png
+5475|Demajeo Willie Wiggins|SPL|0|Center||208||1997-08-10|USA|https://www.aba-liga.com/stats/img/foto/5475.png
+5484|Hunter Justice Dean|SCD|0|Forward||207||2001-06-18|USA|https://www.aba-liga.com/stats/img/foto/5484.png
+5490|Ade Taqiyy Henry Murkey|VIE|0|Guard||196||1998-01-29|USA|https://www.aba-liga.com/stats/img/foto/5490.png
+5491|Khalil Umar Mubaarak Brantley|KRK|0|Guard||184||2001-10-17|USA|https://www.aba-liga.com/stats/img/foto/5491.png
+5495|Jared Listren Coleman-Jones|SPR|0|Center||208||2000-09-13|USA|https://www.aba-liga.com/stats/img/foto/5495.png
+5496|Jordan Michael Davis|MEG|0|Guard||193||2002-02-27|USA|https://www.aba-liga.com/stats/img/foto/5496.png
+5498|Miodrag Rajković|SPL|0|||||1971-03-08||https://www.aba-liga.com/stats/img/foto/5498.png
+5504|Aleksander Sekulić|DUB|0|||||1978-02-24||https://www.aba-liga.com/stats/img/foto/5504.png
+5515|Ibon Navarro|CZV|0|||||1976-04-30||https://www.aba-liga.com/stats/img/foto/5515.png
+5516|Vladimir Kontić|MEG|0|Forward||203||2006-01-06|Serbia|https://www.aba-liga.com/stats/img/foto/5516.png
+5517|Brandon Murray|COL|0|Guard||196||2002-02-07|USA|https://www.aba-liga.com/stats/img/foto/5517.png
+5518|Alonzo Gaffney|SPR|0|Forward||205||2000-01-28|USA|https://www.aba-liga.com/stats/img/foto/5518.png
+5519|Jalon Pipkins|SPR|0|Guard||192||1998-11-30|USA|https://www.aba-liga.com/stats/img/foto/5519.png
+5520|Malcolm Hill|CLU|0|Forward||198||1995-10-26|USA|https://www.aba-liga.com/stats/img/foto/5520.png
+5521|Noah Kirkwood|COL|0|Guard||201||1999-12-27|Canada|https://www.aba-liga.com/stats/img/foto/5521.png
+5522|Matt Coleman|SPR|0|Guard||188||1998-01-22|USA|https://www.aba-liga.com/stats/img/foto/5522.png
+5523|Roman Penn|IGO|0|Guard||182||1997-09-01|USA|https://www.aba-liga.com/stats/img/foto/5523.png
+5524|Chris Jones|CZV|0|Guard||188||1993-04-10|USA|https://www.aba-liga.com/stats/img/foto/5524.png
+5525|Anthony Cowan|COL|0|Guard||183||1997-10-07|USA|https://www.aba-liga.com/stats/img/foto/5525.png
+5526|Lovell Cabbil Jr.|KRK|0|Guard||188||1997-01-13|USA|https://www.aba-liga.com/stats/img/foto/5526.png
+5527|Andre Wesson|SCD|0|Forward||198||1997-08-28|USA|https://www.aba-liga.com/stats/img/foto/5527.png
+5528|Justin Smith|BUD|0|Forward||201||1999-03-01|USA|https://www.aba-liga.com/stats/img/foto/5528.png
