@@ -238,6 +238,30 @@ tbody tr.clickteam:hover .pname{color:var(--accent)}
 .tlink{color:var(--accent2);cursor:pointer}
 .tlink:hover{text-decoration:underline}
 
+
+/* profile stat cards + leaderboards */
+.scope-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.statcard{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px 10px 11px;text-align:center;cursor:pointer;transition:.13s}
+.statcard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+.sc-v{font-family:var(--disp);font-weight:800;font-size:25px;line-height:1;color:var(--txt)}
+.sc-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-top:5px}
+.sc-rank{display:inline-block;margin-top:9px;font-family:var(--mono);font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:6px}
+.pctbadge{display:inline-block;min-width:26px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#17130d;border-radius:6px;padding:2px 6px;margin-left:8px}
+.barrow{grid-template-columns:104px 1fr auto}
+.barval{display:flex;align-items:center;justify-content:flex-end}
+.modalbox.wide{max-width:600px}
+.lwrap{max-height:60vh;overflow:auto;margin-top:4px;display:flex;flex-direction:column;gap:2px}
+.lrow{display:flex;align-items:center;gap:10px;padding:8px;border-radius:9px;cursor:pointer}
+.lrow:hover{background:var(--panel2)}
+.lrow.me{background:color-mix(in srgb,var(--accent) 16%,var(--panel));outline:1px solid var(--accent)}
+.lrow img,.lrow .lav{width:30px;height:30px;border-radius:7px;object-fit:cover;object-position:top;background:var(--panel2);flex:none}
+.lrank{width:28px;text-align:center;font-family:var(--disp);font-weight:800;font-size:15px;color:var(--muted);flex:none}
+.lrow .li{flex:1;min-width:0}
+.lrow .ln{font-family:var(--disp);font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .lm{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .lright{font-family:var(--mono);font-size:12px;font-weight:600;display:flex;align-items:center;flex:none}
+.lrow .llg{font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:6px;padding:2px 7px;flex:none}
 </style>
 </head>
 <body>
@@ -279,7 +303,7 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 
 const STATE = {data:null, league:null, view:"players",
   filters:{q:"",team:"",role:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
-  compare:{a:null,b:null}};
+  compare:{a:null,b:null}, profileScope:"league", statMode:"pg"};
 
 /* Metric definitions for tables/bars */
 const PG_COLS = [
@@ -634,48 +658,124 @@ function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===
 function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('euroscout:theme',t);}catch(e){}
   const b=$("#themeBtn");if(b)b.textContent=(t==='light')?'☾ Dark':'☀ Light';}
 function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='light'?'dark':'light');}
+/* ---------- profile ranking helpers + leaderboards ---------- */
+const STAT_FMT={ppg:1,rpg:1,apg:1,spg:1,bpg:1,topg:1,mpg:1,pir:1,eff:1,usg:1,
+  pts40:1,reb40:1,ast40:1,stl40:1,blk40:1,tov40:1,g:0,
+  fgp:'%',f3p:'%',ftp:'%',ts:'%',efg:'%'};
+const LOWER_BETTER=new Set(["topg","tov40"]);
+const CARD_PG=[["ppg","PTS"],["rpg","REB"],["apg","AST"],["spg","STL"],["bpg","BLK"],["mpg","MIN"],
+  ["fgp","FG%"],["f3p","3P%"],["ftp","FT%"],["topg","TO"],["ts","TS%"],["efg","eFG%"],["usg","USG%"],["pir","PIR"]];
+const CARD_ADV=[["pts40","PTS/40"],["reb40","REB/40"],["ast40","AST/40"],["stl40","STL/40"],["blk40","BLK/40"],["tov40","TO/40"],
+  ["usg","USG%"],["ts","TS%"],["efg","eFG%"],["pir","PIR"]];
+const PBARS=[["ppg","Points"],["rpg","Rebounds"],["apg","Assists"],["spg","Steals"],["bpg","Blocks"],["ts","True Shooting"],["f3p","3PT %"],["pir","PIR"]];
+function leagueOf(p){return STATE.data.leagues.find(l=>l.meta.id===p.league)||STATE.league;}
+function statVal(p,k){const f=STAT_FMT[k],v=p[k];if(v==null||isNaN(v))return"\u2014";
+  if(f==='%')return fmt(v,1)+"%";if(f===0)return String(v);return fmt(v,f);}
+function scopePool(p){
+  if(STATE.profileScope==="all"){const a=[];STATE.data.leagues.forEach(L=>L.players.forEach(x=>{if(x.qualified)a.push(x);}));return a;}
+  return leagueOf(p).players.filter(x=>x.qualified);}
+function rankOf(pool,k,p){const lower=LOWER_BETTER.has(k);
+  const vals=pool.map(x=>x[k]).filter(v=>v!=null&&!isNaN(v));const total=vals.length,v=p[k];
+  if(v==null||isNaN(v)||total<=1)return{rank:null,total,pct:null};
+  let better=0;for(const u of vals)if(lower?u<v:u>v)better++;
+  const rank=better+1,pct=Math.max(0,Math.min(100,Math.round(100*(total-rank)/(total-1))));
+  return{rank,total,pct};}
+function ord(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function pctBadgeColor(pct){if(pct>=80)return"var(--good)";if(pct>=60)return"var(--sage)";
+  if(pct>=40)return"var(--mid)";if(pct>=20)return"var(--accent)";return"var(--bad)";}
+function statCard(p,pool,k,lab){const r=rankOf(pool,k,p),pct=r.pct;
+  const col=pct==null?"var(--muted)":pctBadgeColor(pct);
+  const rstyle=(pct==null)?"color:var(--muted);background:var(--panel);border:1px solid var(--line)"
+    :pct>=60?("background:"+col+";color:#17130d")
+    :pct>=40?("background:color-mix(in srgb,"+col+" 26%,var(--panel));color:var(--txt)")
+    :"color:var(--muted);background:var(--panel);border:1px solid var(--line)";
+  return '<div class="statcard clk" data-k="'+k+'" title="Tap for the '+lab+' leaderboard">'
+    +'<div class="sc-v">'+statVal(p,k)+'</div><div class="sc-k">'+lab+'</div>'
+    +'<div class="sc-rank" style="'+rstyle+'">'+(r.rank==null?"\u2014":ord(r.rank)+"/"+r.total)+'</div></div>';}
+function pRow(p,L,opt){opt=opt||{};
+  return '<div class="lrow'+(opt.me?" me":"")+'" data-open="'+p.id+'" data-league="'+L.meta.id+'">'
+    +(opt.rank!=null?'<span class="lrank">'+opt.rank+'</span>':"")
+    +(p.img?'<img src="'+p.img+'" loading="lazy" onerror="this.style.visibility=\'hidden\'"/>':'<span class="lav"></span>')
+    +'<div class="li"><div class="ln">'+p.name+'</div><div class="lm">'+p.teamName+(opt.meta?" \u00b7 "+opt.meta:"")+'</div></div>'
+    +(opt.right?'<span class="lright">'+opt.right+'</span>':"")
+    +'<span class="llg">'+L.meta.name+'</span></div>';}
+function showListModal(title,sub,rows){let m=$("#modal");
+  if(!m){m=document.createElement("div");m.id="modal";m.className="modal";document.body.appendChild(m);}
+  m.innerHTML='<div class="modalbox wide" style="position:relative"><button class="close" onclick="hideModal()">\u2715</button>'
+    +'<h3>'+title+'</h3><p style="margin-bottom:6px">'+sub+'</p>'
+    +'<div class="lwrap">'+(rows.length?rows.join(""):'<div class="gsempty">No players.</div>')+'</div></div>';
+  m.onclick=e=>{if(e.target===m)hideModal();};
+  $$("#modal .lrow[data-open]").forEach(r=>r.onclick=()=>{const id=r.dataset.open,lg=r.dataset.league;hideModal();openGlobal(lg,id);});}
+function openLeaderboard(k,lab){const p=player(CURRENT),all=STATE.profileScope==="all";
+  const list=[];STATE.data.leagues.forEach(L=>L.players.forEach(x=>{if(x.qualified&&(all||x.league===p.league))list.push({p:x,L});}));
+  const lower=LOWER_BETTER.has(k);
+  list.sort((a,b)=>lower?(a.p[k]-b.p[k]):(b.p[k]-a.p[k]));
+  const tot=list.length;
+  const rows=list.map((o,i)=>{const pct=tot>1?Math.round(100*(tot-(i+1))/(tot-1)):50;
+    const right=statVal(o.p,k)+'<span class="pctbadge" style="background:'+pctBadgeColor(pct)+'">'+pct+'</span>';
+    return pRow(o.p,o.L,{rank:i+1,right:right,me:o.p.id===p.id});});
+  const scopeLbl=all?"All players":leagueOf(p).meta.name;
+  showListModal(lab+" \u00b7 leaderboard",scopeLbl+" \u00b7 "+tot+" qualified"+(lower?" \u00b7 lower is better":""),rows);}
+function openDbFilter(kind,val){
+  const list=[];STATE.data.leagues.forEach(L=>L.players.forEach(p=>{
+    if(kind==="country"?p.country===val:String(p.born)===String(val))list.push({p,L});}));
+  list.sort((a,b)=>(b.p.pir||0)-(a.p.pir||0));
+  const rows=list.map(({p,L})=>pRow(p,L,{meta:fmt(p.ppg)+" pts \u00b7 "+fmt(p.rpg)+" reb \u00b7 "+fmt(p.apg)+" ast",right:"PIR "+fmt(p.pir)}));
+  const title=kind==="country"?("Players from "+val):("Players born in "+val);
+  showListModal(title,list.length+" player"+(list.length!==1?"s":"")+" in the database (all competitions)",rows);}
+
 function renderProfile(){
   const p=player(CURRENT);
   if(!p){STATE.view="players";$$("#tabs button").forEach((x,i)=>x.classList.toggle("active",i===0));renderPlayers();return;}
   const L=STATE.league,rec=Store.get(p.id);
   const t=L.teams.find(x=>x.code===p.team);
+  const pool=scopePool(p), scopeName=leagueOf(p).meta.name;
+  const grid=(STATE.statMode==="p40"?CARD_ADV:CARD_PG);
   $("#app").innerHTML=`<div class="view">
-    <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">← Back to players</button>
+    <button class="backlink" onclick="STATE.view='players';$$('#tabs button')[0].classList.add('active');render()">\u2190 Back to players</button>
     <div class="panel">
       <div class="profhead">
         <div class="avatar">${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
         <div style="flex:1;min-width:220px">
-          <h1>${p.name}</h1>
-          <div class="profmeta">${t?`<span class="tlink" onclick="openTeam('${t.code}')">${t.name}</span> · ${t.city}, ${t.country}`:p.teamName} ·
-            <span class="badge role">${p.pos&&p.pos!=='-'?p.pos:p.role}</span> · ${L.meta.name} ${L.meta.season}
-            ${p.multiTeam?' · <span class="badge">Multiple teams</span>':''}
-            ${p.qualified?'':' · <span class="badge">below qualifying minutes</span>'}</div>
+          <h1>${p.name} ${rec.rating?`<span style="font-size:16px;color:var(--accent);letter-spacing:2px;vertical-align:middle">${"\u2605".repeat(rec.rating)}</span>`:""}</h1>
+          <div class="profmeta">${t?`<span class="tlink" onclick="openTeam('${t.code}')">${t.name}</span> \u00b7 ${t.city}, ${t.country}`:p.teamName} \u00b7
+            <span class="badge role">${p.pos&&p.pos!=='-'?p.pos:p.role}</span> \u00b7 ${L.meta.name} ${L.meta.season}
+            ${p.multiTeam?' \u00b7 <span class="badge">Multiple teams</span>':''}
+            ${p.qualified?'':' \u00b7 <span class="badge">below qualifying minutes</span>'}</div>
           <div class="biochips">
+            ${p.country?`<span class="biochip clk" data-filter="country" data-val="${p.country}" title="Show all ${p.country} players">${p.country}</span>`:''}
             ${p.jersey?`<span class="biochip">#<b>${p.jersey}</b></span>`:''}
-            ${p.height?`<span class="biochip">Height <b>${p.height} cm</b></span>`:''}
-            ${p.weight?`<span class="biochip">Weight <b>${p.weight} kg</b></span>`:''}
-            ${p.age?`<span class="biochip">Age <b>${p.age}</b></span>`:''}
-            ${p.country?`<span class="biochip"><b>${p.country}</b></span>`:''}
+            ${p.height?`<span class="biochip"><b>${(p.height/100).toFixed(2)} m</b></span>`:''}
+            ${p.weight?`<span class="biochip">${p.weight} kg</span>`:''}
+            ${p.born?`<span class="biochip clk" data-filter="born" data-val="${p.born}" title="Show all players born in ${p.born}">b. <b>${p.born}</b></span>`:''}
           </div>
           ${(STATE.data.crossPlayers&&STATE.data.crossPlayers[p.code]&&STATE.data.crossPlayers[p.code].length>1)?`<div class="comptabs"><span class="hint" style="align-self:center;margin-right:2px">Competition:</span>${STATE.data.crossPlayers[p.code].map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')">${c.name}</button>`).join('')}</div>`:''}
-          <div class="statline">
-            ${[["ppg","PPG"],["rpg","RPG"],["apg","APG"],["spg","SPG"],["bpg","BPG"],["ts","TS%"],["pir","PIR"]]
-              .map(([k,lab])=>`<div class="s clk" data-k="${k}" title="Rank ${L.meta.name} players by ${lab}"><div class="v">${fmt(p[k])}</div><div class="k">${lab}</div></div>`).join("")}
-            <div class="s clk" data-k="g" title="Rank by games"><div class="v">${p.g}</div><div class="k">Games</div></div>
-            <div class="s clk" data-k="mpg" title="Rank by minutes"><div class="v">${fmt(p.mpg)}</div><div class="k">MPG</div></div>
-          </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn ghost sm" id="watchToggle">${rec.watch?"★ On watchlist":"☆ Add to watchlist"}</button>
+          <button class="btn ghost sm" id="watchToggle">${rec.watch?"\u2605 On watchlist":"\u2606 Add to watchlist"}</button>
           <button class="btn ghost sm" id="boardToggle">${rec.board!=null?"On big board":"+ Add to big board"}</button>
-          <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[1].classList.add('active');render()">Compare ▸</button>
+          <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[1].classList.add('active');render()">Compare \u25b8</button>
         </div>
       </div>
     </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h3>Event averages \u00b7 ${p.g} GP</h3>
+      <div class="scope-row">
+        <div class="seg"><button data-scope="league" class="${STATE.profileScope==='league'?'active':''}">vs ${scopeName}</button><button data-scope="all" class="${STATE.profileScope==='all'?'active':''}">vs All players</button></div>
+        <div class="seg"><button data-mode="pg" class="${STATE.statMode==='pg'?'active':''}">Per game</button><button data-mode="p40" class="${STATE.statMode==='p40'?'active':''}">Advanced</button></div>
+        <span class="hint">Tap any stat for its full leaderboard \u00b7 rank = place / qualified players</span>
+      </div>
+      <div class="statgrid">${grid.map(([k,lab])=>statCard(p,pool,k,lab)).join("")}</div>
+    </div>
+
     <div class="twocol" style="margin-top:16px">
-      <div class="panel"><h3>Percentile vs league (${L.meta.qualifiedCount} qualified)</h3>
-        ${BARSET.map(d=>barRow(p,d)).join("")}
-        <p class="hint" style="margin-top:10px">Bars show where this player ranks among qualified ${L.meta.name} players — 100% = league leader.</p>
+      <div class="panel"><h3>Percentile \u2014 ${STATE.profileScope==='all'?'all players':scopeName} (${pool.length} qualified)</h3>
+        ${PBARS.map(([k,lab])=>{const r=rankOf(pool,k,p),pc=r.pct==null?50:r.pct;
+          return `<div class="barrow"><span class="lab">${lab}</span>
+            <div class="bartrack"><div class="barfill" style="width:${pc}%;background:${pctColor(pc)}"></div></div>
+            <span class="barval">${statVal(p,k)}<span class="pctbadge" style="background:${pctBadgeColor(pc)}">${r.pct==null?'\u2014':r.pct}</span></span></div>`;}).join("")}
+        <p class="hint" style="margin-top:10px">Badge = percentile \u00b7 100 = best in ${STATE.profileScope==='all'?'the database':scopeName}.</p>
       </div>
       <div class="panel"><h3>Statistical profile (per-40 percentiles)</h3>
         ${radarSVG([p],["#7FB3AB"])}
@@ -684,55 +784,52 @@ function renderProfile(){
           Shooting: <b style="color:var(--txt)">${p.fgma}</b> FG (${fmt(p.fgp)}%),
           <b style="color:var(--txt)">${p.f3ma}</b> 3P (${fmt(p.f3p)}%),
           <b style="color:var(--txt)">${p.ftma}</b> FT (${fmt(p.ftp)}%).<br>
-          Per 40: ${fmt(p.pts40)} pts · ${fmt(p.reb40)} reb · ${fmt(p.ast40)} ast ·
-          ${fmt(p.stl40)} stl · ${fmt(p.blk40)} blk · ${fmt(p.tov40)} to.
+          Per 40: ${fmt(p.pts40)} pts \u00b7 ${fmt(p.reb40)} reb \u00b7 ${fmt(p.ast40)} ast \u00b7
+          ${fmt(p.stl40)} stl \u00b7 ${fmt(p.blk40)} blk \u00b7 ${fmt(p.tov40)} to.
         </div>
       </div>
     </div>
+
     <div class="panel" style="margin-top:16px">
-      <h3>Shot chart · ${L.meta.season}</h3>
+      <h3>Shot chart \u00b7 ${L.meta.season}</h3>
       ${shotChartSVG(p)}
     </div>
     <div class="panel" style="margin-top:16px">
-      <h3>Game log · ${p.g} games · ${L.meta.season}</h3>
+      <h3>Game log \u00b7 ${p.g} games \u00b7 ${L.meta.season}</h3>
       ${gameLogTable(p)}
     </div>
     <div class="panel" style="margin-top:16px">
       <h3>Scouting report <span class="savestate" id="saveState"></span></h3>
       <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
         <div><div class="k" style="font-size:11px;color:var(--muted);text-transform:uppercase">Grade</div>
-          <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${rec.rating>=n?"on":""}">★</button>`).join("")}</div></div>
+          <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${rec.rating>=n?"on":""}">\u2605</button>`).join("")}</div></div>
         <div style="flex:1;min-width:220px"><div class="k" style="font-size:11px;color:var(--muted);text-transform:uppercase">Tags</div>
           <div class="tagsin" id="tags"></div></div>
       </div>
-      <textarea id="report" placeholder="Write your scouting notes: strengths, weaknesses, role projection, fit, comparisons, verdict…">${rec.report||""}</textarea>
+      <textarea id="report" placeholder="Write your scouting notes: strengths, weaknesses, role projection, fit, comparisons, verdict\u2026">${rec.report||""}</textarea>
       <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
         <button class="btn" id="saveBtn">Save report</button>
-        <span class="hint">${Store.enabled?(Store.user?"Saving to your cloud account":"Sign in to sync to cloud — saving locally for now"):"Local mode — saved in this browser"}</span>
+        <span class="hint">${Store.enabled?(Store.user?"Saving to your cloud account":"Sign in to sync to cloud \u2014 saving locally for now"):"Local mode \u2014 saved in this browser"}</span>
       </div>
     </div>
   </div>`;
-  // rating
   $$("#rating button").forEach(b=>b.onclick=async()=>{const n=+b.dataset.n;
     const cur=Store.get(p.id).rating; const val=(cur===n)?0:n;
     await Store.save(p.id,{rating:val});renderProfile();});
-  // clickable stats -> rank players by that metric
-  $$("#app .statline .s.clk").forEach(s=>s.onclick=()=>{
-    STATE.sort={key:s.dataset.k,dir:-1};STATE.view="players";
-    $$("#tabs button").forEach((x,i)=>x.classList.toggle("active",i===0));
-    renderPlayers();window.scrollTo({top:0,behavior:"smooth"});});
-  // tags
+  $$("#app [data-scope]").forEach(b=>b.onclick=()=>{STATE.profileScope=b.dataset.scope;renderProfile();});
+  $$("#app [data-mode]").forEach(b=>b.onclick=()=>{STATE.statMode=b.dataset.mode;renderProfile();});
+  $$("#app .statcard.clk").forEach(c=>c.onclick=()=>openLeaderboard(c.dataset.k,c.querySelector('.sc-k').textContent));
+  $$("#app .biochip.clk").forEach(c=>c.onclick=()=>openDbFilter(c.dataset.filter,c.dataset.val));
   renderTags(p);
-  // watch/board
   $("#watchToggle").onclick=async()=>{await toggleWatch(p.id);renderProfile();};
   $("#boardToggle").onclick=async()=>{await toggleBoard(p.id);renderProfile();};
-  // save
   $("#saveBtn").onclick=async()=>{await Store.save(p.id,{report:$("#report").value});
-    $("#saveState").textContent="✓ saved "+new Date().toLocaleTimeString();toast("Report saved");};
-  let tmr;$("#report").oninput=()=>{$("#saveState").textContent="editing…";
+    $("#saveState").textContent="\u2713 saved "+new Date().toLocaleTimeString();toast("Report saved");};
+  let tmr;$("#report").oninput=()=>{$("#saveState").textContent="editing\u2026";
     clearTimeout(tmr);tmr=setTimeout(async()=>{await Store.save(p.id,{report:$("#report").value});
-      $("#saveState").textContent="✓ autosaved";},1200);};
+      $("#saveState").textContent="\u2713 autosaved";},1200);};
 }
+
 function renderTags(p){
   const rec=Store.get(p.id),host=$("#tags");
   const preset=["Buy","Watch","Pass","Upside","Ready now","Shooter","Defender","Playmaker","Injury risk"];

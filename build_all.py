@@ -156,7 +156,7 @@ def build_league(cfg):
             "role":ROLE.get(b["pos"],"Wing"),"pos":b["pos"] or "-","jersey":b["jersey"],
             "height":int(b["ht"]) if b["ht"].isdigit() else None,
             "weight":int(b["wt"]) if b["wt"].isdigit() else None,
-            "age":age_from(b["bd"]),"country":b["ctry"],"img":b["img"],
+            "age":age_from(b["bd"]),"born":(int(b["bd"][:4]) if len(b["bd"])>=4 and b["bd"][:4].isdigit() else None),"country":b["ctry"],"img":b["img"],
             "g":G,"mpg":round(mp/G,1),"min":round(mp),
             "ppg":pg(T["pts"]),"rpg":pg(T["trb"]),"apg":pg(T["ast"]),"spg":pg(T["stl"]),
             "bpg":pg(T["blk"]),"topg":pg(T["tov"]),
