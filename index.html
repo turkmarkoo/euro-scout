@@ -351,6 +351,31 @@ textarea.notesec{min-height:94px}
 .cbxin{width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:10px 13px;border-radius:9px;font-size:13px;outline:none;box-shadow:var(--shadow)}
 .cbxin:focus{border-color:var(--accent2)}
 .cbxres{position:absolute;top:calc(100% + 6px);left:0;right:0;max-height:320px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lift);z-index:80;padding:6px}
+
+/* team page v2 + matchup */
+.sttbl .rk{width:34px;color:var(--muted);font-family:var(--mono);font-size:11px}
+.sttbl tr.me td{background:var(--accent-soft);font-weight:700}
+.sttbl tbody tr{cursor:pointer}
+.sttbl tbody tr:hover td{background:var(--panel2)}
+.stwrap{max-height:420px;overflow:auto}
+.lbwrap{max-height:60vh;overflow:auto;margin-top:10px}
+.lbtable{width:100%;border-collapse:collapse}
+.lbtable td{padding:7px 9px;border-bottom:1px solid var(--line-soft);font-size:13px}
+.lbtable .rk{width:30px;color:var(--muted);font-family:var(--mono)}
+.lbtable .v{text-align:right;font-family:var(--mono);font-weight:600}
+.lbtable tr{cursor:pointer}
+.lbtable tr:hover td{background:var(--panel2)}
+.lbtable tr.me td{background:var(--accent-soft);font-weight:700}
+.matchup{display:flex;align-items:center;gap:7px}
+.mulab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted2)}
+.matchup select{max-width:130px;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 8px;font-size:12px;outline:none}
+.muvs,.muvs2{font-family:var(--mono);font-size:10px;color:var(--muted2)}
+.mupills{display:flex;align-items:center;gap:5px}
+.mupill{font-family:var(--mono);font-weight:700;font-size:11px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:5px 9px;cursor:pointer;transition:.12s}
+.mupill:hover{border-color:var(--accent)}
+.mupill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+@media(max-width:1250px){.matchup select{display:none}.mulab{display:none}}
+@media(max-width:900px){.matchup{display:none}}
 </style>
 </head>
 <body>
@@ -372,6 +397,13 @@ textarea.notesec{min-height:94px}
     <div class="gsearch">
       <input type="text" id="globalSearch" placeholder="Search player" autocomplete="off" aria-label="Search players"/>
       <div class="gsresults hidden" id="gsResults"></div>
+    </div>
+    <div class="matchup" id="matchupBar" title="Live scouting: pick the two teams playing">
+      <span class="mulab">▸ MATCHUP</span>
+      <select id="muA"></select>
+      <span class="muvs">vs</span>
+      <select id="muB"></select>
+      <span class="mupills" id="muPills"></span>
     </div>
     <select class="leaguesel" id="leagueSel"></select>
     <button class="authbtn" id="themeBtn" title="Toggle light/dark">☀ Light</button>
@@ -491,7 +523,7 @@ function ovrSaveLocal(patch){
   if(patch.ext)Object.keys(patch.ext).forEach(id=>{if(patch.ext[id])l.ext[id]=patch.ext[id];else delete l.ext[id];});
   if(patch.links)patch.links.forEach(pr=>{if(!l.links.some(x=>(x[0]===pr[0]&&x[1]===pr[1])||(x[0]===pr[1]&&x[1]===pr[0])))l.links.push(pr);});
   localStorage.setItem(OVR_KEY,JSON.stringify(l));
-  OVR=ovrMerged(); applyOverrides(); rebuildLinks();
+  OVR=ovrMerged(); applyOverrides(); rebuildLinks(); STATE._tagg=null;
 }
 function applyOverrides(){
   STATE.data.leagues.forEach(L=>L.players.forEach(p=>{
@@ -600,6 +632,28 @@ function openEditModal(id){
   const im=$("#ovrImport"); if(im)im.onchange=e=>{if(e.target.files[0])ovrImportFile(e.target.files[0]);};
   $$("#modal .lnkrow [data-open]").forEach(b=>b.onclick=()=>{hideModal();openProfile(b.dataset.open);});
 }
+/* ---------- live-scouting matchup switcher ---------- */
+const MU_KEY="euroscout:matchup";
+function muState(){try{return JSON.parse(localStorage.getItem(MU_KEY))||{}}catch(e){return{}}}
+function muSave(o){localStorage.setItem(MU_KEY,JSON.stringify(o));}
+function muInit(){
+  const bar=$("#matchupBar");if(!bar)return;
+  const opts='<option value="">\u2013 team \u2013</option>'+STATE.data.leagues.map(L=>
+    `<optgroup label="${L.meta.name}">${L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${L.meta.id}|${t.code}">${t.name}</option>`).join("")}</optgroup>`).join("");
+  const A=$("#muA"),B=$("#muB");A.innerHTML=opts;B.innerHTML=opts;
+  const st=muState();if(st.a)A.value=st.a;if(st.b)B.value=st.b;
+  const paint=()=>{
+    const st=muState(),host=$("#muPills");if(!host)return;
+    const pill=(v,slot)=>{if(!v)return "";const[l,c]=v.split("|");
+      const active=STATE.view==="team"&&STATE.league.meta.id===l&&CURRENT_TEAM===c;
+      return `<button class="mupill ${active?"on":""}" data-mu="${v}">${c}</button>`;};
+    host.innerHTML=(st.a||st.b)?pill(st.a,"a")+'<span class="muvs2">vs</span>'+pill(st.b,"b"):"";
+    host.querySelectorAll("[data-mu]").forEach(b=>b.onclick=()=>{const[l,c]=b.dataset.mu.split("|");openTeamIn(l,c);setTimeout(paint,0);});
+  };
+  A.onchange=()=>{const st=muState();st.a=A.value;muSave(st);paint();if(A.value){const[l,c]=A.value.split("|");openTeamIn(l,c);setTimeout(paint,0);}};
+  B.onchange=()=>{const st=muState();st.b=B.value;muSave(st);paint();if(B.value){const[l,c]=B.value.split("|");openTeamIn(l,c);setTimeout(paint,0);}};
+  paint();
+}
 async function boot(){
   try{ await Store.initSB(); }catch(e){ console.warn("Supabase init failed",e); }
   let raw;
@@ -616,6 +670,7 @@ async function boot(){
     p.astto=(p.topg>0)?Math.round(p.apg/p.topg*100)/100:(p.apg>0?p.apg:0);
   }));
   OVR=ovrMerged(); applyOverrides(); rebuildLinks();
+  muInit();
   await Store.load();
   mergeGroupRecords();
   const sel=$("#leagueSel"); sel.innerHTML="";
@@ -1271,6 +1326,72 @@ function renderWatchlist(){
 }
 
 /* ---------- Teams ---------- */
+/* ---------- team identity across competitions + aggregated team stats ---------- */
+const DEFAULT_TEAM_LINKS=[["euroleague:RED","aba:CZV"],["eurocup:LJU","aba:COL"]];
+function teamKey(lid,code){return lid+":"+code;}
+function teamGroup(lid,code){
+  const links=[...DEFAULT_TEAM_LINKS,...(OVR.teamLinks||[])];
+  const found=new Set([teamKey(lid,code)]);
+  // same code in other leagues links automatically (DUB, PAR, BUD, CLU...)
+  STATE.data.leagues.forEach(L=>{if(L.meta.id!==lid&&L.teams.some(t=>t.code===code))found.add(teamKey(L.meta.id,code));});
+  let grew=true;
+  while(grew){grew=false;
+    links.forEach(([a,b])=>{
+      if(found.has(a)&&!found.has(b)){found.add(b);grew=true;}
+      if(found.has(b)&&!found.has(a)){found.add(a);grew=true;}});}
+  const out=[];
+  found.forEach(k=>{const[l,c]=k.split(":");const L=STATE.data.leagues.find(x=>x.meta.id===l);
+    const t=L&&L.teams.find(x=>x.code===c);if(t)out.push({league:l,code:c,team:t,L});});
+  out.sort((a,b)=>STATE.data.leagues.findIndex(x=>x.meta.id===a.league)-STATE.data.leagues.findIndex(x=>x.meta.id===b.league));
+  return out;
+}
+function teamAgg(L){
+  STATE._tagg=STATE._tagg||{};
+  if(STATE._tagg[L.meta.id])return STATE._tagg[L.meta.id];
+  const side={};(L.games||[]).forEach(g=>{side[g.date+"|"+g.a+"|H"]=g.h;side[g.date+"|"+g.h+"|A"]=g.a;});
+  const T={};
+  L.players.forEach(p=>(p.gameLog||[]).forEach(r=>{
+    const tc=side[r[0]+"|"+r[1]+"|"+r[2]];if(!tc)return;
+    const o=T[tc]=T[tc]||{fgm:0,fga:0,f3m:0,f3a:0,ftm:0,fta:0,reb:0,ast:0,stl:0,blk:0,tov:0,pir:0};
+    o.fgm+=r[8];o.fga+=r[9];o.f3m+=r[10];o.f3a+=r[11];o.ftm+=r[12];o.fta+=r[13];
+    o.reb+=r[14];o.ast+=r[15];o.stl+=r[16];o.blk+=r[17];o.tov+=r[18];o.pir+=r[19];}));
+  const played={};(L.games||[]).forEach(g=>{
+    [[g.h,g.hs,g.as],[g.a,g.as,g.hs]].forEach(([c,pf,pa])=>{
+      const o=played[c]=played[c]||{gp:0,pf:0,pa:0};o.gp++;o.pf+=pf;o.pa+=pa;});});
+  const out={};
+  L.teams.forEach(t=>{const a=T[t.code],pl=played[t.code];
+    const g=Math.max(1,pl?pl.gp:(t.w+t.l));
+    const base=pl?{ppg:pl.pf/g,oppg:pl.pa/g,net:(pl.pf-pl.pa)/g}:{ppg:t.ppg,oppg:t.oppg,net:t.net};
+    out[t.code]=a?{...base,
+      rpg:a.reb/g,apg:a.ast/g,spg:a.stl/g,bpg:a.blk/g,tpg:a.tov/g,pirg:a.pir/g,
+      fgp:a.fga?a.fgm/a.fga*100:0,f3p:a.f3a?a.f3m/a.f3a*100:0,ftp:a.fta?a.ftm/a.fta*100:0,
+      astto:a.tov?a.ast/a.tov:a.ast}
+      :base;});
+  STATE._tagg[L.meta.id]=out;return out;
+}
+const TEAM_CARDS=[["ppg","PPG FOR",1],["oppg","PPG VS",0],["net","NET / GM",1],["rpg","REB",1],
+  ["apg","AST",1],["spg","STL",1],["bpg","BLK",1],["tpg","TOV",0],["pirg","PIR",1],
+  ["fgp","FG%",1],["f3p","3P%",1],["ftp","FT%",1],["astto","A/TO",1]];
+function teamRank(L,code,k,hi){
+  const agg=teamAgg(L);
+  const vals=L.teams.map(t=>({c:t.code,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));
+  vals.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
+  const i=vals.findIndex(x=>x.c===code);
+  return {rank:i+1,n:vals.length};
+}
+function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function tRankColor(rank,n){const pct=n>1?(n-rank)/(n-1)*100:50;
+  return pct>=67?"var(--good)":pct>=34?"#C99A3C":"var(--accent-deep)";}
+function openTeamBoard(k,label,hi){
+  const L=STATE.league,agg=teamAgg(L);
+  const rows=L.teams.map(t=>({t,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));
+  rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
+  showModal('<h3>'+label+' \u2014 '+L.meta.name+' teams</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
+    rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM?"me":"")+'" data-tc="'+r.t.code+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+'</td><td class="v">'+(k==="net"&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
+    '</tbody></table></div>');
+  $$("#modal tr[data-tc]").forEach(tr=>tr.onclick=()=>{hideModal();openTeam(tr.dataset.tc);});
+  const me=$("#modal tr.me");if(me)me.scrollIntoView({block:"center"});
+}
 function renderTeams(){
   const L=STATE.league;const teams=L.teams.slice().sort((a,b)=>(a.group||'').localeCompare(b.group||'')||a.rank-b.rank);const grp=teams.some(t=>t.group);
   $("#app").innerHTML=`<div class="view">
@@ -1298,44 +1419,88 @@ function openTeam(code){CURRENT_TEAM=code;STATE.view="team";
 function renderTeam(){
   const L=STATE.league, t=L.teams.find(x=>x.code===CURRENT_TEAM);
   if(!t){STATE.view="teams";render();return;}
-  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>b.ppg-a.ppg);
+  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>(+a.jersey||99)-(+b.jersey||99));
+  const grp=teamGroup(L.meta.id,t.code);
+  const agg=teamAgg(L)[t.code]||{};
+  const cards=TEAM_CARDS.map(([k,lab,hi])=>{
+    const v=agg[k];if(v==null||isNaN(v))return "";
+    const r=teamRank(L,t.code,k,hi);
+    return `<div class="statcard clk" data-tk="${k}" data-tl="${lab}" data-th="${hi}" title="Tap for the ${lab} team ranking">
+      <div class="sc-v">${k==="net"&&v>0?"+":""}${fmt(v)}${lab.includes("%")?"%":""}</div>
+      <div class="sc-k">${lab}</div>
+      <div class="sc-r"><span class="rankpill" style="color:${tRankColor(r.rank,r.n)}">${ordinal(r.rank)}/${r.n}</span></div>
+    </div>`;}).join("");
+  const games=(L.games||[]).filter(g=>g.h===t.code||g.a===t.code).sort((a,b)=>a.date.localeCompare(b.date));
+  const glrows=games.map(g=>{
+    const home=g.h===t.code, opp=home?g.a:g.h, ts=home?g.hs:g.as, os=home?g.as:g.hs, win=ts>os;
+    const on=(L.teams.find(x=>x.code===opp)||{}).name||opp;
+    return `<tr><td class="l" style="color:var(--muted);white-space:nowrap">${fullDate(g.date)}</td>
+      <td class="l">${home?"vs ":"@ "}<span class="tlink" onclick="openTeamIn('${L.meta.id}','${opp}')">${on}</span></td>
+      <td class="l" style="color:${win?"var(--good)":"var(--bad)"};font-weight:700">${win?"W":"L"}</td>
+      <td style="font-family:var(--mono)">${ts}\u2013${os}</td></tr>`;}).join("");
+  const stTeams=L.teams.slice().sort((a,b)=>(a.group||"").localeCompare(b.group||"")||a.rank-b.rank);
+  const strows=stTeams.map(x=>`<tr class="${x.code===t.code?"me":""}" data-tc="${x.code}">
+      <td class="rk">${x.group?x.group+x.rank:x.rank}</td><td class="l">${x.name}</td>
+      <td>${x.w}</td><td>${x.l}</td><td style="color:${x.net>0?"var(--good)":x.net<0?"var(--bad)":"var(--muted)"}">${x.net>0?"+":""}${fmt(x.net)}</td></tr>`).join("");
   $("#app").innerHTML=`<div class="view">
-    <button class="backlink" onclick="STATE.view='teams';render()">← Back to teams</button>
+    <button class="backlink" onclick="STATE.view='teams';render()">\u2190 Back to teams</button>
     <div class="panel">
       <div class="teamhead">
         <div class="teamcrest">${t.code}</div>
         <div style="flex:1;min-width:200px">
           <h1 style="margin:0;font-size:24px">${t.name}</h1>
-          <div class="profmeta">${t.city}, ${t.country} · ${L.meta.name} ${L.meta.season}${t.group?" · Group "+t.group:""}</div>
+          <div class="profmeta">${t.city}, ${t.country} \u00b7 ${L.meta.name} ${L.meta.season}${t.group?" \u00b7 Group "+t.group:""}</div>
+          ${grp.length>1?`<div class="comptabs" style="margin-top:8px"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${grp.map(x=>`<button class="comptab ${x.league===L.meta.id&&x.code===t.code?"active":""}" onclick="openTeamIn('${x.league}','${x.code}')" title="${x.L.meta.name} \u00b7 ${x.team.name}">${x.L.meta.name}</button>`).join("")}</div>`:""}
         </div>
         <div class="statline">
           <div class="s"><div class="v">${t.w}-${t.l}</div><div class="k">Record</div></div>
           <div class="s"><div class="v">${fmt(t.winPct)}</div><div class="k">Win%</div></div>
-          <div class="s"><div class="v">${fmt(t.ppg)}</div><div class="k">PPG</div></div>
-          <div class="s"><div class="v">${fmt(t.oppg)}</div><div class="k">Opp PPG</div></div>
-          <div class="s"><div class="v" style="color:${t.net>0?'var(--good)':'var(--bad)'}">${t.net>0?'+':''}${fmt(t.net)}</div><div class="k">Net</div></div>
           <div class="s"><div class="v">${t.group?t.group+t.rank:t.rank}</div><div class="k">Rank</div></div>
         </div>
       </div>
     </div>
     <div class="panel" style="margin-top:16px">
-      <h3>Roster · ${roster.length} players</h3>
+      <h3>Team averages \u00b7 ${L.meta.name}</h3>
+      <div class="cardgrid">${cards}</div>
+      <p class="hint" style="margin-top:8px">Tap any stat for the full ${L.teams.length}-team ranking \u00b7 badge = rank vs. the league.</p>
+    </div>
+    <div class="twocol" style="margin-top:16px">
+      <div class="panel"><h3>Standings \u00b7 ${L.meta.name}</h3>
+        <div class="tablewrap stwrap"><table class="sttbl">
+          <thead><tr><th class="rk">#</th><th class="l">TEAM</th><th>W</th><th>L</th><th>NET</th></tr></thead>
+          <tbody>${strows}</tbody></table></div>
+      </div>
+      <div class="panel"><h3>Game log \u00b7 ${games.length} games</h3>
+        ${games.length?`<div class="glogscroll tablewrap"><table class="glog">
+          <thead><tr><th class="l">DATE</th><th class="l">OPPONENT</th><th class="l">W/L</th><th>SCORE</th></tr></thead>
+          <tbody>${glrows}</tbody></table></div>`
+        :`<p class="hint">No game data in this build \u2014 regenerate data.json with the updated build_all.py.</p>`}
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px"><h3>Team shot chart</h3>
+      <p class="hint" style="padding:20px 4px">Zone shot chart appears here once shot-location data is loaded (run <code>scraper_shots.py</code>, then <code>build_all.py</code>).</p>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>Roster \u00b7 ${roster.length} players</h3>
       <div class="tablewrap"><table>
-        <thead><tr><th class="l">PLAYER</th><th class="l">POS</th><th>G</th><th>MPG</th>
+        <thead><tr><th class="rk">#</th><th class="l">PLAYER</th><th class="l">POS</th><th>G</th><th>MPG</th>
           <th>PPG</th><th>RPG</th><th>APG</th><th>SPG</th><th>BPG</th><th>TS%</th><th>PIR</th><th></th></tr></thead>
         <tbody>${roster.length?roster.map(p=>{const rec=recOf(p);
           return `<tr data-id="${p.id}">
+          <td class="rk" style="font-family:var(--mono);color:var(--muted)">${p.jersey||"\u2013"}</td>
           <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
           <td class="l"><span class="badge role">${p.pos&&p.pos!=='-'?p.pos:p.role}</span></td>
           <td>${p.g}</td><td>${fmt(p.mpg)}</td><td><b>${fmt(p.ppg)}</b></td><td>${fmt(p.rpg)}</td>
           <td>${fmt(p.apg)}</td><td>${fmt(p.spg)}</td><td>${fmt(p.bpg)}</td><td>${fmt(p.ts)}</td><td>${fmt(p.pir)}</td>
-          <td><button class="starbtn ${rec.watch?"on":""}" title="Watchlist" data-star="${p.id}">${rec.watch?"★":"☆"}</button></td></tr>`;}).join(""):`<tr><td colspan="12" class="l" style="color:var(--muted);padding:16px">No players matched to this team (mid-season transfers show under their combined 2TM entry).</td></tr>`}
+          <td><button class="starbtn ${rec.watch?"on":""}" title="Watchlist" data-star="${p.id}">${rec.watch?"\u2605":"\u2606"}</button></td></tr>`;}).join(""):`<tr><td colspan="13" class="l" style="color:var(--muted);padding:16px">No players matched to this team (mid-season transfers show under their combined 2TM entry).</td></tr>`}
         </tbody></table></div>
     </div>
   </div>`;
   $$("#app tbody tr[data-id]").forEach(tr=>tr.onclick=e=>{
     if(e.target.dataset.star){e.stopPropagation();toggleWatch(e.target.dataset.star).then(renderTeam);return;}
     openProfile(tr.dataset.id);});
+  $$("#app .statcard.clk[data-tk]").forEach(c=>c.onclick=()=>openTeamBoard(c.dataset.tk,c.dataset.tl,c.dataset.th==="1"));
+  $$("#app .sttbl tr[data-tc]").forEach(tr=>tr.onclick=()=>openTeam(tr.dataset.tc));
 }
 
 /* ---------- Glossary ---------- */
