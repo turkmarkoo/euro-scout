@@ -460,7 +460,8 @@ textarea.notesec{min-height:94px}
 .sttbl .stgrouprow td{font-family:var(--disp);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-deep);background:var(--accent-soft);padding:6px 10px}
 .sttbl .pfpa{font-family:var(--mono);color:var(--muted);font-size:12px}
 /* sticky profile header must sit under the site header */
-.stickyhead{position:sticky;top:0;z-index:5;background:var(--bg);box-shadow:0 6px 18px rgba(47,51,59,.06)}
+.drawer .panel.stickyhead{position:sticky;top:var(--drnav,52px);z-index:8;background:var(--bg);box-shadow:0 8px 20px rgba(47,51,59,.08)}
+.stickyhead{position:static}
 
 
 .scopeflag{font-family:var(--mono);font-size:10.5px;color:var(--muted2);letter-spacing:.04em;padding:3px 8px;border:1px dashed var(--line);border-radius:6px}
@@ -480,7 +481,7 @@ textarea.notesec{min-height:94px}
 .drawer .dr-scroll{overflow-y:auto;height:100%;padding:0 0 60px}
 body.drawer-lock{overflow:hidden}
 /* the profnav row becomes the drawer top bar */
-.drawer .profnav{position:sticky;top:0;z-index:8;background:var(--bg);padding:12px 20px;margin:0;border-bottom:1px solid var(--line-soft)}
+.drawer .profnav{position:sticky;top:0;z-index:10;background:var(--bg);padding:10px 20px;margin:0;border-bottom:1px solid var(--line-soft)}
 .drawer .backlink{margin:0}
 /* profile panels sit flush inside the drawer */
 .drawer .view,.drawer>.dr-scroll{max-width:none}
@@ -510,19 +511,19 @@ body.drawer-lock{overflow:hidden}
       <input type="text" id="globalSearch" placeholder="Search player…" autocomplete="off" aria-label="Search players"/>
       <div class="gsresults hidden" id="gsResults"></div>
     </div>
+    <div class="seg hdr-scope" id="scopeSeg" title="Ranking scope used on player profiles">
+      <button data-scope="league" class="active">vs&nbsp;<span id="scopeLg">League</span></button>
+      <button data-scope="all">vs&nbsp;All</button>
+    </div>
+    <button class="authbtn" id="authBtn">Sign in</button>
+  </div>
+  <div class="hwrap hrow2">
     <div class="matchup" id="matchupBar" title="Live scouting: pick the two teams playing">
       <span class="mulab">▸ MATCHUP</span>
       <span class="mucbx"><input type="text" id="muA" placeholder="Team A" autocomplete="off"/><div class="cbxres hidden" id="muAres"></div></span>
       <span class="muvs">vs</span>
       <span class="mucbx"><input type="text" id="muB" placeholder="Team B" autocomplete="off"/><div class="cbxres hidden" id="muBres"></div></span>
       <span class="mupills" id="muPills"></span>
-    </div>
-    <button class="authbtn" id="authBtn">Sign in</button>
-  </div>
-  <div class="hwrap hrow2">
-    <div class="seg hdr-scope" id="scopeSeg" title="Ranking scope used on player profiles">
-      <button data-scope="league" class="active">vs&nbsp;<span id="scopeLg">League</span></button>
-      <button data-scope="all">vs&nbsp;All</button>
     </div>
     <span class="spacer"></span>
     <select class="leaguesel" id="leagueSel"></select>
@@ -1192,13 +1193,27 @@ let DRAWER_OPEN=false;
 function openProfile(id){const _p=player(id);if(!_p)return;CURRENT=id;const _L=leagueOf(_p);if(_L)STATE.league=_L;
   updateScopeLabel();
   DRAWER_OPEN=true; renderProfile(); openDrawerUI();}
+function drawerJump(id){
+  const dr=$("#drawer"), el=document.getElementById(id), scr=dr&&dr.querySelector(".dr-scroll");
+  if(!el)return;
+  if(dr&&dr.classList.contains("on")&&scr){
+    const navH=parseInt(getComputedStyle(dr).getPropertyValue("--drnav"))||52;
+    const head=dr.querySelector(".panel.stickyhead");
+    const headH=head?head.getBoundingClientRect().height:0;
+    const top=el.getBoundingClientRect().top-scr.getBoundingClientRect().top+scr.scrollTop-navH-headH-8;
+    scr.scrollTo({top:Math.max(0,top),behavior:"smooth"});
+  } else { el.scrollIntoView({behavior:"smooth",block:"start"}); }
+}
 function openDrawerUI(){
   const dr=$("#drawer"),sc=$("#scrim");if(!dr)return;
   dr.classList.add("on");dr.setAttribute("aria-hidden","false");
   if(sc)sc.classList.add("on");
   document.body.classList.add("drawer-lock");
   const scr=dr.querySelector(".dr-scroll");if(scr)scr.scrollTop=0;
+  syncDrNav();
 }
+function syncDrNav(){const dr=$("#drawer");if(!dr)return;const nav=dr.querySelector(".profnav");
+  if(nav)dr.style.setProperty("--drnav",Math.round(nav.getBoundingClientRect().height)+"px");}
 function closeDrawer(){
   const dr=$("#drawer"),sc=$("#scrim");if(dr){dr.classList.remove("on");dr.setAttribute("aria-hidden","true");}
   if(sc)sc.classList.remove("on");
@@ -1212,7 +1227,7 @@ function syncStickyTop(){const h=document.querySelector("header");if(!h)return;
   const off=Math.round(h.getBoundingClientRect().height);
   document.documentElement.style.setProperty("--stick-top",off+"px");}
 function scheduleSticky(){requestAnimationFrame(()=>requestAnimationFrame(syncStickyTop));setTimeout(syncStickyTop,60);setTimeout(syncStickyTop,300);}
-window.addEventListener("resize",()=>{clearTimeout(window.__st);window.__st=setTimeout(syncStickyTop,100);});
+window.addEventListener("resize",()=>{clearTimeout(window.__st);window.__st=setTimeout(()=>{syncStickyTop();if(typeof syncDrNav==="function")syncDrNav();},100);});
 window.addEventListener("load",scheduleSticky);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(scheduleSticky);
 function toggleTheme(){}
@@ -1366,7 +1381,7 @@ function renderProfile(){
           ${(p._grp&&p._grp.length>1)?`<div class="comptabs"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${p._grp.map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')" title="${leagueOf(c).meta.name} · ${c.teamName}">${leagueOf(c).meta.name}</button>`).join('')}</div>`:''}
         </div>
         <div class="phactions">
-          <button class="btn ghost sm" onclick="document.getElementById('reportPanel').scrollIntoView({behavior:'smooth',block:'start'})">Notes</button>
+          <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
           <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[1].classList.add('active');render()">Compare ▸</button>
           <button class="btn ghost sm" onclick="openEditModal('${p.id}')">✎ Edit</button>
         </div>
@@ -1439,6 +1454,7 @@ function renderProfile(){
   $$("#drawer [data-mode]").forEach(b=>b.onclick=()=>{STATE.statMode=b.dataset.mode;renderProfile();});
   $$("#drawer .statcard.clk").forEach(c=>c.onclick=()=>openLeaderboard(c.dataset.k,c.querySelector('.sc-k').textContent));
   wireProfileNav(p);
+  requestAnimationFrame(syncDrNav);
   $$("#drawer .biochip.clk").forEach(c=>c.onclick=()=>filterByAttr(c.dataset.filter,c.dataset.val,c.dataset.lab));
   renderTags(p);
   $("#watchToggle").onclick=async()=>{await toggleWatch(p.id);renderProfile();};
@@ -1836,7 +1852,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
 
 boot();
 </script>
