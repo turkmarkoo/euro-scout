@@ -522,6 +522,10 @@ body.drawer-lock{overflow:hidden}
 .hproxy::-webkit-scrollbar{height:10px}
 .hproxy::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
 .hproxy::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
+
+.seg-sm button{padding:5px 10px;font-size:11.5px}
+.inscope{flex:none}
+.drawer .profnav .inscope{margin-left:10px}
 </style>
 </head>
 <body>
@@ -691,7 +695,10 @@ function rebuildLinks(){
   const uni=(a,b)=>{if(byId[a]&&byId[b]){const ra=find(a),rb=find(b);if(ra!==rb)parent[ra]=rb;}};
   const nameKey=p=>normName(p.name).split(" ").filter(Boolean).sort().join(" ");
   const byCode={},byName={};
-  all.forEach(p=>{(byCode[p.code]=byCode[p.code]||[]).push(p.id);(byName[nameKey(p)]=byName[nameKey(p)]||[]).push(p.id);});
+  // player codes are only comparable within a code-space: EuroLeague+EuroCup share FIBA codes,
+  // every other league has its own local numeric ids (aba-5150 and lba-5150 are DIFFERENT people)
+  const codeSpace=p=>{const lg=p.league||(String(p.id).split("-")[0]);return (lg==="euroleague"||lg==="eurocup")?"f":lg;};
+  all.forEach(p=>{const ck=codeSpace(p)+":"+p.code;(byCode[ck]=byCode[ck]||[]).push(p.id);(byName[nameKey(p)]=byName[nameKey(p)]||[]).push(p.id);});
   Object.values(byCode).forEach(a=>{for(let i=1;i<a.length;i++)uni(a[0],a[i]);});
   // same (token-sorted) name links entries when birth years agree OR either side lacks one
   Object.values(byName).forEach(a=>{for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){
@@ -851,10 +858,7 @@ async function boot(){
   $("#authBtn").onclick=authClick;
   const home=$("#homeLogo");
   if(home){home.onclick=goHome;home.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();goHome();}}}
-  $$("#scopeSeg button").forEach(b=>b.onclick=()=>{STATE.profileScope=b.dataset.scope;
-    $$("#scopeSeg button").forEach(x=>x.classList.toggle("active",x===b));
-    if(STATE.view==="team"){renderTeam();return;}
-    if(STATE.view==="profile")renderProfile();});
+  $$("#scopeSeg button").forEach(b=>b.onclick=()=>setScopeMode(b.dataset.scope));
   updateScopeLabel();
   wireGlobalSearch();
   scheduleSticky();
@@ -964,6 +968,12 @@ function leaguePlayers(){return STATE.allLeagues?allPlayersFlat():STATE.league.p
 function player(id){for(const L of STATE.data.leagues){const p=L.players.find(x=>x.id===id);if(p)return p;}return null;}
 
 /* ---------- Players table ---------- */
+function setScopeMode(scope){
+  STATE.profileScope=scope;
+  $$("#scopeSeg button").forEach(x=>x.classList.toggle("active",x.dataset.scope===scope));
+  if(DRAWER_OPEN)renderProfile();
+  if(STATE.view==="team")renderTeam();
+}
 function setScope(id){
   if(id==="all"){STATE.allLeagues=true;}
   else{STATE.allLeagues=false;const L=STATE.data.leagues.find(x=>x.meta.id===id);if(L)STATE.league=L;}
@@ -1302,13 +1312,13 @@ function rankOf(pool,k,p){const lower=LOWER_BETTER.has(k);
   const rank=better+1,pct=Math.max(0,Math.min(100,Math.round(100*(total-rank)/(total-1))));
   return{rank,total,pct};}
 function ord(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
-function pctBadgeColor(pct){if(pct>=80)return"var(--good)";if(pct>=60)return"var(--sage)";
-  if(pct>=40)return"var(--mid)";if(pct>=20)return"var(--accent)";return"var(--bad)";}
+function pctBadgeColor(pct){if(pct>=90)return"var(--good)";if(pct>=75)return"var(--sage)";
+  if(pct>=55)return"var(--mid)";if(pct>=30)return"var(--muted2)";return"var(--bad)";}
 function statCard(p,pool,k,lab){const r=rankOf(pool,k,p),pct=r.pct;
   const col=pct==null?"var(--muted)":pctBadgeColor(pct);
   const rstyle=(pct==null)?"color:var(--muted);background:var(--panel);border:1px solid var(--line)"
-    :pct>=60?("background:"+col+";color:#17130d")
-    :pct>=40?("background:color-mix(in srgb,"+col+" 26%,var(--panel));color:var(--txt)")
+    :pct>=75?("background:"+col+";color:#17130d")
+    :pct>=55?("background:color-mix(in srgb,"+col+" 26%,var(--panel));color:var(--txt)")
     :"color:var(--muted);background:var(--panel);border:1px solid var(--line)";
   return '<div class="statcard clk" data-k="'+k+'" title="Tap for the '+lab+' leaderboard">'
     +'<div class="sc-v">'+statVal(p,k)+'</div><div class="sc-k">'+lab+'</div>'
@@ -1395,6 +1405,10 @@ function renderProfile(){
   $("#drawer").innerHTML=`<div class="dr-scroll">
     <div class="profnav">
       <button class="backlink" onclick="closeDrawer()">\u2715 Close</button>
+      <div class="seg seg-sm inscope">
+        <button onclick="setScopeMode('league')" class="${STATE.profileScope!=='all'?'active':''}">vs&nbsp;Lg</button>
+        <button onclick="setScopeMode('all')" class="${STATE.profileScope==='all'?'active':''}">vs&nbsp;All</button>
+      </div>
       <span class="pnav-spacer"></span>
       <button class="pnav-btn" id="pnavPrev" title="Previous player">\u2039</button>
       <div class="pnav-cbx">
@@ -1644,7 +1658,7 @@ function renderWatchlist(){
 
 /* ---------- Teams ---------- */
 /* ---------- team identity across competitions + aggregated team stats ---------- */
-const DEFAULT_TEAM_LINKS=[["euroleague:RED","aba:CZV"],["eurocup:LJU","aba:COL"],["euroleague:MAD","acb:RMB"],["euroleague:PAM","acb:VBC"],["euroleague:BAS","acb:BKN"],["euroleague:MIL","lba:MIO"],["euroleague:VIR","lba:BOV"],["eurocup:TRN","lba:TN"],["eurocup:VNC","lba:VE"]];
+const DEFAULT_TEAM_LINKS=[["euroleague:RED","aba:CZV"],["eurocup:LJU","aba:COL"],["euroleague:MAD","acb:RMB"],["euroleague:PAM","acb:VBC"],["euroleague:BAS","acb:BKN"],["euroleague:MIL","lba:MIO"],["euroleague:VIR","lba:BOV"],["eurocup:TRN","lba:TN"],["eurocup:VNC","lba:VE"],["euroleague:MUN","bbl:MUC"],["eurocup:NIN","bbl:CHE"],["eurocup:ULM","bbl:ULM"],["eurocup:HAM","bbl:HAM"]];
 function teamKey(lid,code){return lid+":"+code;}
 function teamGroup(lid,code){
   const links=[...DEFAULT_TEAM_LINKS,...(OVR.teamLinks||[])];
@@ -1719,14 +1733,14 @@ function teamRank(L,code,k,hi){
 }
 function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function tRankColor(rank,n){const pct=n>1?(n-rank)/(n-1)*100:50;
-  return pct>=67?"var(--good)":pct>=34?"#C99A3C":"var(--accent-deep)";}
+  return pct>=85?"var(--good)":pct>=55?"#C99A3C":"var(--accent-deep)";}
 function openTeamBoard(k,label,hi){
   const all=teamScopeAll();
   let rows=[];
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -1739,7 +1753,7 @@ function renderTeams(){
   const pool=all?allTeamsFlat():STATE.league.teams.map(t=>({...t,_lid:STATE.league.meta.id}));
   let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
   if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL"};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
     <div class="sub">${all?`Every club across <b>${STATE.data.leagues.length}</b> competitions \u00b7 use the chips to narrow`:`Regular season standings \u00b7 ${STATE.league.meta.season}`}</div>
@@ -1814,7 +1828,11 @@ function renderTeam(){
             <span class="phsep">\u00b7</span><span>${t.city}, ${t.country}</span>
             ${t.group?`<span class="phsep">\u00b7</span><span>Group ${t.group}</span>`:""}
           </div>
-          ${grp.length>1?`<div class="comptabs" style="margin-top:8px"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${grp.map(x=>`<button class="comptab ${x.league===L.meta.id&&x.code===t.code?"active":""}" onclick="openTeamIn('${x.league}','${x.code}')" title="${x.L.meta.name} \u00b7 ${x.team.name}">${x.L.meta.name}</button>`).join("")}</div>`:""}
+          <div class="comptabs" style="margin-top:8px">${grp.length>1?`<span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${grp.map(x=>`<button class="comptab ${x.league===L.meta.id&&x.code===t.code?"active":""}" onclick="openTeamIn('${x.league}','${x.code}')" title="${x.L.meta.name} \u00b7 ${x.team.name}">${x.L.meta.name}</button>`).join("")}<span class="phsep" style="align-self:center">\u00b7</span>`:""}
+            <div class="seg seg-sm inscope">
+              <button onclick="setScopeMode('league')" class="${STATE.profileScope!=='all'?'active':''}">vs&nbsp;Lg</button>
+              <button onclick="setScopeMode('all')" class="${STATE.profileScope==='all'?'active':''}">vs&nbsp;All</button>
+            </div></div>
         </div>
         <div class="statline">
           <div class="s"><div class="v">${t.w}-${t.l}</div><div class="k">Record</div></div>
@@ -1963,7 +1981,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
 
 boot();
 </script>

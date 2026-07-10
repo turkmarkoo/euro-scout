@@ -1,0 +1,377 @@
+1000838|Dominic Lockhart|HRO|0|Forward|3|199|103|1994-07-03|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/1000838
+1000839|Elias Baggette|HRO|0|Guard|4|181|81|2002-04-28|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/1000839
+1000868|Martin Hermannsson|BER|0|Guard|15|191|90|1994-09-16|Iceland|https://api.basketball-bundesliga.de/images/player/portrait/2025/1000868
+1000880|Roy Krupnikas|VEC|0|Guard|24|186|84|2006-10-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/1000880
+1000899|Linus Ruf|VEC|0|Center|20|211|121|2005-07-21|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/1000899
+2000528|Finn Pook|HAG|0|Guard|6|193|89|2004-02-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000528
+2000641|Sincere Paul Carry|HAG|0|Guard|89|184|84|1999-09-15|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000641
+2000697|Yannis Steger|TRI|0|Center|11|205|90|2005-06-22|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000697
+2000729|Moritz Krimmer|BAM|0|Forward|27|202|108|2000-08-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000729
+2000735|Ibi Watson|BAM|0|Forward|2|197|91|1998-01-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000735
+2000746|Osaro Rich|HAM|0|Guard|3|188|87|1998-07-22|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000746
+2000750|Zsombor Maronka|HAM|0|Forward|5|208|85|2002-09-10|Hungary|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000750
+2000751|Jared Grey|HAM|0|Forward|8|202|90|2005-03-17|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000751
+2000757|Niklas Wimberg|HAM|0|Forward|17|206|101|1996-02-11|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000757
+2000762|Kenneth Ogbe|HAM|0|Forward|25|198|93|1994-11-16|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000762
+2000765|Benedikt Turudic|HAM|0|Center|44|207|104|1997-01-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000765
+2000767|Darren Egbe|HAM|0|Guard|0|180|63|2007-02-07|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000767
+2000774|Jonathan Bähre|BON|0|Forward|1|208|95|1996-09-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000774
+2000812|Chip Flanigan|BRA|0|Forward|30|198|96|1996-04-10|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000812
+2000818|Luka Scuka|BRA|0|Forward|5|209|95|2002-05-23|Slovenia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000818
+2000825|D'Shawn Schwartz|HRO|0|Forward|5|201|104|1999-02-15|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000825
+2000842|Nelson Weidemann|ULM|0|Guard|0|190|74|1999-03-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000842
+2000859|Garai Zeeb|FRS|0|Guard|3|187|86|1997-04-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000859
+2000862|Christoph Philipps|FRS|0|Forward|10|203|89|1998-09-15|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000862
+2000996|Nolan Adekunle|TRI|0|Forward|22|200|99|2002-04-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2000996
+2001024|Kristofer Krause|JEN|0|Guard|36|190|80|2000-03-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001024
+2001027|Robin Christen|JEN|0|Forward|8|202|105|1991-04-19|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001027
+2001033|Chris Carter|JEN|0|Guard|5|193|94|1992-05-07|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001033
+2001043|Seth Hinrichs|OLD|0|Forward|21|201|99|1993-03-24|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001043
+2001098|Christian Skladanowski|WUE|0|Forward|19|201|88|2004-04-19|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001098
+2001110|David Gerhard|WUE|0|Forward|31|200|95|2004-01-31|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001110
+2001111|David Pisic|WUE|0|Guard|8|200|87|2003-10-29|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001111
+2001117|Niklas Krause|HAM|0|Guard|1|198|87|2002-09-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001117
+2001118|Linus Hoffmann|HAM|0|Forward|29|200|95|2002-12-05|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001118
+2001124|Roman Bedime|CHE|0|Forward|35|203|100|2001-11-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001124
+2001131|Lloyd Pandi|VEC|0|Forward|41|193|92|1999-12-10|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001131
+2001148|Jakob Lang|JEN|0|Forward|9|201|94|2005-02-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001148
+2001159|Akeem Vargas|MBC|0|Forward|11|192|90|1990-04-29|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001159
+2001161|Spencer Reaves|MBC|0|Guard|31|191|88|1995-12-23|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001161
+2001169|Mika Siegert|MBC|0|Guard|6|194|78|2008-03-09|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001169
+2001197|Oscar da Silva|FCB|0|Forward|1|206|104|1998-09-21|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001197
+2001198|Johannes Voigtmann|FCB|0|Center|7|211|110|1992-09-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001198
+2001208|Jonil Fugett|OLD|0|Guard|19|183|84|1999-11-28|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001208
+2001220|Brandon Tischler|LUD|0|Forward|24|201|94|2000-08-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001220
+2001223|Jonas Wohlfarth-Bottermann|LUD|0|Center|18|208|106|1990-02-20|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001223
+2001225|Julis Baumer|LUD|0|Guard|37|196|91|2007-01-04|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001225
+2001240|Benjamin Schröder|BRA|0|Forward|2|201|93|2003-08-28|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001240
+2001272|Anton Nufer|BER|0|Guard|20|199|85|2006-04-09|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001272
+2001279|Colin Schroeder|OLD|0|Forward|29|202|106|2006-12-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001279
+2001281|Luca Joe Ewelt|BRA|0|Forward|9|198|84|2004-07-21|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001281
+2001290|Nikola Tomic|BRA|0|Guard|7|195|78|2005-01-05|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001290
+2001330|Jordan Roland|TRI|0|Guard|15|185|78|1997-01-15|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001330
+2001338|Jamie Edoka|FRS|0|Guard|5|193|88|2008-01-17|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001338
+2001339|Ivan Crnjac|FRS|0|Forward|14|204|99|2007-03-10|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001339
+2001340|Dusan Nikolic|FRS|0|Guard|7|196|93|2005-02-28|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001340
+2001405|Simon Feneberg|LUD|0|Guard|40|191|83|2005-02-20|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001405
+2001452|Justus Hollatz|FCB|0|Guard|21|195|95|2001-04-21|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001452
+2001462|Marcus Domask|FRS|0|Forward|12|198|95|2000-06-09|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001462
+2001477|Davion Mintz|WUE|0|Guard|10|191|88|1998-06-30|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001477
+2001479|Kevin Yebo|CHE|0|Forward|0|207|97|1996-03-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001479
+2001480|Eliah Braun|BRA|0|Center|12|210|103|2007-12-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001480
+2001485|Marco Frank|FCB|0|Forward|19|199|102.3|2003-04-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001485
+2001488|Lazar Klaric|OLD|0|Forward|32|200|93|2006-02-04|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001488
+2001489|Booker Coplin|LUD|0|Guard|9|191|95|1997-11-19|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001489
+2001494|Nelson Martin|HAM|0|Guard|10|190|78|2006-04-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001494
+2001505|DeAndre Lansdowne|HRO|0|Guard|9|188|91|1989-06-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001505
+2001506|Owen Klassen|HRO|0|Center|29|208|117|1991-10-31|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001506
+2001507|Lukasz  Kolenda|HRO|0|Guard|10|196|84|1999-07-28|Poland|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001507
+2001508|Andy van Vliet|HRO|0|Center|81|213|105|1995-07-27|Belgium|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001508
+2001510|Philipp Herkenhoff|VEC|0|Forward|14|209|106|1999-06-29|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001510
+2001511|Daniel Keppeler|BAM|0|Center|31|205|103|1997-01-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001511
+2001512|Zachary Ensminger|BAM|0|Guard|1|195|92|2001-04-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001512
+2001513|Richard Balint|BAM|0|Guard|11|195|82|2002-11-08|Czechia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001513
+2001514|Demarcus Demonia|BAM|0|Forward|8|201|89|1999-08-12|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001514
+2001515|Finn Döntgens|BAM|0|Center|7|210|110|2004-01-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001515
+2001516|Joshua Obiesie|BRA|0|Guard|8|198|86|2000-05-23|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001516
+2001518|Mika Freitag|HRO|0|Guard|7|188|78|2006-02-15|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001518
+2001519|Bruno Loll|HRO|0|Center|20|204|100|2007-03-26|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001519
+2001520|TJ Crockett Jr.|HRO|0|Guard|0|187|84|1999-09-09|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001520
+2001521|Lenny Anigbata|LUD|0|Guard|12|199|94|2004-10-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001521
+2001553|Benedict Baumgarth|HRO|0|Forward|22|213|113|2006-02-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001553
+2001556|Marcus Henri Graves|HAG|0|Guard|0|185|85|1996-06-09|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001556
+2001557|Dominick Jordan von Waaden|HAG|0|Guard|13|195|90|1999-09-08|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001557
+2001558|Anzac Joseph Dennis Rissetto|HAG|0|Center|77|208|108|2001-01-24|New Zealand|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001558
+2001559|Fabian Bleck|HAG|0|Forward|10|201|105|1993-03-19|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001559
+2001560|Cobe Williams|BAM|0|Guard|24|183|82|2000-07-13|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001560
+2001561|Austin Crowley|BAM|0|Guard|85|196|88|2000-09-07|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001561
+2001588|Brae Ivey|WUE|0|Guard|11|191|84|1996-08-25|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001588
+2001590|Leo Saffer|WUE|0|Center|3|212|108|2000-06-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001590
+2001591|Marcus Carr|WUE|0|Guard|5|187|82|1999-06-06|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001591
+2001592|Johnathan Stove|WUE|0|Guard|22|193|100|1995-12-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001592
+2001593|Eddy Edigin Jr|WUE|0|Center|27|203|110|1995-10-17|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001593
+2001594|Charles Thompson|WUE|0|Center|32|203|111|2001-02-13|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001594
+2001595|Alen Pjanic|WUE|0|Forward|35|202|92|1997-03-05|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001595
+2001596|David Muenkat|WUE|0|Forward|55|201|98|2000-07-02|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001596
+2001598|Till Pape|FRS|0|Forward|19|206|101|1997-12-10|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001598
+2001599|Radii Caisin|FRS|0|Forward|16|198|94|2001-02-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001599
+2001602|Keeshawn Kellman|LUD|0|Center|32|203|111|2000-08-19|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001602
+2001603|James Murray-Boyles|LUD|0|Forward|30|198|101|1997-01-09|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001603
+2001605|Len Schoormann|ULM|0|Guard|1|193|87|2002-07-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001605
+2001606|Christian Sengfelder|ULM|0|Forward|43|203|108|1995-02-28|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001606
+2001607|Diego Garavaglia|ULM|0|Forward|23|201|90|2007-04-04|Italy|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001607
+2001608|Mohamed Diakite|ULM|0|Forward|5|208|90|2006-04-08|France|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001608
+2001624|Elijah Hughes|LUD|0|Forward|7|196|98|1998-03-10|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001624
+2001625|Stefan Smith|LUD|0|Guard|3|188|85|1999-06-27|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001625
+2001631|Jaedon LeDee|FRS|0|Center|13|206|109|1999-07-25|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001631
+2001632|Logan Johnson|FRS|0|Guard|0|188|82|1999-10-11|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001632
+2001633|Mark Smith|ULM|0|Guard|13|193|102|1999-08-16|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001633
+2001635|Jeffrey Carroll|HAG|0|Forward|30|198|99|1994-11-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001635
+2001636|Devin Lawrence Schmidt|HAG|0|Guard|8|193|98|1994-11-24|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001636
+2001637|Nicola Schultze|HAG|0|Forward|33|197|85|2006-11-01|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001637
+2001640|Lars Thiemann|VEC|0|Center|21|211|104|2000-05-22|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001640
+2001641|Tommy Kuhse|VEC|0|Guard|12|188|84|1998-01-05|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001641
+2001642|Alonzo Verge Jr.|VEC|0|Guard|11|191|76|1998-10-17|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001642
+2001651|Philipp Hartwich|BRA|0|Center|15|218|110|1995-09-11|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001651
+2001657|Malcolm Dandridge|VEC|0|Center|23|205|113|2001-01-10|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001657
+2001658|Malik Osborne|ULM|0|Center|10|206|104|1998-04-09|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001658
+2001661|Lukas Herzog|WUE|0|Guard|1|188|87|2001-09-10|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001661
+2001667|Ejiofor Onu|BAM|0|Center|35|211|109|1999-07-31|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001667
+2001668|Justinian Jessup|FCB|0|Guard|10|198|97|1998-05-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001668
+2001669|Leon Kratzer|FCB|0|Center|8|211|111|1997-02-04|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001669
+2001679|Norris Agbakoko|BER|0|Center|17|218|110|2000-01-16|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001679
+2001680|Sam Griesel|BER|0|Forward|5|200|98|2000-03-22|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001680
+2001681|Eli Brooks|TRI|0|Guard|55|185|82|1998-10-14|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001681
+2001682|Joel Aminu|BON|0|Guard|21|192|92|1997-04-23|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001682
+2001683|Michael Kessens|BON|0|Center|6|205|103|1991-02-16|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001683
+2001684|Zachery Cooks|BON|0|Guard|3|180|76|1999-03-04|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001684
+2001685|Jeff Garrett Jr.|BON|0|Forward|4|201|100|1994-12-08|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001685
+2001686|Melvin Jostmann|BON|0|Forward|12|198|92|2000-07-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001686
+2001687|Tevin Brown|VEC|0|Forward|10|196|79|1998-10-17|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001687
+2001711|Traveon Buchanan|LUD|0|Guard|2|185|83|1998-11-02|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001711
+2001731|Khyri Thomas|MBC|0|Guard|0|191|95|1996-05-08|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001731
+2001732|Bazoumana Koné|MBC|0|Guard|2|193|85|1993-12-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001732
+2001733|Marcus Foster|MBC|0|Forward|5|196|102|2002-01-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001733
+2001734|Abdul Wafa|MBC|0|Guard|8|184|72|2008-04-01|AF|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001734
+2001735|Kresimir Nikic|MBC|0|Center|9|213|104|1999-04-16|Croatia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001735
+2001736|RJ Gunn|MBC|0|Forward|21|201|111|1999-08-24|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001736
+2001737|Collin Welp|MBC|0|Forward|40|206|102|1998-12-15|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001737
+2001738|Jure Planinic|MBC|0|Center|44|206|110|2000-03-18|Croatia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001738
+2001761|Wenyen Gabriel|FCB|0|Center|32|209|103|1997-03-26|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001761
+2001762|Ty Brewer|CHE|0|Forward|15|201|94|2000-03-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001762
+2001763|Kostja Mushidi|CHE|0|Forward|11|195|95|1998-06-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001763
+2001765|Amadou Sow|CHE|0|Center|12|206|107|1998-11-18|Mali|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001765
+2001766|Kaza Kajami-Keane|CHE|0|Guard|10|185|88|1994-01-27|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001766
+2001767|Yordan Minchev|CHE|0|Forward|91|205|106|1998-10-17|Bulgaria|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001767
+2001768|John Newman III|CHE|0|Guard|9|196|95|1999-08-02|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001768
+2001769|Robbie Beran|CHE|0|Forward|31|204|98|2000-02-10|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001769
+2001770|Corey Davis Jr.|CHE|0|Guard|5|185|85|1997-06-04|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001770
+2001772|Nike Sibande|CHE|0|Guard|2|193|85|1999-06-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001772
+2001773|Nicholas Tischler|OLD|0|Forward|11|202|97|2000-08-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001773
+2001775|Dominik Dolic|VEC|0|Guard|8|194|87|2006-10-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001775
+2001777|Jonas Müller-Preuß|HAG|0||0|182|81|1985-05-09|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001777
+2001785|Alijah Comithier|BON|0|Forward|2|201|91|2001-05-13|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001785
+2001786|Tylan Birts|BON|0|Forward|5|198|100|1996-11-08|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001786
+2001787|Grayson Murphy|BON|0|Guard|7|188|86|1999-02-04|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001787
+2001788|Kenan Reinhart|BON|0|Guard|8|194|81|2007-05-04|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001788
+2001789|Kur Jongkuch|BON|0|Center|15|206|104|1999-05-18|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001789
+2001790|Vuk Scepanovic|BON|0|Forward|77|195|85|2007-01-12|Montenegro|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001790
+2001791|Juhwan Harris-Dyson|BON|0|Guard|24|198|92|1999-07-30|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001791
+2001792|Benjamin Sadikovic|BON|0|Center|16|208|100|2003-05-29|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001792
+2001793|Duje Dujmovic|BON|0|Forward|22|203|95|2002-07-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001793
+2001794|Jorge Mejias Sanchez|BON|0|Guard|10|190|85|2001-01-19|Spain|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001794
+2001796|Elijah Ndi|VEC|0|Forward|1|195|92|2004-09-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001796
+2001797|Fynn Lastring|VEC|0|Center|16|206|90|2007-05-11|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001797
+2001808|Filip Stanic|OLD|0|Center|65|206|120|1998-01-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001808
+2001809|Ralph Hounnou|OLD|0|Guard|5|192|87|2002-01-16|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001809
+2001813|Bryce Brown|ULM|0|Guard|2|191|86|1997-07-24|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001813
+2001820|Josh Hawley|BRA|0|Forward|3|203|95|1996-10-28|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001820
+2001821|Bent Leuchten|HRO|0|Center|51|214|120|2002-11-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001821
+2001825|Julian Steinfeld|CHE|0|Center|21|214|110|2001-04-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001825
+2001837|Carlos Stewart|HAM|0|Guard|1|185|87|2003-05-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001837
+2001848|Urald King|TRI|0|Forward|20|198|91|1990-07-13|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001848
+2001849|Jorke Aav|TRI|0|Guard|3|183|83|2005-09-14|Estonia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001849
+2001859|Jan Razdevsek|HAG|0|Guard|44|185|84|2000-12-16|Slovenia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001859
+2001860|Richard Fernando de Jesus Nunez Rivera|HAG|0|Forward|1|203|104|2000-07-27|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001860
+2001861|Isaiah Swope|FRS|0|Guard|1|178|77|2003-04-22|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001861
+2001862|William Christmas|FRS|0|Guard|8|196|96|1996-12-08|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001862
+2001866|Kamar Baldwin|FCB|0|Guard|44|185|86|1997-09-15|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001866
+2001867|Xavier Rathan-Mayes|FCB|0|Guard|4|191|94|1994-04-29|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001867
+2001872|Adrian Worthy|BRA|0|Guard|0|188|84|2003-01-28|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001872
+2001873|Leonhard Laar|BRA|0|Forward|21|204|97|2006-09-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001873
+2001874|Christopher Ledlum|ULM|0|Forward|4|198|104|2001-02-19|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001874
+2001882|Janne Müller|HAM|0|Guard|6|192|86|2006-08-31|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001882
+2001889|Justin Edler Davis|HAM|0|Forward|19|194|104|1998-02-19|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001889
+2001891|Eric Reed|HAM|0|Guard|43|185|91|2000-02-03|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001891
+2001892|Zacharie Perrin|HAM|0|Forward|52|208|109|2004-08-30|France|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001892
+2001894|David NGuessan|BRA|0|Center|1|206|95|2000-06-12|Netherlands|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001894
+2001899|Eric Washington|JEN|0|Guard|33|183|85|1993-06-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001899
+2001900|Joe Wieskamp|JEN|0|Forward|10|198|96|1999-08-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001900
+2001901|Keith Braxton JR|JEN|0|Guard|13|196|94|1997-05-16|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001901
+2001902|Seikou Sisoho Jawara|JEN|0|Guard|11|193|95|2000-02-14|Spain|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001902
+2001903|Naz Bohannon|JEN|0|Forward|15|198|103|1999-01-22|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001903
+2001915|Lennart Römer|BRA|0|Guard|10|186|80|2007-04-04|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001915
+2001917|Cavit Gürbüzer|BRA|0|Center|4|205|89|2007-08-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001917
+2001930|Dexter Akanno|TRI|0|Forward|2|195|95|2000-09-16|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001930
+2001931|Jack Kayil|BER|0|Guard|7|190|78|2006-01-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001931
+2001932|Moses Wood|BER|0|Forward|11|206|88|1999-05-03|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001932
+2001934|Rejean Amor Ellis|BER|0|Guard|8|188|84|2000-12-12|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001934
+2001975|Ryan Hawkins|FRS|0|Forward|33|204|100|1997-05-12|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001975
+2001977|Malick Kordel|FRS|0|Center|4|215|115|2004-03-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001977
+2001981|Joel Cwik|ULM|0|Guard|3|195|85|2006-04-10|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001981
+2001983|Namori Omog|ULM|0|Guard|8|190|82|2006-07-23|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001983
+2001984|Lenni Kunzewitsch|ULM|0|Forward|9|205|96|2005-03-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001984
+2001985|Meissa Faye|ULM|0|Forward|11|200|91|2007-12-29|France|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001985
+2001986|Endurance Aiyamenkhue|ULM|0|Center|14|209|101|2007-06-01|Netherlands|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001986
+2001987|Teo Milicic|ULM|0|Guard|44|192|81|2008-05-23|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001987
+2001991|Jordan Harris|BON|0|Guard|11|193|86|1997-10-09|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001991
+2001994|Jervis Scheffs|WUE|0|Guard|2|194|91|2007-10-09|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001994
+2001995|Marko Petric|WUE|0|Forward|13|203|95|2008-04-21|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2001995
+2002008|Jayden Estrus Jr. Fatnassi|HAM|0|Guard|12|189|93|2007-08-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002008
+2002010|Dusan Ilic|BON|0|Guard|34|188|75|2008-12-08|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002010
+2002011|Carlo Schmid|BON|0|Forward|31|205|96|2007-05-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002011
+2002012|Daniel Mayr|BON|0|Center|42|218|116|1995-07-28|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002012
+2002013|Malik Idbihi|BON|0|Guard|32|194|86|2009-06-07|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002013
+2002015|Michale Kyser|OLD|0|Center|12|208|96|1991-11-26|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002015
+2002016|Isiaha Mike|FCB|0|Forward|22|203|98|1997-08-11|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002016
+2002017|Rokas Jokubaitis|FCB|0|Guard|31|193|87|2000-11-19|Lithuania|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002017
+2002018|Christopher Clemons|OLD|0|Guard|3|175|88|1997-07-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002018
+2002019|Kyle Lofton|OLD|0|Guard|0|191|82|1999-05-31|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002019
+2002020|Brian Fobbs|OLD|0|Guard|4|196|103|1998-02-17|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002020
+2002021|Eral Penn|OLD|0|Forward|22|201|99|1998-10-02|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002021
+2002022|Dakarai Tucker|OLD|0|Forward|7|196|90|1994-05-13|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002022
+2002028|Nahiem Alleyne|FRS|0|Guard|4|193|88|2001-07-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002028
+2002030|J'wan Roberts|BER|0|Center|13|203|105|2001-09-19|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002030
+2002062|Leonard Thorpe|HAM|0|Guard|2|196|106|1999-05-13|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002062
+2002074|Desmond Yiamu|FCB|0|Center|23|198|95|2006-09-29|Ukraine|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002074
+2002081|Lukas Modic|LUD|0|Forward|38|201|101.2|2005-07-03|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002081
+2002082|Maxwell Dongmo Temoka|LUD|0|Forward|39|198|101|2003-06-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002082
+2002083|Jean-Pierre Tokoto II|HAM|0|Forward|7|198|98|1993-09-15|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002083
+2002084|Babacar Sane|LUD|0|Forward|0|201|104|2003-09-19|Senegal|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002084
+2002086|Grant Sherfield|BRA|0|Guard|25|185|89|1999-10-29|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002086
+2002105|Martynas Echodas|BER|0|Center|14|206|110|1997-07-07|Lithuania|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002105
+2002106|Christopher Wahren|CHE|0|Forward|52|205|86|2007-06-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002106
+2002107|Alfons Milatz|CHE|0|Forward|19|199|84|2007-09-19|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002107
+2002108|Nikolas Sermpezis|FCB|0|Guard|30|196|86|2007-05-03|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002108
+2002109|Niclas Neruda Kodjoe|FCB|0|Forward|35|198|87.5|2006-10-31|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002109
+2002114|Kilian Maurice Fischer|FCB|0|Center|17|205|96|2007-02-08|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002114
+2002124|Caspar David Vossenberg|FCB|0|Guard|37|201|95.6|2009-03-17|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002124
+2002125|Luis Wulff|HRO|0|Guard|6|199|95|2004-03-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002125
+2002126|Matthes Tilsen|HRO|0|Forward|31|196|94|2006-08-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002126
+2002127|Alan Topic|HRO|0|Forward|17|200|93|2007-02-23|Slovenia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002127
+2002128|Jonas  Zilinskas|HRO|0|Forward|14|204|104|2006-01-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002128
+2002137|Alvin Onyia|FRS|0|Guard|2|181|80|2000-11-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002137
+2002148|TJ Bamba|VEC|0|Guard|5|195|95|2001-01-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002148
+2002150|Nevio Bennefeld|BER|0|Center|22|211|88|2007-01-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002150
+2002151|Richard Schmitt|BER|0|Forward|25|204|90|2007-03-31|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002151
+2002152|Anton Kemmer|BER|0|Forward|79|204|94|2008-10-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002152
+2002153|Clemens Sokolov|WUE|0|Forward|17|210|98|2007-05-25|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002153
+2002154|Maximilian Peters|FRS|0|Forward|15|205|95|2007-01-26|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002154
+2002155|Lukas Roth|WUE|0|Guard|9|189|87|2002-04-09|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002155
+2002156|Mathéo Hermann|BER|0|Guard|2|194|80|2007-12-21|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002156
+2002157|Leif Zentgraf|FRS|0|Forward|9|200|90|2005-11-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002157
+2002158|Philip Hecker|FRS|0|Guard|26|193|93|2002-01-19|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002158
+2002159|Lukas Smazak|FRS|0|Guard|35|190|80|2007-09-08|Czechia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002159
+2002160|Great Osobor|JEN|0|Center|12|203|111|2002-12-13|Spain|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002160
+2002161|Tavian Dunn-Martin|JEN|0|Guard|0|173|73|1997-03-16|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002161
+2002162|Djordje Klaric|OLD|0|Guard|27|193|86|2009-04-05|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002162
+2002163|Ore Ewert|OLD|0|Guard|30|183|75|2006-02-17|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002163
+2002164|Johann Helwig|OLD|0|Forward|28|195|88|2006-05-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002164
+2002165|Simon Kohlhoff|OLD|0|Guard|31|188|75|2006-09-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002165
+2002166|Stefan Jovic|FCB|0|Guard|16|198|94|1990-11-03|Serbia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002166
+2002168|Daniel Biel|JEN|0|Forward|77|198|90|2007-09-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002168
+2002197|Lars Danziger|LUD|0|Guard|42|192|85|2008-01-11|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002197
+2002198|Josh Behrendt|LUD|0|Forward|41|199|96|2007-07-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002198
+2002199|Marko Masic|LUD|0|Forward|36|202|85.9|2005-10-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002199
+2002200|Tomas Atli Bjarkason|HAM|0|Forward|4|204|107|1999-05-07|Denmark|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002200
+2002210|Maxim Bader|JEN|0|Guard|24|190|83|2008-04-24|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002210
+2002211|Julius Messer|FRS|0|Forward|55|201|93|2007-04-08|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002211
+2002212|Joscha Zentgraf|FRS|0|Forward|22|196|90|2005-11-14|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002212
+2002213|Mohamed Ibrahim|MBC|0|Guard|60|191|92.5|2008-04-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002213
+2002214|Milo Dalchau|MBC|0|Guard|50|180|65|2009-10-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002214
+2002215|Abdulhay Kömürkara|LUD|0|Forward|35|196|82.6|2005-02-28|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002215
+2002221|James Woodard|OLD|0|Guard|10|191|86|1994-01-24|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002221
+2002226|Patrick Heckmann|BAM|0|Forward|33|198|100|1992-02-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002226
+2002228|Bennet Hundt|BER|0|Guard|33|180|74|1998-08-20|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002228
+2002233|Thomas Klepeisz|ULM|0|Guard|22|186|82|1991-08-04|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002233
+2002234|Chevon Brown|WUE|0|Guard|0|188|80|1994-02-12|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002234
+2002237|Stephon Jelks|MBC|0|Forward|30|198|102|1996-07-04|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002237
+2002238|Aleksa Radanov|FCB|0|Forward|12|201|95|1998-02-01|Serbia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002238
+2002239|David McCormack|FCB|0|Center|33|208|113|1999-07-02|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002239
+2002249|Kassim Nicholson|HRO|0|Forward|8|201|91|1999-05-28|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002249
+2002258|Perttu Blomgren|MBC|0|Guard|20|195|90|2001-09-13|Finland|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002258
+2002262|Gavin Schilling|CHE|0|Center|34|206|106|1995-11-10|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002262
+2002265|Marinus Lucas N'Guessan|HAG|0|Center|19|213|100|1997-11-06|Netherlands|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002265
+2002267|Martin Breunig|HAM|0|Center|13|203|100|1992-02-18|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002267
+2002268|Spencer Dinwiddie|FCB|0|Guard|26|198|97|1993-04-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002268
+2002275|Toms Skuja|LUD|0|Guard|5|190|85|2002-01-02|Latvia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002275
+2002941|Alex O'Connell|BER|0|Guard|3|196|84|1999-06-02|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002941
+2002954|Ryan Schwieger|WUE|0|Forward|15|199|99|1999-05-18|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002954
+2002958|Devon Daniels IV|HAM|0|Guard|21|196|91|1998-06-18|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002958
+2002962|Booker Coplin|VEC|0|Guard|30|191|95|1997-11-19|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002962
+2002971|Patrick Heckmann|BON|0|Forward|33|198|100|1992-02-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002971
+2002982|Justin Simon|ULM|0|Forward|15|193|98|1996-05-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002982
+2002987|Tomislav Zubcic|OLD|0|Forward|33|212|105|1990-01-17|Croatia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002987
+2002990|Tibor Pleiß|VEC|0|Center|22|218|116|1989-11-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002990
+2002992|Darnell Edge|LUD|0|Guard|1|188|84|1997-08-12|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002992
+2002995|Ross Williams|HAM|0|Guard|34|178|73|2000-07-17|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2002995
+2003000|Esli Edigin|BRA|0|Guard|41|194|86|2005-04-11|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003000
+2003005|Jordan Bowden|HRO|0|Forward|2|196|88|1997-01-20|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003005
+2003016|Desmond Watson|FRS|0|Guard|20|196|95|2003-06-15|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003016
+2003017|Jordan Schakel|CHE|0|Forward|8|198|93|1998-06-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003017
+2003027|Steven Ashworth|TRI|0|Guard|1|183|79|2000-05-01|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003027
+2003028|Uchenna Iroegbu|JEN|0|Guard|1|185|82|1996-08-20|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003028
+2003031|Javon Franklin|JEN|0|Forward|22|201|100|1998-10-14|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003031
+2003032|William Gerald Scott McNair Jr|JEN|0|Center|3|211|120|2000-05-25|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003032
+2003035|Nenad Dimitrijevic|FCB|0|Guard|0|190|79|1998-02-23|North Macedonia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003035
+2003046|Aher Uguak|CHE|0|Forward|1|201|102|1998-05-24|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003046
+2003051|Gavin Schilling|LUD|0|Center|34|206|106|1995-11-10|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003051
+2003058|Andrew Harrison|MBC|0|Guard|2|198|97|1994-10-28|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003058
+2003061|Oluwasimisola Shittu|BRA|0|Center|45|208|109|1999-11-07|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003061
+2003076|Ryan Schwieger|HAG|0|Guard|3|199|99|1999-05-18|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003076
+2003081|Eric Washington|CHE|0|Guard|33|183|85|1993-06-23|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003081
+2003090|Joel Soriano|ULM|0|Center|12|211|116|2000-01-30|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003090
+2003094|Jalen Finch|BON|0|Guard|0|185|75|1999-06-25|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003094
+2003096|Kaza Kajami-Keane|BRA|0|Guard|24|185|88|1994-01-27|Canada|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003096
+2003103|Guy Artman Nahmias|BER|0|Guard|24|186|79|2002-02-09|Spain|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003103
+2003113|Beni Fungula|OLD|0|Forward|18|193|90|1999-02-12|Sweden|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003113
+2003116|Moses Pölking|FRS|0|Center|6|206|104|1997-11-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003116
+2003117|George King|TRI|0|Forward|94|198|100|1994-01-15|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003117
+2003118|Sahmi Willoughby|BON|0|Forward|14|191|85|2001-05-06|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003118
+2003119|Christoph Philipps|WUE|0|Forward|14|203|89|1998-09-15|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003119
+2003120|Nemanja Djurisic|MBC|0|Forward|42|203|104|1992-02-23|Montenegro|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003120
+2003121|Jacob Holt|FRS|0|Center|10|206|107|2003-06-21|Australia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003121
+2003122|Jalen Page|HRO|0|Guard|13|193|88|2002-09-22|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003122
+2003123|Niko Jerkic|FCB|0|Forward|39|202|96.1|2007-09-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003123
+2003124|Malik Parsons|VEC|0|Guard|3|190|86|1999-08-17|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003124
+2003126|Karl Gamble II|HAM|0|Forward|27|203|98|1996-11-26|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003126
+2003128|Jack Pagenkopf|JEN|0|Guard|11|190|86|1997-07-22|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003128
+2003130|Bryant Crawford|BRA|0|Guard|20|191|91|1997-03-21|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003130
+2003133|Tyger Campbell|FRS|0|Guard|00|181|81|2000-01-09|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003133
+2003134|Terrell Harris|LUD|0|Guard|8|193|86|1993-08-25|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003134
+2003135|Andrija Susic|FCB|0|Guard|42|195|85.7|2008-04-09|Serbia|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003135
+2003136|Michael Rataj|BER|0|Forward|21|204|100|2003-10-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003136
+2003137|Phillip Greene IV|HRO|0|Guard|16|188|83|1992-10-24|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/2003137
+5595|Alex Herrera|JEN|0|Center|41|206|113|1992-08-15|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/5595
+56377|Malte Delow|BER|0|Forward|6|197|84|2001-04-22|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56377
+56384|Andreas Obst|FCB|0|Guard|13|191|81|1996-07-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56384
+56387|Johannes Patrick|LUD|0|Guard|6|185|80|2001-12-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56387
+56390|Luc van Slooten|VEC|0|Forward|6|204|111|2002-04-17|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56390
+56400|Vladimir Lucic|FCB|0|Forward|11|204|95|1989-06-17|Serbia|https://api.basketball-bundesliga.de/images/player/portrait/2025/56400
+56405|Robin Amaize|HRO|0|Forward|15|196|100|1994-01-31|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56405
+56414|Jonas Mattisseck|BER|0|Guard|9|192|84|2000-01-16|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56414
+56433|Yorman Polas Bartolo|LUD|0|Forward|13|192|88|1985-08-08|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56433
+56514|John Bryant|MBC|0|Center|54|211|127|1987-06-13|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56514
+56517|Charles Callison|MBC|0|Guard|23|185|85|1994-10-17|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/56517
+56521|Tobias Jensen|ULM|0|Guard|7|198|91|2004-05-08|Denmark|https://api.basketball-bundesliga.de/images/player/portrait/2025/56521
+56539|Sid-Marlon Theis|HRO|0|Forward|19|204|99|1993-04-26|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56539
+56555|Elias Harris|FCB|0|Forward|20|203|108|1989-07-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56555
+56607|Al-Fayed Alegbe-Issifou|HAM|0|Guard|9|194|87|2004-03-17|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56607
+56621|Joel Harms|OLD|0|Center|20|207|108|2002-12-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56621
+56634|Niels Giffey|FCB|0|Forward|5|200|93|1991-06-08|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56634
+56763|Ferdinand Zylka|BRA|0|Guard|6|191|94|1998-04-11|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56763
+56770|Joschka Ferner|VEC|0|Forward|9|203|92|1996-01-05|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/56770
+57252|Justin Bean|BER|0|Forward|34|201|95|1996-11-17|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/57252
+57292|Oshane Drews|HRO|0|Guard|11|198|96|2001-04-01|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/57292
+57650|Maik Zirbes|TRI|0|Center|33|208|115|1990-01-29|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/57650
+57693|Barra Njie|BRA|0|Guard|13|191|87|2001-01-13|Sweden|https://api.basketball-bundesliga.de/images/player/portrait/2025/57693
+58158|Romario Holloway|BRA|0|Forward|11|203|95|2005-04-07|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58158
+58170|Alec Anigbata|ULM|0|Forward|21|203|90|2004-10-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58170
+58181|Luca Kellig|CHE|0|Guard|13|192|83|2006-02-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58181
+58182|Moritz Heck|MBC|0|Forward|3|201|71|2002-02-19|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58182
+58191|JJ Mann|TRI|0|Forward|24|198|98|1991-06-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58191
+58324|Linus Trettin|VEC|0|Forward|15|204|92|2005-05-16|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58324
+58383|Adrian Petkovic|BAM|0|Guard|15|188|82|2004-10-29|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58383
+58386|Nico Höllerl|BAM|0|Forward|55|197|92|2003-08-27|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/58386
+6082|Tim Uhlemann|HAG|0|Forward|21|203|105|1999-04-09|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6082
+6083|Bjarne Kraushaar|HAG|0|Guard|4|190|78|1999-06-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6083
+6084|Marvin Omonigho Omuvwie|HAG|0|Forward|11|195|94|1997-07-11|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6084
+6158|Marco Hollersbacher|TRI|0|Forward|9|202|100|2000-10-29|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6158
+6606|Lorenz Bank|JEN|0|Forward|25|198|91|2001-04-06|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6606
+6609|Dennis Nawrocki|HAG|0|Guard|2|192|92|1992-12-08|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6609
+6638|Lorenz Brenneke|FRS|0|Forward|21|204|86|2000-01-02|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6638
+6640|Jacob Knauf|FRS|0|Center|25|210|95|1997-03-12|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6640
+6732|Marten Linßen|TRI|0|Center|12|203|110|1998-08-30|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6732
+6735|Behnam Yakhchali Dehkordi|TRI|0|Guard|8|192|87|1995-07-12|IR|https://api.basketball-bundesliga.de/images/player/portrait/2025/6735
+6736|Evans Rapieque|TRI|0|Guard|21|193|81|2002-03-05|Germany|https://api.basketball-bundesliga.de/images/player/portrait/2025/6736
+6749|Clay Guillozet|TRI|0|Guard|4|193|90|1997-05-25|USA|https://api.basketball-bundesliga.de/images/player/portrait/2025/6749

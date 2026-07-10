@@ -1,0 +1,18 @@
+BER~ALBA BERLIN~Germany~Berlin
+TRI~VET-CONCEPT Gladiators Trier~Germany~Trier
+BON~Telekom Baskets Bonn~Germany~Bonn
+ULM~ratiopharm ulm~Germany~Ulm
+BAM~Bamberg Baskets~Germany~Bamberg
+BRA~Basketball Löwen Braunschweig~Germany~Braunschweig
+FRS~SKYLINERS~Germany~
+MBC~SYNTAINICS MBC~Germany~Weißenfels
+OLD~EWE Baskets Oldenburg~Germany~Oldenburg
+LUD~MHP RIESEN Ludwigsburg~Germany~Ludwigsburg
+HAG~Phoenix Hagen~Germany~Hagen
+JEN~Science City Jena~Germany~Jena
+CHE~NINERS Chemnitz~Germany~Chemnitz
+FCB~FC Bayern München Basketball~Germany~
+WUE~Fitness First Würzburg Baskets~Germany~Würzburg
+VEC~RASTA Vechta~Germany~Vechta
+HRO~ROSTOCK SEAWOLVES~Germany~
+HAM~Veolia Towers Hamburg~Germany~Hamburg
