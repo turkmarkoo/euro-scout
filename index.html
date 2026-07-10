@@ -500,6 +500,20 @@ body.drawer-lock{overflow:hidden}
 .gcard p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
 .gcard b{color:var(--txt);font-weight:600}
 .gloss dd b{color:var(--txt);font-weight:600}
+
+/* radar footer chips + average key */
+.pfoot{margin-top:14px}
+.pfoot-h{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:6px}
+.mstats{display:grid;gap:7px}
+.mstats.c3{grid-template-columns:repeat(3,1fr)}
+.mstats.c6{grid-template-columns:repeat(6,1fr)}
+.mstat{background:var(--panel2);border:1px solid var(--line-soft);border-radius:9px;padding:7px 4px;text-align:center}
+.mstat .mv{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--txt);letter-spacing:.01em}
+.mstat .mk{font-family:var(--mono);font-size:9px;color:var(--muted2);margin-top:2px;letter-spacing:.05em}
+.legend .avgkey{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;margin-left:14px}
+.legend .dash{display:inline-block;width:18px;border-top:2px dashed var(--muted2)}
+.radar{display:block;margin:0 auto;max-width:384px}
+@media(max-width:560px){.mstats.c6{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -576,7 +590,7 @@ const ADV_COLS = [
   {k:"usg",t:"USG%"},{k:"ts",t:"TS%"},{k:"efg",t:"eFG%"},{k:"pir",t:"PIR"}];
 const RADAR = [
   {k:"pts40",t:"Scoring"},{k:"ts",t:"Efficiency"},{k:"reb40",t:"Rebounding"},
-  {k:"ast40",t:"Playmaking"},{k:"stl40",t:"Steals"},{k:"blk40",t:"Rim Protect"}];
+  {k:"ast40",t:"Playmaking"},{k:"stl40",t:"Steals"},{k:"blk40",t:"Rim Protection"}];
 const BARSET = [
   {k:"ppg",t:"Points"},{k:"rpg",t:"Rebounds"},{k:"apg",t:"Assists"},
   {k:"spg",t:"Steals"},{k:"bpg",t:"Blocks"},{k:"ts",t:"True Shooting"},
@@ -1062,19 +1076,29 @@ function barRow(p,def){const pct=p.pct[def.k]??50;
 
 /* ---------- radar chart (SVG) ---------- */
 function radarSVG(players,colors){const LBL=arguments[2]!==false;
-  const size=248,cx=size/2,cy=size/2,R=92,N=RADAR.length;
+  const W=384,H=252,cx=W/2,cy=H/2+2,R=88,N=RADAR.length;
   const ang=i=>(-Math.PI/2)+i*2*Math.PI/N;
   const pt=(i,r)=>[cx+Math.cos(ang(i))*r, cy+Math.sin(ang(i))*r];
   let g="";
+  // soft filled backdrop + rings
+  g+=`<polygon points="${RADAR.map((_,i)=>pt(i,R).join(",")).join(" ")}" fill="var(--panel2)" stroke="none"/>`;
   for(let ring=1;ring<=4;ring++){const rr=R*ring/4;
-    g+=`<polygon points="${RADAR.map((_,i)=>pt(i,rr).join(",")).join(" ")}" fill="none" stroke="var(--line)" stroke-width="1"/>`;}
-  RADAR.forEach((d,i)=>{const[x,y]=pt(i,R);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--line)"/>`;
-    const[lx,ly]=pt(i,R+22);g+=`<text x="${lx}" y="${ly}" fill="var(--muted)" font-size="11" text-anchor="middle" dominant-baseline="middle">${d.t}</text>`;});
+    g+=`<polygon points="${RADAR.map((_,i)=>pt(i,rr).join(",")).join(" ")}" fill="none" stroke="var(--line-soft)" stroke-width="1"/>`;}
+  RADAR.forEach((d,i)=>{const[x,y]=pt(i,R);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--line-soft)"/>`;});
+  // dotted league-average hexagon (50th percentile by construction)
+  g+=`<polygon points="${RADAR.map((_,i)=>pt(i,R*0.5).join(",")).join(" ")}" fill="none" stroke="var(--muted2)" stroke-width="1.6" stroke-dasharray="4 4"/>`;
+  // player polygons
   players.forEach((p,pi)=>{if(!p)return;
     const pts=RADAR.map((d,i)=>{const v=Math.max(0,Math.min(100,p.pct[d.k]??50));return pt(i,R*v/100);});
-    g+=`<polygon points="${pts.map(a=>a.join(",")).join(" ")}" fill="${colors[pi]}33" stroke="${colors[pi]}" stroke-width="2"/>`;
-    pts.forEach(a=>g+=`<circle cx="${a[0]}" cy="${a[1]}" r="2.5" fill="${colors[pi]}"/>`);});
-  return `<svg class="radar" viewBox="0 0 ${size} ${size}">${g}</svg>`;
+    g+=`<polygon points="${pts.map(a=>a.join(",")).join(" ")}" fill="${colors[pi]}2E" stroke="${colors[pi]}" stroke-width="2.2" stroke-linejoin="round"/>`;
+    pts.forEach(a=>g+=`<circle cx="${a[0]}" cy="${a[1]}" r="3" fill="${colors[pi]}" stroke="var(--panel)" stroke-width="1.2"/>`);});
+  // labels last (on top), pushed outside with side-aware anchors so nothing clips
+  if(LBL)RADAR.forEach((d,i)=>{const a=ang(i);const[lx,ly]=pt(i,R+14);
+    const c=Math.cos(a);
+    const anchor=c>0.35?"start":(c<-0.35?"end":"middle");
+    const dy=Math.sin(a)>0.6?10:(Math.sin(a)<-0.6?-6:4);
+    g+=`<text x="${lx}" y="${ly+dy}" fill="var(--muted)" font-size="11.5" font-family="var(--disp)" font-weight="600" text-anchor="${anchor}">${d.t}</text>`;});
+  return `<svg class="radar" viewBox="0 0 ${W} ${H}">${g}</svg>`;
 }
 
 /* ---------- Shot chart ---------- */
@@ -1435,13 +1459,23 @@ function renderProfile(){
       </div>
       <div class="panel"><h3>Statistical profile (per-40 percentiles)</h3>
         ${radarSVG([p],["#7FB3AB"])}
-        <div class="legend"><span><span class="dot" style="background:#7FB3AB"></span>${p.name}</span></div>
-        <div style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.7">
-          Shooting: <b style="color:var(--txt)">${p.fgma}</b> FG (${fmt(p.fgp)}%),
-          <b style="color:var(--txt)">${p.f3ma}</b> 3P (${fmt(p.f3p)}%),
-          <b style="color:var(--txt)">${p.ftma}</b> FT (${fmt(p.ftp)}%).<br>
-          Per 40: ${fmt(p.pts40)} pts \u00b7 ${fmt(p.reb40)} reb \u00b7 ${fmt(p.ast40)} ast \u00b7
-          ${fmt(p.stl40)} stl \u00b7 ${fmt(p.blk40)} blk \u00b7 ${fmt(p.tov40)} to.
+        <div class="legend"><span><span class="dot" style="background:#7FB3AB"></span>${p.name}</span><span class="avgkey"><span class="dash"></span>league average</span></div>
+        <div class="pfoot">
+          <div class="pfoot-h">Shot diet</div>
+          <div class="mstats c3">
+            <div class="mstat"><div class="mv">${p.fgma}</div><div class="mk">FG \u00b7 ${fmt(p.fgp)}%</div></div>
+            <div class="mstat"><div class="mv">${p.f3ma}</div><div class="mk">3P \u00b7 ${fmt(p.f3p)}%</div></div>
+            <div class="mstat"><div class="mv">${p.ftma}</div><div class="mk">FT \u00b7 ${fmt(p.ftp)}%</div></div>
+          </div>
+          <div class="pfoot-h" style="margin-top:10px">Per 40 minutes</div>
+          <div class="mstats c6">
+            <div class="mstat"><div class="mv">${fmt(p.pts40)}</div><div class="mk">PTS</div></div>
+            <div class="mstat"><div class="mv">${fmt(p.reb40)}</div><div class="mk">REB</div></div>
+            <div class="mstat"><div class="mv">${fmt(p.ast40)}</div><div class="mk">AST</div></div>
+            <div class="mstat"><div class="mv">${fmt(p.stl40)}</div><div class="mk">STL</div></div>
+            <div class="mstat"><div class="mv">${fmt(p.blk40)}</div><div class="mk">BLK</div></div>
+            <div class="mstat"><div class="mv">${fmt(p.tov40)}</div><div class="mk">TO</div></div>
+          </div>
         </div>
       </div>
     </div>
