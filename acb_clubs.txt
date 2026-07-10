@@ -1,0 +1,18 @@
+JOV~Asisa Joventut~Spain~Badalona
+BAR~Barça~Spain~Barcelona
+GIR~Bàsquet Girona~Spain~Girona
+CAZ~Casademont Zaragoza~Spain~Zaragoza
+COV~Coviran Granada~Spain~Granada
+DGC~Dreamland Gran Canaria~Spain~Las Palmas
+LLE~Hiopos Lleida~Spain~Lleida
+MAN~Kids&Us Manresa~Spain~Manresa
+BKN~Kosner Baskonia~Spain~Vitoria-Gasteiz
+LLT~La Laguna Tenerife~Spain~San Cristóbal de La Laguna
+MBA~MoraBanc Andorra~Andorra~Andorra la Vella
+RMB~Real Madrid~Spain~Madrid
+BUR~Recoletas Salud San Pablo Burgos~Spain~Burgos
+BRE~Río Breogán~Spain~Lugo
+SBB~Surne Bilbao~Spain~Bilbao
+UCM~UCAM Murcia~Spain~Murcia
+UNI~Unicaja~Spain~Málaga
+VBC~Valencia Basket~Spain~Valencia

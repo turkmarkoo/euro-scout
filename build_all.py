@@ -51,6 +51,8 @@ LEAGUES = [
          rs_games=18, teams=None, standings=None, standings_file="eurocup_standings.txt"),
     dict(id="aba", name="ABA League", season="2025-26", tier="Regional (Adriatic)",
          rs_games=26, teams=None, standings=None, clubs_file="aba_clubs.txt"),
+    dict(id="acb", name="Liga ACB", season="2025-26", tier="Domestic (Spain · Tier 1)",
+         rs_games=34, teams=None, standings=None, clubs_file="acb_clubs.txt"),
 ]
 
 def capword(w): return "-".join(p.capitalize() for p in w.split("-"))
