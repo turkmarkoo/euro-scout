@@ -514,6 +514,14 @@ body.drawer-lock{overflow:hidden}
 .legend .dash{display:inline-block;width:18px;border-top:2px dashed var(--muted2)}
 .radar{display:block;margin:0 auto;max-width:384px}
 @media(max-width:560px){.mstats.c6{grid-template-columns:repeat(3,1fr)}}
+
+.tablewrap.stickytbl{max-height:calc(100vh - var(--stick-top,110px) - 18px);overflow:auto}
+.stickytbl thead th{z-index:5}
+.hproxy{overflow-x:auto;overflow-y:hidden;height:14px;border-radius:8px;margin-bottom:2px;display:none}
+.hproxy>div{height:1px}
+.hproxy::-webkit-scrollbar{height:10px}
+.hproxy::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+.hproxy::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
 </style>
 </head>
 <body>
@@ -1006,7 +1014,8 @@ function renderPlayers(){
       <span class="hint">Click a row for the scouting profile</span>
     </div>
     ${chips.length?`<div class="filterchips">${chips.join("")}<button class="clearall" data-clear="__all">Clear filters</button></div>`:''}
-    <div class="tablewrap"><table>
+    <div class="hproxy" id="hproxy"><div id="hproxyIn"></div></div>
+    <div class="tablewrap stickytbl" id="ptw"><table>
       <thead><tr>
         <th class="l">#</th><th class="l" data-k="name">PLAYER</th>
         ${all?'<th class="l" data-k="league">LG</th>':''}
@@ -1027,6 +1036,14 @@ function renderPlayers(){
       ${cols.map(c=>`<td>${fmt(p[c.k],c.d==null?1:c.d)}</td>`).join("")}
       <td><button class="starbtn ${rec.watch?"on":""}" title="Watchlist" data-star="${p.id}">${rec.watch?"\u2605":"\u2606"}</button></td>
     </tr>`;}).join("");
+    (function(){const tw=$("#ptw"),hp=$("#hproxy"),hin=$("#hproxyIn");
+      if(tw&&hp&&hin){const tbl=tw.querySelector("table");
+        const sync=()=>{hin.style.width=tbl.scrollWidth+"px";hp.style.display=tbl.scrollWidth>tw.clientWidth?"block":"none";};
+        sync();requestAnimationFrame(sync);
+        let lock=false;
+        hp.onscroll=()=>{if(lock)return;lock=true;tw.scrollLeft=hp.scrollLeft;lock=false;};
+        tw.addEventListener("scroll",()=>{if(lock)return;lock=true;hp.scrollLeft=tw.scrollLeft;lock=false;},{passive:true});
+        window.addEventListener("resize",sync);}})();
     $$("#tb tr").forEach(tr=>tr.onclick=e=>{
       if(e.target.dataset.star){e.stopPropagation();toggleWatch(e.target.dataset.star);upd();return;}
       openProfile(tr.dataset.id);});
@@ -1627,7 +1644,7 @@ function renderWatchlist(){
 
 /* ---------- Teams ---------- */
 /* ---------- team identity across competitions + aggregated team stats ---------- */
-const DEFAULT_TEAM_LINKS=[["euroleague:RED","aba:CZV"],["eurocup:LJU","aba:COL"],["euroleague:MAD","acb:RMB"],["euroleague:PAM","acb:VBC"],["euroleague:BAS","acb:BKN"]];
+const DEFAULT_TEAM_LINKS=[["euroleague:RED","aba:CZV"],["eurocup:LJU","aba:COL"],["euroleague:MAD","acb:RMB"],["euroleague:PAM","acb:VBC"],["euroleague:BAS","acb:BKN"],["euroleague:MIL","lba:MIO"],["euroleague:VIR","lba:BOV"],["eurocup:TRN","lba:TN"],["eurocup:VNC","lba:VE"]];
 function teamKey(lid,code){return lid+":"+code;}
 function teamGroup(lid,code){
   const links=[...DEFAULT_TEAM_LINKS,...(OVR.teamLinks||[])];
@@ -1709,7 +1726,7 @@ function openTeamBoard(k,label,hi){
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -1722,7 +1739,7 @@ function renderTeams(){
   const pool=all?allTeamsFlat():STATE.league.teams.map(t=>({...t,_lid:STATE.league.meta.id}));
   let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
   if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA"};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
     <div class="sub">${all?`Every club across <b>${STATE.data.leagues.length}</b> competitions \u00b7 use the chips to narrow`:`Regular season standings \u00b7 ${STATE.league.meta.season}`}</div>

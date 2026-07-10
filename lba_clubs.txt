@@ -1,0 +1,15 @@
+BOV~Virtus Olidata Bologna~Italy~Bologna
+BS~Germani Brescia~Italy~Brescia
+MIO~EA7 Emporio Armani Milano~Italy~Milano
+PZZ~Guerri Napoli~Italy~Napoli
+RE~UNA Hotels Reggio Emilia~Italy~Reggio Emilia
+SS~Banco di Sardegna Sassari~Italy~Sassari
+TN~Dolomiti Energia Trentino~Italy~Trento
+BDBT~Bertram Derthona Tortona~Italy~Tortona
+TSS~Pallacanestro Trieste~Italy~Trieste
+TVU~NutriBullet Treviso Basket~Italy~Treviso
+VA~Openjobmetis Varese~Italy~Varese
+VE~Umana Reyer Venezia~Italy~Venezia
+CRE~Vanoli Basket Cremona~Italy~Cremona
+CNT~Acqua S.Bernardo Cantù~Italy~Cantù
+UD~APU Old Wild West Udine~Italy~Udine
