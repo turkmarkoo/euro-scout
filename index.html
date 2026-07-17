@@ -1658,7 +1658,7 @@ function renderWatchlist(){
 
 /* ---------- Teams ---------- */
 /* ---------- team identity across competitions + aggregated team stats ---------- */
-const DEFAULT_TEAM_LINKS=[["euroleague:RED","aba:CZV"],["eurocup:LJU","aba:COL"],["euroleague:MAD","acb:RMB"],["euroleague:PAM","acb:VBC"],["euroleague:BAS","acb:BKN"],["euroleague:MIL","lba:MIO"],["euroleague:VIR","lba:BOV"],["eurocup:TRN","lba:TN"],["eurocup:VNC","lba:VE"],["euroleague:MUN","bbl:MUC"],["eurocup:NIN","bbl:CHE"],["eurocup:ULM","bbl:ULM"],["eurocup:HAM","bbl:HAM"]];
+const DEFAULT_TEAM_LINKS=[["euroleague:RED","aba:CZV"],["eurocup:LJU","aba:COL"],["euroleague:MAD","acb:RMB"],["euroleague:PAM","acb:VBC"],["euroleague:BAS","acb:BKN"],["euroleague:MIL","lba:MIO"],["euroleague:VIR","lba:BOV"],["eurocup:TRN","lba:TN"],["eurocup:VNC","lba:VE"],["euroleague:MUN","bbl:MUC"],["eurocup:NIN","bbl:CHE"],["eurocup:ULM","bbl:ULM"],["eurocup:HAM","bbl:HAM"],["euroleague:MCO","lnb:MON"],["euroleague:PRS","lnb:PAB"],["euroleague:ASV","lnb:VIL"]];
 function teamKey(lid,code){return lid+":"+code;}
 function teamGroup(lid,code){
   const links=[...DEFAULT_TEAM_LINKS,...(OVR.teamLinks||[])];
@@ -1740,7 +1740,7 @@ function openTeamBoard(k,label,hi){
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -1753,7 +1753,7 @@ function renderTeams(){
   const pool=all?allTeamsFlat():STATE.league.teams.map(t=>({...t,_lid:STATE.league.meta.id}));
   let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
   if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB"};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
     <div class="sub">${all?`Every club across <b>${STATE.data.leagues.length}</b> competitions \u00b7 use the chips to narrow`:`Regular season standings \u00b7 ${STATE.league.meta.season}`}</div>

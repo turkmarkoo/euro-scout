@@ -57,6 +57,8 @@ LEAGUES = [
          rs_games=28, teams=None, standings=None, clubs_file="lba_clubs.txt"),
     dict(id="bbl", name="BBL", season="2025-26", tier="Domestic (Germany · Tier 1)",
          rs_games=34, teams=None, standings=None, clubs_file="bbl_clubs.txt"),
+    dict(id="lnb", name="Betclic Élite", season="2025-26", tier="Domestic (France · Tier 1)",
+         rs_games=30, teams=None, standings=None, clubs_file="lnb_clubs.txt"),
 ]
 
 def capword(w): return "-".join(p.capitalize() for p in w.split("-"))
@@ -69,6 +71,7 @@ def _restore_dia(name):
     import unicodedata
     key=unicodedata.normalize('NFKD',name).encode('ascii','ignore').decode().lower().strip()
     return DIA.get(key,name)
+CTRY_NORM={"United States of America":"USA","United States":"USA","Czech Republic":"Czechia","Cabo Verde":"Cape Verde","England":"Great Britain","Republic of North Macedonia":"North Macedonia","Türkiye":"Turkiye","Turkey":"Turkiye","Bosnia-Herzegovina":"Bosnia and Herzegovina","Democratic Republic of the Congo":"DR Congo","Republic of the Congo":"Congo"}
 def titlecase(raw):
     raw = raw.strip()
     surname, first = (raw.split(",",1)+[""])[:2] if "," in raw else (raw,"")
@@ -124,7 +127,7 @@ def build_league(cfg):
         p=line.rstrip("\n").split("|")
         if len(p)!=11: continue
         bios[p[0]]=dict(name=titlecase(p[1]),team=p[2],multi=p[3]=="1",pos=p[4],jersey=p[5],
-                        ht=p[6],wt=p[7],bd=p[8],ctry=p[9],img=img_url(p[10]))
+                        ht=p[6],wt=p[7],bd=p[8],ctry=CTRY_NORM.get(p[9],p[9]),img=img_url(p[10]))
     logs={}
     for line in open(os.path.join(RAW,f"{lid}_gamelog.txt"),encoding="utf-8"):
         f=line.strip().split(",")

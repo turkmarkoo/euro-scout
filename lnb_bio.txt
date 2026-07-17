@@ -1,0 +1,296 @@
+166|Vincent Amsellem|LIM|0|Guard|11|193||2002-03-11|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27957/photo/md.png
+236|Sean Armand|LEP|0|Guard|13|196||1991-08-26|United States of America|
+309|Gerald Ayayi|CHO|0|Guard|11|191||2001-08-24|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27961/photo/md.png
+362|Ismael Bako|PAB|0|Center|21|208||1995-10-10|Belgium|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28742/photo/md.png
+514|Juhann Begarin|MON|0|Guard|23|196||2002-08-07|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27982/photo/md.png
+599|Johnny Berhanemeskel|LEM|0|Guard|8|188||1992-10-30|Eritrea|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27988/photo/md.png
+666|Justin Bibbins|DIJ|0|Guard|1|173||1996-01-23|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27871/photo/md.png
+1252|T.J. Campbell|CHO|0|Guard|44|177||1988-01-23|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27936/photo/md.png
+1345|Léopold Cavaliere|PAB|0|Forward|4|204||1996-04-27|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28268/photo/md.png
+1428|Alexandre Chassang|NTR|0|Center|21|205||1994-11-22|France|
+1463|Valentin Chery|GRA|0|Center|97|200||1997-09-24|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28058/photo/md.png
+1496|Yohan Choupas|CHA|0|Guard|6|193||2000-03-11|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27940/photo/md.png
+1513|Bruno Cingala-Mata|GRA|0|Forward|16|204||1993-03-19|France|
+1830|Boris Dallo|STQ|0|Guard||196||1994-03-12|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28461/photo/md.png
+1832|Jean-Philippe Dally|STQ|0|Forward|77|201||1996-03-08|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27905/photo/md.png
+1915|Nando De Colo|VIL|0|Guard|12|196||1987-06-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28014/photo/md.png
+1922|Nathan De Sousa|CHO|0|Guard|7|191||2003-02-21|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27992/photo/md.png
+2008|Gauthier Denis|GRA|0|Guard|9|201||1997-04-01|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28003/photo/md.png
+2130|Digué Diawara|CHO|0|Forward|6|206||1998-10-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27990/photo/md.png
+2154|Neftali Difuidi|STQ|0|Guard|6|193||2001-11-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27906/photo/md.png
+2225|Allan Dokossi|PAB|0|Center|13|205||1999-12-14|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28272/photo/md.png
+2264|Mathis Dossou-Yovo|NTR|0|Center|12|206||2000-11-06|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28004/photo/md.png
+2348|Robin Ducoté|DIJ|0|Guard|6|193||2001-01-20|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27860/photo/md.png
+2357|Lucas Dufeal|LEM|0|Forward|15|204||2003-04-18|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27914/photo/md.png
+2421|Lucas Dussoulier|NTR|0|Forward|22|204||1996-07-27|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28087/photo/md.png
+2478|Antoine Eito|BLZ|0|Guard||188||1988-04-06|France|
+2513|Cyrille Eliezer-Vanerot|BLZ|0|Forward||207||1996-08-01|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27837/photo/md.png
+2700|Ivan Fevrier|LEP|0|Forward|23|204||1999-02-08|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28239/photo/md.png
+2760|Vafessa Fofana|GRA|0|Forward|12|200||1992-06-12|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28266/photo/md.png
+2982|Lionel Gaudoux|CHA|0|Forward|13|198||1995-05-30|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27943/photo/md.png
+3158|Stéphane Gombauld|NAN|0|Center|13|205||1997-03-05|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27889/photo/md.png
+3201|Enzo Goudou-Sinha|NAN|0|Guard|10|182||1998-11-26|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27890/photo/md.png
+3365|Mamadou Guisse|LIM|0|Forward|32|197||2001-12-15|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28878/photo/md.png
+3495|Kevarrius Hayes|MON|0|Center|13|206||1997-03-05|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27975/photo/md.png
+3579|Thomas Heurtel|VIL|0|Guard|7|189||1989-04-10|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28335/photo/md.png
+3586|Nadir Hifi|PAB|0|Guard|2|185||2002-07-16|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28756/photo/md.png
+3641|David Holston|DIJ|0|Guard|11|173||1986-01-26|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27870/photo/md.png
+3691|Gregor Hrovat|DIJ|0|Forward|15|196||1994-08-18|Slovenia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27538/photo/md.png
+3760|Hugo Invernizzi|LIM|0|Forward|14|198||1993-01-07|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28928/photo/md.png
+3784|Edwin Jackson|VIL|0|Guard|11|190||1989-09-18|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28015/photo/md.png
+3855|Jonathan Jeanne|LEM|0|Center|21|218||1997-07-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27921/photo/md.png
+3895|Chris Johnson|CHA|0|Forward|4|198||1990-04-29|United States of America|
+3914|Nick Johnson|STQ|0|Guard|13|191||1992-12-22|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27907/photo/md.png
+4004|Axel Julien|DIJ|0|Guard|83|185||1992-07-27|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27862/photo/md.png
+4028|Charles Kahudi|DIJ|0|Forward|5|199||1986-07-19|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29136/photo/md.png
+4206|Kevin Kokila|BOU|0|Center|34|206||2001-09-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27971/photo/md.png
+4215|Lahaou Konaté|LEP|0|Guard|5|199||1991-11-17|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28240/photo/md.png
+4274|Ousman Krubally|BLZ|0|Forward|5|202||1988-03-13|Gambia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28106/photo/md.png
+4304|Antony Labanca|BOU|0|Guard|8|203||1994-07-30|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27966/photo/md.png
+4309|Louis Labeyrie|STR|0|Forward|7|209||1992-02-11|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29460/photo/md.png
+4315|Paul Lacombe|NTR|0|Guard|6|197||1990-06-12|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28005/photo/md.png
+4367|Nicolas Lang|LIM|0|Forward|15|200||1990-05-01|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27959/photo/md.png
+4612|Matheo Leray|CHA|0|Guard|20|190||2003-03-25|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27945/photo/md.png
+4685|David Lighty|VIL|0|Forward|23|198||1988-05-27|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28016/photo/md.png
+4750|Quentin Losser|DIJ|0|Forward|22|203||1999-09-11|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27863/photo/md.png
+4857|Théo Magrit|LIM|1|Guard|22|189||2001-05-10|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28887/photo/md.png
+4869|Jean-Baptiste Maille|STR|0|Guard|23|192||1993-11-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27861/photo/md.png
+4876|Yoan Makoundou|MON|0|Forward|5|207||2000-08-09|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27983/photo/md.png
+4986|Kevin Marsillon-Noleo|NAN|0|Forward|72|203||2002-05-06|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27891/photo/md.png
+5035|Bodian Massa|VIL|0|Center|10|208||1997-10-21|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28017/photo/md.png
+5100|Yvann Mbaya|BOU|0|Center|20|209||2001-02-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27967/photo/md.png
+5295|David Michineau|MON|0|Guard||192||1994-06-06|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28766/photo/md.png
+5314|Isaiah Miles|CHO|0|Forward|15|202||1994-06-09|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29177/photo/md.png
+5398|Essome Miyem|BLZ|0|Center|13|210||2001-07-15|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27835/photo/md.png
+5418|Adam Mokoka|BOU|0|Guard|95|196||1998-07-18|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28168/photo/md.png
+5548|Assemian Moulare|BOU|0|Guard|3|183||2003-01-21|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27968/photo/md.png
+5642|Williams Narace|DIJ|0|Forward|44|201||1997-03-17|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28450/photo/md.png
+5670|Mbaye Ndiaye|VIL|0|Forward|24|204||1999-01-04|Senegal|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28018/photo/md.png
+5682|Abdoulaye Ndoye|STR|0|Guard|11|200||1998-03-09|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28954/photo/md.png
+5729|Mehdy Ngouama|VIL|0|Guard|16|188||1995-07-06|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29159/photo/md.png
+5873|Elie Okobo|MON|0|Guard||188||1997-10-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27984/photo/md.png
+5902|Giovan Oniangue|STQ|0|Forward|5|198||1991-04-24|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27909/photo/md.png
+5938|Yakuba Ouattara|PAB|0|Guard|24|192||1992-01-24|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28269/photo/md.png
+6183|William Pfister|STR|0|Forward|5|205||1995-01-05|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27866/photo/md.png
+6637|Hugo Robineau|BLZ|0|Guard|8|193||2000-02-27|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28153/photo/md.png
+6994|Benjamin Sene|NTR|0|Guard|8|188||1994-05-13|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28010/photo/md.png
+7004|Jeremy Senglin|NTR|0|Guard|30|185||1995-03-24|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28199/photo/md.png
+7035|Enzo Shahrvin|PAB|0|Forward|15|201||2003-02-13|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28351/photo/md.png
+7271|Michael Stockton|DIJ|0|Guard|20|185||1989-05-07|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29246/photo/md.png
+7285|Matthew Strazel|MON|0|Guard|32|182||2002-08-05|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/26394/photo/md.png
+7379|Shawn Tanner|LIM|0|Forward|9|200||2001-09-22|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28969/photo/md.png
+7388|Terry Tarpey|MON|0|Guard|22|196||1994-03-02|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27985/photo/md.png
+7813|Bastien Vautier|VIL|0|Center|32|210||1998-11-15|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28209/photo/md.png
+7894|Thomas Ville|BLZ|0|Guard|25|189||1995-05-06|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27836/photo/md.png
+8011|Gavin Ware|LIM|0|Forward|20|206||1993-10-19|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28970/photo/md.png
+8245|Wilfried Yeguete|LEM|0|Center|15|202||1991-10-16|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27931/photo/md.png
+8334|TaShawn Thomas|LEM|0|Forward|35|203||1993-02-27|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27925/photo/md.png
+8344|Armel Traoré|VIL|0|Forward|94|205||2003-01-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28056/photo/md.png
+8383|Mathieu Boyer|LEP|0|Center|22|208||1995-10-22|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28234/photo/md.png
+8385|Lucas Boucaud|STQ|0|Guard|10|188||2000-08-30|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27904/photo/md.png
+8463|Sublime Gbiegba|CHO|0|Forward||203||2005-07-28|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27991/photo/md.png
+8467|Erwann Bussing|LIM|0|Forward|18|203||2006-03-08|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29117/photo/md.png
+8473|Yanis Tonnellier|CHA|0|Forward|22|215||2004-02-04|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27949/photo/md.png
+8630|Alpha Diallo|MON|0|Forward|11|201||1997-06-29|Guinea|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28454/photo/md.png
+8631|Mike James|MON|0|Guard|55|185||1990-08-18|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27976/photo/md.png
+8636|Mapote Benga|STR|0||15|205||2005-01-15|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28024/photo/md.png
+8638|Khadim Kane|BOU|0|Forward|6|198||2005-03-08|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27996/photo/md.png
+8654|Djiguiba Traoré|STQ|0|Forward|20|203||2005-10-11|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27910/photo/md.png
+8672|Axel Villain|GRA|0|Forward|32|193||2006-02-02|France|
+8676|Ahmad Dekaki|BOU|0|Center|93|205||2005-01-19|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28075/photo/md.png
+8677|David Simonovic|LEM|0|Forward|4|209||2005-07-27|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28207/photo/md.png
+8699|Lucas Fischer|LEP|0|Guard|1|193||2004-08-01|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28281/photo/md.png
+8704|Quentin Bonneau|BLZ|0|Guard||195||2005-05-17|France|
+8726|Hugo Bonaton|NTR|0|Forward|10|195||2005-02-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28235/photo/md.png
+8806|Kylian Mpete|LEP|0|Guard|93|191||2006-11-22|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29040/photo/md.png
+8809|Mervyn Muamba|DIJ|0|Forward|21|198||2005-08-21|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27865/photo/md.png
+8813|Loic Schwartz|STQ|0|Guard|00|197||1992-12-04|Belgium|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28462/photo/md.png
+8831|Jeremiah Hill|CHA|0|Guard|8|188||1995-09-04|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28334/photo/md.png
+8840|Zeke Moore|BLZ|1|||201||1997-11-30|Trinidad and Tobago|
+8844|Jean Noba|BLZ|0|Forward|32|198||2005-01-13|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27848/photo/md.png
+8951|Marcus Keene|STR|0|Guard|3|178||1995-05-06|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28107/photo/md.png
+8957|Markis McDuffie|NAN|0|Forward|17|203||1997-09-06|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29264/photo/md.png
+8971|Jaron Blossomgame|MON|0|Forward|4|201||1993-09-16|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27979/photo/md.png
+8991|Akram Naji|CHA|0|Guard|0|195||2007-04-02|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27948/photo/md.png
+9028|Tyler Beracou|LEM|0|Forward|93|202||2006-10-12|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29271/photo/md.png
+9035|Victor Cazaurang|BLZ|0|Guard|24|183||2005-03-01|France|
+9046|Melvin Ajinca|VIL|0|Guard|8|203||2004-06-26|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28012/photo/md.png
+9062|Alexandre Nfomoum-Lomby|NAN|0|Forward|99|196||2006-12-12|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28519/photo/md.png
+9103|Zakaria Mechergui|MON|0|Forward|7|198||2006-01-28|France|
+9113|Romain Berthelin|STQ|0|Guard|20|191||2006-09-20|France|
+9135|Gabin Lefort|CHO|0|Forward||202||2006-02-21|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28964/photo/md.png
+9137|Kany N'Kouka|NAN|0|Center|14|213||2006-01-05|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28144/photo/md.png
+9139|Matteo Vergiat|DIJ|0|Guard|7|182||2006-01-09|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28143/photo/md.png
+9140|Alexy Ragoo-Francillette|STR|0|Forward|97|194||2006-05-30|France|
+9164|Amadou Sow|VIL|0|Center|21|206||1998-11-18|Mali|
+9189|Isaac Guedegbe|BOU|0|Guard|21|176||2007-12-31|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28174/photo/md.png
+9203|Isaac Lukudika|STQ|0||9|195||2006-01-11|France|
+9245|Mohammad Amini|NAN|0|Guard|6|199||2005-04-26|Iran (Islamic Republic of)|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27935/photo/md.png
+9256|Julien Wilamowski|CHO|0|Forward||200||2006-01-06|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28965/photo/md.png
+9307|Soren Bracq|GRA|0|Guard|22|190||2007-02-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28057/photo/md.png
+9310|Frank Mason III|LIM|0|Guard|0|182||1994-04-03|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28118/photo/md.png
+9315|Maël Hamon-Crespin|STQ|0|Forward|84|206||2004-09-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27812/photo/md.png
+9321|Adam Atamna|VIL|0|Guard|2|193||2007-12-06|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28013/photo/md.png
+9352|Bastien Grasshoff|LEM|0|Guard|1|198||2007-06-01|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28137/photo/md.png
+9525|Tajuan Agee|BOU|1|Forward|12|207||1997-11-12|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29263/photo/md.png
+9531|Joël Ayayi|PAB|0|Guard|11|195||2000-03-05|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28271/photo/md.png
+9556|David DiLeo|LEM|0|Forward|34|201||1997-02-28|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27912/photo/md.png
+9559|Ugo Doumbia|LEM|0|Guard|10|192||2003-02-16|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27960/photo/md.png
+9567|Phlandrous Fleming Jr|NAN|0|Guard|4|191||1998-12-05|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27902/photo/md.png
+9570|Angelo Warner|BLZ|0|Guard|1|188||1992-02-12|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28109/photo/md.png
+9582|Sebastian Herrera|PAB|0|Guard|7|193||1997-11-01|Germany|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28296/photo/md.png
+9602|Jordan Tucker|CHA|0|Forward|5|200||1998-04-03|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29234/photo/md.png
+9610|Jeremy Morgan|PAB|0|Guard|20|196||1995-05-08|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28310/photo/md.png
+9613|Clarence Nadolny|CHA|0|Guard|1|192||2000-10-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27946/photo/md.png
+9672|Adrien Chammartin|NAN|0|Forward|97|197||2006-01-20|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28061/photo/md.png
+9673|Théo Chaney|NAN|0|Guard|97|187||2006-11-23|Switzerland|
+9684|Bastien Courant|BLZ|0|Forward|24|203||2006-03-02|France|
+9708|Maïdy Douglas|NTR|0|Guard|2|194||2006-11-22|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28973/photo/md.png
+9711|Thomas Duchamp de la Geneste|CHO|0|Forward|49|199||2006-06-20|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29305/photo/md.png
+9715|Juwan Ekanga|BOU|0|Guard|10|196||2007-10-05|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28767/photo/md.png
+9721|Marc-Owen Fodzo Dada|NAN|0|Guard|3|180||2006-11-11|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27887/photo/md.png
+9748|Jelani Kante|CHA|0|Guard|0|195||2007-11-27|France|
+9763|Hugo Lasalvary|BLZ|0|Guard|2|190||2007-04-22|France|
+9768|Louka Letailleur|GRA|0|Forward|10|192||2008-05-22|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28093/photo/md.png
+9769|Nils Lobry-Pathouot|CHO|0||49|202||2007-01-29|France|
+9775|Noa Mani|STQ|0|Guard|4|175||2007-10-20|France|
+9790|Leni Monnet|BOU|0|Guard|55|194||2006-06-23|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29311/photo/md.png
+9791|Hochea-Francis Monney-Deido|LEP|0|Forward|7|203||2007-06-22|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29039/photo/md.png
+9794|Mathyss Moudio Martel|MON|0|Forward|3|195||2008-05-05|France|
+9795|Ilian Moungalla|PAB|0|Guard|10|197||2007-11-13|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28297/photo/md.png
+9796|Yssam Moungalla|MON|0|Forward|9|196||2005-10-05|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29443/photo/md.png
+9804|Hugo Nguyen|LEM|0|Guard|94|185||2006-02-08|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27970/photo/md.png
+9811|Swann Penda|LEM|0|Forward|19|200||2008-02-12|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29302/photo/md.png
+9815|Klark Riethauser|CHA|0|Forward|10|201||2008-03-29|Switzerland|
+9824|Sidy Sene|LIM|0|Center||208||2006-05-06|Senegal|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29190/photo/md.png
+9827|Boris Simonovic|LEM|0||0|203||2007-07-27|France|
+9830|Issiaga Yalla Sylla|LIM|0|Forward|17|201||2007-09-27|France|
+9834|Jahel Trefle|STR|0|Forward|21|206||2007-12-21|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28139/photo/md.png
+9836|Romain Valakou|GRA|0|Guard|3|192||2006-01-16|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28242/photo/md.png
+9844|Youssouf Yatabare|NTR|0|Forward|3|205||2006-09-25|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28236/photo/md.png
+9869|Tom Audry|DIJ|0|Forward|41|198||2007-09-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29096/photo/md.png
+9871|Clément Dubos|LIM|0|Forward|17|195||2007-07-16|France|
+9913|Edon Maxhuni|GRA|0|Guard|21|188||1998-03-21|Finland|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28974/photo/md.png
+9918|Coleen Soltin|LEP|0|Forward|75|190||2007-03-22|France|
+9923|Alim Bekhouche|LEP|0|Forward|14|197||2006-07-05|France|
+9927|Marvyn Wade|VIL|0|Guard|88|189||2008-11-17|France|
+9931|Trevor Hudgins|LEM|0|Guard|12|180||1999-03-23|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27917/photo/md.png
+9936|Oscar Wembanyama|STR|0|Forward|97|200||2007-03-18|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27864/photo/md.png
+9937|Chris Babb|GRA|0|Forward|19|196||1990-02-14|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28398/photo/md.png
+9966|Antoine Darsonville|CHA|0|Center|24|214||2006-10-14|France|
+9977|Louka Milanese|BOU|0|Guard|93|198||2008-02-29|France|
+9991|Kenny Courset|LIM|0|Guard|13|196||2008-01-02|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28233/photo/md.png
+10003|Shannon Bogues|LEM|0|Guard|5|187||1997-02-20|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27911/photo/md.png
+10006|Nick Calathes|MON|0|Guard|33|196||1989-02-07|Greece|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27973/photo/md.png
+10012|Zac Cuthbertson|CHA|0|Forward|40|201||1996-12-27|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27941/photo/md.png
+10019|Mohamed Diarra|CHO|0|Forward|93|208||2000-01-01|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27989/photo/md.png
+10024|Jamuni McNeace|CHO|0|Center|8|208||1996-03-25|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27937/photo/md.png
+10026|Christopher Ebunangombe|LEP|0|Guard|2|199||2007-07-27|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28241/photo/md.png
+10034|Filip Kruslin|LEP|0|Guard|44|196||1989-03-18|Croatia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28273/photo/md.png
+10043|Glynn Watson|VIL|0|Guard|30|183||1997-03-09|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28275/photo/md.png
+10045|Brandon Paul|CHA|0|Forward|43|194||1991-04-30|United States of America|
+10046|Daulton Hommes|PAB|0|Forward|34|204||1996-07-04|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/26442/photo/md.png
+10056|Clifton Moore|STQ|0|Center|21|204||1999-08-18|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27908/photo/md.png
+10058|DeAndre Gholston|CHO|0|Guard|3|196||2000-07-08|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29266/photo/md.png
+10066|Roko Prkacin|NTR|0|Forward|17|207||2002-11-26|Croatia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28006/photo/md.png
+10070|Shaquille Harrison|VIL|0|Guard|3|193||1993-10-06|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28124/photo/md.png
+10073|Neal Quinn|GRA|1|Center|32|218||2001-05-31|Ireland|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29191/photo/md.png
+10100|Sohann Mendy|CHA|0|Center|14|212||2006-06-12|France|
+10110|Pape-Djibril Diouf|VIL|0|Guard|9|185||2007-08-16|France|
+10122|Erwan Merlin|STR|0|Guard|23|190||2006-06-13|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28114/photo/md.png
+10151|Albin Boitrel|BLZ|0|Center|0|202||2006-10-10|France|
+10153|Noa Boigne|GRA|0|Guard|30|188||2007-04-20|France|
+10162|Noah Issa-Pavy|NAN|0|Guard|95|185||2007-02-28|France|
+10189|Noam Delag|LEP|0|Guard|12|170||2007-12-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29353/photo/md.png
+10203|Remi Wadoux|LEP|0|Guard|10|188||2007-06-28|France|
+10207|Madiba Diaby-Cisse|LEM|0|Forward|10|198||2008-10-07|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27944/photo/md.png
+10236|Ayman Malibert|LIM|0|Guard|17|185||2008-04-03|France|
+10274|Maxim Klitschko|MON|0|Center|6|207||2005-04-01|Ukraine|
+10280|Aaron Towo-Nansi|CHO|0|Guard|79|175||2009-03-04|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28528/photo/md.png
+10303|Luca Rapini|CHO|0|Forward|49|202||2008-01-12|France|
+10304|Riley Zizi|CHA|0|Guard|4|188||2009-10-23|France|
+10368|Hugo Yimga-Moukouri|NTR|0|Forward|1|||2008-07-03|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28053/photo/md.png
+10375|Chérif Ndiaye|VIL|0|Guard||||2009-01-10|Senegal|
+10387|Daniel Theis|MON|0|Forward|10|||1992-04-04|Germany|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27980/photo/md.png
+10415|Eddie Ekiyor|STQ|0|Center|3|||1997-05-03|Canada|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28089/photo/md.png
+10416|Martynas Kancevicius|MON|0|Center|6|||2006-11-12|Lithuania|
+10418|Logan Bourgeois|STR|0|Guard||||2005-06-17|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27915/photo/md.png
+10427|Zac Seljaas|VIL|0|Forward|1|||1997-07-11|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28060/photo/md.png
+10432|Gomis-Mathéo Boedi|LEP|0|Guard|31|||2006-05-27|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29442/photo/md.png
+10433|Abdoul Ba|LEP|0|Forward|92|||2008-01-10|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29354/photo/md.png
+10434|Ricardo Lindo|BOU|0|Forward|23|||2000-09-26|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28127/photo/md.png
+10437|Darius McGhee|BOU|0|Guard|0|||1999-06-02|Armenia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27972/photo/md.png
+10439|Qudus Wahab|CHO|0|Center|22|||2000-01-30|Nigeria|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28111/photo/md.png
+10440|Keshawn Justice|CHO|0|Forward|21|||1999-10-22|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28178/photo/md.png
+10441|Chibuzo Agbo|CHO|0|Forward||||2001-11-28|Nigeria|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28020/photo/md.png
+10442|Liam O'Reilly|STQ|0|Guard|2|||1996-03-19|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28145/photo/md.png
+10444|J.T. Shumate|BOU|0|Forward|32|||1999-06-28|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27987/photo/md.png
+10445|Tre Mitchell|BOU|0|Forward|1|||2000-09-24|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28191/photo/md.png
+10446|William McDowell-White|BOU|0|Guard|9|||1998-04-13|Australia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/27974/photo/md.png
+10447|Jordan Caroline|STQ|0|Forward|24|||1996-01-15|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28045/photo/md.png
+10448|Landers Nolley II|NAN|0|Guard|1|200||2000-03-05|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28135/photo/md.png
+10449|Aundre Jordan Hyatt|NAN|0|Forward|5|||2000-07-23|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28183/photo/md.png
+10451|Isaiah Cozart|NAN|0|Center|50|||2001-04-13|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28066/photo/md.png
+10455|Daylen Kountz|CHO|0|Guard|2|||2000-02-26|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28160/photo/md.png
+10456|David Paindepice|MON|0|Guard|7|||2007-03-23|France|
+10460|Nelly Joseph|STR|0|Center|1|205||2001-11-20|Nigeria|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28113/photo/md.png
+10461|Mike Davis Jr|STR|0|Guard|4|||1996-05-22|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28072/photo/md.png
+10463|Kyllian Michee|MON|0|Guard||||2007-02-02|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28159/photo/md.png
+10466|Isma Deme|STR|0|Guard|95|||2009-04-02|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29348/photo/md.png
+10471|Both Gach|BOU|0|Forward|11|||1999-02-04|South Sudan|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28122/photo/md.png
+10472|Donta Scott|NTR|0|Forward|24|||2000-12-04|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28132/photo/md.png
+10473|Mitchell Saxen|NTR|0|Center|11|||2001-09-05|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28133/photo/md.png
+10474|Zakai Zeigler|NTR|0|Guard|5|||2002-08-02|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28051/photo/md.png
+10478|Tariq Owens|DIJ|0|Forward|41|||1995-06-30|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28187/photo/md.png
+10479|Jordan Barnett|DIJ|0|Forward|21|||1995-12-31|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28025/photo/md.png
+10482|Fousseyni Traore|STR|0|Center|32|||2002-01-22|Mali|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28211/photo/md.png
+10484|Mike Lewis II|GRA|0|Guard|2|||1998-02-19|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28112/photo/md.png
+10486|Gabe Brown|STR|0|Forward|44|202||2000-03-05|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28039/photo/md.png
+10488|Adrien Guermeur|GRA|0|Guard|31|||2007-01-20|France|
+10492|Justin Lewis|LIM|0|Forward|5|||2002-04-12|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28968/photo/md.png
+10493|Armaan Franklin|LIM|0|Guard|2|||2000-11-17|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28966/photo/md.png
+10497|Obinna Anochili-Killen|CHA|0|Forward|2|||2001-09-27|Nigeria|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29091/photo/md.png
+10501|Ben Gregg|STR|0|Forward|12|||2002-10-14|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28259/photo/md.png
+10504|Amadou Fall|CHO|0|Guard|49|||2009-01-27|France|
+10510|Nikola Jovanovic|LIM|0|Center|10|||1994-01-06|Serbia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28967/photo/md.png
+10525|Tony Snell|BLZ|0|Guard|21|198||1991-11-10|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28823/photo/md.png
+10528|Sam Yaman|VIL|0|Center||||2006-10-26|Turkey|
+10529|Trey Wertz|LEP|0|Guard|3|||1999-12-06|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28270/photo/md.png
+10531|Mantas Laurencikas|MON|0|Guard|6|||2006-05-16|Lithuania|
+10544|Amath M'Baye|PAB|0|Forward|22|205||1989-12-14|France|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28825/photo/md.png
+10548|Alex Ondzé|LEP|0|Guard|22|||2009-01-04|France|
+10551|Lenny Titeca-Beauport-Laclede|CHA|0||97|||2007-08-02|France|
+10553|Kelyan Leticée|LEP|0|Forward|3|||2009-01-11|France|
+10562|Tyshaun Crawford|LEP|0|Center|0|||1999-08-10|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29036/photo/md.png
+10563|Lamar Stevens|PAB|0|Forward|9|202||1997-07-09|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28826/photo/md.png
+10564|Justin Robinson|PAB|0|Guard|5|187||1997-10-12|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28827/photo/md.png
+10566|Mike Smith|LEP|0|Guard|21|||1997-10-13|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29038/photo/md.png
+10567|Mouhamed Faye|PAB|0|Center|15|206||2005-02-05|Senegal|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29193/photo/md.png
+10568|Derek Willis|PAB|0|Forward|35|203||1995-06-21|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28532/photo/md.png
+10570|David Joplin|GRA|0|Forward|8|||2002-11-18|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28512/photo/md.png
+10592|Nikola Mirotic|MON|0|Center||208||1991-02-11|Spain|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28456/photo/md.png
+10593|Nate Darling|CHA|0|Guard|3|||1998-08-30|Canada|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29092/photo/md.png
+10595|K.J. Williams|BLZ|0|Forward|0|208||1999-09-03|United States of America|
+10596|Amit Ebo|BLZ|0|Guard|2|184||1999-10-06|Israel|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28505/photo/md.png
+10637|Justyn Mutts|CHA|0|Forward|25|||1999-01-04|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28517/photo/md.png
+10639|Nemanja Nedovic|MON|0|Guard||192||1991-06-16|Serbia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28815/photo/md.png
+10648|Travante Williams|LEM|0|Guard|3|193||1993-07-29|Portugal|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28750/photo/md.png
+10650|Leon Stergar|LIM|0|Guard|37|||2000-03-17|Slovenia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/28927/photo/md.png
+10676|Greg Lee|LEP|0|Forward|11|||1998-02-04|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29037/photo/md.png
+10679|Jacob Grandison|BLZ|0|Forward|34|||1998-04-02|Finland|
+10696|Théo Balima|LIM|0|Guard|16|||2007-03-06|France|
+10724|Martin Breunig|NAN|0|Center|12|||1992-02-18|Germany|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29118/photo/md.png
+10744|Noé Cuma Toto|VIL|0|Guard||||2006-12-24|Congo, Democratic Republic of the|
+10772|Cat Barber|STQ|0|Guard|1|||1994-07-25|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29261/photo/md.png
+10774|Jared Rhoden|PAB|0|||||1999-08-27|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29260/photo/md.png
+10777|Bryce Wills|LEP|0|Guard|8|||2000-10-13|United States of America|
+10780|Len Schoormann|NTR|0|Guard|0|||2002-07-25|Germany|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29301/photo/md.png
+10782|Paul Eboua|VIL|0|Center|00|||2000-02-15|Cameroon|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29330/photo/md.png
+10783|Kregor Hermet|DIJ|0|Forward|13|||1997-06-09|Estonia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29331/photo/md.png
+10787|Will Cherry|BLZ|1|Guard|92|||1991-02-08|United States of America|
+10788|Jacob Gilyard|GRA|0|Guard|0|||1998-07-14|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29341/photo/md.png
+10789|Grant Golden|CHA|0|Center||||1998-01-15|United States of America|
+10790|Braian Angola|VIL|0|Guard|6|||1994-04-06|Colombia|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29351/photo/md.png
+10824|Noah Locke|CHO|0|Guard|5|||1999-05-10|United States of America|https://assets.altrstat.xyz/images/Basketball/PlayerRole/29451/photo/md.png
+10832|Elijah Clarance|STQ|0|Guard|8|||1998-07-03|Sweden|
+90001|Mouhammad Faye|PAB|0|||||||

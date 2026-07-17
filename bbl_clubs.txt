@@ -8,7 +8,7 @@ FRS~SKYLINERS~Germany~
 MBC~SYNTAINICS MBC~Germany~Weißenfels
 OLD~EWE Baskets Oldenburg~Germany~Oldenburg
 LUD~MHP RIESEN Ludwigsburg~Germany~Ludwigsburg
-HAG~Phoenix Hagen~Germany~Hagen
+HDB~MLP Academics Heidelberg~Germany~Heidelberg
 JEN~Science City Jena~Germany~Jena
 CHE~NINERS Chemnitz~Germany~Chemnitz
 FCB~FC Bayern München Basketball~Germany~

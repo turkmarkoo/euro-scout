@@ -1,0 +1,16 @@
+BLZ~Boulazac Basket Dordogne~France~Boulazac
+BOU~SOMB Boulogne-sur-Mer~France~Boulogne-sur-Mer
+CHA~Élan Chalon~France~Chalon-sur-Saône
+CHO~Cholet Basket~France~Cholet
+DIJ~JDA Dijon~France~Dijon
+GRA~BCM Gravelines-Dunkerque~France~Gravelines
+LEM~Le Mans Sarthe Basket~France~Le Mans
+LEP~ESSM Le Portel~France~Le Portel
+LIM~Limoges CSP~France~Limoges
+VIL~LDLC ASVEL~France~Villeurbanne
+MON~AS Monaco~France~Monaco
+NAN~SLUC Nancy~France~Nancy
+NTR~Nanterre 92~France~Nanterre
+PAB~Paris Basketball~France~Paris
+STQ~SQBB Saint-Quentin~France~Saint-Quentin
+STR~SIG Strasbourg~France~Strasbourg
