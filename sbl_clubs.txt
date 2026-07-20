@@ -1,0 +1,11 @@
+BOR~Borås Basket~Sweden~Borås
+HOG~Högsbo Basket~Sweden~Göteborg
+JAM~Jämtland Basket~Sweden~Östersund
+KOP~Köping Stars~Sweden~Köping
+LUL~BC Luleå~Sweden~Luleå
+NAS~Nässjö Basket~Sweden~Nässjö
+NOR~Norrköping Dolphins~Sweden~Norrköping
+SLO~Sloga~Sweden~Norrköping
+SOD~Södertälje BBK~Sweden~Södertälje
+UME~Umeå BSKT~Sweden~Umeå
+UPP~Uppsala Basket~Sweden~Uppsala

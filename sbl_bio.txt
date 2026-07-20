@@ -1,0 +1,167 @@
+1|Jacob Hadi|NOR|0|Forward|13|201||2002-12-25|Sweden|
+2|Nathan Dawit|NOR|0|Guard|94|195||1994-12-06|Sweden|
+3|Hugo Bergström|NOR|0|Guard|21|184||2001-06-11|Sweden|
+4|Pierre Hampton|NOR|0|Forward|15|201|98|1991-03-22|Sweden|
+5|Tim Dahlin|NOR|0|Forward|8|||2007-08-28|Sweden|
+6|Sebastian Forsling|NOR|0|Center|25|||2002-08-05|Sweden|
+7|Zach Harvey|NOR|0|Forward|88|||2001-02-23|USA|
+8|Dallion Johnson|NOR|0|Guard|23|||2001-03-07|USA|
+9|Ben Middlebrooks|NOR|0|Center|34|||2002-10-16|USA|
+10|Ryker Cisarik|NOR|0|Forward|5|||2002-04-05|USA|
+11|Emil Lundstedt|HOG|0|Guard|3|179|75|1994-02-06|Sweden|
+12|Lukas Lindgren Widmark|HOG|0||8||||Sweden|
+13|Anes Zekovic|HOG|0|Guard|6|198|90|1995-10-20|Sweden|
+14|Alexander Karras|HOG|0|Guard|7|190|75|1998-11-03|Sweden|
+15|Tony Vitali|HOG|0|Center|22|203||1991-01-14|Croatia|
+16|Jesper Hallberg|HOG|0|Forward|5|||2004-05-18|Sweden|
+17|Alem Hamza|HOG|0|Guard|4|||2006-05-13|Sweden|
+18|Jonathan Peleg|HOG|0|Guard|26|191|83|1994-08-21|Sweden|
+19|Ephraim Bahati|HOG|0||23|||2007-08-27|Sweden|
+20|Charles Barton|HOG|0|Guard|0||||Sweden|
+21|Isaiah Hill|HOG|0|Guard|1|||1998-03-10|USA|
+22|Andreas Person|BOR|0|Guard|9|190|84|1991-03-16|Sweden|
+23|Fredrik Andersson|BOR|0|Forward|8||||Sweden|
+24|John Brändmark|BOR|0|Forward|66|201|87|1997-07-27|Sweden|
+25|William Guténius|BOR|0|Forward|6|205|100|1992-09-17|Sweden|
+26|Filip Larsson|BOR|0|Guard|14|186|80|2006-04-26|Sweden|
+27|Melvin Fredenlund|BOR|0|Guard|3|192||2006-10-30|Sweden|
+28|Oskar Palmquist|BOR|0|Forward|2|203||2000-05-05|Sweden|
+29|Aj Clayton|BOR|0|Forward|23|204||2004-02-12|USA|
+30|Ali Sow|BOR|0|Guard|1|185||1998-09-11|Canada|
+31|Justin Vander Baan|BOR|0|Center|18|213||2001-07-23|USA|
+32|Kj Jenkins|BOR|0|Guard|0|188||2000-07-15|USA|
+33|Abdou Medjedoub|NAS|0|Center|17|198|95|1993-07-15|Sweden|
+34|Dartaye Ruffin|NAS|0|Center|21|205|109|1991-03-21|USA|
+35|Anton  Lindqvist|NAS|0|Guard|20|||2002-04-05|Sweden|
+36|Mio Hjalmarsson|NAS|0|Guard|3|||2005-01-01|Sweden|
+37|Richard Mendes|NAS|0||15|||2005-01-25|Sweden|
+38|Mass Jonsson Samateh|NAS|0|Guard|12|189|80|2006-01-30|Sweden|
+39|Anton Johansson|NAS|0|Forward|4|||2005-03-01|Sweden|
+40|Mirko Djeric|NAS|0|Guard|1|||1995-04-17|Australia|
+41|Tyler Patterson|NAS|0|Guard|11|||2002-05-02|USA|
+42|Steven Strong Jr|NAS|0|Guard|2|||2003-03-07|USA|
+43|Emmanuel Kuac|NAS|0|Forward|6|||2000-12-25|Canada|
+44|Tobias Sjöberg|LUL|0|Center|15|204|110|1997-02-04|Sweden|
+45|Daniel Hansson|LUL|0|Guard|6|187|82|1997-01-21|Sweden|
+46|Gustav Hansson|LUL|0|Guard|7|185|85|1995-01-21|Sweden|
+47|Felix Broström|LUL|0|Forward|17|203|90|2003-08-22|Sweden|
+48|Sergey Sepman|LUL|0|Guard|3|194|85|2003-08-16|Sweden|
+49|Joel Tewolde Berhane|LUL|0|Guard|5||||Sweden|
+50|Harry Hassler|LUL|0|Forward|13|200|95|2006-07-14|Sweden|
+51|Elliot Broström|LUL|0|Forward|2|200|90|2006-03-10|Sweden|
+52|Leo Steinsen|LUL|0|Guard|11|185|78|2008-06-06|Sweden|
+53|Caleb Mcgill|LUL|0|Forward|24|203|100|2002-03-10|USA|
+54|Robert Carpenter|LUL|0|Forward|21|98|201|1999-10-13|USA|
+55|John Pålsson|KOP|0|Guard|2|||1999-04-06|Sweden|
+56|Rickard Rietz|KOP|0|Center|11|205||2002-07-08|Sweden|
+57|Oliver Cupan|KOP|0|Guard|6|194||2002-03-18|Sweden|
+58|Tim Jonsson|KOP|0|Forward|12|197|70|2004-07-30|Sweden|
+59|Adam Tafra|KOP|0|Forward|1|||2002-05-01|Sweden|
+60|Romeo Myrthil|KOP|0|Guard|7|||2002-12-14|Sweden|
+61|Sekou Sylla|KOP|0|Forward|5|||2000-03-31|USA|
+62|Lawrence Townsend Iii|KOP|0|Forward|4||||Sweden|
+63|Connor Joseph Kochera|KOP|0|Forward|23||||Sweden|
+64|Niklas Larsson|UPP|0|Forward|13|198|93|1994-04-27|Sweden|
+65|Åke Swahn|UPP|0|Forward|17|199||2002-09-09|Sweden|
+66|Marcus Stålberg|UPP|0|Guard|32|190|75|2002-04-05|Sweden|
+67|Henrik Jädersten|UPP|0|Center|3|208||1995-03-17|Sweden|
+68|Lukas Friberg|UPP|0|Guard|5|190|85|1995-09-06|Sweden|
+69|Melker Delryd|UPP|0|Guard|8|198||2003-03-22|Sweden|
+70|Kaspar Mårtenson|UPP|0|Center|21|208||2005-02-05|Sweden|
+71|Max Andersson|UPP|0|Guard|2|187||2004-01-14|Sweden|
+72|Vilhelm Bodingh|UPP|0|Forward|1|205||2004-10-17|Sweden|
+73|Hugo Tidare|UPP|0|Forward|6|198||2006-03-02|Sweden|
+74|Peter Stümer|UPP|0|Guard|4|196||1999-03-11|Sweden|
+75|Olle Stümer|UPP|0|Forward|27|203||2000-07-27|Sweden|
+76|Alan Zekovic|SLO|0|Forward|6|198||1998-08-19|Sweden|
+77|Dragan Damjanovic|SLO|0|Forward|13|203|95|1988-08-31|Sweden|
+78|Emil Angemo|SLO|0|Guard|8|192||2004-11-05|Sweden|
+79|Fabio Bergman Valatabar|SLO|0|Guard|9||||Sweden|
+80|Timur Grinev|SLO|0|Guard|44||||Sweden|
+81|Jonathan Ninkingira|SLO|0|Forward|12|197|95|1999-11-22|Sweden|
+82|Axel Nordström|SLO|0|Forward|10|193|110|1991-12-13|Sweden|
+83|Milutin Vujicic|SLO|0|Guard|27|||2002-03-08|Serbia|
+84|Marko Dujkovic|SLO|0|Center|22|226||1990-03-21|Serbia|
+85|Markeith Browning Ii|SLO|0|Guard|3|193||2001-03-29|USA|
+86|Eric Kibi|SLO|0|Forward|32|198|100|1990-04-08|Canada|
+87|Richie Springs|SLO|0|Center|2|207|105|2001-09-28|USA|
+88|Denzel George|JAM|0|Guard|22|193|93|2001-03-01|Sweden|
+89|Adam Johansson|JAM|0|Guard|3|191|86|2000-03-07|Sweden|
+90|Yoel Weldegergis|JAM|0|Center|11|205||2005-06-19|Sweden|
+91|Jonatan Boberg|JAM|0||2|180||2007-07-24|Sweden|
+92|Valdemar Säwström|JAM|0||6|||2010-07-13|Sweden|
+93|Erik Persson|JAM|0|Guard|9|190||2000-11-24|Sweden|
+94|Samari Curtis|JAM|0|Guard|41|||1999-12-15|USA|
+95|Michael Christmas|JAM|0|Forward|25|||2000-12-31|USA|
+96|André Jonsson Lorentsson|JAM|0|Forward|13||||Sweden|
+97|Michael Marsh|JAM|0|Center|5|||1999-07-10|USA|
+98|Romeo Persson|JAM|0||4||||Sweden|
+99|Alexander Yemane|UME|0|Guard|17|200|95|1999-06-27|Sweden|
+100|Melker Lindblom|UME|0|Guard|2|185|73|2003-01-14|Sweden|
+101|Emanuel Lundmark|UME|0|Forward|7|||2003-10-11|Sweden|
+102|Malte Eriksson|UME|0|Center|15|||2003-08-18|Sweden|
+103|Adam Rask|UME|0|Forward|11|||2004-08-24|Sweden|
+104|Isak Andersson|UME|0|Guard|9|||2006-02-11|Sweden|
+105|William Christopher Dunston Jr|UME|0|Forward|12||||Sweden|
+106|Isac Åhnstrand|UME|0|Guard|1|||2002-04-16|Sweden|
+107|Glenn Stuart Morison|UME|0|Center|62||||Sweden|
+108|Duko Bos|UME|0|Guard|22|||2002-08-05|Netherlands|
+109|Boje Finger|KOP|0|Guard|13|180||2008-04-25|Sweden|
+110|Asa Nathaniel Williams|KOP|0|Forward|3||||Sweden|
+111|Josef Fahrenholtz|NAS|0|Forward|24|||2001-02-01|USA|
+112|Mattias Herlitz|SOD|0|Guard|12|193|85|1994-06-18|Sweden|
+113|Elias Desport|SOD|0|Center|0|200||1992-10-11|Sweden|
+114|Ayanfeoluwa Amoran|SOD|0|Guard|11||||Sweden|
+115|Oliver Gehrke|SOD|0|Forward|31|201|96|2000-04-17|Sweden|
+116|Lukas Novakovic|SOD|0|Guard|6|||2008-05-16|Sweden|
+117|Noel Karlsson Rask|SOD|0|Forward|5|||2008-03-25|Sweden|
+118|Nicholas Spires|SOD|0|Center|30||||Sweden|
+119|Lucas Veller|SOD|0|Guard|16|||2008-08-26|Sweden|
+120|Noah Kartal|SOD|0|Forward|22|||2008-08-19|Sweden|
+121|Zaccharie Mortant|SOD|0|Guard|1|||1998-03-22|Belgium|
+122|Mason Daniel Madsen|SOD|0|Guard|10||||Sweden|
+123|Carren Deroyce Wilson Jr|SOD|0|Guard|2||||Sweden|
+124|Lazar Vladisavljevic|HOG|0|Guard|2|||2007-11-20|Sweden|
+125|Lazar Tadic Aleksic|HOG|0|Guard|14||||Sweden|
+126|Tim Schüberg|NOR|0|Guard|0|188||1995-04-25|Sweden|
+127|Mahrcus Forlini|NOR|0||9|||2008-04-08|Sweden|
+128|Albin Ringheim|BOR|0|Forward|52|200||2004-04-24|Sweden|
+129|Benjamin Musoke|SOD|0|Guard|7|||2006-01-09|Sweden|
+130|Jake O´neil|SOD|0|Guard|10|||2001-05-18|USA|
+131|Ibrahim Magassa|SOD|0|Forward|3|||2002-05-09|France|
+132|Jan Tratnik|HOG|0|Guard|9|190|88|1989-10-05|Sweden|
+133|Mario Drazic|HOG|0|Center|11|201||1989-11-09|Sweden|
+134|Hugo Waldeck|JAM|0|Forward|12|204||2001-05-10|Sweden|
+135|Keaston Willis|JAM|0|Guard|0|||2001-04-03|USA|
+136|Nathaniel Nzonyansi|SLO|0|Guard|5|||2006-12-15|Sweden|
+137|Chiemeka Patrick Okeke - Nwaramma|UME|0|Forward|77|||2004-06-03|Sweden|
+138|Dragos Andrei Diculescu|KOP|0|Forward|31||||Sweden|
+139|Albert Forsberg|SOD|0|Forward|8|||2008-01-24|Sweden|
+140|Basem Abdulkader|UME|0|Guard|8|180||1994-06-02|Sweden|
+141|Abdulaziz Al-Nuaimi|KOP|0|Guard|10||||Sweden|
+142|Antonio Daye|LUL|0|Guard|67||||Sweden|
+143|Fredrik Andersson Klämberg|BOR|0|Forward|8|202|90|1993-07-02|Sweden|
+144|Elliot Enbom|LUL|0|Guard|8|||2006-04-22|Sweden|
+145|Lamonte Turner|LUL|0|Guard|1|188|80|1997-07-04|USA|
+146|Leo Hassler|SLO|0|Guard|14|||2003-07-25|Sweden|
+147|Kenan Barlov|SLO|0|Forward|8|||2008-11-08|Sweden|
+148|Johan Crafoord|SLO|0||33|206||2000-04-18|Sweden|
+149|Max Wirestig|NAS|0||7|||2007-07-13|Sweden|
+150|Nils Botold|JAM|0|Forward|23|202|84|2002-06-23|Sweden|
+151|Brayden Parker|JAM|0||7|||2000-02-15|USA|
+152|Ludvig Johansson|BOR|0||4|185|82|1998-02-08|Sweden|
+153|Melvin Skogelid|UME|0||5||||Sweden|
+154|Romello White|KOP|0||0|||1998-05-09|USA|
+155|Milos Bajic|SLO|0||4|197|88|2009-07-11|Sweden|
+156|Marreon Jamar Jackson|KOP|0||3||||Sweden|
+157|Vilhelm Jennlinger|UPP|0|Guard|7|188||2007-03-07|Sweden|
+158|Nana Kwadwo Omari Antwi-Boasiako|UME|0|Center|25||||Sweden|
+159|Stefan Jaksic|SLO|0||44|||2006-11-24|Sweden|
+160|Joshua Gray|SLO|0|Center|33||||Sweden|
+161|Amen Jenkins Cheeseman|HOG|0|Forward|00||||Sweden|
+162|Ladarien Griffin|NOR|0|Forward|22|||1996-10-25|Sweden|
+163|Nathan Amoran|SOD|0|Guard|11|191||2006-01-31|Sweden|
+164|Chiemeka Patrick Okeke - Nwakamma|UME|0|Forward|77||||Sweden|
+165|Alexander Garcia|SOD|0|Guard|4|||1999-11-28|Sweden|
+166|Herman Kihlman|HOG|0||14|199||2004-03-04|Sweden|
+167|Abdalnour Mohamad|KOP|0||24||||Sweden|

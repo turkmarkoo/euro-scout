@@ -61,6 +61,8 @@ LEAGUES = [
          rs_games=30, teams=None, standings=None, clubs_file="lnb_clubs.txt"),
     dict(id="bnxt", name="BNXT League", season="2025-26", tier="Domestic (Belgium/Netherlands · Tier 1)",
          rs_games=34, teams=None, standings=None, clubs_file="bnxt_clubs.txt"),
+    dict(id="sbl", name="SBL Herr", season="2025-26", tier="Domestic (Sweden · Tier 1)",
+         rs_games=30, teams=None, standings=None, clubs_file="sbl_clubs.txt"),
 ]
 
 def capword(w): return "-".join(p.capitalize() for p in w.split("-"))
