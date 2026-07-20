@@ -600,6 +600,18 @@ body.drawer-lock{overflow:hidden}
 .eyehint{font-size:11px;color:var(--muted);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
 .eyehint span{display:flex;align-items:center;gap:5px}
 
+/* Exhibitions / Summer League */
+.exhibhero{padding:4px 2px 14px}
+.exhibtitle{font-size:23px;font-weight:800;letter-spacing:-.5px}
+.exhibtitle .exsub{font-size:14px;font-weight:600;color:var(--muted);margin-left:8px}
+.exhibmeta{font-size:13px;color:var(--muted);margin-top:5px}
+.exhibnote{font-size:13px;line-height:1.5;background:color-mix(in srgb,var(--gold) 8%,var(--panel));border:1px solid color-mix(in srgb,var(--gold) 30%,var(--line))}
+.exhibnote .exmini{margin-top:6px;color:var(--muted);font-size:12px}
+.slcard .slrow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:8px}
+.slcard .slstats{display:flex;gap:14px;flex-wrap:wrap}
+.slcard .slstat{font-size:13px;color:var(--muted)}
+.slcard .slstat b{color:var(--txt);font-size:15px}
+
 </style>
 </head>
 <body>
@@ -610,6 +622,7 @@ body.drawer-lock{overflow:hidden}
       <button data-view="scout" class="active">Scout</button>
       <button data-view="players">Players</button>
       <button data-view="teams">Teams</button>
+      <button data-view="exhib">Exhibitions</button>
       <button data-view="compare" class="t-secondary">Compare</button>
       <button data-view="glossary" class="glosstab" title="Glossary" aria-label="Glossary">📖<span class="glosslab">Glossary</span></button>
     </nav>
@@ -642,6 +655,7 @@ body.drawer-lock{overflow:hidden}
 <script src="config.js"></script>
 <script src="overrides.js"></script>
 <script src="data/data.js"></script>
+<script src="data/exhibitions.js"></script>
 <script>
 /* ============================ EuroScout app ============================ */
 document.documentElement.dataset.theme='light';
@@ -723,10 +737,39 @@ async function setEyeGrade(p,axisKey,val){
   if(val==null||val==="")delete eye[axisKey]; else eye[axisKey]=Math.max(0,Math.min(10,+val));
   await saveRec(p,{eye});
 }
-/* overall stats grade 0-10 = mean of the 7 axis stat grades (for board sort/summary) */
-function statGradeOverall(p){
-  const g=SCOUT_AXES.map(a=>statGrade(p,a.k)).filter(v=>v!=null);
-  return g.length?Math.round(g.reduce((s,v)=>s+v,0)/g.length*10)/10:null;
+/* rough competition-strength tiers (0-1 multiplier on the overall grade) so a
+   dominant player in a weaker league doesn't outrank a star in a top league on the
+   cross-league board. Within-league percentiles are unchanged; this only scales the
+   single headline number. Tune freely. */
+const LEAGUE_TIER={
+  euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
+  bbl:0.82, lnb:0.82, bnxt:0.72, sbl:0.60, sl:0.78
+};
+function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
+/* overall stats grade 0-10 for the board headline: a production-quality measure,
+   NOT the radar-shape average. Anchored on PIR percentile (all-around box production),
+   lightly blended with scoring volume and efficiency, then scaled by league strength.
+   The 7-axis radar stays a within-league skill fingerprint. */
+function statGradeOverall(p,opt){
+  if(!p.pct)return null;
+  const pir=p.pct.pir;
+  let base;
+  if(pir==null){
+    const g=SCOUT_AXES.map(a=>statGrade(p,a.k)).filter(v=>v!=null);
+    if(!g.length)return null;
+    base=g.reduce((s,v)=>s+v,0)/g.length;
+  }else{
+    const pts=p.pct.pts40!=null?p.pct.pts40:pir;
+    const ts =p.pct.ts   !=null?p.pct.ts   :pir;
+    base=(pir*0.6 + pts*0.2 + ts*0.2)/10;
+  }
+  // league-relative grade (0-10 within the player's own league)
+  if(opt&&opt.raw)return Math.round(base*10)/10;
+  // cross-league board grade: scale toward league strength (keeps ordering within league,
+  // compresses weaker leagues). blend so a top SBL player still reads respectably.
+  const t=leagueTier(p);
+  const scaled=base*(0.55+0.45*t); // never drops below 55% of the raw grade
+  return Math.round(scaled*10)/10;
 }
 const BARSET = [
   {k:"ppg",t:"Points"},{k:"rpg",t:"Rebounds"},{k:"apg",t:"Assists"},
@@ -956,6 +999,7 @@ async function boot(){
   if(!raw){ $("#app").innerHTML='<div class="empty">Could not load data. Make sure '+
     '<code>data/data.json</code> (or <code>data/data.js</code>) is present — see README.</div>'; return; }
   STATE.data = raw;
+  injectExhibitions(raw);
   raw.leagues.forEach(L=>L.players.forEach(p=>{
     const g=p.gameLog||[]; if(!g.length){p.astto=(p.topg>0)?Math.round(p.apg/p.topg*100)/100:(p.apg>0?p.apg:0);return;} const t={min:0,pts:0,fgm:0,fga:0,f3m:0,f3a:0,ftm:0,fta:0,reb:0,ast:0,stl:0,blk:0,tov:0,pir:0};
     for(const r of g){t.min+=r[6]||0;t.pts+=r[7]||0;t.fgm+=r[8]||0;t.fga+=r[9]||0;t.f3m+=r[10]||0;t.f3a+=r[11]||0;t.ftm+=r[12]||0;t.fta+=r[13]||0;t.reb+=r[14]||0;t.ast+=r[15]||0;t.stl+=r[16]||0;t.blk+=r[17]||0;t.tov+=r[18]||0;t.pir+=r[19]||0;}
@@ -1082,6 +1126,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
   else if(v==="watchlist") renderScout();
+  else if(v==="exhib") renderExhib();
   else if(v==="teams") renderTeams();
   else if(v==="glossary") renderGlossary();
   else if(v==="team") renderTeam();
@@ -1605,12 +1650,27 @@ function renderProfile(){
         </div>
         <div class="phactions">
           <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
-          <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[3].classList.add('active');render()">Compare ▸</button>
+          <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[4].classList.add('active');render()">Compare ▸</button>
           <button class="btn ghost sm" onclick="openEditModal('${p.id}')">✎ Edit</button>
         </div>
       </div>
     </div>
 
+    ${p._exhib?`<div class="panel exhibnote" style="margin-top:16px">
+      <b>NBA Summer League 2026 · Las Vegas</b> — exhibition sample${p.g?` (${p.g} GP)`:""}. Percentiles and the skill grade are computed <b>within the Summer League field only</b>, so treat this as a small-sample look, not a full-season profile.
+      ${(p._college||p._draftYr)?`<div class="exmini">${p._college?`College: ${p._college}`:""}${p._college&&p._draftYr?" · ":""}${p._draftYr?`Draft: ${p._draftYr}`:""}${p._ht?` · ${Math.floor(p._ht/12)}'${p._ht%12}"`:""}</div>`:""}
+    </div>`:""}
+    ${(()=>{const m=exhibMatch(p);if(!m)return"";return `<div class="panel slcard" style="margin-top:16px">
+      <h3>Also seen: NBA Summer League 2026 <span class="hint" style="font-weight:400;font-size:12px">Las Vegas · exhibition</span></h3>
+      <div class="slrow">
+        <div class="slstats">
+          <span class="slstat"><b>${m.ppg}</b> pts</span><span class="slstat"><b>${m.rpg}</b> reb</span><span class="slstat"><b>${m.apg}</b> ast</span>
+          <span class="slstat"><b>${m.pir}</b> pir</span><span class="slstat"><b>${(m.ts||0).toFixed?m.ts:m.ts}</b>% ts</span><span class="slstat">${m.g} GP</span>
+        </div>
+        <button class="btn ghost sm" onclick="openProfile('${m.id}')">Open SL profile ▸</button>
+      </div>
+      <div class="hint" style="margin-top:6px">Matched by name, height and nationality. ${m.teamName}.</div>
+    </div>`;})()}
     <div class="panel" style="margin-top:16px">
       <h3>Event averages \u00b7 ${p.g} GP</h3>
       <div class="scope-row">
@@ -1829,12 +1889,111 @@ function renderCompare(){
 }
 
 
+/* ---------- Exhibitions / Events (NBA Summer League 2026) ---------- */
+let EXHIB=null, EXHIB_BYNN={};
+function roleFromHt(ht){ if(ht==null)return "Guard"; if(ht>=207)return "Center"; if(ht>=198)return "Forward"; return "Guard"; }
+function injectExhibitions(raw){
+  const ex=window.EUROSCOUT_EXHIBITIONS; if(!ex||!ex.players){return;}
+  EXHIB=ex;
+  // Convert each SL player into a EuroScout-shaped player object under a synthetic league.
+  const players=ex.players.map((s,i)=>{
+    const id="sl-"+i;
+    const p={
+      id, code:String(i), name:s.name, team:s.team, teamName:"NBA Summer League 2026 - "+s.teamName,
+      league:"sl", multiTeam:false, role:roleFromHt(s.ht), pos:roleFromHt(s.ht), jersey:"",
+      height:(s.ht!=null? Math.round(s.ht*2.54):null), weight:(s.wt!=null?Math.round(s.wt*0.4536):null),
+      age:null, born:(s.draftYr||null), country:s.country||null, img:null,
+      g:s.g, mpg:s.mpg, min:Math.round((s.mpg||0)*(s.g||0)),
+      ppg:s.ppg,rpg:s.rpg,apg:s.apg,spg:s.spg,bpg:s.bpg,topg:s.topg,
+      fgp:s.fgp,f3p:s.f3p,ftp:s.ftp,efg:s.efg,ts:s.ts,pir:s.pir,eff:s.pir,
+      fgma:s.fgma,f3ma:s.f3ma,ftma:s.ftma,
+      pts40:s.pts40,reb40:s.reb40,ast40:s.ast40,stl40:s.stl40,blk40:s.blk40,tov40:0,
+      usg:s.usg, qualified:(s.g>=2&&s.mpg>=8), gameLog:[],
+      pct:s.pct, z:{}, _exhib:true, _nn:s.nn, _euMatch:!!s.euMatch,
+      _ht:s.ht, _college:s.college, _draftYr:s.draftYr, _nbaId:s.nbaId
+    };
+    return p;
+  });
+  const teams=(ex.teams||[]).map(t=>({code:t.code,name:"NBA Summer League 2026 - "+t.name,teamName:"NBA Summer League 2026 - "+t.name}));
+  const L={ meta:{id:"sl",name:ex.short||"NBA Summer League 2026",season:"Las Vegas",exhibition:true,note:ex.event}, teams, players };
+  raw.leagues.push(L);
+  // index by normalized name for cross-linking to European profiles
+  EXHIB_BYNN={};
+  players.forEach(p=>{ if(p._nn) EXHIB_BYNN[p._nn]=p; });
+}
+// find the SL player object that corresponds to a European player (by normalized name)
+function exhibMatch(p){ if(!p||p.league==="sl")return null; const nn=normName(p.name); const m=EXHIB_BYNN[nn]; return (m&&m._euMatch)?m:null; }
+
+function renderExhib(){
+  if(!EXHIB){ $("#app").innerHTML='<div class="empty">No exhibition data loaded.</div>'; return; }
+  const s=STATE.scout;
+  let pool=STATE.data.leagues.find(l=>l.meta.id==="sl").players.slice();
+  // qualified only on the board (>=2 GP, >=8 mpg) — the rest are noise
+  pool=pool.filter(p=>p.qualified);
+  // filters reuse scout state (search, role, tag, status) but scoped to SL
+  if(s.roles.size) pool=pool.filter(p=>s.roles.has(p.role));
+  if(s.status!=="all") pool=pool.filter(p=>scoutStatusOf(p)===s.status);
+  if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
+  if(s.q){const q=s.q.toLowerCase(),qn=normName(s.q);
+    pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn));}
+  const rateOf=p=>{const r=recOf(p);return r&&r.rating||0;};
+  if(s.sort==="myrating")     pool.sort((a,b)=>rateOf(b)-rateOf(a)||((statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)));
+  else if(s.sort==="ppg")     pool.sort((a,b)=>(b.ppg||0)-(a.ppg||0));
+  else if(s.sort==="name")    pool.sort((a,b)=>a.name.localeCompare(b.name));
+  else                        pool.sort((a,b)=>(statGradeOverall(b,{raw:true})??-1)-(statGradeOverall(a,{raw:true})??-1));
+
+  const matched=pool.filter(p=>p._euMatch).length;
+  const cap=180, shown=pool.slice(0,cap);
+  const cards=shown.map(p=>scoutCard(p)).join("");
+  const statusPills=["all","scouted","unscouted"].map(k=>
+    `<button class="pill${s.status===k?" on":""}" data-status="${k}">${k[0].toUpperCase()+k.slice(1)}</button>`).join("");
+  const roleRows=ROLE_OPTS.map(([v,lab])=>`<button class="frow${s.roles.has(v)?" on":""}" data-role="${v}"><span>${lab}</span></button>`).join("");
+  $("#app").innerHTML=`
+   <div class="scoutwrap">
+    <aside class="scoutrail">
+      <div class="railsearch"><input id="scoutQ" type="search" placeholder="Search Summer League…" value="${escAttr(s.q)}"/></div>
+      <div class="railblk"><div class="railh">Status</div><div class="pills">${statusPills}</div></div>
+      <div class="railblk"><div class="railh">Position</div>${roleRows}</div>
+      <button id="scoutClear" class="btn ghost sm railclear">Clear filters</button>
+    </aside>
+    <section class="scoutmain">
+      <div class="exhibhero">
+        <div class="exhibtitle">NBA Summer League 2026 <span class="exsub">Las Vegas</span></div>
+        <div class="exhibmeta">${EXHIB.qualifiedCount} qualified players · ${matched} also in your European database · small-sample exhibition (grades within the SL pool)</div>
+      </div>
+      <div class="boardbar">
+        <div class="bbcount">${pool.length} players${pool.length>cap?` · showing top ${cap}`:""}</div>
+        <label class="bbsort">Sort
+          <select id="scoutSort">
+            <option value="grade"${s.sort==="grade"||!s.sort?" selected":""}>SL grade</option>
+            <option value="ppg"${s.sort==="ppg"?" selected":""}>Points</option>
+            <option value="myrating"${s.sort==="myrating"?" selected":""}>My rating</option>
+            <option value="name"${s.sort==="name"?" selected":""}>Name</option>
+          </select>
+        </label>
+      </div>
+      <div class="board">${cards||'<div class="empty">No players match.</div>'}</div>
+    </section>
+   </div>`;
+  // wire
+  const q=$("#scoutQ");if(q){q.oninput=()=>{s.q=q.value;const pos=q.selectionStart;renderExhib();const nq=$("#scoutQ");if(nq){nq.focus();try{nq.setSelectionRange(pos,pos);}catch(e){}}};}
+  $$("[data-role]").forEach(b=>b.onclick=()=>{const r=b.dataset.role;s.roles.has(r)?s.roles.delete(r):s.roles.add(r);renderExhib();});
+  $$("[data-status]").forEach(b=>b.onclick=()=>{s.status=b.dataset.status;renderExhib();});
+  const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderExhib();};
+  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.roles.clear();s.tags.clear();s.status="all";renderExhib();};
+  $$(".board .scoutcard").forEach(c=>{
+    c.onclick=e=>{if(e.target.closest(".cardwatch")){e.stopPropagation();const id=c.dataset.id;toggleTag(id,WATCH_TAG).then(renderExhib);return;}
+      openProfile(c.dataset.id);};
+  });
+}
+
 /* ---------- Scout board (homepage) ---------- */
 const ROLE_OPTS=[["Guard","Guards"],["Forward","Forwards"],["Center","Centers"]];
 function scoutPool(){
-  // one card per person (dedupe merged identities), across all leagues
+  // one card per person (dedupe merged identities), across all league seasons.
+  // Exhibitions (Summer League) are excluded here — they live on their own tab.
   const seen=new Set(),out=[];
-  allPlayersFlat().forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);out.push(p);});
+  allPlayersFlat().forEach(p=>{if(p.league==="sl")return;const g=gid(p);if(seen.has(g))return;seen.add(g);out.push(p);});
   return out;
 }
 function playerTags(p){const r=recOf(p);return (r&&r.tags)||[];}
