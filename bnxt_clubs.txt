@@ -1,0 +1,18 @@
+CHA~Val-Dieu Spirou Basket~Belgium~Charleroi
+OOS~Filou Oostende~Belgium~Oostende
+ANT~Windrose Giants Antwerp~Belgium~Antwerp
+MON~Union Mons-Hainaut~Belgium~Bergen (Mons)
+LIM~Hubo Limburg United~Belgium~Hasselt
+GRO~Donar Groningen~Netherlands~Groningen
+BAL~PrismaWorx BAL~Netherlands~Weert
+ZWO~Landstede Hammers~Netherlands~Zwolle
+RCB~Feyenoord Rotterdam~Netherlands~Rotterdam
+LWD~LWD Basket~Netherlands~Leeuwarden
+LEI~Zorg en Zekerheid Leiden~Netherlands~Leiden
+DHE~Den Helder Suns~Netherlands~Den Helder
+DBO~Heroes Den Bosch~Netherlands~'s-Hertogenbosch
+AAL~Partena Professional Okapi Aalst~Belgium~Aalst
+LEU~AB InBev Leuven Bears~Belgium~Leuven
+BRU~Brussels Basketball~Belgium~Brussels
+MEC~Kangoeroes Basket Mechelen~Belgium~Mechelen
+KOR~House of Talents Spurs Kortrijk~Belgium~Kortrijk
