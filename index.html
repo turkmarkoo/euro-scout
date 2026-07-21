@@ -698,6 +698,32 @@ body.drawer-lock{overflow:hidden}
 .scg-pct{color:var(--accent-deep);font-weight:700;margin-left:6px}
 @media(max-width:640px){.scg-row{grid-template-columns:96px 1fr 92px;gap:7px}.sc-radar{flex-basis:100%}}
 .simlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:6px}
+.simweights{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+.psSummary{font-size:14px;color:var(--txt);margin:2px 0 10px;line-height:1.5}
+.psBar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin-bottom:12px}
+.psBar>span{display:block;height:100%}
+.psRows{display:flex;flex-direction:column;gap:8px}
+.psRow{display:grid;grid-template-columns:74px 12px 130px 1fr 40px;align-items:center;gap:9px;font-size:13px}
+.psTier{font-family:var(--disp);font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.psDot{width:11px;height:11px;border-radius:50%}
+.psName{font-weight:700;color:var(--txt)}
+.psBar2{height:8px;border-radius:5px;background:var(--line);overflow:hidden;grid-column:auto}
+.psBar2>span{display:block;height:100%;border-radius:5px}
+.psPct{font-family:var(--mono);font-size:12px;color:var(--accent-deep);text-align:right;font-weight:700}
+.psDesc{grid-column:3 / span 3;font-size:11.5px;color:var(--muted);margin-top:-3px}
+@media(max-width:560px){.psRow{grid-template-columns:64px 11px 1fr 38px}.psBar2{display:none}.psDesc{grid-column:3 / span 2}}
+.sw-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px}
+.sw-lab{font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.sw-vals{font-size:12px;color:var(--muted)}
+.sw-vals b{color:var(--accent-deep);font-family:var(--mono)}
+.sw-row{display:flex;align-items:center;gap:10px}
+.sw-end{font-size:11px;color:var(--muted);white-space:nowrap;flex:0 0 auto}
+.sw-row input[type=range]{flex:1;accent-color:var(--accent)}
+.sw3row{display:grid;grid-template-columns:150px 1fr 42px;align-items:center;gap:10px;margin:5px 0}
+.sw3lab{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.sw3row input[type=range]{width:100%;accent-color:var(--accent)}
+.sw3v{font-family:var(--mono);font-size:12px;color:var(--accent-deep);text-align:right}
+@media(max-width:560px){.sw3row{grid-template-columns:120px 1fr 38px}.sw3lab{font-size:10.5px}}
 .simrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);cursor:pointer;text-align:left;width:100%}
 .simrow:hover{border-color:var(--accent);box-shadow:var(--shadow)}
 .simmatch{flex:0 0 auto;text-align:center;line-height:1;width:38px}
@@ -1095,6 +1121,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
+  sim:{stat:0.4,pos:0.35,arch:0.25},
   scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
@@ -1467,6 +1494,7 @@ function openEditModal(id){
   const p=player(id); if(!p)return; const grp=p._grp||[p];
   const html='<h3>Edit \u2014 '+esc(p.name)+'</h3>'
    +'<div class="editgrid">'
+   +'<div class="efld" style="grid-column:1/-1"><label>Player name</label><input type="text" id="eName" value="'+esc(p.name||"")+'" autocomplete="off"/></div>'
    +efld("Height (cm)","eHeight",p.height||"")+efld("Weight (kg)","eWeight",p.weight||"")
    +ecountryField(p.country||"")+efld("Position (G/F/C)","ePos",(p.pos&&p.pos!=="-")?p.pos:"")
    +efld("Year of birth","eBorn",p.born||"")+efld("Eurobasket / external profile link","eExt",p._ext||"")
@@ -1534,7 +1562,7 @@ function openEditModal(id){
     if(agent)addAgent(agent,agency); // remember this agent→agency for next time
     // key the bio to the person (group canonical id) so it applies across all their competitions
     const key=gid(p)||id;
-    ovrSaveLocal({bio:{[key]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agent:agent,agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm"),projLevel:g("eProj")}},ext:{[key]:g("eExt")}});
+    ovrSaveLocal({bio:{[key]:{name:g("eName"),height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agent:agent,agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm"),projLevel:g("eProj")}},ext:{[key]:g("eExt")}});
     toast("Saved");hideModal();renderProfile();};
   const ex=$("#ovrExport"); if(ex)ex.onclick=ovrExportBlob;
   const im=$("#ovrImport"); if(im)im.onchange=e=>{if(e.target.files[0])ovrImportFile(e.target.files[0]);};
@@ -2756,17 +2784,71 @@ function skillCardHTML(p,pool){
 }
 /* ---------- Similar player finder: distance over league-relative percentile vectors ---------- */
 const SIM_KEYS=["pts40","ts","f3p","fgp","ftp","ast40","topg","usg","reb40","stl40","blk40"];
+const ARCHETYPES=[
+ {name:"Scoring Guard",desc:"Undersized, high-volume perimeter scorer",c:"#C5824E"},
+ {name:"Rim Protector",desc:"Shot-blocking interior anchor",c:"#6FA39B"},
+ {name:"Floor General",desc:"Pass-first, disruptive playmaker",c:"#C99A3C"},
+ {name:"Primary Creator",desc:"High-usage offensive engine",c:"#A96A38"},
+ {name:"Complementary Guard",desc:"Low-usage backcourt role player",c:"#8C93A0"},
+ {name:"3&D Wing",desc:"Efficient low-usage shooter & defender",c:"#6E9F6A"},
+ {name:"Interior Scorer",desc:"Post-scoring, rebounding big",c:"#B0663F"},
+ {name:"Slashing Creator",desc:"Foul-drawing downhill driver",c:"#7E8CA0"},
+ {name:"Stretch Big",desc:"Floor-spacing, shooting big",c:"#8E7CC3"}];
+function playingStyleHTML(p){
+  if(!p.arch||!p.arch.length)return "";
+  const idx=p.arch.map((w,i)=>[i,w]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  if(!idx.length)return "";
+  const top=idx.slice(0,3).filter(x=>x[1]>=5);
+  const summary=top.map(x=>`<b style="color:${ARCHETYPES[x[0]].c}">${x[1]}%</b> ${ARCHETYPES[x[0]].name}`).join(" \u00b7 ");
+  const bar=idx.map(x=>`<span style="width:${x[1]}%;background:${ARCHETYPES[x[0]].c}" title="${ARCHETYPES[x[0]].name} ${x[1]}%"></span>`).join("");
+  const tiers=["Primary","Secondary","Tertiary"];
+  const rows=top.map((x,i)=>{const A=ARCHETYPES[x[0]];
+    return `<div class="psRow"><span class="psTier">${tiers[i]}</span><span class="psDot" style="background:${A.c}"></span>
+      <span class="psName">${A.name}</span><span class="psBar2"><span style="width:${x[1]}%;background:${A.c}"></span></span>
+      <span class="psPct">${x[1]}%</span><span class="psDesc">${A.desc}</span></div>`;}).join("");
+  return `<div class="panel psPanel" style="margin-top:16px">
+    <div class="sc-cardhead"><h3 style="margin:0">Playing style <span class="hint" style="font-weight:400;font-size:12px">archetype blend from box-score profile</span></h3></div>
+    <div class="psSummary">${summary}</div>
+    <div class="psBar">${bar}</div>
+    <div class="psRows">${rows}</div></div>`;
+}
 function simVec(p){ if(!p.pct)return null; const v=[]; for(const k of SIM_KEYS){const x=p.pct[k]; v.push(x==null?50:x);} return v; }
 const ROLE_IDX={Guard:0,Wing:1,Big:2};
 function roleSteps(a,b){const ia=ROLE_IDX[a],ib=ROLE_IDX[b];return (ia==null||ib==null)?1:Math.abs(ia-ib);}
-function simMatch(a,b){ // 0-100, higher = more similar. Stats + position + size.
+function simComponents(a,b){ // returns {statSim, posSim, archSim} each 0-100
   const va=simVec(a),vb=simVec(b); if(!va||!vb)return null;
   let s=0; for(let i=0;i<va.length;i++){const d=va[i]-vb[i]; s+=d*d;}
-  const statRMS=Math.sqrt(s/va.length);                 // 0-100, statistical style distance
-  const rPen=[0,15,32][roleSteps(a.role,b.role)];       // same role / adjacent / opposite
-  let hPen=0;                                            // height difference (cm)
-  if(a.height&&b.height) hPen=Math.min(22, Math.abs(a.height-b.height)*1.1);
-  return Math.max(0, Math.round(100-(statRMS+rPen+hPen)));
+  const statSim=Math.max(0,100-Math.sqrt(s/va.length));          // statistical fingerprint
+  const roleScaled=[0,60,120][roleSteps(a.role,b.role)];         // position distance
+  const hd=(a.height&&b.height)?Math.min(30,Math.abs(a.height-b.height))/30*100:20; // size distance
+  const posSim=Math.max(0,100-(0.6*roleScaled+0.4*hd));          // position + size
+  let archSim=statSim;                                           // playing-style (archetype) similarity
+  if(a.arch&&b.arch&&a.arch.length===b.arch.length){let l1=0;for(let i=0;i<a.arch.length;i++)l1+=Math.abs(a.arch[i]-b.arch[i]);archSim=Math.max(0,100-l1/2);}
+  return {statSim,posSim,archSim};
+}
+function simWeights(){const s=STATE.sim||{stat:0.4,pos:0.35,arch:0.25};const t=(s.stat+s.pos+s.arch)||1;return {stat:s.stat/t,pos:s.pos/t,arch:s.arch/t};}
+function simMatch(a,b){ // weighted blend, tunable via STATE.sim
+  const c=simComponents(a,b); if(!c)return null; const w=simWeights();
+  return Math.round(w.stat*c.statSim+w.pos*c.posSim+w.arch*c.archSim);
+}
+function readSimWeights(){const g=id=>{const e=$(id);return e?(+e.value)/100:null;};
+  const st=g("#simWStat"),po=g("#simWPos"),ar=g("#simWArch");
+  if(st!=null){STATE.sim={stat:st,pos:po,arch:ar};}
+  const w=simWeights(),pc=x=>Math.round(x*100);
+  const set=(id,v)=>{const e=$(id);if(e)e.textContent=v+"%";};
+  set("#simWStatv",pc(w.stat));set("#simWPosv",pc(w.pos));set("#simWArchv",pc(w.arch));}
+function simSliderHTML(onInput,onChange){
+  const s=STATE.sim||{stat:0.4,pos:0.35,arch:0.25}, w=simWeights(), pc=x=>Math.round(x*100);
+  const ch=onChange?` onchange="${onChange}"`:"";
+  const row=(id,lab,val,pv)=>`<div class="sw3row"><span class="sw3lab">${lab}</span>
+    <input type="range" min="0" max="100" step="5" value="${Math.round(val*100)}" id="${id}" oninput="${onInput}"${ch}/>
+    <b class="sw3v" id="${id}v">${pv}%</b></div>`;
+  return `<div class="simweights"><div class="sw-head"><span class="sw-lab">Comp weights</span>
+      <span class="hint" style="font-size:11px">drag to re-rank</span></div>
+    ${row("simWStat","Statistical fingerprint",s.stat,pc(w.stat))}
+    ${row("simWPos","Position + size",s.pos,pc(w.pos))}
+    ${row("simWArch","Playing style",s.arch,pc(w.arch))}
+  </div>`;
 }
 function similarPlayers(p, opts){
   opts=opts||{}; const refG=gid(p);
@@ -2776,10 +2858,8 @@ function similarPlayers(p, opts){
   out.sort((a,b)=>b.match-a.match);
   return out;
 }
-function similarPanelHTML(p){
-  const list=similarPlayers(p,{qualifiedOnly:true}).slice(0,6);
-  if(!list.length)return "";
-  const rows=list.map(({p:q,match})=>{
+function simRowsHTML(list){
+  return list.map(({p:q,match})=>{
     const L=leagueOf(q), og=statGradeOverall(q);
     const photo=q.img?`<img src="${q.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(q.name);
     return `<button class="simrow" data-id="${q.id}">
@@ -2789,10 +2869,22 @@ function similarPanelHTML(p){
         <span class="simMeta">${q.teamName} \u00b7 ${L.meta.name}${q.age?" \u00b7 "+q.age+"y":""}${q.role?" \u00b7 "+q.role:""}</span></span>
       <span class="simGrade" title="Stat grade">${og!=null?og.toFixed(1):"\u2014"}</span>
     </button>`;}).join("");
+}
+function refreshSimPanel(pid){
+  const p=player(pid); if(!p)return;
+  readSimWeights();
+  const list=similarPlayers(p,{qualifiedOnly:true}).slice(0,6);
+  const host=$("#simList"); if(host){host.innerHTML=simRowsHTML(list);
+    $$("#simList .simrow").forEach(r=>r.onclick=()=>openProfile(r.dataset.id));}
+}
+function similarPanelHTML(p){
+  const list=similarPlayers(p,{qualifiedOnly:true}).slice(0,6);
+  if(!list.length)return "";
   return `<div class="panel" style="margin-top:16px">
-    <div class="sc-cardhead"><h3 style="margin:0">Similar players <span class="hint" style="font-weight:400;font-size:12px">closest statistical profile, across all leagues</span></h3>
+    <div class="sc-cardhead"><h3 style="margin:0">Similar players <span class="hint" style="font-weight:400;font-size:12px">closest profile, across all leagues</span></h3>
       <button class="btn ghost sm" onclick="setSimRef('${p.id}')">Find more \u2192</button></div>
-    <div class="simlist">${rows}</div></div>`;
+    ${simSliderHTML(`refreshSimPanel('${p.id}')`)}
+    <div class="simlist" id="simList">${simRowsHTML(list)}</div></div>`;
 }
 function setSimRef(id){
   STATE.scout.simRef=id; STATE.view="scout";
@@ -2801,6 +2893,7 @@ function setSimRef(id){
   try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){}
 }
 function clearSimRef(){ STATE.scout.simRef=null; renderScout(); }
+function simBoardWeight(){ readSimWeights(); renderScout(); }
 
 function openLeaguePlayers(lgid){const L=STATE.data.leagues.find(l=>l.meta.id===lgid);
   if(L){STATE.allLeagues=false;STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=lgid;}
@@ -3176,6 +3269,7 @@ function renderProfile(){
     </div>
 
     ${skillCardHTML(p,pool)}
+    ${playingStyleHTML(p)}
     ${similarPanelHTML(p)}
 
     <div class="panel" style="margin-top:16px">
@@ -3967,6 +4061,7 @@ function renderScout(){
         </div>`}
       </div>
       ${simP?"":naStrip}
+      ${simP?simSliderHTML("readSimWeights()","simBoardWeight()"):""}
       ${simP?"":viewsBar}
       ${simP?"":recentRow}
       <div class="board">${pool.slice(0,180).map(scoutCard).join("")}</div>
@@ -4378,8 +4473,17 @@ function renderGlossary(){
     ["Scouting notes & ratings","Every player card has a star rating, a watchlist toggle, tags, and a structured report (Athleticism, Offense, Defense, Intel, Projection). Everything auto-saves in your browser. Notes are stored <b>per person</b>, so a note written on a player\u2019s EuroLeague card shows on his ABA card too."],
     ["One player, many competitions","A player who appears in more than one competition (or changed clubs mid-season) is merged into a single identity. His card shows a <b>Competitions</b> switch and a combined game log with a separator per competition. Linking is automatic (by ID and by name+birth-year); anything missed can be fixed by hand."],
     ["Editing & overrides","The \u270e Edit button on a card lets you correct bio details (height, weight, country, position, birth year), add an external profile link, or manually link two entries as the same person. The <b>Country</b> field is a type-to-search dropdown \u2014 start typing and pick from the list, or enter any country by hand. Nationality always shows on the profile even when it\u2019s blank (as \u201c\u2014 add\u201d), so you can spot missing data and fill it in. Your edits save to the shared database (or locally in local mode) and can be exported to bake in permanently."],
-    ["Team pages","Open a team for its roster (as cards), a full stat-card panel (Basic and Advanced, tap any card for the league ranking), the group standings, the season game log, and a placeholder for shot charts. Teams that play two competitions get the same Competitions switch as players."],
+    ["Team pages","Open a team for its roster (as cards), a full stat-card panel (Basic and Advanced, tap any card for the league ranking), the group standings, and the season game log. Teams that play two competitions get the same Competitions switch as players."],
     ["Data & freshness","Numbers come from official sources: EuroLeague/EuroCup feeds and aba-liga.com box scores, reconciled game-by-game (every team\u2019s player points sum to the final score). \u201cLocal mode\u201d means your notes live in this browser only. The site is a single page \u2014 a fresh version loads when the data is updated."],
+    ["Skill Card & radar","Every profile opens with a Skill Card: an 11-spoke radar of the player\u2019s percentile profile plus grouped bars across four families \u2014 Scoring, Playmaking, Rebounding and Defense. Bars and radar follow the scope switch (vs League / vs All), so the same player can be read against his own league or the whole database."],
+    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of nine modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Wing \u00b7 26% Primary Creator.\u201d The nine roles are Scoring Guard, Rim Protector, Floor General, Primary Creator, Complementary Guard, 3&D Wing, Interior Scorer, Slashing Creator and Stretch Big. It\u2019s computed with Archetypal Analysis over all eleven competitions, so styles are comparable across leagues. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
+    ["Similar players & comp weights","Each profile lists the closest players across every league. The <b>Comp weights</b> sliders tune what \u201csimilar\u201d means, blending three components: <b>Statistical fingerprint</b> (production and shooting profile), <b>Position + size</b> (role and height), and <b>Playing style</b> (the archetype blend). Drag any slider and the list re-ranks live. \u201cFind more \u2192\u201d turns the whole board into a ranked similarity search against that player."],
+    ["Compare","The <b>Compare</b> tab overlays up to four players on one skill radar with a shared stat table, so you can read strengths and gaps side by side. Pick players from any leagues."],
+    ["Team needs","On a team page, <b>Team needs</b> grades the roster across the four skill families (from its best player in each), flagging where the group is a Strength, Solid, or a Need."],
+    ["Trending","Sort the board by <b>Trending</b> (form) to surface players hot or cold relative to their own season \u2014 based on their last three games\u2019 efficiency vs their average. (Leagues without game logs, such as the Greek league, don\u2019t carry form.)"],
+    ["Charts","The <b>Charts</b> tab plots the pool two ways: a <b>scatter</b> of any two stats (dots are player photos, dashed lines are the medians) and a <b>distribution</b> histogram of any single stat. Filter by league, team, country and position, type a name to highlight it, and resize with \u2212/+ or full screen. Big pools are capped to the most-played players so it stays fast \u2014 add a filter to narrow to an exact set."],
+    ["Keyboard shortcuts","Inside a profile: \u2190/\u2192 step to the previous/next player, <b>j</b>/<b>k</b> (or <b>[</b>/<b>]</b>) jump between sections, <b>t</b> returns to the top, and <b>Esc</b> closes the card."],
+    ["Agents & agencies","Where an agent is known, the profile shows it \u2014 click to see that agent\u2019s other players, or the agency to see everyone under its roster grouped by agent."],
   ];
   const groups=[
     ["Box-score stats",[
@@ -4460,7 +4564,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,$,$$});
 
 boot();
 </script>
