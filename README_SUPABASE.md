@@ -71,6 +71,12 @@ grant execute on function public.my_role() to authenticated;
 create policy "members read own" on public.members
   for select using (lower(email) = lower(auth.jwt() ->> 'email'));
 
+-- editors may read the whole allowlist and manage it (needed for the in-app admin panel)
+create policy "members read all for editors" on public.members
+  for select using (public.my_role() = 'editor');
+create policy "members manage for editors" on public.members
+  for all using (public.my_role() = 'editor') with check (public.my_role() = 'editor');
+
 -- scouting: members read, editors write
 create policy "scouting read"  on public.scouting for select
   using (public.my_role() is not null);
@@ -114,3 +120,23 @@ viewer to editor: `update public.members set role='editor' where email='...';`
   reachable without an approved login. If you ever want the stats file hard-gated too, put
   the whole site behind Cloudflare Access (separate ~20-min setup).
 - In local mode (keys empty) nothing changes from before, including the gist sync button.
+
+---
+
+## Already ran the earlier SQL? Two quick updates
+
+If you set up before the in-app admin panel + password login existed, run this once in
+the **SQL Editor** so editors can manage the allowlist from inside EuroScout:
+
+```sql
+create policy "members read all for editors" on public.members
+  for select using (public.my_role() = 'editor');
+create policy "members manage for editors" on public.members
+  for all using (public.my_role() = 'editor') with check (public.my_role() = 'editor');
+```
+
+**Password sign-in** (bypasses the magic-link email limit entirely) needs no SQL — it's in
+the app now. To use it, create a password for yourself: **Authentication → Users → Add
+user**, enter your email + a password, tick **Auto Confirm User**, save. Then on the
+EuroScout sign-in screen click **"Have a password? Sign in without email"** and log in.
+(You still need your `members` row as `editor` — that's the allowlist, separate from auth.)
