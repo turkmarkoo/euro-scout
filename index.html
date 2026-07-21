@@ -364,6 +364,16 @@ textarea.notesec{min-height:94px}
 .editgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
 @media(max-width:560px){.editgrid{grid-template-columns:1fr}}
 .efld{display:flex;flex-direction:column;gap:5px}
+.ecombo{position:relative}
+.ecombo-list{margin-top:4px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);max-height:210px;overflow:auto}
+.ecombo-list.hidden{display:none}
+.ecombo-opt{padding:7px 11px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:9px}
+.ecombo-opt:hover{background:var(--panel)}
+.ecombo-opt .ecflag{font-size:15px;width:18px;display:inline-block;text-align:center}
+.bioadd{color:var(--muted2);cursor:pointer}
+.bioadd:hover .bioaddhint{color:var(--accent-deep);text-decoration:underline}
+.role-viewer .bioadd{cursor:default}
+.role-viewer .bioadd .bioaddhint{display:none}
 .efld label{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
 .efld input,.efld select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;outline:none}
 .efld input:focus,.efld select:focus{border-color:var(--accent2)}
@@ -1065,7 +1075,7 @@ async function setEyeGrade(p,axisKey,val){
    single headline number. Tune freely. */
 const LEAGUE_TIER={
   euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
-  bbl:0.82, lnb:0.82, bnxt:0.72, sbl:0.60, sl:0.78
+  bbl:0.82, lnb:0.82, il:0.80, bnxt:0.72, sbl:0.60, sl:0.78
 };
 function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
 /* overall stats grade 0-10 for the board headline: a production-quality measure,
@@ -1196,9 +1206,10 @@ const Store = (()=>{
       const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:redirect}});if(error)throw error;},
     async signInPassword(email,password){if(!sb)return;
       const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;},
-    async signUp(email,password){if(!sb)return false;
-      const {data,error}=await sb.auth.signUp({email:(email||"").trim(),password});if(error)throw error;
-      return !!(data&&data.session);},
+    async signUp(email,password){if(!sb)return {err:"backend not configured"};
+      const {data,error}=await sb.auth.signUp({email:(email||"").trim(),password});
+      if(error)return {err:error.message};
+      return {hasSession:!!(data&&data.session), hasUser:!!(data&&data.user)};},
     async signOut(){if(sb)await sb.auth.signOut();user=null;role=null;member=false;},
     // access requests: a signed-in non-member records a pending request for an editor to approve
     async requestAccess(){if(!sb||!user)return;
@@ -1347,6 +1358,11 @@ function ovrImportFile(file){ const r=new FileReader(); r.onload=()=>{ try{ cons
     OVR=ovrMerged(); applyOverrides(); rebuildLinks(); toast("Overrides imported"); hideModal(); if(CURRENT)renderProfile();
   }catch(e){ toast("Import failed: "+e.message); } }; r.readAsText(file); }
 function efld(lab,id,val){return '<div class="efld"><label>'+lab+'</label><input type="text" id="'+id+'" value="'+esc(val)+'"/></div>';}
+function ecountryField(val){
+  return '<div class="efld ecombo" style="grid-column:1/-1"><label>Country</label>'
+    +'<input type="text" id="eCountry" value="'+esc(val)+'" autocomplete="off" placeholder="Type to search a country\u2026"/>'
+    +'<div class="ecombo-list hidden" id="eCountryList"></div></div>';
+}
 function esel(lab,id,val,opts){
   const cur=val||"";
   const optHtml=['<option value="">— none —</option>'].concat(opts.map(o=>'<option value="'+esc(o)+'"'+(o===cur?' selected':'')+'>'+esc(o)+'</option>')).join("");
@@ -1358,7 +1374,7 @@ function openEditModal(id){
   const html='<h3>Edit \u2014 '+esc(p.name)+'</h3>'
    +'<div class="editgrid">'
    +efld("Height (cm)","eHeight",p.height||"")+efld("Weight (kg)","eWeight",p.weight||"")
-   +efld("Country","eCountry",p.country||"")+efld("Position (G/F/C)","ePos",(p.pos&&p.pos!=="-")?p.pos:"")
+   +ecountryField(p.country||"")+efld("Position (G/F/C)","ePos",(p.pos&&p.pos!=="-")?p.pos:"")
    +efld("Year of birth","eBorn",p.born||"")+efld("Eurobasket / external profile link","eExt",p._ext||"")
    +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
    +'<div class="efld"><label>Agent</label><select id="eAgent"><option value="">— none —</option>'
@@ -1384,6 +1400,19 @@ function openEditModal(id){
    +'<label class="btn ghost sm" style="cursor:pointer">Import\u2026<input type="file" id="ovrImport" accept=".js,.json" style="display:none"/></label>'
    +'<span class="hint">Saved in this browser \u00b7 export &amp; send me the file to bake it into the site</span></div>';
   showModal(html,true);
+  // searchable country dropdown (type to filter; free text still allowed)
+  (function(){const inp=$("#eCountry"), list=$("#eCountryList"); if(!inp||!list)return;
+    const paint=q=>{const qq=(q||"").trim().toLowerCase();
+      const ms=(qq?COUNTRY_LIST.filter(c=>c.toLowerCase().includes(qq)):COUNTRY_LIST);
+      if(!ms.length){list.classList.add("hidden");list.innerHTML="";return;}
+      list.innerHTML=ms.slice(0,60).map(c=>{const fe=flagEmoji(c);
+        return '<div class="ecombo-opt" data-c="'+esc(c)+'">'+(fe?'<span class="ecflag">'+fe+'</span>':'<span class="ecflag"></span>')+esc(c)+'</div>';}).join("");
+      list.classList.remove("hidden");
+      $$("#eCountryList .ecombo-opt").forEach(o=>o.onmousedown=e=>{e.preventDefault();inp.value=o.dataset.c;list.classList.add("hidden");});};
+    inp.onfocus=()=>paint(inp.value);
+    inp.oninput=()=>paint(inp.value);
+    inp.onblur=()=>setTimeout(()=>list.classList.add("hidden"),160);
+  })();
   // agent → agency auto-fill
   const agSel=$("#eAgent"), agcySel=$("#eAgency"), agNew=$("#eAgentNew");
   if(agSel){agSel.onchange=()=>{
@@ -1934,11 +1963,15 @@ function renderAuthGate(){
     if(!v||!p){msg.textContent="Enter your email and password.";return;}
     go.disabled=true;
     if(su){msg.textContent="Creating account\u2026";
-      try{const inNow=await Store.signUp(v,p);
-        if(inNow){msg.textContent="Account created \u2014 signing you in\u2026";/* onAuthChange -> waiting screen */}
-        else{msg.innerHTML="\u2713 Account created. If it doesn't sign you in, email confirmation is still on in Supabase \u2014 turn it off. Then sign in.";go.disabled=false;}
-      }catch(e){const dup=/already registered|already exists/i.test(e.message);
-        msg.textContent=dup?"That email already has an account \u2014 use Sign in instead.":("Couldn't create account: "+e.message);go.disabled=false;}
+      const r=await Store.signUp(v,p);
+      try{console.log("[EuroScout signup]",r);}catch(e){}
+      if(r.err){const dup=/already registered|already exists/i.test(r.err);
+        msg.textContent=dup?"That email already has an account \u2014 use Sign in instead.":("Couldn't create account: "+r.err);
+        toast(dup?"Email already registered \u2014 use Sign in":("Signup error: "+r.err));go.disabled=false;return;}
+      if(r.hasSession){toast("Account created");location.reload();return;}
+      // user created but no session => email confirmation is ON (and the mailer is off)
+      msg.innerHTML="Account created, but sign-in is blocked because <b>Confirm email</b> is turned on in Supabase. Turn it off (Authentication \u2192 Providers \u2192 Email), then Sign in.";
+      toast("Turn off \u2018Confirm email\u2019 in Supabase to finish");go.disabled=false;
     }else{msg.textContent="Signing in\u2026";
       try{await Store.signInPassword(v,p);/* onAuthChange handles the rest */}
       catch(e){msg.textContent="Sign-in failed: "+e.message;go.disabled=false;}}
@@ -2126,7 +2159,7 @@ function renderPlayers(){
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
-      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
+      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k],c.d==null?1:c.d)}</td>`).join("")}
@@ -2535,6 +2568,9 @@ function openLeaguePlayers(lgid){const L=STATE.data.leagues.find(l=>l.meta.id===
 const CTRY_ISO={"USA":"US","United States":"US","United Kingdom":"GB","England":"GB","Bosnia and Herzegovina":"BA","Turkiye":"TR","Turkey":"TR","Ivory Coast":"CI","Cape Verde":"CV","Czechia":"CZ","Czech Republic":"CZ","Dominican Republic":"DO","North Macedonia":"MK","South Sudan":"SS","DR Congo":"CD","Republic of the Congo":"CG",
   "France":"FR","Spain":"ES","Germany":"DE","Italy":"IT","Greece":"GR","Serbia":"RS","Croatia":"HR","Slovenia":"SI","Lithuania":"LT","Latvia":"LV","Estonia":"EE","Poland":"PL","Israel":"IL","Georgia":"GE","Ukraine":"UA","Russia":"RU","Montenegro":"ME","Belgium":"BE","Netherlands":"NL","Finland":"FI","Sweden":"SE","Norway":"NO","Denmark":"DK","Iceland":"IS","Ireland":"IE","Portugal":"PT","Switzerland":"CH","Austria":"AT","Hungary":"HU","Romania":"RO","Bulgaria":"BG","Slovakia":"SK","Canada":"CA","Brazil":"BR","Argentina":"AR","Chile":"CL","Cuba":"CU","Mexico":"MX","Australia":"AU","Nigeria":"NG","Senegal":"SN","Mali":"ML","Angola":"AO","Cameroon":"CM","Guinea":"GN","Gabon":"GA","Ghana":"GH","Egypt":"EG","Tunisia":"TN","Morocco":"MA","Japan":"JP","China":"CN","Philippines":"PH","New Zealand":"NZ","Bahamas":"BS","Jamaica":"JM","Puerto Rico":"PR","Malta":"MT","Luxembourg":"LU"};
 function isoOf(country){ if(!country)return null; return CTRY_ISO[country]||null; }
+const COUNTRY_LIST=(()=>{const seen=new Set(),out=[];
+  Object.keys(CTRY_ISO).forEach(name=>{const iso=CTRY_ISO[name];if(seen.has(iso))return;seen.add(iso);out.push(name);});
+  return out.sort((a,b)=>a.localeCompare(b));})();
 function flagEmoji(country){ const iso=isoOf(country); if(!iso)return ""; return iso.replace(/./g,ch=>String.fromCodePoint(127397+ch.charCodeAt(0))); }
 // Level barometer: where the player projects, from the tier-adjusted board grade.
 // Bands mirror a scout's mental ladder. Returns {i (0=bottom..3=top), label, bands[]}.
@@ -2793,7 +2829,7 @@ function renderProfile(){
       <div class="ph-bio">
         ${bioCell("cal","Age",ageStr(p)?`<b>${ageStr(p)}</b>`:null)}
         ${bioCell("ruler","Height",p.height?`<b>${p.height} cm</b>`:null)}
-        ${bioCell("pin","Nationality",p.country?`<b>${isoOf(p.country)||p.country}</b>${isoOf(p.country)?`<div class="bisub">${p.country}</div>`:""}`:null)}
+        ${bioCell("pin","Nationality",p.country?`<b>${isoOf(p.country)||p.country}</b>${isoOf(p.country)?`<div class="bisub">${p.country}</div>`:""}`:`<span class="bioadd" onclick="openEditModal('${p.id}')" title="Add nationality">\u2014 <span class="bioaddhint">add</span></span>`)}
         ${bioCell("hand","Dominant hand",p.hand?`<b>${p.hand}</b>`:'<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>')}
         ${bioCell("badge","Agent / Agency",agentCellHTML(p))}
         ${bioCell("team","Team",`<b>${(t?t.name:p.teamName)||"—"}</b>`)}
@@ -3509,7 +3545,7 @@ function renderScout(){
       <div class="scouthead">
         <div>
           <h1 class="title" style="margin:0">Scout board</h1>
-          <div class="sub" style="margin-top:2px">${pool.length} player${pool.length!==1?"s":""}${s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"?" match your filters":" across nine competitions"}</div>
+          <div class="sub" style="margin-top:2px">${pool.length} player${pool.length!==1?"s":""}${s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"?" match your filters":" across ten competitions"}</div>
         </div>
         <div class="scoutsort">
           <span class="sortlab">Sort</span>
@@ -3738,7 +3774,7 @@ function openTeamBoard(k,label,hi){
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",bnxt:"BNXT",sbl:"SBL"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",bnxt:"BNXT",sbl:"SBL"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -3751,7 +3787,7 @@ function renderTeams(){
   const pool=all?allTeamsFlat():STATE.league.teams.map(t=>({...t,_lid:STATE.league.meta.id}));
   let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
   if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",bnxt:"BNXT",sbl:"SBL"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",bnxt:"BNXT",sbl:"SBL"};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
     <div class="sub">${all?`Every club across <b>${STATE.data.leagues.length}</b> competitions \u00b7 use the chips to narrow`:`Regular season standings \u00b7 ${STATE.league.meta.season}`}</div>
@@ -3896,13 +3932,13 @@ function renderTeam(){
 /* ---------- Glossary ---------- */
 function renderGlossary(){
   const guide=[
-    ["Getting around","EuroScout covers nine competitions for the 2025\u201326 season \u2014 the two European cups (EuroLeague, EuroCup) plus seven domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands) and SBL Herr (Sweden). The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
-    ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all nine competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
+    ["Getting around","EuroScout covers ten competitions for the 2025\u201326 season \u2014 the two European cups (EuroLeague, EuroCup) plus eight domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden) and the Israeli Super League. The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
+    ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all ten competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
     ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
     ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side \u2014 pick the two clubs playing and their full rosters appear sorted by jersey number, so you can bounce between the two benches during a live game. Tap any player for the full card, or \u21c4 Swap to flip sides."],
     ["Scouting notes & ratings","Every player card has a star rating, a watchlist toggle, tags, and a structured report (Athleticism, Offense, Defense, Intel, Projection). Everything auto-saves in your browser. Notes are stored <b>per person</b>, so a note written on a player\u2019s EuroLeague card shows on his ABA card too."],
     ["One player, many competitions","A player who appears in more than one competition (or changed clubs mid-season) is merged into a single identity. His card shows a <b>Competitions</b> switch and a combined game log with a separator per competition. Linking is automatic (by ID and by name+birth-year); anything missed can be fixed by hand."],
-    ["Editing & overrides","The \u270e Edit button on a card lets you correct bio details (height, weight, country, position, birth year), add an external profile link, or manually link two entries as the same person. Your edits save locally and can be exported as a file to make them permanent for everyone."],
+    ["Editing & overrides","The \u270e Edit button on a card lets you correct bio details (height, weight, country, position, birth year), add an external profile link, or manually link two entries as the same person. The <b>Country</b> field is a type-to-search dropdown \u2014 start typing and pick from the list, or enter any country by hand. Nationality always shows on the profile even when it\u2019s blank (as \u201c\u2014 add\u201d), so you can spot missing data and fill it in. Your edits save to the shared database (or locally in local mode) and can be exported to bake in permanently."],
     ["Team pages","Open a team for its roster (as cards), a full stat-card panel (Basic and Advanced, tap any card for the league ranking), the group standings, the season game log, and a placeholder for shot charts. Teams that play two competitions get the same Competitions switch as players."],
     ["Data & freshness","Numbers come from official sources: EuroLeague/EuroCup feeds and aba-liga.com box scores, reconciled game-by-game (every team\u2019s player points sum to the final score). \u201cLocal mode\u201d means your notes live in this browser only. The site is a single page \u2014 a fresh version loads when the data is updated."],
   ];
