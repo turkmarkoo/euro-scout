@@ -697,6 +697,20 @@ body.drawer-lock{overflow:hidden}
 .scg-val{font-size:11.5px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
 .scg-pct{color:var(--accent-deep);font-weight:700;margin-left:6px}
 @media(max-width:640px){.scg-row{grid-template-columns:96px 1fr 92px;gap:7px}.sc-radar{flex-basis:100%}}
+.simlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:6px}
+.simrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);cursor:pointer;text-align:left;width:100%}
+.simrow:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.simmatch{flex:0 0 auto;text-align:center;line-height:1;width:38px}
+.simmatch b{font-family:var(--disp);font-size:17px;font-weight:800;color:var(--accent-deep)}
+.simmatch span{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted2);margin-top:1px}
+.simPhoto{flex:0 0 34px;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted)}
+.simPhoto img{width:100%;height:100%;object-fit:cover}
+.simMain{flex:1;min-width:0}
+.simName{display:block;font-weight:700;font-size:13px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.simMeta{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.simGrade{flex:0 0 auto;font-family:var(--disp);font-size:15px;font-weight:800;color:var(--accent-deep)}
+.cardmatch{position:absolute;top:9px;left:9px;z-index:2;background:var(--accent);color:#fff;border-radius:8px;padding:2px 7px;font-family:var(--disp);font-weight:800;font-size:14px;line-height:1.05;text-align:center;box-shadow:var(--shadow)}
+.cardmatch small{display:block;font-size:7.5px;font-weight:700;letter-spacing:.04em;opacity:.9}
 .skillradar{align-self:center}
 .skillradar .scoutradar{display:block;width:100%;max-width:360px;margin:0 auto;height:auto}
 .skillrate{align-self:center}
@@ -1030,7 +1044,7 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -2650,6 +2664,48 @@ function skillCardHTML(p,pool){
     </div>
   </div>`;
 }
+/* ---------- Similar player finder: distance over league-relative percentile vectors ---------- */
+const SIM_KEYS=["pts40","ts","f3p","fgp","ftp","ast40","topg","usg","reb40","stl40","blk40"];
+function simVec(p){ if(!p.pct)return null; const v=[]; for(const k of SIM_KEYS){const x=p.pct[k]; v.push(x==null?50:x);} return v; }
+function simMatch(a,b){ // 0-100, higher = more similar (100 - RMS percentile difference)
+  const va=simVec(a),vb=simVec(b); if(!va||!vb)return null;
+  let s=0; for(let i=0;i<va.length;i++){const d=va[i]-vb[i]; s+=d*d;}
+  return Math.max(0,Math.round(100-Math.sqrt(s/va.length)));
+}
+function similarPlayers(p, opts){
+  opts=opts||{}; const refG=gid(p);
+  let pool=(opts.pool||scoutPool()).filter(q=>gid(q)!==refG && simVec(q));
+  if(opts.qualifiedOnly) pool=pool.filter(q=>q.qualified);
+  const out=pool.map(q=>({p:q,match:simMatch(p,q)})).filter(x=>x.match!=null);
+  out.sort((a,b)=>b.match-a.match);
+  return out;
+}
+function similarPanelHTML(p){
+  const list=similarPlayers(p,{qualifiedOnly:true}).slice(0,6);
+  if(!list.length)return "";
+  const rows=list.map(({p:q,match})=>{
+    const L=leagueOf(q), og=statGradeOverall(q);
+    const photo=q.img?`<img src="${q.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(q.name);
+    return `<button class="simrow" data-id="${q.id}">
+      <span class="simmatch"><b>${match}</b><span>match</span></span>
+      <span class="simPhoto${q.img?'':' noimg'}">${photo}</span>
+      <span class="simMain"><span class="simName">${q.name}</span>
+        <span class="simMeta">${q.teamName} \u00b7 ${L.meta.name}${q.age?" \u00b7 "+q.age+"y":""}${q.role?" \u00b7 "+q.role:""}</span></span>
+      <span class="simGrade" title="Stat grade">${og!=null?og.toFixed(1):"\u2014"}</span>
+    </button>`;}).join("");
+  return `<div class="panel" style="margin-top:16px">
+    <div class="sc-cardhead"><h3 style="margin:0">Similar players <span class="hint" style="font-weight:400;font-size:12px">closest statistical profile, across all leagues</span></h3>
+      <button class="btn ghost sm" onclick="setSimRef('${p.id}')">Find more \u2192</button></div>
+    <div class="simlist">${rows}</div></div>`;
+}
+function setSimRef(id){
+  STATE.scout.simRef=id; STATE.view="scout";
+  $$("#tabs button").forEach(x=>x.classList.toggle("active",x.dataset.view==="scout"));
+  closeDrawer(); renderScout();
+  try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){}
+}
+function clearSimRef(){ STATE.scout.simRef=null; renderScout(); }
+
 function openLeaguePlayers(lgid){const L=STATE.data.leagues.find(l=>l.meta.id===lgid);
   if(L){STATE.allLeagues=false;STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=lgid;}
   STATE.filters.country="";STATE.filters.born="";STATE.filters.role="";STATE.filters.team="";STATE.filters.q="";
@@ -3004,6 +3060,7 @@ function renderProfile(){
     </div>
 
     ${skillCardHTML(p,pool)}
+    ${similarPanelHTML(p)}
 
     <div class="panel" style="margin-top:16px">
       <h3>Shot chart \u00b7 ${L.meta.season}</h3>
@@ -3029,6 +3086,7 @@ function renderProfile(){
   wireProfileNav(p);
   requestAnimationFrame(syncDrNav);
   $$("#drawer .biochip.clk").forEach(c=>c.onclick=()=>filterByAttr(c.dataset.filter,c.dataset.val,c.dataset.lab));
+  $$("#drawer .simrow").forEach(c=>c.onclick=()=>openProfile(c.dataset.id));
   renderTags(p);
   if(!Store.canEdit()){$$("#drawer .notesec").forEach(t=>{t.readOnly=true;});$$("#eyeGrid input").forEach(s=>{s.disabled=true;});}
   const wt=$("#watchToggle");if(wt)wt.onclick=async()=>{await toggleTag(p.id,WATCH_TAG);renderProfile();};
@@ -3513,7 +3571,9 @@ function renderWatchlist(){
 function renderScout(){
   const s=STATE.scout;
   KBD_SEL=-1;
+  const simP=s.simRef?player(s.simRef):null; if(s.simRef&&!simP)s.simRef=null;
   let pool=scoutPool();
+  if(simP){const rg=gid(simP);pool=pool.filter(p=>gid(p)!==rg);}
   // filters
   if(s.leagues.size) pool=pool.filter(p=>s.leagues.has(p.league));
   if(s.roles.size)   pool=pool.filter(p=>s.roles.has(p.role));
@@ -3524,7 +3584,8 @@ function renderScout(){
     pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn)||noteText(p).includes(q));}
   // sort
   const rateOf=p=>{const r=recOf(p);return r&&r.rating||0;};
-  if(s.sort==="grade")      pool.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+  if(simP){ pool.forEach(p=>p._sim=simMatch(simP,p)); pool=pool.filter(p=>p._sim!=null); pool.sort((a,b)=>b._sim-a._sim); }
+  else if(s.sort==="grade")      pool.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
   else if(s.sort==="myrating")pool.sort((a,b)=>rateOf(b)-rateOf(a)||((statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)));
   else if(s.sort==="ppg")   pool.sort((a,b)=>(b.ppg||0)-(a.ppg||0));
   else if(s.sort==="name")  pool.sort((a,b)=>a.name.localeCompare(b.name));
@@ -3614,10 +3675,10 @@ function renderScout(){
     <section class="scoutmain">
       <div class="scouthead">
         <div>
-          <h1 class="title" style="margin:0">Scout board</h1>
-          <div class="sub" style="margin-top:2px">${pool.length} player${pool.length!==1?"s":""}${s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"?" match your filters":" across ten competitions"}</div>
+          <h1 class="title" style="margin:0">${simP?"Similar to "+esc(simP.name):"Scout board"}</h1>
+          <div class="sub" style="margin-top:2px">${simP?`${pool.length} player${pool.length!==1?"s":""} by statistical match \u00b7 refine with the filters on the left`:`${pool.length} player${pool.length!==1?"s":""}${s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"?" match your filters":" across ten competitions"}`}</div>
         </div>
-        <div class="scoutsort">
+        ${simP?`<button class="btn ghost sm" onclick="clearSimRef()">\u2715 Exit similar</button>`:`<div class="scoutsort">
           <span class="sortlab">Sort</span>
           <select id="scoutSort">
             <option value="grade"${s.sort==="grade"?" selected":""}>Stats grade</option>
@@ -3626,11 +3687,11 @@ function renderScout(){
             <option value="age"${s.sort==="age"?" selected":""}>Youngest</option>
             <option value="name"${s.sort==="name"?" selected":""}>Name</option>
           </select>
-        </div>
+        </div>`}
       </div>
-      ${naStrip}
-      ${viewsBar}
-      ${recentRow}
+      ${simP?"":naStrip}
+      ${simP?"":viewsBar}
+      ${simP?"":recentRow}
       <div class="board">${pool.slice(0,180).map(scoutCard).join("")}</div>
       ${pool.length>180?`<div class="sub" style="text-align:center;margin-top:16px">Showing first 180 — narrow with filters to see more.</div>`:""}
       ${!pool.length?'<div class="empty">No players match. Loosen the filters on the left.</div>':""}
@@ -3721,6 +3782,16 @@ function boardColumns(){
   for(const c of cards){if(c.offsetTop===top0)n++;else break;}
   return Math.max(1,n);
 }
+function jumpDrawerSection(dir){
+  const scr=document.querySelector("#drawer .dr-scroll"); if(!scr)return;
+  const secs=[...scr.querySelectorAll(".prohero-wrap, .panel")]; if(!secs.length)return;
+  const base=scr.getBoundingClientRect().top;
+  const tops=secs.map(el=>Math.round(el.getBoundingClientRect().top-base+scr.scrollTop));
+  const cur=scr.scrollTop; let target;
+  if(dir>0){ target=tops.find(t=>t>cur+6); if(target==null)target=tops[tops.length-1]; }
+  else { const prev=tops.filter(t=>t<cur-6); target=prev.length?prev[prev.length-1]:0; }
+  scr.scrollTo({top:Math.max(0,target-8),behavior:"smooth"});
+}
 function onGlobalKey(e){
   if(e.key==="Escape"){ if($("#cardTagMenu")){closeCardTagMenu();return;} if(DRAWER_OPEN){closeDrawer();return;} }
   // don't hijack typing in inputs/textareas
@@ -3730,6 +3801,9 @@ function onGlobalKey(e){
   if(DRAWER_OPEN){
     if(e.key==="ArrowLeft"){const b=$("#pnavPrev");if(b){e.preventDefault();b.click();}}
     else if(e.key==="ArrowRight"){const b=$("#pnavNext");if(b){e.preventDefault();b.click();}}
+    else if(e.key==="j"||e.key==="J"||e.key==="]"){e.preventDefault();jumpDrawerSection(1);}
+    else if(e.key==="k"||e.key==="K"||e.key==="["){e.preventDefault();jumpDrawerSection(-1);}
+    else if(e.key==="t"||e.key==="T"){e.preventDefault();const s=$("#drawer .dr-scroll");if(s)s.scrollTo({top:0,behavior:"smooth"});}
     return;
   }
   // board nav only on the scout view
@@ -3753,6 +3827,7 @@ function scoutCard(p){
   const tagPills=tags.filter(t=>t!==WATCH_TAG).slice(0,3).map(t=>`<span class="ctag">${t}</span>`).join("");
   const unscouted=scoutStatusOf(p)==="unscouted";
   return `<div class="scoutcard${unscouted?" unscouted":""}${watched?" watched":""}" data-id="${p.id}" tabindex="-1">
+    ${p._sim!=null?`<span class="cardmatch" title="Statistical match">${p._sim}<small>match</small></span>`:""}
     <button class="cardwatch ${watched?"on":""}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"★":"☆"}</button>
     <button class="cardtagbtn" title="Quick tag" aria-label="Quick tag">🏷</button>
     <div class="cardtop">
@@ -4110,7 +4185,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,$,$$});
 
 boot();
 </script>
