@@ -306,8 +306,8 @@ textarea.notesec{min-height:94px}
 @media(max-width:560px){.editgrid{grid-template-columns:1fr}}
 .efld{display:flex;flex-direction:column;gap:5px}
 .efld label{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
-.efld input{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;outline:none}
-.efld input:focus{border-color:var(--accent2)}
+.efld input,.efld select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;outline:none}
+.efld input:focus,.efld select:focus{border-color:var(--accent2)}
 .lnkrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;font-family:var(--mono)}
 .lnkres{max-height:220px;overflow:auto;margin-top:6px}
 #linkSearch{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;outline:none;margin-top:6px}
@@ -612,6 +612,94 @@ body.drawer-lock{overflow:hidden}
 .slcard .slstat{font-size:13px;color:var(--muted)}
 .slcard .slstat b{color:var(--txt);font-size:15px}
 
+/* ===== Full-page profile ===== */
+.drawer.fullpage{position:fixed;inset:0;width:100%;max-width:100%;height:100%;transform:none;
+  border-left:0;box-shadow:none;background:var(--bg);z-index:96}
+.drawer.fullpage .dr-scroll{padding:0 0 80px}
+.drawer.fullpage .profnav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);
+  padding:12px max(20px,calc((100vw - 1120px)/2));border-bottom:1px solid var(--line-soft)}
+.drawer.fullpage .profnav .backlink{font-weight:600;font-size:15px}
+.drawer.fullpage .pnav-btn{width:34px;height:34px;border-radius:9px;font-size:18px}
+.drawer.fullpage>.dr-scroll>*:not(.profnav){max-width:1120px;margin-left:auto;margin-right:auto}
+.drawer.fullpage .panel{border:1px solid var(--line);border-radius:16px;margin-left:max(20px,calc((100vw - 1120px)/2));margin-right:max(20px,calc((100vw - 1120px)/2))}
+.drawer.fullpage .prohero-wrap{border:0;background:transparent;padding:0;margin-top:16px}
+.drawer.fullpage .twocol{max-width:1120px;margin-left:auto;margin-right:auto;padding:0 max(20px,calc((100vw - 1120px)/2))}
+.drawer.fullpage .twocol .panel{margin-left:0;margin-right:0}
+
+/* ===== Green hero (reference-style) ===== */
+.prohero{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-deep) 62%,#8f5528 100%);border-radius:18px;padding:26px 30px;color:#fff;
+  box-shadow:0 14px 40px rgba(169,106,56,.20)}
+.prohero .ph-top{display:grid;grid-template-columns:auto 1fr auto auto;gap:26px;align-items:center}
+.ph-photo{width:118px;height:118px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#fff;flex:0 0 auto;border:3px solid rgba(255,255,255,.32)}
+.ph-photo img{width:100%;height:100%;object-fit:cover}
+.ph-photo.noimg{font-size:34px}
+.ph-id{min-width:0}
+.ph-pos{display:inline-block;background:rgba(255,255,255,.22);color:#fff;font-weight:800;font-size:13px;
+  padding:3px 12px;border-radius:8px;letter-spacing:.5px;margin-bottom:10px}
+.ph-nrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ph-nrow h1{font-family:var(--disp);font-size:30px;font-weight:800;letter-spacing:-.6px;margin:0;color:#fff;line-height:1.05}
+.ph-flag{font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+.prohero .bigstar{background:rgba(255,255,255,.16);border:0;color:#fff;width:32px;height:32px;border-radius:9px;font-size:17px;cursor:pointer}
+.prohero .bigstar.on{background:var(--gold);color:#1a1207}
+.ph-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ph-pill{font-size:12.5px;font-weight:600;padding:5px 13px;border-radius:999px;background:rgba(255,255,255,.92);color:var(--accent-deep);cursor:default}
+.ph-pill.lg{cursor:pointer}
+.ph-pill.arch{background:var(--sage);color:#0f322d}
+.ph-pill.arch.ghost{background:rgba(255,255,255,.72);color:var(--accent-deep)}
+.ph-pill.soft{background:rgba(255,255,255,.2);color:#fff}
+/* rating: auto grade + your stars, clearly separated */
+.ph-rating{display:flex;flex-direction:column;gap:12px;align-self:flex-start;text-align:right}
+.ph-rlab{font-size:11px;opacity:.9;letter-spacing:.6px;text-transform:uppercase}
+.ph-rval{font-family:var(--disp);font-size:40px;font-weight:800;line-height:1;letter-spacing:-1px;margin-top:2px}
+.ph-myrate .ph-stars{display:flex;gap:2px;justify-content:flex-end;margin-top:3px}
+.phstar{background:none;border:0;padding:0;cursor:pointer;font-size:19px;line-height:1;color:rgba(255,255,255,.42);transition:color .1s}
+.phstar.on{color:var(--gold)}
+.phstar:hover{color:#ffd98a}
+/* barometer */
+.barometer{align-self:stretch;min-width:158px;padding-left:22px;border-left:1px solid rgba(255,255,255,.24)}
+.bar-title{font-size:11px;opacity:.9;letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px}
+.bar-body{display:flex;gap:13px;align-items:stretch}
+.bar-tube{position:relative;width:12px;border-radius:7px;background:rgba(255,255,255,.22);display:flex;flex-direction:column-reverse;min-height:118px}
+.bar-fill{width:100%;background:linear-gradient(180deg,#ffe6a6,var(--gold));border-radius:7px 7px 0 0;transition:height .3s}
+.bar-bulb{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:var(--gold);border:2px solid rgba(255,255,255,.55)}
+.bar-rows{display:flex;flex-direction:column;justify-content:space-between}
+.lvrow{display:flex;align-items:center;gap:7px;font-size:12px;opacity:.6}
+.lvrow.on{opacity:1}
+.lvdot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4)}
+.lvdot.below{background:rgba(255,255,255,.72)}
+.lvdot.on{background:var(--gold);box-shadow:0 0 0 3px rgba(201,154,60,.35)}
+.lvlab{font-weight:500}.lvlab.on{font-weight:700}
+.ph-comps{margin-top:16px}
+.prohero .comptab{background:rgba(255,255,255,.16);color:#fff;border:0}
+.prohero .comptab.active{background:#fff;color:var(--accent-deep)}
+/* bio grid */
+.ph-bio{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 26px;padding:22px 6px 6px}
+.biocell{display:flex;align-items:center;gap:12px}
+.bicon{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;color:var(--accent-deep);flex:0 0 auto}
+.bicon svg{width:20px;height:20px}
+.bimeta{min-width:0}
+.bilab{font-size:11.5px;color:var(--muted);letter-spacing:.3px}
+.bival{font-size:15px;color:var(--txt)}.bival b{font-weight:700}
+.bival .bisub{font-size:11.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.bival .agentlink{color:var(--accent-deep);font-weight:700;text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+.bival .agentlink:hover{border-bottom-color:var(--accent)}
+.bival .agentlink .bisub{display:block}
+.biedit{color:var(--muted2);cursor:pointer;border-bottom:1px dashed var(--line)}
+.ph-summary{margin:16px 6px 0;padding:14px 16px;background:color-mix(in srgb,var(--sage) 10%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--sage) 26%,var(--line));border-radius:12px;font-size:13.5px;color:var(--txt);line-height:1.55}
+.ph-actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 6px 0}
+.ph-actions a.btn{text-decoration:none;display:inline-flex;align-items:center}
+@media(max-width:820px){
+  .prohero .ph-top{grid-template-columns:auto 1fr;gap:18px}
+  .ph-rating{grid-column:1/-1;flex-direction:row;text-align:left;align-items:flex-end;gap:22px}
+  .ph-myrate .ph-stars{justify-content:flex-start}
+  .ph-rating .ph-rval{font-size:34px}
+  .barometer{grid-column:1/-1;border-left:0;border-top:1px solid rgba(255,255,255,.24);padding:16px 0 0;margin-top:4px}
+  .bar-tube{min-height:80px}
+  .ph-bio{grid-template-columns:repeat(2,1fr)}
+}
+
 </style>
 </head>
 <body>
@@ -850,8 +938,11 @@ function applyOverrides(){
     if(!p._orig)p._orig={height:p.height,weight:p.weight,country:p.country,pos:p.pos,born:p.born,name:p.name};
     const o=p._orig; p.height=o.height;p.weight=o.weight;p.country=o.country;p.pos=o.pos;p.born=o.born;p.name=o.name;
     const b=OVR.bio[p.id];
+    p.hand=null;p.license=null;p.agent=null;p.agency=null;p.agentUrl=null;p._rgm=null;
     if(b){ if(b.height!=null&&b.height!=="")p.height=Number(b.height); if(b.weight!=null&&b.weight!=="")p.weight=Number(b.weight);
-      if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name; }
+      if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name;
+      if(b.hand)p.hand=b.hand; if(b.license)p.license=b.license;
+      if(b.agent)p.agent=b.agent; if(b.agency)p.agency=b.agency; if(b.agentUrl)p.agentUrl=b.agentUrl; if(b.rgm)p._rgm=b.rgm; }
     p._ext=OVR.ext[p.id]||null;
   }));
 }
@@ -921,6 +1012,11 @@ function ovrImportFile(file){ const r=new FileReader(); r.onload=()=>{ try{ cons
     OVR=ovrMerged(); applyOverrides(); rebuildLinks(); toast("Overrides imported"); hideModal(); if(CURRENT)renderProfile();
   }catch(e){ toast("Import failed: "+e.message); } }; r.readAsText(file); }
 function efld(lab,id,val){return '<div class="efld"><label>'+lab+'</label><input type="text" id="'+id+'" value="'+esc(val)+'"/></div>';}
+function esel(lab,id,val,opts){
+  const cur=val||"";
+  const optHtml=['<option value="">— none —</option>'].concat(opts.map(o=>'<option value="'+esc(o)+'"'+(o===cur?' selected':'')+'>'+esc(o)+'</option>')).join("");
+  return '<div class="efld"><label>'+lab+'</label><select id="'+id+'">'+optHtml+'</select></div>';
+}
 function openEditModal(id){
   const p=player(id); if(!p)return; const grp=p._grp||[p];
   const html='<h3>Edit \u2014 '+esc(p.name)+'</h3>'
@@ -928,7 +1024,11 @@ function openEditModal(id){
    +efld("Height (cm)","eHeight",p.height||"")+efld("Weight (kg)","eWeight",p.weight||"")
    +efld("Country","eCountry",p.country||"")+efld("Position (G/F/C)","ePos",(p.pos&&p.pos!=="-")?p.pos:"")
    +efld("Year of birth","eBorn",p.born||"")+efld("External profile link","eExt",p._ext||"")
+   +efld("Dominant hand (L/R)","eHand",p.hand||"")+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
+   +efld("Agent name","eAgent",p.agent||"")+esel("Agency","eAgency",p.agency||"",agencyList())
+   +efld("Add new agency","eAgencyNew","")+efld("RealGM agent-client URL","eAgentUrl",p.agentUrl||"")
    +'</div>'
+   +'<div class="hint" style="margin-top:6px">Agency dropdown lists agencies you\u2019ve added. Type a new one in \u201cAdd new agency\u201d to save it to the list. Paste the RealGM agent-client page URL (e.g. basketball.realgm.com/info/agent-client-list/\u2026) to link the agent.</div>'
    +'<div class="nlab" style="margin-top:16px">Linked competitions ('+grp.length+')</div>'
    +'<div>'+grp.map(x=>'<div class="lnkrow"><span>'+esc(leagueOf(x).meta.name)+' \u00b7 '+esc(x.teamName)+(x.id===id?' <b>(this profile)</b>':'')+'</span>'+(x.id!==id?'<button class="btn ghost sm" data-open="'+x.id+'">Open</button>':'')+'</div>').join("")+'</div>'
    +'<div class="nlab" style="margin-top:12px">Link another player (same person, other competition)</div>'
@@ -949,7 +1049,9 @@ function openEditModal(id){
     $$("#linkResults [data-link]").forEach(el=>el.onclick=()=>{ovrSaveLocal({links:[[id,el.dataset.link]]});toast("Linked");renderProfile();openEditModal(id);});
   };
   $("#editSave").onclick=()=>{const g=k=>{const el=$("#"+k);return el?el.value.trim():"";};
-    ovrSaveLocal({bio:{[id]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn")}},ext:{[id]:g("eExt")}});
+    const newAg=g("eAgencyNew"); if(newAg)addAgency(newAg);
+    const agency=newAg||g("eAgency");
+    ovrSaveLocal({bio:{[id]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agent:g("eAgent"),agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm")}},ext:{[id]:g("eExt")}});
     toast("Saved");hideModal();renderProfile();};
   const ex=$("#ovrExport"); if(ex)ex.onclick=ovrExportBlob;
   const im=$("#ovrImport"); if(im)im.onchange=e=>{if(e.target.files[0])ovrImportFile(e.target.files[0]);};
@@ -1133,8 +1235,9 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="profile") renderProfile();
 }
 
-function allTeamsFlat(){const a=[];STATE.data.leagues.forEach(L=>L.teams.forEach(t=>a.push({...t,_lid:L.meta.id})));return a;}
-function allPlayersFlat(){const a=[];STATE.data.leagues.forEach(L=>L.players.forEach(p=>a.push(p)));return a;}
+function allTeamsFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.teams.forEach(t=>a.push({...t,_lid:L.meta.id}));});return a;}
+function allPlayersFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(p=>a.push(p));});return a;}
+function isExhib(p){const L=p&&STATE.data.leagues.find(l=>l.meta.id===p.league);return !!(L&&L.meta.exhibition);}
 function leaguePlayers(){return STATE.allLeagues?allPlayersFlat():STATE.league.players;}
 function player(id){for(const L of STATE.data.leagues){const p=L.players.find(x=>x.id===id);if(p)return p;}return null;}
 
@@ -1470,16 +1573,17 @@ function drawerJump(id){
 }
 function openDrawerUI(){
   const dr=$("#drawer"),sc=$("#scrim");if(!dr)return;
-  dr.classList.add("on");dr.setAttribute("aria-hidden","false");
-  if(sc)sc.classList.add("on");
+  dr.classList.add("on","fullpage");dr.setAttribute("aria-hidden","false");
+  // full-page mode: no scrim overlay
   document.body.classList.add("drawer-lock");
   const scr=dr.querySelector(".dr-scroll");if(scr)scr.scrollTop=0;
+  window.scrollTo(0,0);
   syncDrNav();
 }
 function syncDrNav(){const dr=$("#drawer");if(!dr)return;const nav=dr.querySelector(".profnav");
   if(nav)dr.style.setProperty("--drnav",Math.round(nav.getBoundingClientRect().height)+"px");}
 function closeDrawer(){
-  const dr=$("#drawer"),sc=$("#scrim");if(dr){dr.classList.remove("on");dr.setAttribute("aria-hidden","true");}
+  const dr=$("#drawer"),sc=$("#scrim");if(dr){dr.classList.remove("on","fullpage");dr.setAttribute("aria-hidden","true");}
   if(sc)sc.classList.remove("on");
   document.body.classList.remove("drawer-lock");
   DRAWER_OPEN=false;CURRENT=null;
@@ -1509,7 +1613,10 @@ function leagueOf(p){return STATE.data.leagues.find(l=>l.meta.id===p.league)||ST
 function statVal(p,k){const f=STAT_FMT[k],v=p[k];if(v==null||isNaN(v))return"\u2014";
   if(f==='%')return fmt(v,1)+"%";if(f===0)return String(v);return fmt(v,f);}
 function scopePool(p){
-  if(STATE.profileScope==="all"){const a=[];STATE.data.leagues.forEach(L=>L.players.forEach(x=>{if(x.qualified)a.push(x);}));return a;}
+  // Exhibitions/events (Summer League, national teams, G-League showcase, qualifiers…)
+  // are ALWAYS ranked within their own event, never mixed into league/season pools.
+  if(isExhib(p)) return leagueOf(p).players.filter(x=>x.qualified);
+  if(STATE.profileScope==="all"){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(x=>{if(x.qualified)a.push(x);});});return a;}
   return leagueOf(p).players.filter(x=>x.qualified);}
 function rankOf(pool,k,p){const lower=LOWER_BETTER.has(k);
   const vals=pool.map(x=>x[k]).filter(v=>v!=null&&!isNaN(v));const total=vals.length,v=p[k];
@@ -1600,6 +1707,107 @@ function openLeaguePlayers(lgid){const L=STATE.data.leagues.find(l=>l.meta.id===
   STATE.view="players";updateScopeLabel();
   $$("#tabs button").forEach((x,i)=>x.classList.toggle("active",i===0));
   renderPlayers();try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){}}
+/* ---------- Profile hero helpers (flag, level barometer, position, summary) ---------- */
+const CTRY_ISO={"USA":"US","United States":"US","United Kingdom":"GB","England":"GB","Bosnia and Herzegovina":"BA","Turkiye":"TR","Turkey":"TR","Ivory Coast":"CI","Cape Verde":"CV","Czechia":"CZ","Czech Republic":"CZ","Dominican Republic":"DO","North Macedonia":"MK","South Sudan":"SS","DR Congo":"CD","Republic of the Congo":"CG",
+  "France":"FR","Spain":"ES","Germany":"DE","Italy":"IT","Greece":"GR","Serbia":"RS","Croatia":"HR","Slovenia":"SI","Lithuania":"LT","Latvia":"LV","Estonia":"EE","Poland":"PL","Israel":"IL","Georgia":"GE","Ukraine":"UA","Russia":"RU","Montenegro":"ME","Belgium":"BE","Netherlands":"NL","Finland":"FI","Sweden":"SE","Norway":"NO","Denmark":"DK","Iceland":"IS","Ireland":"IE","Portugal":"PT","Switzerland":"CH","Austria":"AT","Hungary":"HU","Romania":"RO","Bulgaria":"BG","Slovakia":"SK","Canada":"CA","Brazil":"BR","Argentina":"AR","Chile":"CL","Cuba":"CU","Mexico":"MX","Australia":"AU","Nigeria":"NG","Senegal":"SN","Mali":"ML","Angola":"AO","Cameroon":"CM","Guinea":"GN","Gabon":"GA","Ghana":"GH","Egypt":"EG","Tunisia":"TN","Morocco":"MA","Japan":"JP","China":"CN","Philippines":"PH","New Zealand":"NZ","Bahamas":"BS","Jamaica":"JM","Puerto Rico":"PR","Malta":"MT","Luxembourg":"LU"};
+function isoOf(country){ if(!country)return null; return CTRY_ISO[country]||null; }
+function flagEmoji(country){ const iso=isoOf(country); if(!iso)return ""; return iso.replace(/./g,ch=>String.fromCodePoint(127397+ch.charCodeAt(0))); }
+// Level barometer: where the player projects, from the tier-adjusted board grade.
+// Bands mirror a scout's mental ladder. Returns {i (0=bottom..3=top), label, bands[]}.
+const LEVEL_BANDS=["Low-Level","Mid-Level","Top Level","EuroCup","EuroLeague"];
+function levelBand(p){
+  const g=statGradeOverall(p); // tier-adjusted 0-10
+  if(g==null)return null;
+  let i;
+  if(g>=8.6)i=4; else if(g>=7.2)i=3; else if(g>=5.6)i=2; else if(g>=3.8)i=1; else i=0;
+  return {i,label:LEVEL_BANDS[i]};
+}
+function levelBarometerHTML(p){
+  const b=levelBand(p); if(!b)return "";
+  const n=LEVEL_BANDS.length;
+  const rows=LEVEL_BANDS.map((lab,idx)=>{
+    const on=idx===b.i, below=idx<b.i;
+    return `<div class="lvrow${on?' on':''}"><span class="lvdot${on?' on':below?' below':''}"></span><span class="lvlab${on?' on':''}">${lab}</span></div>`;
+  }).reverse().join("");
+  const fillPct=Math.round(((b.i+1)/n)*100);
+  return `<div class="barometer" title="Projected level from the tier-adjusted grade">
+    <div class="bar-title">Projected level</div>
+    <div class="bar-body">
+      <div class="bar-tube"><div class="bar-fill" style="height:${fillPct}%"></div><div class="bar-bulb"></div></div>
+      <div class="bar-rows">${rows}</div>
+    </div>
+  </div>`;
+}
+function posAbbr(p){
+  const pos=(p.pos&&p.pos!=="-")?p.pos:(p.role||"");
+  const map={Guard:"G","Point Guard":"PG","Shooting Guard":"SG",Forward:"F","Small Forward":"SF","Power Forward":"PF",Wing:"W",Center:"C",Big:"C"};
+  return map[pos]||(pos?pos.slice(0,2).toUpperCase():"—");
+}
+function primaryArchetype(p){
+  const tags=playerTags(p).filter(t=>t!==WATCH_TAG);
+  const arch=tags.find(t=>TAG_LIBRARY.includes(t));
+  return arch||tags[0]||null;
+}
+function ageStr(p){
+  if(p.age!=null)return p.age+" years";
+  if(p.born){const y=new Date().getFullYear();return (y-p.born)+" years";}
+  return null;
+}
+function profileSummary(p){
+  const bits=[];
+  const nm=p.name;
+  const age=ageStr(p);
+  const ht=p.height?`standing ${(p.height/100).toFixed(2)}m tall`:null;
+  const pos=(p.pos&&p.pos!=="-")?p.pos.toLowerCase():(p.role?p.role.toLowerCase():null);
+  const team=p.teamName||(leagueOf(p).teams.find(t=>t.code===p.team)||{}).name;
+  let s=`${nm} is a professional basketball player`;
+  if(age)s+=`, aged ${age.replace(" years"," years old")}`;
+  if(ht)s+=`, ${ht}`;
+  if(pos)s+=`, who plays as a ${pos}`;
+  if(team)s+=`, currently with ${team}`;
+  if(p.country)s+=`. ${p.country} nationality`;
+  return s+".";
+}
+function bioIcon(name){
+  const M={cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
+    ruler:'<path d="M3 15l12-12 6 6-12 12z"/><path d="M8 8l2 2M11 5l2 2M5 11l2 2"/>',
+    pin:'<path d="M12 21s7-6.7 7-12a7 7 0 1 0-14 0c0 5.3 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+    hand:'<path d="M7 11V6a2 2 0 0 1 4 0v5M11 11V4a2 2 0 0 1 4 0v7M15 11V6a2 2 0 0 1 4 0v8a6 6 0 0 1-6 6h-2a5 5 0 0 1-5-5v-2a2 2 0 0 1 4 0"/>',
+    badge:'<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 22l5-3 5 3-1.5-9.5"/>',
+    team:'<rect x="4" y="8" width="16" height="13" rx="1.5"/><path d="M9 8V4h6v4M9 13h.01M15 13h.01M9 17h.01M15 17h.01"/>',
+    globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+    weight:'<path d="M7 8h10l2 12H5z"/><circle cx="12" cy="6" r="2.5"/>'};
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${M[name]||""}</svg>`;
+}
+function bioCell(icon,label,value){
+  if(value==null||value==="")return "";
+  return `<div class="biocell"><div class="bicon">${bioIcon(icon)}</div><div class="bimeta"><div class="bilab">${label}</div><div class="bival">${value}</div></div></div>`;
+}
+/* RealGM: link to a player search (RealGM has no stable per-player id in our data,
+   so we deep-link to their site search, which resolves to the player page). If the
+   user has saved an explicit RealGM URL override, use that instead. */
+function realgmSearchURL(p){
+  if(p&&p._rgm)return p._rgm;
+  const q=encodeURIComponent(p.name);
+  return `https://basketball.realgm.com/search?q=${q}`;
+}
+/* Agent / Agency: manual field. OVR.bio[id].agent = agent name, .agency = agency,
+   .agentUrl = RealGM agent-client-list URL. AGENCY_LIST is a user-editable roster. */
+function agencyList(){
+  const base=(window.EUROSCOUT_AGENCIES||[]);
+  let local=[];try{local=JSON.parse(localStorage.getItem("euroscout:agencies")||"[]");}catch(e){}
+  return [...new Set([...base,...local])].filter(Boolean).sort((a,b)=>a.localeCompare(b));
+}
+function addAgency(name){name=(name||"").trim();if(!name)return;
+  let local=[];try{local=JSON.parse(localStorage.getItem("euroscout:agencies")||"[]");}catch(e){}
+  if(!local.includes(name)){local.push(name);localStorage.setItem("euroscout:agencies",JSON.stringify(local));}
+}
+function agentCellHTML(p){
+  const agent=p.agent, agency=p.agency, url=p.agentUrl;
+  if(!agent&&!agency)return '<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>';
+  const label=agent&&agency?`${agent} <span class="bisub">${agency}</span>`:(agent||agency);
+  return url?`<a href="${url}" target="_blank" rel="noopener" class="agentlink">${label}</a>`:`<b>${label}</b>`;
+}
 function renderProfile(){
   const p=player(CURRENT);
   if(!p){closeDrawer();return;}
@@ -1626,33 +1834,52 @@ function renderProfile(){
       </select>
       <button class="pnav-btn" id="pnavNext" title="Next player">\u203a</button>
     </div>
-    <div class="panel stickyhead">
-      <div class="profhead">
-        <div class="avatar${p.img?' zoomable':''}" ${p.img?`onclick="showPhoto('${p.img}','${p.name.replace(/'/g,"")}')" title="View photo"`:''}>${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
-        <div class="phmain">
-          <div class="phname">${p.jersey?`<span class="jnum">#${p.jersey}</span>`:''}<h1>${p.name}</h1><button class="bigstar ${isWatched(p)?'on':''}" id="watchToggle" title="${isWatched(p)?'On watchlist — tap to remove':'Add to watchlist'}">${isWatched(p)?'★':'☆'}</button>${rec.rating?`<span class="phstars">${"★".repeat(rec.rating)}</span>`:""}</div>
-          <div class="phclub">
-            ${t?`<span class="tlink" onclick="openTeam('${t.code}')">${t.name}</span>`:`<span>${p.teamName}</span>`}
-            <span class="phsep">·</span>
-            <span class="tlink" onclick="openLeaguePlayers('${p.league}')">${L.meta.name} ${L.meta.season}</span>
-            ${p.multiTeam?' <span class="badge">2 clubs</span>':''}
-            ${p.qualified?'':' <span class="badge">below min</span>'}
-            ${p._ext?` <a class="extlink" href="${p._ext}" target="_blank" rel="noopener">↗ Eurobasket profile</a>`:''}
+    <div class="panel stickyhead prohero-wrap">
+      <div class="prohero">
+        <div class="ph-top">
+          <div class="ph-photo${p.img?' zoomable':''}" ${p.img?`onclick="showPhoto('${p.img}','${p.name.replace(/'/g,"")}')" title="View photo"`:''}>${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.classList.add('noimg');this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
+          <div class="ph-id">
+            <div class="ph-pos">${posAbbr(p)}</div>
+            <div class="ph-nrow"><h1>${p.name}</h1>${p.country?`<span class="ph-flag" title="${p.country}">${flagEmoji(p.country)||isoOf(p.country)||""}</span>`:""}<button class="bigstar ${isWatched(p)?'on':''}" id="watchToggle" title="${isWatched(p)?'On watchlist — tap to remove':'Add to watchlist'}">${isWatched(p)?'★':'☆'}</button></div>
+            <div class="ph-pills">
+              <span class="ph-pill lg" onclick="openLeaguePlayers('${p.league}')">${L.meta.name}</span>
+              ${primaryArchetype(p)?`<span class="ph-pill arch">${posAbbr(p)} ${primaryArchetype(p)}</span>`:`<span class="ph-pill arch ghost">${p.pos&&p.pos!=='-'?p.pos:(p.role||'—')}</span>`}
+              ${p.multiTeam?'<span class="ph-pill soft">2 clubs</span>':''}
+              ${p.qualified?'':'<span class="ph-pill soft">below min</span>'}
+              ${p._exhib?'<span class="ph-pill soft">exhibition</span>':''}
+            </div>
           </div>
-          <div class="biochips">
-            ${p.height?`<span class="biochip"><b>${(p.height/100).toFixed(2)} m</b></span>`:''}
-            ${p.weight?`<span class="biochip">${p.weight} kg</span>`:''}
-            ${p.country?`<span class="biochip clk" data-filter="country" data-val="${p.country}" data-lab="${p.country}" title="Show all ${p.country} players">${p.country}</span>`:''}
-            ${p.role?`<span class="biochip clk" data-filter="role" data-val="${p.role}" data-lab="${p.role}" title="Show all ${p.role} players">${p.pos&&p.pos!=='-'?p.pos:p.role}</span>`:''}
-            ${p.born?`<span class="biochip clk" data-filter="born" data-val="${p.born}" data-lab="${p.born}" title="Show all players born in ${p.born}">b. <b>${p.born}</b></span>`:''}
+          <div class="ph-rating">
+            <div class="ph-grade" title="Auto-calculated from stats (PIR / scoring / efficiency percentiles), scaled by league strength. This is NOT your rating.">
+              <div class="ph-rlab">Stat grade</div>
+              <div class="ph-rval">${(()=>{const g=statGradeOverall(p);return g!=null?g.toFixed(1):"—";})()}</div>
+            </div>
+            <div class="ph-myrate" title="Your scouting rating — set it in the report panel below">
+              <div class="ph-rlab">My rating</div>
+              <div class="ph-stars" role="group" aria-label="Your rating">${[1,2,3,4,5].map(n=>`<button class="phstar ${rec.rating>=n?'on':''}" data-hn="${n}">★</button>`).join("")}</div>
+            </div>
           </div>
-          ${(p._grp&&p._grp.length>1)?`<div class="comptabs"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${p._grp.map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')" title="${leagueOf(c).meta.name} · ${c.teamName}">${leagueOf(c).meta.name}</button>`).join('')}</div>`:''}
+          ${levelBarometerHTML(p)}
         </div>
-        <div class="phactions">
-          <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
-          <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[4].classList.add('active');render()">Compare ▸</button>
-          <button class="btn ghost sm" onclick="openEditModal('${p.id}')">✎ Edit</button>
-        </div>
+        ${(p._grp&&p._grp.length>1)?`<div class="comptabs ph-comps"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${p._grp.map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')" title="${leagueOf(c).meta.name} · ${c.teamName}">${leagueOf(c).meta.name}</button>`).join('')}</div>`:''}
+      </div>
+      <div class="ph-bio">
+        ${bioCell("cal","Age",ageStr(p)?`<b>${ageStr(p)}</b>`:null)}
+        ${bioCell("ruler","Height",p.height?`<b>${p.height} cm</b>`:null)}
+        ${bioCell("pin","Nationality",p.country?`<b>${isoOf(p.country)||p.country}</b>${isoOf(p.country)?`<div class="bisub">${p.country}</div>`:""}`:null)}
+        ${bioCell("hand","Dominant hand",p.hand?`<b>${p.hand}</b>`:'<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>')}
+        ${bioCell("badge","Agent / Agency",agentCellHTML(p))}
+        ${bioCell("team","Team",`<b>${(t?t.name:p.teamName)||"—"}</b>`)}
+        ${bioCell("globe","League",`<b>${L.meta.name}</b>`)}
+        ${bioCell("weight","Weight",p.weight?`<b>${p.weight} kg</b>`:null)}
+      </div>
+      <div class="ph-summary">${profileSummary(p)}</div>
+      <div class="ph-actions">
+        <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
+        <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';closeDrawer();$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[4].classList.add('active');render()">Compare ▸</button>
+        <button class="btn ghost sm" onclick="openEditModal('${p.id}')">✎ Edit bio</button>
+        <a class="btn ghost sm" href="${realgmSearchURL(p)}" target="_blank" rel="noopener" title="Search this player on RealGM">↗ RealGM</a>
+        ${p._ext?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Eurobasket</a>`:''}
       </div>
     </div>
 
@@ -1768,6 +1995,9 @@ function renderProfile(){
     </div>
   </div>`;
   $$("#rating button").forEach(b=>b.onclick=async()=>{const n=+b.dataset.n;
+    const cur=recOf(p).rating; const val=(cur===n)?0:n;
+    await saveRec(p,{rating:val});renderProfile();});
+  $$(".phstar[data-hn]").forEach(b=>b.onclick=async()=>{const n=+b.dataset.hn;
     const cur=recOf(p).rating; const val=(cur===n)?0:n;
     await saveRec(p,{rating:val});renderProfile();});
   $$("#drawer [data-mode]").forEach(b=>b.onclick=()=>{STATE.statMode=b.dataset.mode;renderProfile();});
