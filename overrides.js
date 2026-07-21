@@ -20,7 +20,11 @@ window.EUROSCOUT_OVERRIDES = {
 // Agencies shown in the Agent/Agency dropdown. Add/edit freely here, or add new ones live in the app
 // (they're saved to your browser and merged with this list).
 window.EUROSCOUT_AGENCIES = [
-  "Wasserman","Octagon","Excel Sports","CAA Sports","Roc Nation Sports","Priority Sports",
-  "BeoBasket","Interperformances","YouFirst Sports","BDA Sports","Klutch Sports",
-  "Mardešić Sports","Slash Sports","ProSports","U1st Sports","LIFT Sports Management"
+  "The Team","Octagon","Excel Sports Management","CAA Sports","Roc Nation Sports","Priority Sports",
+  "Klutch Sports","BDA Sports","WME Sports",
+  "Interperformances","BeoBasket","YouFirst Sports","Higher Vision Basketball","Base Sports",
+  "Sport1 Basketball","ProBasket","Court Side","Slash Sports","Pallas Sports","Mizrahi Sports",
+  "Rebasa","Mészáros Sport","BeoBasket Adriatic","Life Sports Agency","U1st Sports",
+  "LIFT Sports Management","Wolf Sports","Two Points","AENA Sports","Octagon Europe",
+  "Comsport","Meridian Sports","SFX Basketball","Glez Basket","Estival Sports"
 ];

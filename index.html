@@ -703,6 +703,9 @@ body.drawer-lock{overflow:hidden}
 .biedit{color:var(--muted2);cursor:pointer;border-bottom:1px dashed var(--line)}
 .ph-summary{margin:18px 0 0;padding:14px 16px;background:color-mix(in srgb,var(--sage) 10%,var(--panel));
   border:1px solid color-mix(in srgb,var(--sage) 26%,var(--line));border-radius:12px;font-size:13.5px;color:var(--txt);line-height:1.55}
+.biopanel-edit{position:absolute;top:14px;right:14px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--muted);border-radius:9px;padding:6px 12px;font-size:12.5px;cursor:pointer;z-index:2}
+.biopanel-edit:hover{border-color:var(--accent);color:var(--accent-deep);background:var(--accent-soft)}
 @media(max-width:820px){
   .prohero .ph-top{grid-template-columns:auto 1fr;gap:16px}
   .ph-rating{grid-column:1/-1;flex-direction:row;text-align:left;align-items:flex-end;gap:22px}
@@ -1002,19 +1005,25 @@ function ovrSaveLocal(patch){
   if(patch.ext)Object.keys(patch.ext).forEach(id=>{if(patch.ext[id])l.ext[id]=patch.ext[id];else delete l.ext[id];});
   if(patch.links)patch.links.forEach(pr=>{if(!l.links.some(x=>(x[0]===pr[0]&&x[1]===pr[1])||(x[0]===pr[1]&&x[1]===pr[0])))l.links.push(pr);});
   localStorage.setItem(OVR_KEY,JSON.stringify(l));
-  OVR=ovrMerged(); applyOverrides(); rebuildLinks(); STATE._tagg=null;
+  OVR=ovrMerged(); rebuildLinks(); applyOverrides(); STATE._tagg=null;
 }
 function applyOverrides(){
+  // bio/ext overrides are keyed per-person (shared across all their competitions), so look up
+  // by ANY id in the merged group — editing one league's entry propagates to the others.
+  const bioFor=p=>{const ids=(p._grp&&p._grp.length?p._grp:[p]).map(x=>x.id);
+    for(const id of ids){if(OVR.bio[id])return OVR.bio[id];}return null;};
+  const extFor=p=>{const ids=(p._grp&&p._grp.length?p._grp:[p]).map(x=>x.id);
+    for(const id of ids){if(OVR.ext[id])return OVR.ext[id];}return null;};
   STATE.data.leagues.forEach(L=>L.players.forEach(p=>{
     if(!p._orig)p._orig={height:p.height,weight:p.weight,country:p.country,pos:p.pos,born:p.born,name:p.name};
     const o=p._orig; p.height=o.height;p.weight=o.weight;p.country=o.country;p.pos=o.pos;p.born=o.born;p.name=o.name;
-    const b=OVR.bio[p.id];
+    const b=bioFor(p);
     p.hand=null;p.license=null;p.agent=null;p.agency=null;p.agentUrl=null;p._rgm=null;
     if(b){ if(b.height!=null&&b.height!=="")p.height=Number(b.height); if(b.weight!=null&&b.weight!=="")p.weight=Number(b.weight);
       if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name;
       if(b.hand)p.hand=b.hand; if(b.license)p.license=b.license;
-      if(b.agent)p.agent=b.agent; if(b.agency)p.agency=b.agency; if(b.agentUrl)p.agentUrl=b.agentUrl; if(b.rgm)p._rgm=b.rgm; }
-    p._ext=OVR.ext[p.id]||null;
+      if(b.agent)p.agent=b.agent; if(b.agency)p.agency=normAgency(b.agency); if(b.agentUrl)p.agentUrl=b.agentUrl; if(b.rgm)p._rgm=b.rgm; }
+    p._ext=extFor(p)||null;
   }));
 }
 function normName(x){return (x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[\u0111\u0142]/g,"d").replace(/\u0142/g,"l").replace(/[\u015f\u0219]/g,"s").replace(/[\u0131]/g,"i").replace(/[\u0127]/g,"h").replace(/[\u00f0]/g,"d").replace(/[\u00f8]/g,"o").replace(/[\u00e6]/g,"ae").replace(/[^a-z ]/g,"").trim();}
@@ -1094,12 +1103,12 @@ function openEditModal(id){
    +'<div class="editgrid">'
    +efld("Height (cm)","eHeight",p.height||"")+efld("Weight (kg)","eWeight",p.weight||"")
    +efld("Country","eCountry",p.country||"")+efld("Position (G/F/C)","ePos",(p.pos&&p.pos!=="-")?p.pos:"")
-   +efld("Year of birth","eBorn",p.born||"")+efld("External profile link","eExt",p._ext||"")
-   +efld("Dominant hand (L/R)","eHand",p.hand||"")+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
-   +efld("Agent name","eAgent",p.agent||"")+esel("Agency","eAgency",p.agency||"",agencyList())
-   +efld("Add new agency","eAgencyNew","")+efld("RealGM agent-client URL","eAgentUrl",p.agentUrl||"")
+   +efld("Year of birth","eBorn",p.born||"")+efld("Eurobasket / external profile link","eExt",p._ext||"")
+   +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
+   +esel("Agency","eAgency",p.agency||"",agencyList())+efld("Add new agency","eAgencyNew","")
+   +efld("RealGM agent-client URL","eAgentUrl",p.agentUrl||"")
    +'</div>'
-   +'<div class="hint" style="margin-top:6px">Agency dropdown lists agencies you\u2019ve added. Type a new one in \u201cAdd new agency\u201d to save it to the list. Paste the RealGM agent-client page URL (e.g. basketball.realgm.com/info/agent-client-list/\u2026) to link the agent.</div>'
+   +'<div class="hint" style="margin-top:6px">Bio edits apply to this player across every competition. Agency dropdown lists agencies you\u2019ve added \u2014 type a new one in \u201cAdd new agency\u201d to save it. Paste a RealGM agent-client page URL to link the agency.</div>'
    +'<div class="nlab" style="margin-top:16px">Linked competitions ('+grp.length+')</div>'
    +'<div>'+grp.map(x=>'<div class="lnkrow"><span>'+esc(leagueOf(x).meta.name)+' \u00b7 '+esc(x.teamName)+(x.id===id?' <b>(this profile)</b>':'')+'</span>'+(x.id!==id?'<button class="btn ghost sm" data-open="'+x.id+'">Open</button>':'')+'</div>').join("")+'</div>'
    +'<div class="nlab" style="margin-top:12px">Link another player (same person, other competition)</div>'
@@ -1122,7 +1131,9 @@ function openEditModal(id){
   $("#editSave").onclick=()=>{const g=k=>{const el=$("#"+k);return el?el.value.trim():"";};
     const newAg=g("eAgencyNew"); if(newAg)addAgency(newAg);
     const agency=newAg||g("eAgency");
-    ovrSaveLocal({bio:{[id]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agent:g("eAgent"),agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm")}},ext:{[id]:g("eExt")}});
+    // key the bio to the person (group canonical id) so it applies across all their competitions
+    const key=gid(p)||id;
+    ovrSaveLocal({bio:{[key]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm")}},ext:{[key]:g("eExt")}});
     toast("Saved");hideModal();renderProfile();};
   const ex=$("#ovrExport"); if(ex)ex.onclick=ovrExportBlob;
   const im=$("#ovrImport"); if(im)im.onchange=e=>{if(e.target.files[0])ovrImportFile(e.target.files[0]);};
@@ -1877,20 +1888,22 @@ function eurobasketURL(p){
 }
 /* Agent / Agency: manual field. OVR.bio[id].agent = agent name, .agency = agency,
    .agentUrl = RealGM agent-client-list URL. AGENCY_LIST is a user-editable roster. */
+/* Agency dropdown roster (user-editable). Renames are normalized on read. */
+const AGENCY_RENAME={"Wasserman":"The Team","TeamWass":"The Team"};
+function normAgency(a){return a?(AGENCY_RENAME[a]||a):a;}
 function agencyList(){
   const base=(window.EUROSCOUT_AGENCIES||[]);
   let local=[];try{local=JSON.parse(localStorage.getItem("euroscout:agencies")||"[]");}catch(e){}
-  return [...new Set([...base,...local])].filter(Boolean).sort((a,b)=>a.localeCompare(b));
+  return [...new Set([...base,...local].map(normAgency))].filter(Boolean).sort((a,b)=>a.localeCompare(b));
 }
 function addAgency(name){name=(name||"").trim();if(!name)return;
   let local=[];try{local=JSON.parse(localStorage.getItem("euroscout:agencies")||"[]");}catch(e){}
   if(!local.includes(name)){local.push(name);localStorage.setItem("euroscout:agencies",JSON.stringify(local));}
 }
 function agentCellHTML(p){
-  const agent=p.agent, agency=p.agency, url=p.agentUrl;
-  if(!agent&&!agency)return '<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>';
-  const label=agent&&agency?`${agent} <span class="bisub">${agency}</span>`:(agent||agency);
-  return url?`<a href="${url}" target="_blank" rel="noopener" class="agentlink">${label}</a>`:`<b>${label}</b>`;
+  const agency=p.agency, url=p.agentUrl;
+  if(!agency)return '<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>';
+  return url?`<a href="${url}" target="_blank" rel="noopener" class="agentlink"><b>${agency}</b></a>`:`<b>${agency}</b>`;
 }
 function renderProfile(){
   const p=player(CURRENT);
@@ -1933,11 +1946,9 @@ function renderProfile(){
             </div>
             <div class="ph-actions">
               <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
-              <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';closeDrawer();$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[4].classList.add('active');render()">Compare ▸</button>
-              <button class="btn ghost sm" onclick="openEditModal('${p.id}')">✎ Edit bio</button>
               <a class="btn ghost sm" href="${realgmSearchURL(p)}" target="_blank" rel="noopener" title="Search this player on RealGM">↗ RealGM</a>
               <a class="btn ghost sm" href="${eurobasketURL(p)}" target="_blank" rel="noopener" title="Find this player on Eurobasket.com">↗ Eurobasket</a>
-              ${p._ext?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Saved profile</a>`:''}
+              ${(p._ext&&!/eurobasket\.com/i.test(p._ext))?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Profile link</a>`:''}
             </div>
           </div>
           <div class="ph-rating">
@@ -1955,13 +1966,14 @@ function renderProfile(){
         ${(p._grp&&p._grp.length>1)?`<div class="comptabs ph-comps"><span class="hint" style="align-self:center;margin-right:2px">Competitions:</span>${p._grp.map(c=>`<button class="comptab ${c.id===p.id?'active':''}" onclick="switchComp('${c.league}','${c.id}')" title="${leagueOf(c).meta.name} · ${c.teamName}">${leagueOf(c).meta.name}</button>`).join('')}</div>`:''}
       </div>
     </div>
-    <div class="panel ph-detail" style="margin-top:16px">
+    <div class="panel ph-detail" style="margin-top:16px;position:relative">
+      <button class="biopanel-edit" onclick="openEditModal('${p.id}')" title="Edit bio">✎ Edit</button>
       <div class="ph-bio">
         ${bioCell("cal","Age",ageStr(p)?`<b>${ageStr(p)}</b>`:null)}
         ${bioCell("ruler","Height",p.height?`<b>${p.height} cm</b>`:null)}
         ${bioCell("pin","Nationality",p.country?`<b>${isoOf(p.country)||p.country}</b>${isoOf(p.country)?`<div class="bisub">${p.country}</div>`:""}`:null)}
         ${bioCell("hand","Dominant hand",p.hand?`<b>${p.hand}</b>`:'<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>')}
-        ${bioCell("badge","Agent / Agency",agentCellHTML(p))}
+        ${bioCell("badge","Agency",agentCellHTML(p))}
         ${bioCell("team","Team",`<b>${(t?t.name:p.teamName)||"—"}</b>`)}
         ${bioCell("globe","League",`<b>${L.meta.name}</b>`)}
         ${bioCell("weight","Weight",p.weight?`<b>${p.weight} kg</b>`:null)}
