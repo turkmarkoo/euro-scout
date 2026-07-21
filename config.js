@@ -7,6 +7,6 @@
 // and one shared scouting dataset so your director sees your work. The whole app is
 // gated behind sign-in. See README_SUPABASE.md for the one-time project + SQL setup.
 window.EUROSCOUT_CONFIG = {
-  SUPABASE_URL: "",       // e.g. "https://xxxxxxxx.supabase.co"
-  SUPABASE_ANON_KEY: "",  // the project's public anon (publishable) key — safe to commit
+  SUPABASE_URL: "https://krafgrthevatedpsnsil.supabase.co",       // e.g. "https://xxxxxxxx.supabase.co"
+  SUPABASE_ANON_KEY: "sb_publishable_N3zhOdHTBCDjThG0-KDZGA_Vcyu68vj",  // the project's public anon (publishable) key — safe to commit
 };
