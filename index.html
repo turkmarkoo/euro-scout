@@ -616,15 +616,25 @@ body.drawer-lock{overflow:hidden}
 .drawer.fullpage{position:fixed;inset:0;width:100%;max-width:100%;height:100%;transform:none;
   border-left:0;box-shadow:none;background:var(--bg);z-index:96}
 .drawer.fullpage .dr-scroll{padding:0 0 80px}
-.drawer.fullpage .profnav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);
-  padding:12px max(20px,calc((100vw - 1120px)/2));border-bottom:1px solid var(--line-soft)}
+.drawer.fullpage .profnav{position:sticky;top:0;z-index:30;background:var(--bg);
+  padding:12px max(20px,calc((100vw - 1120px)/2));border-bottom:1px solid var(--line-soft);box-shadow:0 4px 14px rgba(47,51,59,.05)}
 .drawer.fullpage .profnav .backlink{font-weight:600;font-size:15px}
 .drawer.fullpage .pnav-btn{width:34px;height:34px;border-radius:9px;font-size:18px}
 .drawer.fullpage>.dr-scroll>*:not(.profnav){max-width:1120px;margin-left:auto;margin-right:auto}
 .drawer.fullpage .panel{border:1px solid var(--line);border-radius:16px;margin-left:max(20px,calc((100vw - 1120px)/2));margin-right:max(20px,calc((100vw - 1120px)/2))}
-.drawer.fullpage .prohero-wrap{border:0;background:transparent;padding:0;margin-top:16px}
-.drawer.fullpage .twocol{max-width:1120px;margin-left:auto;margin-right:auto;padding:0 max(20px,calc((100vw - 1120px)/2))}
-.drawer.fullpage .twocol .panel{margin-left:0;margin-right:0}
+/* the hero must NOT be sticky in full-page mode (nav bar handles the sticky top);
+   otherwise it stays pinned and page content scrolls behind its transparent areas */
+.drawer.fullpage .panel.stickyhead{position:static;top:auto;box-shadow:none}
+.drawer.fullpage .prohero-wrap{border:0;background:transparent;padding:0;margin-top:16px;box-shadow:none}
+/* percentile + statistical profile sit side by side and fill the full width evenly */
+.drawer.fullpage .twocol{max-width:1120px;margin:16px auto 0;padding:0 max(20px,calc((100vw - 1120px)/2));
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+.drawer.fullpage .twocol>.panel{margin:0;height:100%}
+@media(max-width:900px){.drawer.fullpage .twocol{grid-template-columns:1fr}}
+/* consistent, equal-width stat cards on the wide full-page layout (no ragged auto-fill orphans) */
+.drawer.fullpage .statgrid{grid-template-columns:repeat(7,1fr)}
+@media(max-width:1000px){.drawer.fullpage .statgrid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:640px){.drawer.fullpage .statgrid{grid-template-columns:repeat(2,1fr)}}
 
 /* ===== Green hero (reference-style) ===== */
 .prohero{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-deep) 62%,#8f5528 100%);border-radius:18px;padding:26px 30px;color:#fff;
@@ -1565,9 +1575,12 @@ function drawerJump(id){
   if(!el)return;
   if(dr&&dr.classList.contains("on")&&scr){
     const navH=parseInt(getComputedStyle(dr).getPropertyValue("--drnav"))||52;
+    // In full-page mode only the profnav is sticky (the hero scrolls away), so offset
+    // by the nav height alone. In the old drawer mode the hero was sticky too.
+    const fullpage=dr.classList.contains("fullpage");
     const head=dr.querySelector(".panel.stickyhead");
-    const headH=head?head.getBoundingClientRect().height:0;
-    const top=el.getBoundingClientRect().top-scr.getBoundingClientRect().top+scr.scrollTop-navH-headH-8;
+    const headH=(!fullpage&&head)?head.getBoundingClientRect().height:0;
+    const top=el.getBoundingClientRect().top-scr.getBoundingClientRect().top+scr.scrollTop-navH-headH-12;
     scr.scrollTo({top:Math.max(0,top),behavior:"smooth"});
   } else { el.scrollIntoView({behavior:"smooth",block:"start"}); }
 }
@@ -1791,6 +1804,13 @@ function realgmSearchURL(p){
   const q=encodeURIComponent(p.name);
   return `https://basketball.realgm.com/search?q=${q}`;
 }
+/* Eurobasket.com: their player search is a POST form with no stable per-name GET,
+   so if the user saved an exact profile URL (_ext) we use it; otherwise we open
+   the Eurobasket players/search landing page for a manual lookup. */
+function eurobasketURL(p){
+  if(p&&p._ext&&/eurobasket\.com/i.test(p._ext))return p._ext;
+  return "https://www.eurobasket.com/basketball-search.aspx";
+}
 /* Agent / Agency: manual field. OVR.bio[id].agent = agent name, .agency = agency,
    .agentUrl = RealGM agent-client-list URL. AGENCY_LIST is a user-editable roster. */
 function agencyList(){
@@ -1879,7 +1899,8 @@ function renderProfile(){
         <button class="btn ghost sm" onclick="STATE.compare.a='${p.id}';STATE.view='compare';closeDrawer();$$('#tabs button').forEach(x=>x.classList.remove('active'));$$('#tabs button')[4].classList.add('active');render()">Compare ▸</button>
         <button class="btn ghost sm" onclick="openEditModal('${p.id}')">✎ Edit bio</button>
         <a class="btn ghost sm" href="${realgmSearchURL(p)}" target="_blank" rel="noopener" title="Search this player on RealGM">↗ RealGM</a>
-        ${p._ext?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Eurobasket</a>`:''}
+        <a class="btn ghost sm" href="${eurobasketURL(p)}" target="_blank" rel="noopener" title="Look up this player on Eurobasket.com">↗ Eurobasket</a>
+        ${p._ext?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Saved profile</a>`:''}
       </div>
     </div>
 
