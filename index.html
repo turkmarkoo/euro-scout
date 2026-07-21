@@ -167,7 +167,9 @@ textarea:focus{border-color:var(--accent2)}
 
 /* compare */
 .cmpsel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-@media(max-width:700px){.cmpsel{grid-template-columns:1fr}}
+.cmpsel4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.cmpsel4{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.cmpsel,.cmpsel4{grid-template-columns:1fr}}
 .cmptable td.p1{color:var(--sage)}
 .cmptable td.p2{color:var(--accent)}
 
@@ -332,7 +334,10 @@ textarea.notesec{min-height:94px}
 .cmptbl td.win{color:var(--accent-deep);font-weight:700;background:var(--accent-soft)}
 .cmptbl tr.cmpdiv td{padding:0;border-bottom:2px solid var(--line)}
 .cmpshots{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:640px){.cmpshots{grid-template-columns:1fr}}
+.cmpshots.cmpshots3{grid-template-columns:repeat(3,1fr)}
+.cmpshots.cmpshots4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.cmpshots.cmpshots3,.cmpshots.cmpshots4{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.cmpshots,.cmpshots.cmpshots3,.cmpshots.cmpshots4{grid-template-columns:1fr}}
 .cmpshot{border-top:3px solid var(--cc);border-radius:10px;padding-top:8px}
 .cmpshot-nm{text-align:center;font-size:13px;font-weight:600;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--disp)}
 .cmpshot-nm .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -428,6 +433,8 @@ textarea.notesec{min-height:94px}
 .glosstab{display:inline-flex;align-items:center;gap:6px}
 .glosslab{font-size:13px}
 .cbxsel{margin-top:7px;width:100%}
+.cbxclear{position:absolute;top:8px;right:8px;width:22px;height:22px;border:0;border-radius:6px;background:var(--chip);color:var(--muted);font-size:14px;line-height:1;cursor:pointer;z-index:2}
+.cbxclear:hover{background:color-mix(in srgb,var(--bad) 15%,var(--chip));color:var(--bad)}
 @media(max-width:1180px){
   .logotext{display:none}
   .glosslab{display:none}
@@ -599,6 +606,12 @@ body.drawer-lock{overflow:hidden}
 .eyeval .sg{color:var(--teal)}
 .eyehint{font-size:11px;color:var(--muted);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
 .eyehint span{display:flex;align-items:center;gap:5px}
+/* Skill radar panel: compact radar left, sliders vertically centered right — no dead space */
+.skillwrap{display:grid;grid-template-columns:minmax(280px,1fr) 1.2fr;gap:26px;align-items:center;margin-top:8px}
+.skillradar{align-self:center}
+.skillradar .scoutradar{display:block;width:100%;max-width:360px;margin:0 auto;height:auto}
+.skillrate{align-self:center}
+@media(max-width:760px){.skillwrap{grid-template-columns:1fr;gap:12px}.skillradar .scoutradar{max-width:320px}}
 
 /* Exhibitions / Summer League */
 .exhibhero{padding:4px 2px 14px}
@@ -807,6 +820,48 @@ body.drawer-lock{overflow:hidden}
 .rcStars.off,.rcStars .off{color:var(--line)}
 .rrGrade{font-family:var(--disp);font-weight:800;font-size:15px}
 
+/* ===== Data freshness ===== */
+.freshgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:640px){.freshgrid{grid-template-columns:1fr}}
+.freshrow{display:flex;align-items:center;gap:9px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+.freshdot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.freshdot.ok{background:var(--good)}
+.freshdot.old{background:var(--mid)}
+.freshlg{font-weight:700;font-size:13px;flex:1}
+.freshval{font-size:12px;color:var(--muted)}
+.freshdate{font-family:var(--mono);font-size:11px;color:var(--muted2);width:82px;text-align:right}
+
+/* ===== Watchlist big board ===== */
+.watchView .scouthead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.wsorts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.wsorts .sortlab{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
+.wsort{background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:12.5px;cursor:pointer;color:var(--txt)}
+.wsort.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-deep);font-weight:600}
+.wboard{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.wrow{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:10px 13px;cursor:pointer;transition:.12s}
+.wrow:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.wPhoto{flex:0 0 46px;width:46px;height:46px;border-radius:10px;overflow:hidden;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--accent-deep)}
+.wPhoto img{width:100%;height:100%;object-fit:cover}
+.wMain{flex:1;min-width:0}
+.wName{font-family:var(--disp);font-weight:700;font-size:15px;line-height:1.15}
+.wMeta{font-size:12px;color:var(--muted);margin-top:1px}
+.wtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.wtag{font-size:10.5px;background:var(--chip);border-radius:99px;padding:2px 9px;color:var(--txt)}
+.wLevel{flex:0 0 auto}
+.wBand{font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.wBand.b0{background:color-mix(in srgb,var(--bad) 15%,var(--panel2));color:var(--bad)}
+.wBand.b1{background:color-mix(in srgb,var(--mid) 16%,var(--panel2));color:var(--accent-deep)}
+.wBand.b2{background:color-mix(in srgb,var(--gold) 18%,var(--panel2));color:var(--accent-deep)}
+.wBand.b3{background:color-mix(in srgb,var(--sage) 18%,var(--panel2));color:#0f322d}
+.wBand.b4{background:color-mix(in srgb,var(--good) 20%,var(--panel2));color:#1f5220}
+.wRate{flex:0 0 auto}
+.wStars{color:var(--gold);font-size:13px;letter-spacing:1px}
+.wStars.off,.wStars .off{color:var(--line)}
+.wGrade{flex:0 0 40px;text-align:right;font-family:var(--disp);font-weight:800;font-size:18px}
+.wRemove{flex:0 0 auto;width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--gold);font-size:17px;cursor:pointer}
+.wRemove:hover{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
+@media(max-width:640px){.wLevel,.wtags{display:none}}
+
 </style>
 </head>
 <body>
@@ -818,6 +873,7 @@ body.drawer-lock{overflow:hidden}
       <button data-view="players">Stats</button>
       <button data-view="teams">Teams</button>
       <button data-view="scouting">Scouting</button>
+      <button data-view="watchlist">Watchlist</button>
       <button data-view="exhib">Exhibitions</button>
       <button data-view="compare" class="t-secondary">Compare</button>
       <button data-view="glossary" class="glosstab" title="Glossary" aria-label="Glossary">📖<span class="glosslab">Glossary</span></button>
@@ -832,10 +888,6 @@ body.drawer-lock{overflow:hidden}
       <button data-scope="all">vs&nbsp;All</button>
     </div>
     <button class="authbtn" id="authBtn">Sign in</button>
-  </div>
-  <div class="hwrap hrow2">
-    <span class="spacer"></span>
-    <select class="leaguesel" id="leagueSel"></select>
   </div>
 </header>
 <main id="app"><div class="empty">Loading data…</div></main>
@@ -859,7 +911,7 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 
 const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
-  compare:{a:null,b:null}, scouting:{a:null,b:null}, profileScope:"league", statMode:"pg",
+  compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
@@ -1247,16 +1299,15 @@ async function boot(){
   muInit();
   await Store.load();
   mergeGroupRecords();
-  const sel=$("#leagueSel"); sel.innerHTML="";
-  const allOpt=document.createElement("option");allOpt.value="__all__";allOpt.textContent="All leagues";sel.appendChild(allOpt);
-  raw.leagues.forEach(l=>{const o=document.createElement("option");o.value=l.meta.id;
-    o.textContent=`${l.meta.name} ${l.meta.season}`;sel.appendChild(o);});
-  ["Liga ACB (Spain)","Lega A (Italy)"].forEach(n=>{
-    const o=document.createElement("option");o.disabled=true;o.textContent=n+" — add via scraper";
-    sel.appendChild(o);});
-  sel.onchange=e=>{ if(e.target.value==="__all__"){STATE.allLeagues=true;}
-    else {STATE.allLeagues=false;STATE.league=raw.leagues.find(l=>l.meta.id===e.target.value)||raw.leagues[0];}
-    updateScopeLabel(); render(); };
+  const sel=$("#leagueSel");
+  if(sel){ sel.innerHTML="";
+    const allOpt=document.createElement("option");allOpt.value="__all__";allOpt.textContent="All leagues";sel.appendChild(allOpt);
+    raw.leagues.forEach(l=>{const o=document.createElement("option");o.value=l.meta.id;
+      o.textContent=`${l.meta.name} ${l.meta.season}`;sel.appendChild(o);});
+    sel.onchange=e=>{ if(e.target.value==="__all__"){STATE.allLeagues=true;}
+      else {STATE.allLeagues=false;STATE.league=raw.leagues.find(l=>l.meta.id===e.target.value)||raw.leagues[0];}
+      updateScopeLabel(); render(); };
+  }
   STATE.league = raw.leagues[0];
   $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;
     $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
@@ -1289,6 +1340,93 @@ function fallbackCopy(text,cb){
     document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);cb&&cb();}
   catch(e){try{prompt("Copy this link:",text);}catch(_){}}
 }
+/* ---------- Printable one-page player report (Save as PDF / print / screenshot) ---------- */
+function exportPlayerReport(id){
+  const p=player(id); if(!p)return;
+  const L=leagueOf(p), rec=recOf(p), rep=parseReport(rec.report);
+  const t=L.teams.find(x=>x.code===p.team);
+  const grade=statGradeOverall(p), band=levelBand(p);
+  const radar=scoutRadarSVG(p);
+  const eg=eyeGrades(p);
+  const eyeRows=SCOUT_AXES.map(a=>{const s=statGrade(p,a.k),e=(eg[a.k]!=null?eg[a.k]:null);
+    return `<tr><td>${a.t}</td><td class="n">${e!=null?e.toFixed(1):"–"}</td><td class="n s">${s!=null?s.toFixed(1):"–"}</td></tr>`;}).join("");
+  const KEY=[["PTS","ppg"],["REB","rpg"],["AST","apg"],["STL","spg"],["BLK","bpg"],["MIN","mpg"],["TS%","ts"],["3P%","f3p"],["PIR","pir"]];
+  const keyStats=KEY.map(([lab,k])=>{const v=p[k];return `<div class="ks"><div class="kv">${v!=null&&!isNaN(v)?(k.endsWith("p")||k==="ts"?fmt(v)+"%":fmt(v)):"—"}</div><div class="kk">${lab}</div></div>`;}).join("");
+  const noteBlock=(lab,val)=>val?`<div class="nb"><div class="nbh">${lab}</div><div class="nbt">${esc(val).replace(/\n/g,"<br>")}</div></div>`:"";
+  const notesHtml=[["Athleticism",rep.nAth],["Offense",rep.nOff],["Defense",rep.nDef],["Intel",rep.nIntel],["Projection / verdict",rep.nProj||rep.overall]].map(([l,v])=>noteBlock(l,v)).join("")||'<div class="hint">No written report yet.</div>';
+  const stars=rec.rating?("★".repeat(rec.rating)+"☆".repeat(5-rec.rating)):"☆☆☆☆☆";
+  const tags=(rec.tags||[]).filter(x=>x!==WATCH_TAG);
+  const css=document.querySelector("style").textContent;
+  const win=window.open("","_blank");
+  if(!win){toast("Allow pop-ups to export the report");return;}
+  const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(p.name)} — Scouting report</title>
+  <style>${css}
+  @page{size:A4;margin:14mm}
+  body{background:#fff;color:var(--txt);font-family:var(--body);margin:0;padding:22px;max-width:960px}
+  .rpt-hd{display:flex;gap:18px;align-items:center;border-bottom:2px solid var(--accent);padding-bottom:14px;margin-bottom:16px}
+  .rpt-ph{width:78px;height:78px;border-radius:12px;overflow:hidden;background:var(--accent-soft);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--accent-deep)}
+  .rpt-ph img{width:100%;height:100%;object-fit:cover}
+  .rpt-id h1{font-family:var(--disp);font-size:26px;margin:0 0 4px}
+  .rpt-id .meta{color:var(--muted);font-size:13px}
+  .rpt-id .pills{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+  .rpt-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent-deep)}
+  .rpt-scores{margin-left:auto;text-align:right}
+  .rpt-scores .g{font-family:var(--disp);font-size:34px;font-weight:800;line-height:1}
+  .rpt-scores .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .rpt-scores .stars{color:var(--gold);font-size:16px;letter-spacing:2px;margin-top:4px}
+  .rpt-scores .band{font-size:12px;font-weight:700;margin-top:2px}
+  .rpt-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
+  .rpt-radar svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
+  table.eyetbl{width:100%;border-collapse:collapse;font-size:13px}
+  table.eyetbl td{padding:4px 6px;border-bottom:1px solid var(--line-soft)}
+  table.eyetbl td.n{text-align:right;font-family:var(--mono);font-weight:700;color:var(--gold);width:46px}
+  table.eyetbl td.n.s{color:var(--teal);font-weight:600}
+  table.eyetbl thead td{color:var(--muted);font-weight:700;border-bottom:1px solid var(--line)}
+  .rpt-keys{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin:6px 0 16px}
+  .ks{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 4px;text-align:center}
+  .ks .kv{font-weight:800;font-size:15px}.ks .kk{font-size:10px;color:var(--muted)}
+  .rpt-notes{margin-top:8px}
+  .nb{margin-bottom:12px;break-inside:avoid}
+  .nbh{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);border-bottom:1px solid var(--line-soft);padding-bottom:3px;margin-bottom:5px}
+  .nbt{font-size:13px;line-height:1.5}
+  .rpt-tags{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px}
+  .rpt-tag{font-size:11px;background:var(--chip);border-radius:99px;padding:3px 10px;color:var(--txt)}
+  .rpt-ft{margin-top:20px;border-top:1px solid var(--line);padding-top:8px;font-size:11px;color:var(--muted2);display:flex;justify-content:space-between}
+  .rpt-bar{display:flex;gap:10px;justify-content:center;margin:10px 0 18px}
+  .rpt-bar button{padding:8px 18px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:13px}
+  .rpt-bar button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  @media print{.rpt-bar{display:none}}
+  </style></head><body>
+  <div class="rpt-bar">
+    <button class="primary" onclick="window.print()">🖨 Print / Save as PDF</button>
+    <button onclick="window.close()">Close</button>
+  </div>
+  <div class="rpt-hd">
+    <div class="rpt-ph">${p.img?`<img src="${p.img}" onerror="this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
+    <div class="rpt-id">
+      <h1>${esc(p.name)}</h1>
+      <div class="meta">${esc((t?t.name:p.teamName)||"")} · ${esc(L.meta.name)} ${esc(L.meta.season||"")}${p.age?" · "+p.age+" y/o":""}${p.height?" · "+p.height+" cm":""}${p.country?" · "+esc(p.country):""}</div>
+      <div class="pills"><span class="rpt-pill">${(p.pos&&p.pos!=="-")?p.pos:(p.role||"—")}</span>${p.agency?`<span class="rpt-pill">${esc(p.agency)}</span>`:""}${p.hand?`<span class="rpt-pill">${esc(p.hand)}-handed</span>`:""}</div>
+    </div>
+    <div class="rpt-scores">
+      <div class="lbl">Stat grade</div><div class="g">${grade!=null?grade.toFixed(1):"—"}</div>
+      <div class="stars">${stars}</div>
+      ${band?`<div class="band">${band.label}${band.manual?" (set)":""}</div>`:""}
+    </div>
+  </div>
+  <div class="rpt-cols">
+    <div class="rpt-radar">${radar}<div class="hint" style="text-align:center;margin-top:4px">Gold = your eye · Teal dashed = stats</div></div>
+    <div>
+      <table class="eyetbl"><thead><tr><td>Skill</td><td class="n">Eye</td><td class="n s">Stat</td></tr></thead><tbody>${eyeRows}</tbody></table>
+    </div>
+  </div>
+  <div class="rpt-keys">${keyStats}</div>
+  ${tags.length?`<div class="rpt-tags">${tags.map(x=>`<span class="rpt-tag">${esc(x)}</span>`).join("")}</div>`:""}
+  <div class="rpt-notes"><h3 style="font-size:14px;margin:0 0 8px">Scouting report</h3>${notesHtml}</div>
+  <div class="rpt-ft"><span>EuroScout · ${esc(p.name)}</span><span>Generated ${new Date().toLocaleDateString()}</span></div>
+  </body></html>`;
+  win.document.open();win.document.write(doc);win.document.close();
+}
 // Parse #p=<id> and open that player. Ids like "aba-5150" contain a dash but no "=",
 // so we only split on the first "=". Falls back silently if the id isn't found.
 function parsePlayerHash(h){
@@ -1314,6 +1452,16 @@ function goHome(){
 
 /* ---------------------------- global search (all leagues) ---------------------------- */
 function lastGameDate(p){let m="";(p.gameLog||[]).forEach(r=>{if(r[0]&&r[0]>m)m=r[0];});return m;}
+/* Data freshness: newest game date per league + overall build date. */
+function leagueLastGame(L){let m="";(L.players||[]).forEach(p=>{const d=lastGameDate(p);if(d>m)m=d;});return m;}
+function dataBuildDate(){return STATE.data&&STATE.data.generated||"";}
+function daysAgo(iso){if(!iso)return null;const d=new Date(iso+"T00:00:00");if(isNaN(d))return null;
+  return Math.round((Date.now()-d.getTime())/86400000);}
+function freshLabel(iso){const n=daysAgo(iso);if(n==null)return "—";
+  if(n<=0)return "today";if(n===1)return "yesterday";if(n<30)return n+" days ago";
+  const mo=Math.round(n/30);return mo<=1?"~1 month ago":"~"+mo+" months ago";}
+function freshnessRows(){return STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>{
+  const last=leagueLastGame(L);return {id:L.meta.id,name:L.meta.name,last,label:freshLabel(last)};});}
 function newestOf(p){if(!p._grp||p._grp.length<2)return p;
   return p._grp.slice().sort((a,b)=>lastGameDate(b).localeCompare(lastGameDate(a)))[0];}
 function allPlayersIndexed(){
@@ -1393,7 +1541,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   if(v==="scout")     renderScout();
   else if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
-  else if(v==="watchlist") renderScout();
+  else if(v==="watchlist") renderWatchlist();
   else if(v==="exhib") renderExhib();
   else if(v==="scouting") renderScouting();
   else if(v==="teams") renderTeams();
@@ -1573,7 +1721,7 @@ function radarSVG(players,colors){const LBL=arguments[2]!==false;
 function scoutRadarSVG(p,opt){
   opt=opt||{};
   const mini=!!opt.mini;
-  const W=mini?150:340, H=mini?150:320, cx=W/2, cy=H/2+(mini?0:6), R=mini?52:118, N=SCOUT_AXES.length;
+  const W=mini?150:380, H=mini?150:300, cx=W/2, cy=H/2+(mini?0:4), R=mini?52:104, N=SCOUT_AXES.length;
   const ang=i=>(-Math.PI/2)+i*2*Math.PI/N;
   const pt=(i,r)=>[+(cx+Math.cos(ang(i))*r).toFixed(1), +(cy+Math.sin(ang(i))*r).toFixed(1)];
   const GOLD="#C99A3C", TEAL="#7FB3AB";
@@ -1596,11 +1744,14 @@ function scoutRadarSVG(p,opt){
     g+=`<polygon points="${epts.map(a=>a.join(",")).join(" ")}" fill="${GOLD}2E" stroke="${GOLD}" stroke-width="${mini?1.8:2.4}" stroke-linejoin="round"/>`;
     if(!mini)epts.forEach(a=>g+=`<circle cx="${a[0]}" cy="${a[1]}" r="3" fill="${GOLD}" stroke="var(--panel)" stroke-width="1.2"/>`);
   }
-  // labels (full only)
-  if(!mini)SCOUT_AXES.forEach((d,i)=>{const a=ang(i);const[lx,ly]=pt(i,R+16);
-    const c=Math.cos(a);const anchor=c>0.35?"start":(c<-0.35?"end":"middle");
-    const dy=Math.sin(a)>0.6?11:(Math.sin(a)<-0.6?-5:4);
-    g+=`<text x="${lx}" y="${ly+dy}" fill="var(--muted)" font-size="10.5" font-family="var(--mono)" text-anchor="${anchor}">${d.t}</text>`;});
+  // labels (full only) — placed just outside the ring; horizontal labels use a smaller
+  // radial offset so long names (Ball Handling / Rim Protection) never clip the canvas.
+  if(!mini)SCOUT_AXES.forEach((d,i)=>{const a=ang(i);const c=Math.cos(a),s=Math.sin(a);
+    const off=Math.abs(c)>0.35?10:16;           // side labels sit closer in
+    const[lx,ly]=pt(i,R+off);
+    const anchor=c>0.35?"start":(c<-0.35?"end":"middle");
+    const dy=s>0.6?11:(s<-0.6?-5:4);
+    g+=`<text x="${lx}" y="${ly+dy}" fill="var(--muted)" font-size="10" font-family="var(--mono)" text-anchor="${anchor}">${d.t}</text>`;});
   return `<svg class="scoutradar${mini?' mini':''}" viewBox="0 0 ${W} ${H}">${g}</svg>`;
 }
 
@@ -2090,6 +2241,7 @@ function renderProfile(){
             <div class="ph-actions">
               <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
               <button class="btn ghost sm" onclick="copyPlayerLink('${p.id}',this)" title="Copy a shareable link to this player">🔗 Copy link</button>
+              <button class="btn ghost sm" onclick="exportPlayerReport('${p.id}')" title="Open a printable one-page report (Save as PDF or print)">🖨 Report</button>
               <a class="btn ghost sm" href="${realgmSearchURL(p)}" target="_blank" rel="noopener" title="Search this player on RealGM">↗ RealGM</a>
               <a class="btn ghost sm" href="${eurobasketURL(p)}" target="_blank" rel="noopener" title="Find this player on Eurobasket.com">↗ Eurobasket</a>
               ${(p._ext&&!/eurobasket\.com/i.test(p._ext))?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Profile link</a>`:''}
@@ -2150,16 +2302,16 @@ function renderProfile(){
     </div>
     <div class="panel" id="scoutPanel" style="margin-top:16px">
       <h3>Skill radar <span class="hint" style="font-weight:400;font-size:12px">your eye vs the stats</span></h3>
-      <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin-top:6px">
-        <div style="flex:1.05;min-width:288px">
+      <div class="skillwrap">
+        <div class="skillradar">
           <div id="scoutRadarHost">${scoutRadarSVG(p)}</div>
           <div class="eyehint">
             <span><span style="width:14px;height:3px;background:var(--gold);display:inline-block"></span>Your eye</span>
             <span><span style="width:14px;height:0;border-top:2px dashed var(--teal);display:inline-block"></span>Stats</span>
           </div>
         </div>
-        <div style="flex:1;min-width:250px">
-          <div class="nlab" style="margin-bottom:8px">Rate the categories</div>
+        <div class="skillrate">
+          <div class="nlab" style="margin-bottom:10px">Rate the categories</div>
           <div class="eyegrid" id="eyeGrid">
             ${SCOUT_AXES.map(a=>{const sg=statGrade(p,a.k);const eg=eyeGrade(p,a.k);
               const sgPct=sg!=null?sg*10:0;const cur=eg!=null?eg:(sg!=null?sg:5);
@@ -2345,7 +2497,7 @@ function renderScouting(){
         <h1 class="title" style="margin:0">Scouting matchup</h1>
         <div class="sub" style="margin-top:2px">Pick the two teams playing — rosters line up side by side, sorted by jersey number. Tap a player for the full profile.</div>
       </div>
-      ${(s.a||s.b)?`<button class="btn ghost sm" id="scoutSwap" title="Swap sides">⇄ Swap</button>`:""}
+      ${(s.a||s.b)?`<div style="display:flex;gap:8px"><button class="btn ghost sm" id="scoutPrint" title="Printable game-prep sheet">🖨 Print sheet</button><button class="btn ghost sm" id="scoutSwap" title="Swap sides">⇄ Swap</button></div>`:""}
     </div>
     <div class="rosterWrap">
       ${rosterColumnHTML(s.a,"a")}
@@ -2354,7 +2506,53 @@ function renderScouting(){
   </div>`;
   $$(".scoutTeamSel").forEach(sel=>sel.onchange=()=>{STATE.scouting[sel.dataset.slot]=sel.value;renderScouting();});
   const sw=$("#scoutSwap");if(sw)sw.onclick=()=>{const t=STATE.scouting.a;STATE.scouting.a=STATE.scouting.b;STATE.scouting.b=t;renderScouting();};
+  const pr=$("#scoutPrint");if(pr)pr.onclick=()=>printScoutingMatchup(STATE.scouting.a,STATE.scouting.b);
   $$(".rosterRow").forEach(r=>r.onclick=()=>openProfile(r.dataset.id));
+}
+function printScoutingMatchup(va,vb){
+  const ra=teamRoster(va), rb=teamRoster(vb);
+  if(!ra&&!rb){toast("Pick at least one team first");return;}
+  const col=(r)=>{
+    if(!r)return `<div class="pcol"><div class="pteam">—</div></div>`;
+    const rows=r.players.map(p=>{const rec=recOf(p),og=statGradeOverall(p);
+      const jersey=(p.jersey!=null&&p.jersey!=="")?p.jersey:"–";
+      const stars=rec.rating?"★".repeat(rec.rating):"";
+      return `<tr><td class="j">${jersey}</td><td class="nm">${esc(p.name)}${stars?` <span class="st">${stars}</span>`:""}<div class="sub2">${(p.pos&&p.pos!=="-")?p.pos:(p.role||"")}${p.height?" · "+p.height+"cm":""}${p.age?" · "+p.age+"y":""}</div></td><td class="g">${og!=null?og.toFixed(1):"—"}</td><td class="note"></td></tr>`;}).join("");
+    return `<div class="pcol"><div class="pteam">${esc(r.t.name)} <span class="plg">${esc(r.L.meta.name)}</span></div>
+      <table class="ptbl"><thead><tr><td>#</td><td>Player</td><td>Gr</td><td>Notes</td></tr></thead><tbody>${rows}</tbody></table></div>`;
+  };
+  const css=document.querySelector("style").textContent;
+  const win=window.open("","_blank"); if(!win){toast("Allow pop-ups to print");return;}
+  const title=`${ra?ra.t.name:"?"} vs ${rb?rb.t.name:"?"}`;
+  win.document.open();
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — game prep</title>
+  <style>${css}
+  @page{size:A4 landscape;margin:12mm}
+  body{background:#fff;font-family:var(--body);color:var(--txt);margin:0;padding:20px}
+  .phd{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--accent);padding-bottom:10px;margin-bottom:14px}
+  .phd h1{font-family:var(--disp);font-size:22px;margin:0}
+  .phd .d{font-size:12px;color:var(--muted)}
+  .pcols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .pteam{font-family:var(--disp);font-size:16px;font-weight:800;margin-bottom:6px}
+  .pteam .plg{font-family:var(--body);font-size:11px;font-weight:600;color:var(--muted);margin-left:6px}
+  table.ptbl{width:100%;border-collapse:collapse;font-size:12px}
+  table.ptbl td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.ptbl thead td{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);border-bottom:1px solid var(--line)}
+  table.ptbl td.j{font-family:var(--disp);font-weight:800;color:var(--accent-deep);width:26px}
+  table.ptbl td.g{font-family:var(--disp);font-weight:800;width:34px;text-align:right}
+  table.ptbl td.note{width:34%;border-left:1px dashed var(--line)}
+  table.ptbl .nm{font-weight:700}.ptbl .st{color:var(--gold);font-size:10px}
+  table.ptbl .sub2{font-size:10px;color:var(--muted);font-weight:400}
+  .pbar{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+  .pbar button{padding:8px 18px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:13px}
+  .pbar button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  @media print{.pbar{display:none}}
+  </style></head><body>
+  <div class="pbar"><button class="primary" onclick="window.print()">🖨 Print / Save as PDF</button><button onclick="window.close()">Close</button></div>
+  <div class="phd"><h1>${esc(title)}</h1><div class="d">Game-prep sheet · generated ${new Date().toLocaleDateString()}</div></div>
+  <div class="pcols">${col(ra)}${col(rb)}</div>
+  </body></html>`);
+  win.document.close();
 }
 
 function renderCompare(){
@@ -2362,65 +2560,75 @@ function renderCompare(){
   allPlayersFlat().forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);
     const n=newestOf(p); if(n.qualified||p._grp&&p._grp.some(x=>x.qualified))groups.push(n);});
   groups.sort((a,b)=>a.name.localeCompare(b.name));
-  const sel=(id,cur)=>{
+  // migrate any legacy {a,b} state to the slots array
+  if(!STATE.compare.slots){STATE.compare.slots=[STATE.compare.a||null,STATE.compare.b||null,null,null];}
+  const slots=STATE.compare.slots;
+  const sel=(idx,cur)=>{
     const opts=STATE.data.leagues.map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("");
-    return `<div class="cbx" data-cbx="${id}">
-      <input type="text" class="cbxin" id="${id}in" placeholder="Type to search\u2026" autocomplete="off" value="${cur?player(cur).name:""}"/>
-      <select class="cbxsel f" id="${id}"><option value="">\u2014 or pick from list \u2014</option>${opts}</select>
+    return `<div class="cbx" data-cbx="cmp${idx}">
+      <input type="text" class="cbxin" id="cmp${idx}in" placeholder="Player ${idx+1}\u2026" autocomplete="off" value="${cur?player(cur).name:""}"/>
+      <select class="cbxsel f" id="cmp${idx}"><option value="">\u2014 or pick from list \u2014</option>${opts}</select>
+      ${cur?`<button class="cbxclear" data-clear="${idx}" title="Clear">\u00d7</button>`:""}
       <div class="cbxres hidden"></div></div>`;};
-  const a=STATE.compare.a?player(STATE.compare.a):null;
-  const b=STATE.compare.b?player(STATE.compare.b):null;
-  const cA="#D2925E", cB="#7FB3AB", ST="\u2605";
-  let body='<div class="empty">Pick two players to compare.</div>';
-  if(a&&b&&a!==b){
+  const COLORS=["#7FB3AB","#D2925E","#8E86C9","#C56B7E"], ST="\u2605";
+  const picked=slots.map(id=>id?player(id):null);
+  const active=picked.filter(Boolean);
+  const activeIdx=picked.map((p,i)=>p?i:-1).filter(i=>i>=0);
+  let body='<div class="empty">Pick two or more players to compare (up to four).</div>';
+  if(active.length>=2){
+    // stat rows: best value across the active players is highlighted
     const statRows=CMP_ROWS.map(([lab,k,hi])=>{
-      const va=a[k],vb=b[k];let wa="",wb="";
-      if(va!=null&&vb!=null&&!isNaN(va)&&!isNaN(vb)&&va!==vb){const aw=hi?va>vb:va<vb;if(aw)wa=" win";else wb=" win";}
-      return `<tr><td class="v${wa}">${wa?ST+" ":""}${statVal(a,k)}</td><td class="lbl">${lab}</td><td class="v${wb}">${statVal(b,k)}${wb?" "+ST:""}</td></tr>`;}).join("");
-    const bioRows=cmpBioRow(a.height?(a.height/100).toFixed(2)+" m":"","HEIGHT",b.height?(b.height/100).toFixed(2)+" m":"")
-      +cmpBioRow(a.born,"BORN",b.born)
-      +cmpBioRow(a.teamName,"CLUB",b.teamName)
-      +cmpBioRow((a.pos&&a.pos!=="-")?a.pos:a.role,"POS",(b.pos&&b.pos!=="-")?b.pos:b.role)
-      +cmpBioRow(a.country,"COUNTRY",b.country)
-      +cmpBioRow(leagueOf(a).meta.name,"LEAGUE",leagueOf(b).meta.name);
+      const vals=active.map(p=>{const v=p[k];return (v!=null&&!isNaN(v))?+v:null;});
+      const valid=vals.filter(v=>v!=null);
+      let best=null; if(valid.length){best=hi?Math.max(...valid):Math.min(...valid);}
+      const cells=active.map((p,i)=>{const v=vals[i];const win=(v!=null&&best!=null&&v===best&&valid.length>1);
+        return `<td class="v${win?" win":""}">${win?ST+" ":""}${statVal(p,k)}</td>`;}).join("");
+      return `<tr>${cells}<td class="lbl">${lab}</td></tr>`;}).join("");
+    const bioRow=(get,lab)=>`<tr class="bio">${active.map(p=>`<td class="v">${get(p)||"\u2013"}</td>`).join("")}<td class="lbl">${lab}</td></tr>`;
+    const bioRows=bioRow(p=>p.height?(p.height/100).toFixed(2)+" m":"","HEIGHT")
+      +bioRow(p=>p.born,"BORN")
+      +bioRow(p=>p.teamName,"CLUB")
+      +bioRow(p=>(p.pos&&p.pos!=="-")?p.pos:p.role,"POS")
+      +bioRow(p=>p.country,"COUNTRY")
+      +bioRow(p=>leagueOf(p).meta.name,"LEAGUE");
+    const heads=active.map((p,i)=>`<th class="nm" onclick="openProfile('${p.id}')" style="color:${COLORS[i]}">${p.name}</th>`).join("");
+    const legend=active.map((p,i)=>`<span><span class="dot" style="background:${COLORS[i]}"></span>${p.name}</span>`).join("");
+    const shots=active.map((p,i)=>`<div class="cmpshot" style="--cc:${COLORS[i]}">${shotChartSVG(p)}<div class="cmpshot-nm"><span class="sw" style="background:${COLORS[i]}"></span>${p.name}</div></div>`).join("");
     body=`
     <div class="twocol">
       <div class="panel"><h3>Percentile overlay (per-40)</h3>
-        ${radarSVG([a,b],[cB,cA])}
-        <div class="legend"><span><span class="dot" style="background:${cB}"></span>${a.name}</span><span><span class="dot" style="background:${cA}"></span>${b.name}</span></div>
+        ${radarSVG(active,COLORS)}
+        <div class="legend">${legend}</div>
       </div>
       <div class="panel"><h3>Head to head</h3>
-        <table class="cmptbl">
-          <thead><tr><th class="nm" onclick="openProfile('${a.id}')" style="color:${cB}">${a.name}</th><th class="k"></th><th class="nm" onclick="openProfile('${b.id}')" style="color:${cA}">${b.name}</th></tr></thead>
-          <tbody>${bioRows}<tr class="cmpdiv"><td colspan="3"></td></tr>${statRows}</tbody>
+        <table class="cmptbl cmp${active.length}">
+          <thead><tr>${heads}<th class="k"></th></tr></thead>
+          <tbody>${bioRows}<tr class="cmpdiv"><td colspan="${active.length+1}"></td></tr>${statRows}</tbody>
         </table>
-        <p class="hint" style="margin-top:8px">${ST} = better value \u00b7 stats within each player's own competition.</p>
+        <p class="hint" style="margin-top:8px">${ST} = best value among the compared players \u00b7 stats within each player's own competition.</p>
       </div>
     </div>
     <div class="panel" style="margin-top:16px"><h3>Shot chart by zones</h3>
-      <div class="cmpshots">
-        <div class="cmpshot" style="--cc:${cB}">${shotChartSVG(a)}<div class="cmpshot-nm"><span class="sw" style="background:${cB}"></span>${a.name}</div></div>
-        <div class="cmpshot" style="--cc:${cA}">${shotChartSVG(b)}<div class="cmpshot-nm"><span class="sw" style="background:${cA}"></span>${b.name}</div></div>
-      </div>
+      <div class="cmpshots cmpshots${active.length}">${shots}</div>
     </div>`;
   }
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Compare players</h1>
-    <div class="sub">Pick any two players from any competition \u00b7 bio, stats head-to-head and shot charts.</div>
-    <div class="cmpsel">${sel("cmpA",STATE.compare.a)}${sel("cmpB",STATE.compare.b)}</div>
+    <div class="sub">Pick two to four players from any competition \u00b7 bio, stats head-to-head, radar overlay and shot charts.</div>
+    <div class="cmpsel cmpsel4">${slots.map((cur,i)=>sel(i,cur)).join("")}</div>
     ${body}
   </div>`;
-  const wireCbx=(id,slot)=>{
-    const root=$(`[data-cbx="${id}"]`); if(!root)return;
-    const inp=root.querySelector(".cbxin"), sel=root.querySelector(".cbxsel"), box=root.querySelector(".cbxres");
+  const wireCbx=(idx)=>{
+    const root=$(`[data-cbx="cmp${idx}"]`); if(!root)return;
+    const inp=root.querySelector(".cbxin"), selEl=root.querySelector(".cbxsel"), box=root.querySelector(".cbxres");
     let results=[];
     const close=()=>{box.classList.add("hidden");box.innerHTML="";};
     const paint=()=>{box.innerHTML=results.map((p,i)=>{const Lp=leagueOf(p);
       return `<div class="gsitem" data-i="${i}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<img alt=""/>'}<div class="gi"><div class="gn">${p.name}</div><div class="gm">${p.teamName} \u00b7 ${fmt(p.ppg)} pts</div></div><span class="glg">${Lp.meta.name}</span></div>`;}).join("");
       box.classList.remove("hidden");
       box.querySelectorAll(".gsitem").forEach(el=>el.onmousedown=e=>{e.preventDefault();
-        const p=results[+el.dataset.i]; STATE.compare[slot]=p.id; renderCompare();});};
-    if(sel)sel.onchange=()=>{if(sel.value){STATE.compare[slot]=sel.value;renderCompare();}};
+        const p=results[+el.dataset.i]; STATE.compare.slots[idx]=p.id; renderCompare();});};
+    if(selEl)selEl.onchange=()=>{if(selEl.value){STATE.compare.slots[idx]=selEl.value;renderCompare();}};
     inp.oninput=()=>{const q=normName(inp.value.trim());
       if(q.length<2){close();return;}
       results=groups.filter(p=>normName(p.name).includes(q)).slice(0,8);
@@ -2428,10 +2636,11 @@ function renderCompare(){
       paint();};
     inp.onfocus=()=>{inp.select();};
     inp.onblur=()=>setTimeout(close,160);
-    inp.onkeydown=e=>{if(e.key==="Enter"&&results.length){STATE.compare[slot]=results[0].id;renderCompare();}
+    inp.onkeydown=e=>{if(e.key==="Enter"&&results.length){STATE.compare.slots[idx]=results[0].id;renderCompare();}
       else if(e.key==="Escape")close();};
   };
-  wireCbx("cmpA","a"); wireCbx("cmpB","b");
+  slots.forEach((_,i)=>wireCbx(i));
+  $$(".cbxclear").forEach(b=>b.onclick=()=>{STATE.compare.slots[+b.dataset.clear]=null;renderCompare();});
 }
 
 
@@ -2543,6 +2752,12 @@ function scoutPool(){
   return out;
 }
 function playerTags(p){const r=recOf(p);return (r&&r.tags)||[];}
+// Concatenated lower-cased note text (all report sections + tags) for searching.
+function noteText(p){const r=recOf(p);if(!r)return "";
+  let s="";const rep=r.report;
+  if(rep){if(typeof rep==="string"){s+=" "+rep;}else{["nAth","nOff","nDef","nIntel","nProj","overall"].forEach(k=>{if(rep[k])s+=" "+rep[k];});}}
+  if(r.tags&&r.tags.length)s+=" "+r.tags.join(" ");
+  return s.toLowerCase();}
 function isWatched(p){return playerTags(p).includes(WATCH_TAG);}
 function scoutStatusOf(p){
   const r=recOf(p);
@@ -2617,6 +2832,53 @@ function needsAttention(pool){
   return {watchUnscouted,hotForm,risers};
 }
 
+/* ---------- Watchlist big board ---------- */
+function renderWatchlist(){
+  const rateOf=p=>{const r=recOf(p);return (r&&r.rating)||0;};
+  let pool=scoutPool().filter(isWatched);
+  const sort=STATE.watchSort;
+  if(sort==="rating")     pool.sort((a,b)=>rateOf(b)-rateOf(a)||((statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)));
+  else if(sort==="grade") pool.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+  else if(sort==="level") pool.sort((a,b)=>{const bl=levelBand(b),al=levelBand(a);return (bl?bl.i:-1)-(al?al.i:-1)||((statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));});
+  else if(sort==="age")   pool.sort((a,b)=>(a.age||99)-(b.age||99));
+  else if(sort==="name")  pool.sort((a,b)=>a.name.localeCompare(b.name));
+  const sortBtn=(k,lab)=>`<button class="wsort ${sort===k?'on':''}" data-ws="${k}">${lab}</button>`;
+  const row=p=>{
+    const rec=recOf(p),og=statGradeOverall(p),band=levelBand(p),L=leagueOf(p);
+    const stars=rec.rating?`<span class="wStars">${"★".repeat(rec.rating)}<span class="off">${"★".repeat(5-rec.rating)}</span></span>`:`<span class="wStars off">☆☆☆☆☆</span>`;
+    const tags=(rec.tags||[]).filter(t=>t!==WATCH_TAG).slice(0,4).map(t=>`<span class="wtag">${t}</span>`).join("");
+    const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
+    const form=formArrowHTML(p);
+    return `<div class="wrow" data-id="${p.id}">
+      <div class="wPhoto${p.img?"":" noimg"}">${photo}</div>
+      <div class="wMain">
+        <div class="wName">${p.name} ${form}</div>
+        <div class="wMeta">${p.teamName} · ${L.meta.name}${p.age?" · "+p.age+"y":""}${(p.pos&&p.pos!=="-")?" · "+p.pos:(p.role?" · "+p.role:"")}</div>
+        ${tags?`<div class="wtags">${tags}</div>`:""}
+      </div>
+      <div class="wLevel">${band?`<span class="wBand b${band.i}">${band.label}</span>`:""}</div>
+      <div class="wRate">${stars}</div>
+      <div class="wGrade" title="Stat grade">${og!=null?og.toFixed(1):"—"}</div>
+      <button class="wRemove" data-rm="${p.id}" title="Remove from watchlist">★</button>
+    </div>`;
+  };
+  $("#app").innerHTML=`<div class="view watchView">
+    <div class="scouthead">
+      <div>
+        <h1 class="title" style="margin:0">Watchlist big board</h1>
+        <div class="sub" style="margin-top:2px">${pool.length} player${pool.length!==1?"s":""} flagged across all competitions · your working shortlist</div>
+      </div>
+      <div class="wsorts"><span class="sortlab">Sort</span>${sortBtn("rating","My rating")}${sortBtn("grade","Stat grade")}${sortBtn("level","Level")}${sortBtn("age","Youngest")}${sortBtn("name","Name")}</div>
+    </div>
+    ${pool.length?`<div class="wboard">${pool.map(row).join("")}</div>`:`<div class="empty" style="margin-top:20px">No players on your watchlist yet. Tap the ☆ star on any player card or profile to add them here.</div>`}
+  </div>`;
+  $$(".wsort").forEach(b=>b.onclick=()=>{STATE.watchSort=b.dataset.ws;renderWatchlist();});
+  $$(".wrow").forEach(r=>r.onclick=e=>{
+    if(e.target.closest("[data-rm]")){e.stopPropagation();const id=e.target.closest("[data-rm]").dataset.rm;
+      toggleTag(id,WATCH_TAG).then(renderWatchlist);return;}
+    openProfile(r.dataset.id);});
+}
+
 function renderScout(){
   const s=STATE.scout;
   KBD_SEL=-1;
@@ -2628,7 +2890,7 @@ function renderScout(){
   if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
   if(s.q){const q=s.q.toLowerCase(),qn=normName(s.q);
-    pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn));}
+    pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn)||noteText(p).includes(q));}
   // sort
   const rateOf=p=>{const r=recOf(p);return r&&r.rating||0;};
   if(s.sort==="grade")      pool.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
@@ -2686,7 +2948,7 @@ function renderScout(){
 
   $("#app").innerHTML=`<div class="scoutwrap">
     <aside class="scoutrail">
-      <div class="railsearch"><input type="text" id="scoutQ" placeholder="Filter by name…" value="${escAttr(s.q)}" autocomplete="off"/></div>
+      <div class="railsearch"><input type="text" id="scoutQ" placeholder="Search name or notes…" value="${escAttr(s.q)}" autocomplete="off"/></div>
 
       <div class="railsec"><div class="raillab">Status</div>
         <div class="pillrow">
@@ -3110,7 +3372,7 @@ function renderGlossary(){
     ["Getting around","EuroScout covers nine competitions for the 2025\u201326 season \u2014 the two European cups (EuroLeague, EuroCup) plus seven domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands) and SBL Herr (Sweden). The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
     ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all nine competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
     ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
-    ["Matchup (live scouting)","In the header\u2019s second row, pick the two teams playing each other. Two quick pills appear \u2014 tap either to jump straight to that team\u2019s roster, so you can bounce between the two benches in one click while watching a game."],
+    ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side \u2014 pick the two clubs playing and their full rosters appear sorted by jersey number, so you can bounce between the two benches during a live game. Tap any player for the full card, or \u21c4 Swap to flip sides."],
     ["Scouting notes & ratings","Every player card has a star rating, a watchlist toggle, tags, and a structured report (Athleticism, Offense, Defense, Intel, Projection). Everything auto-saves in your browser. Notes are stored <b>per person</b>, so a note written on a player\u2019s EuroLeague card shows on his ABA card too."],
     ["One player, many competitions","A player who appears in more than one competition (or changed clubs mid-season) is merged into a single identity. His card shows a <b>Competitions</b> switch and a combined game log with a separator per competition. Linking is automatic (by ID and by name+birth-year); anything missed can be fixed by hand."],
     ["Editing & overrides","The \u270e Edit button on a card lets you correct bio details (height, weight, country, position, birth year), add an external profile link, or manually link two entries as the same person. Your edits save locally and can be exported as a file to make them permanent for everyone."],
@@ -3163,6 +3425,11 @@ function renderGlossary(){
     ]],
   ];
   const guideHTML=guide.map(([t,d])=>`<div class="gcard"><h4>${t}</h4><p>${d}</p></div>`).join("");
+  const fr=freshnessRows();
+  const freshHTML=`<div class="panel" style="margin-top:14px"><h3>Data freshness</h3>
+    <div class="sub" style="margin-bottom:10px">Data last built <b>${freshLabel(dataBuildDate())}</b>${dataBuildDate()?` (${dataBuildDate()})`:""}. Each league below shows its most recent game in the dataset.</div>
+    <div class="freshgrid">${fr.map(r=>`<div class="freshrow"><span class="freshdot ${daysAgo(r.last)!=null&&daysAgo(r.last)<45?'ok':'old'}"></span><span class="freshlg">${r.name}</span><span class="freshval">${r.label}</span><span class="freshdate">${r.last||"—"}</span></div>`).join("")}</div>
+  </div>`;
   const groupsHTML=groups.map(([title,items])=>`
     <div class="panel" style="margin-top:14px">
       <h3>${title}</h3>
@@ -3172,6 +3439,7 @@ function renderGlossary(){
     <h1 class="title">Glossary &amp; guide</h1>
     <div class="sub">How EuroScout works, and what every number means.</div>
     <div class="panel"><h3>How it works</h3><div class="gguide">${guideHTML}</div></div>
+    ${freshHTML}
     ${groupsHTML}
     <p class="hint" style="margin:14px 2px 0">EuroScout is a scouting tool, not an official source \u2014 always sanity-check against live viewing. Stats reflect the 2025\u201326 season as last built.</p>
   </div>`;
