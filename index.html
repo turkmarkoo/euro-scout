@@ -777,6 +777,36 @@ body.drawer-lock{overflow:hidden}
 .ctmTag.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .scoutcard.kbdsel{outline:2px solid var(--accent);outline-offset:2px;box-shadow:var(--shadow-lift)}
 
+/* ===== Scouting matchup ===== */
+.scoutingView{padding-bottom:40px}
+.rosterWrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+@media(max-width:820px){.rosterWrap{grid-template-columns:1fr}}
+.rosterCol{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.rosterHead{margin-bottom:10px}
+.scoutTeamSel{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  padding:9px 11px;font-size:14px;font-family:var(--body);color:var(--txt);cursor:pointer}
+.scoutTeamSel:focus{border-color:var(--accent);outline:none}
+.rosterTeam{font-family:var(--disp);font-size:18px;font-weight:800;letter-spacing:-.3px;margin-top:4px}
+.rosterTeam .rosterLg{font-family:var(--body);font-size:12px;font-weight:600;color:var(--muted);margin-left:8px}
+.rosterSub{font-size:12px;color:var(--muted);margin:2px 0 10px}
+.rosterList{display:flex;flex-direction:column;gap:6px}
+.rosterRow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--panel2);
+  border:1px solid var(--line);border-radius:10px;padding:8px 11px;cursor:pointer;transition:.12s}
+.rosterRow:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.rosterRow.watched{border-left:3px solid var(--gold)}
+.rrNum{flex:0 0 30px;text-align:center;font-family:var(--disp);font-weight:800;font-size:17px;color:var(--accent-deep)}
+.rrPhoto{flex:0 0 38px;width:38px;height:38px;border-radius:9px;overflow:hidden;background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent-deep)}
+.rrPhoto img{width:100%;height:100%;object-fit:cover}
+.rrMain{flex:1;min-width:0}
+.rrName{font-weight:700;font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrStar{color:var(--gold);font-size:11px}
+.rrMeta{font-size:11.5px;color:var(--muted)}
+.rrRight{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:0 0 auto}
+.rcStars{color:var(--gold);font-size:11px;letter-spacing:1px}
+.rcStars.off,.rcStars .off{color:var(--line)}
+.rrGrade{font-family:var(--disp);font-weight:800;font-size:15px}
+
 </style>
 </head>
 <body>
@@ -787,6 +817,7 @@ body.drawer-lock{overflow:hidden}
       <button data-view="scout" class="active">Players</button>
       <button data-view="players">Stats</button>
       <button data-view="teams">Teams</button>
+      <button data-view="scouting">Scouting</button>
       <button data-view="exhib">Exhibitions</button>
       <button data-view="compare" class="t-secondary">Compare</button>
       <button data-view="glossary" class="glosstab" title="Glossary" aria-label="Glossary">📖<span class="glosslab">Glossary</span></button>
@@ -803,13 +834,6 @@ body.drawer-lock{overflow:hidden}
     <button class="authbtn" id="authBtn">Sign in</button>
   </div>
   <div class="hwrap hrow2">
-    <div class="matchup" id="matchupBar" title="Live scouting: pick the two teams playing">
-      <span class="mulab">▸ MATCHUP</span>
-      <span class="mucbx"><input type="text" id="muA" placeholder="Team A" autocomplete="off"/><div class="cbxres hidden" id="muAres"></div></span>
-      <span class="muvs">vs</span>
-      <span class="mucbx"><input type="text" id="muB" placeholder="Team B" autocomplete="off"/><div class="cbxres hidden" id="muBres"></div></span>
-      <span class="mupills" id="muPills"></span>
-    </div>
     <span class="spacer"></span>
     <select class="leaguesel" id="leagueSel"></select>
   </div>
@@ -835,7 +859,7 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 
 const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
-  compare:{a:null,b:null}, profileScope:"league", statMode:"pg",
+  compare:{a:null,b:null}, scouting:{a:null,b:null}, profileScope:"league", statMode:"pg",
   scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
@@ -1111,6 +1135,10 @@ function openEditModal(id){
    +efld("Country","eCountry",p.country||"")+efld("Position (G/F/C)","ePos",(p.pos&&p.pos!=="-")?p.pos:"")
    +efld("Year of birth","eBorn",p.born||"")+efld("Eurobasket / external profile link","eExt",p._ext||"")
    +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
+   +'<div class="efld"><label>Agent</label><select id="eAgent"><option value="">— none —</option>'
+     +agentList().map(a=>'<option value="'+esc(a)+'"'+(a===(p.agent||"")?' selected':'')+'>'+esc(a)+'</option>').join("")
+     +'<option value="__new"'+((p.agent&&!agentList().includes(p.agent))?' selected':'')+'>+ add new agent…</option></select></div>'
+   +efld("New agent name","eAgentNew",(p.agent&&!agentList().includes(p.agent))?p.agent:"")
    +esel("Agency","eAgency",p.agency||"",agencyList())+efld("Add new agency","eAgencyNew","")
    +efld("RealGM agent-client URL","eAgentUrl",p.agentUrl||"")
    +'<div class="efld"><label>Projected level</label><select id="eProj">'
@@ -1130,6 +1158,17 @@ function openEditModal(id){
    +'<label class="btn ghost sm" style="cursor:pointer">Import\u2026<input type="file" id="ovrImport" accept=".js,.json" style="display:none"/></label>'
    +'<span class="hint">Saved in this browser \u00b7 export &amp; send me the file to bake it into the site</span></div>';
   showModal(html,true);
+  // agent → agency auto-fill
+  const agSel=$("#eAgent"), agcySel=$("#eAgency"), agNew=$("#eAgentNew");
+  if(agSel){agSel.onchange=()=>{
+    const v=agSel.value;
+    if(v==="__new"){if(agNew)agNew.focus();return;}
+    const agcy=agencyForAgent(v);
+    if(agcy&&agcySel){ // ensure the option exists, then select it
+      if(![...agcySel.options].some(o=>o.value===agcy)){const o=document.createElement("option");o.value=agcy;o.textContent=agcy;agcySel.appendChild(o);}
+      agcySel.value=agcy;
+    }
+  };}
   const ls=$("#linkSearch");
   if(ls) ls.oninput=()=>{const q=ls.value.trim().toLowerCase();const box=$("#linkResults");
     if(q.length<2){box.innerHTML="";return;}
@@ -1141,9 +1180,12 @@ function openEditModal(id){
   $("#editSave").onclick=()=>{const g=k=>{const el=$("#"+k);return el?el.value.trim():"";};
     const newAg=g("eAgencyNew"); if(newAg)addAgency(newAg);
     const agency=newAg||g("eAgency");
+    // agent: dropdown value, unless "+ add new" chosen → use the free-text name
+    let agent=g("eAgent"); if(agent==="__new")agent=g("eAgentNew"); else if(!agent&&g("eAgentNew"))agent=g("eAgentNew");
+    if(agent)addAgent(agent,agency); // remember this agent→agency for next time
     // key the bio to the person (group canonical id) so it applies across all their competitions
     const key=gid(p)||id;
-    ovrSaveLocal({bio:{[key]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm"),projLevel:g("eProj")}},ext:{[key]:g("eExt")}});
+    ovrSaveLocal({bio:{[key]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agent:agent,agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm"),projLevel:g("eProj")}},ext:{[key]:g("eExt")}});
     toast("Saved");hideModal();renderProfile();};
   const ex=$("#ovrExport"); if(ex)ex.onclick=ovrExportBlob;
   const im=$("#ovrImport"); if(im)im.onchange=e=>{if(e.target.files[0])ovrImportFile(e.target.files[0]);};
@@ -1353,6 +1395,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="compare") renderCompare();
   else if(v==="watchlist") renderScout();
   else if(v==="exhib") renderExhib();
+  else if(v==="scouting") renderScouting();
   else if(v==="teams") renderTeams();
   else if(v==="glossary") renderGlossary();
   else if(v==="team") renderTeam();
@@ -1986,10 +2029,24 @@ function addAgency(name){name=(name||"").trim();if(!name)return;
   let local=[];try{local=JSON.parse(localStorage.getItem("euroscout:agencies")||"[]");}catch(e){}
   if(!local.includes(name)){local.push(name);localStorage.setItem("euroscout:agencies",JSON.stringify(local));}
 }
+/* Agent roster + agent→agency map. Base map from overrides.js, plus any you add live. */
+function agentMap(){
+  const base=Object.assign({},window.EUROSCOUT_AGENTS||{});
+  let local={};try{local=JSON.parse(localStorage.getItem("euroscout:agents")||"{}");}catch(e){}
+  return Object.assign(base,local);
+}
+function agentList(){return Object.keys(agentMap()).sort((a,b)=>a.localeCompare(b));}
+function agencyForAgent(agent){const m=agentMap();return agent&&m[agent]?normAgency(m[agent]):"";}
+function addAgent(agent,agency){agent=(agent||"").trim();if(!agent)return;
+  let local={};try{local=JSON.parse(localStorage.getItem("euroscout:agents")||"{}");}catch(e){}
+  local[agent]=(agency||"").trim(); localStorage.setItem("euroscout:agents",JSON.stringify(local));
+}
 function agentCellHTML(p){
-  const agency=p.agency, url=p.agentUrl;
-  if(!agency)return '<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>';
-  return url?`<a href="${url}" target="_blank" rel="noopener" class="agentlink"><b>${agency}</b></a>`:`<b>${agency}</b>`;
+  const agent=p.agent, agency=p.agency, url=p.agentUrl;
+  if(!agent&&!agency)return '<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>';
+  const inner=agent&&agency?`${agent} <span class="bisub">${agency}</span>`:(agent||agency);
+  return url?`<a href="${url}" target="_blank" rel="noopener" class="agentlink">${agent?`<b>${agent}</b>`:""}${agent&&agency?` <span class="bisub">${agency}</span>`:(agency?`<b>${agency}</b>`:"")}</a>`
+    :`${agent?`<b>${agent}</b>`:""}${agent&&agency?` <span class="bisub">${agency}</span>`:(agency&&!agent?`<b>${agency}</b>`:"")}`;
 }
 function renderProfile(){
   const p=player(CURRENT);
@@ -2060,7 +2117,7 @@ function renderProfile(){
         ${bioCell("ruler","Height",p.height?`<b>${p.height} cm</b>`:null)}
         ${bioCell("pin","Nationality",p.country?`<b>${isoOf(p.country)||p.country}</b>${isoOf(p.country)?`<div class="bisub">${p.country}</div>`:""}`:null)}
         ${bioCell("hand","Dominant hand",p.hand?`<b>${p.hand}</b>`:'<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>')}
-        ${bioCell("badge","Agency",agentCellHTML(p))}
+        ${bioCell("badge","Agent / Agency",agentCellHTML(p))}
         ${bioCell("team","Team",`<b>${(t?t.name:p.teamName)||"—"}</b>`)}
         ${bioCell("globe","League",`<b>${L.meta.name}</b>`)}
         ${bioCell("weight","Weight",p.weight?`<b>${p.weight} kg</b>`:null)}
@@ -2226,6 +2283,80 @@ async function toggleWatch(id){const p=player(id)||{id};const on=playerTags(p).i
 /* ---------- Compare ---------- */
 const CMP_ROWS=[["PTS","ppg",1],["REB","rpg",1],["AST","apg",1],["STL","spg",1],["BLK","bpg",1],["TO","topg",0],["MIN","mpg",1],["FG%","fgp",1],["3P%","f3p",1],["FT%","ftp",1],["TS%","ts",1],["USG%","usg",1],["A/TO","astto",1],["PIR","pir",1]];
 function cmpBioRow(la,lab,lb){return `<tr><td class="v">${la||"\u2013"}</td><td class="lbl">${lab}</td><td class="v">${lb||"\u2013"}</td></tr>`;}
+/* ---------- Scouting: two-team matchup, rosters side by side by jersey ---------- */
+function scoutingTeamOptions(cur){
+  const opts=STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>
+    `<optgroup label="${L.meta.name}">`+
+    L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>{
+      const v=L.meta.id+"|"+t.code;
+      return `<option value="${v}" ${cur===v?"selected":""}>${t.name}</option>`;
+    }).join("")+`</optgroup>`).join("");
+  return `<option value="">— pick a team —</option>`+opts;
+}
+function teamRoster(val){
+  if(!val)return null;
+  const [lid,code]=val.split("|");
+  const L=STATE.data.leagues.find(x=>x.meta.id===lid); if(!L)return null;
+  const t=L.teams.find(x=>x.code===code); if(!t)return null;
+  const players=L.players.filter(p=>p.team===code);
+  // sort by jersey number (numeric), unknowns last
+  players.sort((a,b)=>{
+    const ja=a.jersey!=null&&a.jersey!==""?parseInt(a.jersey,10):999;
+    const jb=b.jersey!=null&&b.jersey!==""?parseInt(b.jersey,10):999;
+    if(ja!==jb)return ja-jb;
+    return a.name.localeCompare(b.name);
+  });
+  return {L,t,players};
+}
+function rosterCardHTML(p){
+  const rec=recOf(p),og=statGradeOverall(p);
+  const watched=isWatched(p);
+  const jersey=(p.jersey!=null&&p.jersey!=="")?p.jersey:"–";
+  const stars=rec.rating?`<span class="rcStars">${"★".repeat(rec.rating)}<span class="off">${"★".repeat(5-rec.rating)}</span></span>`:`<span class="rcStars off">☆☆☆☆☆</span>`;
+  const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
+  return `<button class="rosterRow${watched?" watched":""}" data-id="${p.id}">
+    <span class="rrNum">${jersey}</span>
+    <span class="rrPhoto${p.img?"":" noimg"}">${photo}</span>
+    <span class="rrMain">
+      <span class="rrName">${p.name}${watched?' <span class="rrStar">★</span>':''}</span>
+      <span class="rrMeta">${(p.pos&&p.pos!=="-")?p.pos:(p.role||"—")}${p.height?" · "+p.height+"cm":""}${p.age?" · "+p.age+"y":""}</span>
+    </span>
+    <span class="rrRight">${stars}<span class="rrGrade" title="Stat grade">${og!=null?og.toFixed(1):"—"}</span></span>
+  </button>`;
+}
+function rosterColumnHTML(val,slot){
+  const r=teamRoster(val);
+  const picker=`<select class="scoutTeamSel" data-slot="${slot}">${scoutingTeamOptions(val)}</select>`;
+  if(!r)return `<div class="rosterCol"><div class="rosterHead">${picker}</div>
+    <div class="empty" style="margin-top:14px">Pick a team to see its roster.</div></div>`;
+  const gp=r.players.filter(p=>p.qualified).length;
+  return `<div class="rosterCol">
+    <div class="rosterHead">${picker}</div>
+    <div class="rosterTeam">${r.t.name} <span class="rosterLg">${r.L.meta.name}</span></div>
+    <div class="rosterSub">${r.players.length} players · sorted by number</div>
+    <div class="rosterList">${r.players.map(rosterCardHTML).join("")||'<div class="empty">No players.</div>'}</div>
+  </div>`;
+}
+function renderScouting(){
+  const s=STATE.scouting;
+  $("#app").innerHTML=`<div class="view scoutingView">
+    <div class="scouthead" style="margin-bottom:6px">
+      <div>
+        <h1 class="title" style="margin:0">Scouting matchup</h1>
+        <div class="sub" style="margin-top:2px">Pick the two teams playing — rosters line up side by side, sorted by jersey number. Tap a player for the full profile.</div>
+      </div>
+      ${(s.a||s.b)?`<button class="btn ghost sm" id="scoutSwap" title="Swap sides">⇄ Swap</button>`:""}
+    </div>
+    <div class="rosterWrap">
+      ${rosterColumnHTML(s.a,"a")}
+      ${rosterColumnHTML(s.b,"b")}
+    </div>
+  </div>`;
+  $$(".scoutTeamSel").forEach(sel=>sel.onchange=()=>{STATE.scouting[sel.dataset.slot]=sel.value;renderScouting();});
+  const sw=$("#scoutSwap");if(sw)sw.onclick=()=>{const t=STATE.scouting.a;STATE.scouting.a=STATE.scouting.b;STATE.scouting.b=t;renderScouting();};
+  $$(".rosterRow").forEach(r=>r.onclick=()=>openProfile(r.dataset.id));
+}
+
 function renderCompare(){
   const groups=[]; const seen=new Set();
   allPlayersFlat().forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);
@@ -2622,7 +2753,7 @@ function renderScout(){
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
   // saved views
   const saveViewBtn=$("#saveViewBtn");if(saveViewBtn)saveViewBtn.onclick=saveCurrentView;
-  $$("[data-view]").forEach(b=>b.onclick=e=>{
+  $$(".viewsBar [data-view]").forEach(b=>b.onclick=e=>{
     if(e.target.closest("[data-delview]")){e.stopPropagation();deleteView(+e.target.closest("[data-delview]").dataset.delview);return;}
     applyView(viewsGet()[+b.dataset.view]);});
   // needs-attention + recently-viewed → open profile

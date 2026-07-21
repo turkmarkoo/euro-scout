@@ -28,3 +28,36 @@ window.EUROSCOUT_AGENCIES = [
   "LIFT Sports Management","Wolf Sports","Two Points","AENA Sports","Octagon Europe",
   "Comsport","Meridian Sports","SFX Basketball","Glez Basket","Estival Sports"
 ];
+
+// Agent → Agency map. When you pick an agent in Edit bio, the agency auto-fills from here.
+// Add your own agents freely (they merge with this list and save to your browser).
+window.EUROSCOUT_AGENTS = {
+  "Miško Ražnatović":"BeoBasket",
+  "Marko Naumović":"BeoBasket",
+  "Jason Ranne":"Wasserman",
+  "Bill Duffy":"WME Sports",
+  "Daniel Moldovan":"Interperformances",
+  "Luciano Capicchioni":"Interperformances",
+  "Ivan Kutlešić":"Sport1 Basketball",
+  "Miodrag Ražnatović":"BeoBasket",
+  "Obradović":"BeoBasket",
+  "Giorgos Dimitropoulos":"GD Sports",
+  "Michele Fasano":"OneTeam",
+  "George Langberg":"GML Sports",
+  "Andy Miller":"Klutch Sports",
+  "Rich Paul":"Klutch Sports",
+  "Aaron Mintz":"CAA Sports",
+  "Jeff Schwartz":"Excel Sports Management",
+  "Sam Goldfeder":"Excel Sports Management",
+  "Mark Bartelstein":"Priority Sports",
+  "Greg Lawrence":"Wasserman",
+  "Boris Lelchitski":"BLM Sports",
+  "Roberto Manzano":"YouFirst Sports",
+  "Fabrizio Boni":"Base Sports",
+  "Ivan Marić":"Higher Vision Basketball",
+  "Predrag Savović":"Higher Vision Basketball",
+  "Fran Zurković":"Slash Sports",
+  "Alberto Herreros":"AENA Sports",
+  "Nemanja Aleksandrov":"Court Side",
+  "Miloš Vučeković":"Meridian Sports"
+};
