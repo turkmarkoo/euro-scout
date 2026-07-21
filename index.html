@@ -104,6 +104,9 @@ nav.tabs button:hover{color:var(--txt)}
 .admadd{display:flex;gap:7px;align-items:center}
 .admadd input{flex:1;padding:7px 9px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;background:var(--panel2);color:var(--txt)}
 .admadd select{font-size:12px;font-family:var(--body);border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--panel);color:var(--txt);cursor:pointer}
+.reqrow{grid-template-columns:1fr auto auto 24px;background:color-mix(in srgb,var(--gold) 9%,var(--panel2));border-color:color-mix(in srgb,var(--gold) 30%,var(--line-soft))}
+.reqrow .reqok{padding:4px 9px;font-size:11.5px}
+.reqlist{margin-bottom:14px}
 .btn.sm{padding:6px 12px;font-size:12.5px}
 .leaguesel{appearance:none;padding-right:28px;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239AA1AC'/%3E%3C/svg%3E");
@@ -1187,7 +1190,24 @@ const Store = (()=>{
       const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:redirect}});if(error)throw error;},
     async signInPassword(email,password){if(!sb)return;
       const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;},
+    async signUp(email,password){if(!sb)return false;
+      const {data,error}=await sb.auth.signUp({email:(email||"").trim(),password});if(error)throw error;
+      return !!(data&&data.session);},
     async signOut(){if(sb)await sb.auth.signOut();user=null;role=null;member=false;},
+    // access requests: a signed-in non-member records a pending request for an editor to approve
+    async requestAccess(){if(!sb||!user)return;
+      try{await sb.from("access_requests").upsert({email:(user.email||"").toLowerCase()},{onConflict:"email",ignoreDuplicates:true});}catch(e){}},
+    async listRequests(){if(!sb||!canEdit())return[];
+      try{const {data}=await sb.from("access_requests").select("*").order("created_at");
+        const mem=await sb.from("members").select("email");
+        const set=new Set((mem.data||[]).map(m=>(m.email||"").toLowerCase()));
+        return (data||[]).filter(r=>!set.has((r.email||"").toLowerCase()));}catch(e){return[];}},
+    async approveRequest(email,role){if(!sb||!canEdit())return;
+      email=(email||"").trim().toLowerCase();role=role==="editor"?"editor":"viewer";
+      const {error}=await sb.from("members").upsert({email,role},{onConflict:"email"});if(error)throw error;
+      try{await sb.from("access_requests").delete().eq("email",email);}catch(e){}},
+    async dismissRequest(email){if(!sb||!canEdit())return;
+      try{await sb.from("access_requests").delete().eq("email",(email||"").toLowerCase());}catch(e){}},
     // members allowlist management (editors only; RLS also enforces this)
     async listMembers(){if(!sb||!canEdit())return[];
       try{const {data,error}=await sb.from("members").select("*").order("role").order("email");
@@ -1848,39 +1868,43 @@ function renderHeaderAuth(){
     b.textContent="Sign in"; b.title="Sign in to EuroScout"; b.onclick=()=>applyAuthGate();
   }
 }
-let AG_MODE="magic";
+let AG_MODE="signin"; // 'signin' | 'signup'
 function renderAuthGate(){
   const box=$("#agBox"); if(!box)return;
   const logo=`<div class="aglogo"><span class="mark">E</span><span>Euro<b>Scout</b></span></div>`;
   if(Store.user && !Store.member){
-    box.innerHTML=`${logo}<h2>Not approved yet</h2>
-      <p>You're signed in as <b>${escAttr(Store.user.email||"")}</b>, but this address hasn't been granted access. Ask an EuroScout editor to approve your email, then reload.</p>
+    try{Store.requestAccess();}catch(e){}  // record a pending request for an editor to approve
+    box.innerHTML=`${logo}<h2>Waiting for approval</h2>
+      <p>Your account <b>${escAttr(Store.user.email||"")}</b> is set up, but EuroScout access is granted by an editor. You'll be let in once you're approved \u2014 check back shortly.</p>
       <button class="btn ghost" id="agOut">Sign out</button>`;
     const o=$("#agOut"); if(o)o.onclick=async()=>{await Store.signOut();location.reload();};
     return;
   }
-  const pw=AG_MODE==="password";
-  box.innerHTML=`${logo}<h2>Sign in</h2>
-    <p>EuroScout is private. ${pw?"Sign in with your email and password.":"Enter an approved email and we'll send a one-time sign-in link."}</p>
+  const su=AG_MODE==="signup";
+  box.innerHTML=`${logo}<h2>${su?"Create your account":"Sign in"}</h2>
+    <p>EuroScout is private. ${su?"Create an account with a password \u2014 an editor then approves your access.":"Sign in with your email and password."}</p>
     <input id="agEmail" type="email" inputmode="email" placeholder="you@club.com" autocomplete="email"/>
-    ${pw?`<input id="agPass" type="password" placeholder="Password" autocomplete="current-password"/>`:""}
-    <button class="btn" id="agGo">${pw?"Sign in":"Send sign-in link"}</button>
+    <input id="agPass" type="password" placeholder="Password${su?" (min 6 characters)":""}" autocomplete="${su?"new-password":"current-password"}"/>
+    <button class="btn" id="agGo">${su?"Create account":"Sign in"}</button>
     <div class="agmsg" id="agMsg"></div>
-    <div class="agswitch" id="agSwitch">${pw?"\u2190 Use a one-time email link instead":"Have a password? Sign in without email \u2192"}</div>`;
-  const go=$("#agGo"), em=$("#agEmail"), msg=$("#agMsg");
-  const submit=async()=>{const v=(em.value||"").trim();if(!v){msg.textContent="Enter your email.";return;}
+    <div class="agswitch" id="agSwitch">${su?"\u2190 Already have an account? Sign in":"New here? Create an account \u2192"}</div>`;
+  const go=$("#agGo"), em=$("#agEmail"), pass=$("#agPass"), msg=$("#agMsg");
+  const submit=async()=>{const v=(em.value||"").trim(), p=pass.value||"";
+    if(!v||!p){msg.textContent="Enter your email and password.";return;}
     go.disabled=true;
-    if(pw){const p=($("#agPass")?.value)||"";msg.textContent="Signing in\u2026";
-      try{await Store.signInPassword(v,p);}
-      catch(e){msg.textContent="Sign-in failed: "+e.message;go.disabled=false;}
-    }else{msg.textContent="Sending\u2026";
-      try{await Store.signIn(v);msg.innerHTML="\u2713 Check <b>"+escAttr(v)+"</b> for your sign-in link. It opens EuroScout signed in.";}
-      catch(e){const rl=/rate limit/i.test(e.message);
-        msg.innerHTML="Couldn't send link: "+escAttr(e.message)+(rl?" \u2014 use <b>password sign-in</b> below instead, or wait a few minutes.":"");go.disabled=false;}}
+    if(su){msg.textContent="Creating account\u2026";
+      try{const inNow=await Store.signUp(v,p);
+        if(inNow){msg.textContent="Account created \u2014 signing you in\u2026";/* onAuthChange -> waiting screen */}
+        else{msg.innerHTML="\u2713 Account created. If it doesn't sign you in, email confirmation is still on in Supabase \u2014 turn it off. Then sign in.";go.disabled=false;}
+      }catch(e){const dup=/already registered|already exists/i.test(e.message);
+        msg.textContent=dup?"That email already has an account \u2014 use Sign in instead.":("Couldn't create account: "+e.message);go.disabled=false;}
+    }else{msg.textContent="Signing in\u2026";
+      try{await Store.signInPassword(v,p);/* onAuthChange handles the rest */}
+      catch(e){msg.textContent="Sign-in failed: "+e.message;go.disabled=false;}}
   };
   if(go)go.onclick=submit;
-  [em,$("#agPass")].forEach(el=>{if(el)el.onkeydown=e=>{if(e.key==="Enter")submit();};});
-  const sw=$("#agSwitch"); if(sw)sw.onclick=()=>{AG_MODE=pw?"magic":"password";renderAuthGate();};
+  [em,pass].forEach(el=>{if(el)el.onkeydown=e=>{if(e.key==="Enter")submit();};});
+  const sw=$("#agSwitch"); if(sw)sw.onclick=()=>{AG_MODE=su?"signin":"signup";renderAuthGate();};
 }
 function applyAuthGate(){
   const g=$("#authgate"); if(!g)return;
@@ -1907,6 +1931,7 @@ function openAccountModal(){
   showModal(`<h3>Account</h3>
     <p class="arsub">Signed in as <b>${escAttr(Store.user.email||"")}</b> \u00b7 role <b>${escAttr(Store.role||"")}</b></p>
     ${editor?`<div class="admwrap">
+      <div id="reqSection"></div>
       <div class="synclbl">Approved emails</div>
       <div id="admList" class="admlist"><div class="empty">Loading\u2026</div></div>
       <div class="admadd">
@@ -1918,7 +1943,24 @@ function openAccountModal(){
     </div>`:`<p class="arsub">You have read-only access to the shared database.</p>`}
     <div class="syncbtns" style="margin-top:16px"><button class="btn ghost danger" id="acOut">Sign out</button></div>`,true);
   const out=$("#acOut"); if(out)out.onclick=async()=>{await Store.signOut();location.reload();};
-  if(editor)loadAdminList();
+  if(editor){loadRequests();loadAdminList();}
+}
+async function loadRequests(){
+  const sec=$("#reqSection"); if(!sec)return;
+  const reqs=await Store.listRequests();
+  if(!reqs.length){sec.innerHTML="";return;}
+  sec.innerHTML=`<div class="synclbl">Waiting for approval (${reqs.length})</div>
+    <div class="admlist reqlist">${reqs.map(r=>`<div class="admrow reqrow">
+      <span class="ame">${escAttr(r.email)}</span>
+      <button class="btn sm reqok" data-em="${escAttr(r.email)}" data-role="viewer">Approve viewer</button>
+      <button class="btn sm ghost reqok" data-em="${escAttr(r.email)}" data-role="editor">editor</button>
+      <button class="amdel reqno" data-em="${escAttr(r.email)}" title="Dismiss">\u2715</button>
+    </div>`).join("")}</div>`;
+  $$("#reqSection .reqok").forEach(b=>b.onclick=async()=>{
+    try{await Store.approveRequest(b.dataset.em,b.dataset.role);toast("Approved "+b.dataset.em);loadRequests();loadAdminList();}
+    catch(e){toast("Error: "+e.message);}});
+  $$("#reqSection .reqno").forEach(b=>b.onclick=async()=>{
+    try{await Store.dismissRequest(b.dataset.em);loadRequests();}catch(e){toast("Error: "+e.message);}});
 }
 async function loadAdminList(){
   const wrap=$("#admList"); if(!wrap)return;

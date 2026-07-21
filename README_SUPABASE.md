@@ -140,3 +140,45 @@ the app now. To use it, create a password for yourself: **Authentication → Use
 user**, enter your email + a password, tick **Auto Confirm User**, save. Then on the
 EuroScout sign-in screen click **"Have a password? Sign in without email"** and log in.
 (You still need your `members` row as `editor` — that's the allowlist, separate from auth.)
+
+---
+
+## Self-signup + approval model (no email needed)
+
+New people create their own email+password account and land in a **"waiting for
+approval"** screen; you approve them from the in-app Account panel. No magic-link email
+is ever sent, so the mailer limit is irrelevant.
+
+**1. Turn OFF email confirmation** (so signup logs them in immediately instead of trying
+to send a confirmation email): Supabase → **Authentication → Providers → Email** →
+turn **Confirm email** OFF → save. (Make sure "Allow new users to sign up" stays ON.)
+
+**2. Create the requests table** — run once in the SQL Editor:
+
+```sql
+create table if not exists public.access_requests (
+  email text primary key,
+  created_at timestamptz default now()
+);
+alter table public.access_requests enable row level security;
+
+-- a signed-in user may register their OWN pending request
+create policy "req insert own" on public.access_requests
+  for insert with check (lower(email) = lower(auth.jwt() ->> 'email'));
+-- editors may read and clear requests
+create policy "req read for editors" on public.access_requests
+  for select using (public.my_role() = 'editor');
+create policy "req delete for editors" on public.access_requests
+  for delete using (public.my_role() = 'editor');
+```
+
+**How it flows now**
+- A new user opens EuroScout → **Create an account** → email + password → they're in a
+  "waiting for approval" screen (and a pending request is recorded).
+- You (editor) open **your name → Account**. A **"Waiting for approval"** list shows each
+  pending email with **Approve viewer** / **editor** / dismiss (✕).
+- Approve them → they reload and they're in, with the role you picked.
+- Existing "Approved emails" list still lets you change roles or remove people.
+
+Magic-link sign-in has been removed from the app. If you ever want emailed links back
+(e.g. password resets), set up custom SMTP first — but it's not needed for this flow.
