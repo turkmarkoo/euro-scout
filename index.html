@@ -736,13 +736,19 @@ body.drawer-lock{overflow:hidden}
 .agCount{font-size:11px;color:var(--muted);font-family:var(--mono)}
 .agSect .arost{padding:6px 8px}
 .chartctl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}
+.chartfilters{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line)}
 .chlab{display:flex;align-items:center;gap:6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
-.chlab select{font-family:var(--body);font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--txt)}
-.chartwrap{width:100%;overflow:hidden}
+.chlab select,.chlab input{font-family:var(--body);font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--txt)}
+.chlab input{width:150px}
+.chlab select:disabled{opacity:.5}
+.chHiX{border:0;background:none;color:var(--muted2);cursor:pointer;font-size:13px;padding:0 2px;margin-left:-2px}
+.chHiX:hover{color:var(--bad)}
+.chartwrap{width:100%;max-width:600px;margin:0 auto;overflow:hidden}
 .chartsvg{width:100%;height:auto;display:block}
-.chartsvg .scdot{cursor:pointer;transition:r .1s}
-.chartsvg .scdot:hover{r:6.5;fill-opacity:1}
-.chartlegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;justify-content:center}
+.chartsvg .scdot{transition:transform .08s}
+.chartsvg .scdot:hover{transform:scale(1.25);transform-box:fill-box;transform-origin:center}
+.chartsvg .scdot.hi{transform-box:fill-box;transform-origin:center}
+.chartlegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;justify-content:center;max-width:600px;margin-left:auto;margin-right:auto}
 .clgd{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
 .clgd i{width:11px;height:11px;border-radius:50%;display:inline-block}
 .skillradar{align-self:center}
@@ -1079,7 +1085,7 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
-  charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league"},
+  charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null},
   scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
@@ -3158,10 +3164,6 @@ function renderProfile(){
     ${similarPanelHTML(p)}
 
     <div class="panel" style="margin-top:16px">
-      <h3>Shot chart \u00b7 ${L.meta.season}</h3>
-      ${shotChartSVG(p)}
-    </div>
-    <div class="panel" style="margin-top:16px">
       <h3>Game log${(p._grp&&p._grp.length>1)?' — all competitions':' · '+p.g+' games'}</h3>
       ${gameLogTable(p)}
     </div>
@@ -3339,93 +3341,149 @@ function printScoutingMatchup(va,vb){
   win.document.close();
 }
 
-/* ---------- Charts: scatter (choose axes) + distribution ---------- */
+/* ---------- Charts: scatter (photo dots, choose axes) + distribution ---------- */
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
 const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0"};
 const ROLE_COLORS={Guard:"#8E86C9",Wing:"#6FA39B",Big:"#C99A3C"};
 function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
-function chartPool(){const base=STATE.allLeagues?allPlayersFlat():STATE.league.players;return base.filter(p=>p&&p.qualified&&!isExhib(p));}
 function chartColor(p,by){return by==="role"?(ROLE_COLORS[p.role]||"#9aa0aa"):(LEAGUE_COLORS[p.league]||"#9aa0aa");}
+function chartPool(){const c=STATE.charts;
+  let base=(c.fLeague&&c.fLeague!=="all")?(STATE.data.leagues.find(l=>l.meta.id===c.fLeague)||{players:[]}).players:allPlayersFlat();
+  base=base.filter(p=>p&&p.qualified&&!isExhib(p));
+  if(c.fTeam)   base=base.filter(p=>p.team===c.fTeam);
+  if(c.fCountry)base=base.filter(p=>p.country===c.fCountry);
+  if(c.fRole)   base=base.filter(p=>p.role===c.fRole);
+  return base;}
 function niceTicks(a,b,n){const span=b-a||1,step0=span/n,mag=Math.pow(10,Math.floor(Math.log10(step0)));
   const norm=step0/mag,step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
   const start=Math.ceil(a/step)*step,out=[];for(let v=start;v<=b+1e-9;v+=step)out.push(Math.round(v*100)/100);return out;}
 function median(arr){const a=[...arr].sort((m,n)=>m-n),h=Math.floor(a.length/2);return a.length?(a.length%2?a[h]:(a[h-1]+a[h])/2):0;}
-function scatterSVG(pool,xk,yk,by){
+function dotNode(p,cx,cy,r,by,hi){
+  const col=chartColor(p,by), isHi=hi&&p.id===hi;
+  const R=isHi?r+2:r, ring=isHi?"var(--gold)":col, rw=isHi?2.4:1.2;
+  const title=`<title>${escAttr(p.name)} \u00b7 ${escAttr(p.teamName||"")}</title>`;
+  let node;
+  if(p.img){
+    node=`<image href="${escAttr(p.img)}" x="${(cx-R).toFixed(1)}" y="${(cy-R).toFixed(1)}" width="${(R*2).toFixed(1)}" height="${(R*2).toFixed(1)}" preserveAspectRatio="xMidYMid slice" clip-path="url(#dotClip)"/>`
+      +`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${R.toFixed(1)}" fill="none" stroke="${ring}" stroke-width="${rw}"/>`;
+  } else {
+    node=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${R.toFixed(1)}" fill="${col}" fill-opacity="0.85" stroke="${ring}" stroke-width="${rw}"/>`
+      +`<text x="${cx.toFixed(1)}" y="${(cy+2.6).toFixed(1)}" text-anchor="middle" font-size="${(R*0.8).toFixed(1)}" font-weight="700" fill="#fff" pointer-events="none">${initials(p.name)}</text>`;
+  }
+  return `<g class="scdot${isHi?" hi":""}" data-id="${p.id}" style="cursor:pointer">${node}${title}</g>`;
+}
+function scatterSVG(pool,xk,yk,by,hi){
   pool=pool.filter(p=>p[xk]!=null&&!isNaN(p[xk])&&p[yk]!=null&&!isNaN(p[yk]));
-  if(pool.length<3)return `<div class="empty">Not enough qualified players for this scope.</div>`;
-  const W=700,H=480,mL=56,mR=18,mT=18,mB=48,pw=W-mL-mR,ph=H-mT-mB;
+  if(pool.length<3)return `<div class="empty">Not enough qualified players for these filters.</div>`;
+  const W=580,H=400,mL=46,mR=14,mT=14,mB=40,pw=W-mL-mR,ph=H-mT-mB;
   const xs=pool.map(p=>p[xk]),ys=pool.map(p=>p[yk]);
   let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
-  const px=(x1-x0)*0.06||1,py=(y1-y0)*0.06||1;x0-=px;x1+=px;y0-=py;y1+=py;
+  const px=(x1-x0)*0.07||1,py=(y1-y0)*0.07||1;x0-=px;x1+=px;y0-=py;y1+=py;
   const sx=v=>mL+(v-x0)/(x1-x0)*pw, sy=v=>mT+ph-(v-y0)/(y1-y0)*ph;
   let grid="",xlab="",ylab="";
-  niceTicks(x0,x1,6).forEach(v=>{const X=sx(v);grid+=`<line x1="${X.toFixed(1)}" y1="${mT}" x2="${X.toFixed(1)}" y2="${mT+ph}" stroke="var(--line-soft)" stroke-width="1"/>`;xlab+=`<text x="${X.toFixed(1)}" y="${mT+ph+16}" text-anchor="middle" font-size="10" fill="var(--muted)">${fmt(v)}</text>`;});
-  niceTicks(y0,y1,6).forEach(v=>{const Y=sy(v);grid+=`<line x1="${mL}" y1="${Y.toFixed(1)}" x2="${mL+pw}" y2="${Y.toFixed(1)}" stroke="var(--line-soft)" stroke-width="1"/>`;ylab+=`<text x="${mL-8}" y="${(Y+3).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">${fmt(v)}</text>`;});
+  niceTicks(x0,x1,5).forEach(v=>{const X=sx(v);grid+=`<line x1="${X.toFixed(1)}" y1="${mT}" x2="${X.toFixed(1)}" y2="${mT+ph}" stroke="var(--line-soft)" stroke-width="1"/>`;xlab+=`<text x="${X.toFixed(1)}" y="${mT+ph+15}" text-anchor="middle" font-size="9" fill="var(--muted)">${fmt(v)}</text>`;});
+  niceTicks(y0,y1,5).forEach(v=>{const Y=sy(v);grid+=`<line x1="${mL}" y1="${Y.toFixed(1)}" x2="${mL+pw}" y2="${Y.toFixed(1)}" stroke="var(--line-soft)" stroke-width="1"/>`;ylab+=`<text x="${mL-7}" y="${(Y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--muted)">${fmt(v)}</text>`;});
   const mx=sx(median(xs)),my=sy(median(ys));
-  const medLines=`<line x1="${mx.toFixed(1)}" y1="${mT}" x2="${mx.toFixed(1)}" y2="${mT+ph}" stroke="var(--muted2)" stroke-dasharray="4 4" stroke-width="1"/>
-    <line x1="${mL}" y1="${my.toFixed(1)}" x2="${mL+pw}" y2="${my.toFixed(1)}" stroke="var(--muted2)" stroke-dasharray="4 4" stroke-width="1"/>`;
-  const dots=pool.map(p=>{const c=chartColor(p,by),w=isWatched(p);
-    return `<circle class="scdot${w?" watched":""}" data-id="${p.id}" cx="${sx(p[xk]).toFixed(1)}" cy="${sy(p[yk]).toFixed(1)}" r="${w?5.2:4}" fill="${c}" fill-opacity="${w?0.95:0.7}" stroke="${w?'var(--txt)':c}" stroke-width="${w?1.4:0.8}"><title>${escAttr(p.name)} \u00b7 ${escAttr(p.teamName||'')}
-${chartLabel(xk)}: ${fmt(p[xk])} \u00b7 ${chartLabel(yk)}: ${fmt(p[yk])}</title></circle>`;}).join("");
+  const med=`<line x1="${mx.toFixed(1)}" y1="${mT}" x2="${mx.toFixed(1)}" y2="${mT+ph}" stroke="var(--muted2)" stroke-dasharray="4 4"/><line x1="${mL}" y1="${my.toFixed(1)}" x2="${mL+pw}" y2="${my.toFixed(1)}" stroke="var(--muted2)" stroke-dasharray="4 4"/>`;
+  const r=9;
+  // draw non-highlighted first, highlighted last (on top)
+  const ordered=pool.slice().sort((a,b)=>((a.id===hi)-(b.id===hi)));
+  const dots=ordered.map(p=>dotNode(p,sx(p[xk]),sy(p[yk]),r,by,hi)).join("");
   return `<svg viewBox="0 0 ${W} ${H}" class="chartsvg">
+    <defs><clipPath id="dotClip" clipPathUnits="objectBoundingBox"><circle cx="0.5" cy="0.5" r="0.5"/></clipPath></defs>
     <rect x="${mL}" y="${mT}" width="${pw}" height="${ph}" fill="var(--panel2)" stroke="var(--line)"/>
-    ${grid}${medLines}${dots}${xlab}${ylab}
-    <text x="${mL+pw/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--txt)">${chartLabel(xk)}</text>
-    <text x="14" y="${mT+ph/2}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--txt)" transform="rotate(-90 14 ${mT+ph/2})">${chartLabel(yk)}</text>
+    ${grid}${med}${dots}${xlab}${ylab}
+    <text x="${mL+pw/2}" y="${H-4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--txt)">${chartLabel(xk)}</text>
+    <text x="12" y="${mT+ph/2}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--txt)" transform="rotate(-90 12 ${mT+ph/2})">${chartLabel(yk)}</text>
   </svg>`;
 }
-function distSVG(pool,k){
+function distSVG(pool,k,hi){
   const vals=pool.map(p=>p[k]).filter(v=>v!=null&&!isNaN(v));
-  if(vals.length<3)return `<div class="empty">Not enough qualified players for this scope.</div>`;
-  const W=700,H=380,mL=44,mR=18,mT=16,mB=46,pw=W-mL-mR,ph=H-mT-mB;
+  if(vals.length<3)return `<div class="empty">Not enough qualified players for these filters.</div>`;
+  const W=580,H=320,mL=38,mR=14,mT=14,mB=40,pw=W-mL-mR,ph=H-mT-mB;
   let mn=Math.min(...vals),mx=Math.max(...vals);if(mn===mx){mn-=1;mx+=1;}
   const bins=16,bw=(mx-mn)/bins,counts=new Array(bins).fill(0);
   vals.forEach(v=>{let b=Math.floor((v-mn)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
   const cmax=Math.max(...counts)||1;
   const sx=v=>mL+(v-mn)/(mx-mn)*pw, syB=cc=>mT+ph-(cc/cmax)*ph;
   const mean=vals.reduce((a,b)=>a+b,0)/vals.length;
+  const hip=hi?pool.find(p=>p.id===hi):null, hival=hip?hip[k]:null;
   let bars="";for(let i=0;i<bins;i++){const x=mL+(i/bins)*pw,w=pw/bins-1.5,y=syB(counts[i]),h=mT+ph-y;
-    bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" fill="var(--accent)" fill-opacity="0.72" rx="2"><title>${fmt(mn+i*bw)}\u2013${fmt(mn+(i+1)*bw)}: ${counts[i]}</title></rect>`;}
-  let xlab="";niceTicks(mn,mx,7).forEach(v=>{const X=sx(v);xlab+=`<line x1="${X.toFixed(1)}" y1="${mT+ph}" x2="${X.toFixed(1)}" y2="${mT+ph+4}" stroke="var(--muted2)"/><text x="${X.toFixed(1)}" y="${mT+ph+16}" text-anchor="middle" font-size="10" fill="var(--muted)">${fmt(v)}</text>`;});
+    const lo=mn+i*bw,hiEdge=mn+(i+1)*bw, inHi=hival!=null&&hival>=lo&&(hival<hiEdge||(i===bins-1&&hival<=hiEdge));
+    bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" fill="${inHi?'var(--gold)':'var(--accent)'}" fill-opacity="${inHi?0.95:0.72}" rx="2"><title>${fmt(lo)}\u2013${fmt(hiEdge)}: ${counts[i]}</title></rect>`;}
+  let xlab="";niceTicks(mn,mx,7).forEach(v=>{const X=sx(v);xlab+=`<line x1="${X.toFixed(1)}" y1="${mT+ph}" x2="${X.toFixed(1)}" y2="${mT+ph+4}" stroke="var(--muted2)"/><text x="${X.toFixed(1)}" y="${mT+ph+15}" text-anchor="middle" font-size="9" fill="var(--muted)">${fmt(v)}</text>`;});
   const mX=sx(mean);
+  let hiMark="";
+  if(hival!=null){const HX=sx(Math.max(mn,Math.min(mx,hival)));
+    hiMark=`<line x1="${HX.toFixed(1)}" y1="${mT}" x2="${HX.toFixed(1)}" y2="${mT+ph}" stroke="var(--gold)" stroke-width="2"/>
+      <text x="${HX.toFixed(1)}" y="${mT-2}" text-anchor="middle" font-size="10" font-weight="800" fill="var(--gold)">${escAttr(hip.name.split(" ").slice(-1)[0])} ${fmt(hival)}</text>`;}
   return `<svg viewBox="0 0 ${W} ${H}" class="chartsvg">
     <rect x="${mL}" y="${mT}" width="${pw}" height="${ph}" fill="var(--panel2)" stroke="var(--line)"/>
     ${bars}
     <line x1="${mX.toFixed(1)}" y1="${mT}" x2="${mX.toFixed(1)}" y2="${mT+ph}" stroke="var(--accent-deep)" stroke-dasharray="5 4" stroke-width="1.5"/>
-    <text x="${mX.toFixed(1)}" y="${mT+10}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--accent-deep)">mean ${fmt(mean)}</text>
-    ${xlab}
-    <text x="${mL+pw/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--txt)">${chartLabel(k)}</text>
+    <text x="${mX.toFixed(1)}" y="${mT+9}" text-anchor="middle" font-size="9" font-weight="700" fill="var(--accent-deep)">mean ${fmt(mean)}</text>
+    ${hiMark}${xlab}
+    <text x="${mL+pw/2}" y="${H-4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--txt)">${chartLabel(k)}</text>
   </svg>`;
 }
 function chartLegendHTML(pool,by){
-  if(by==="role"){return ["Guard","Wing","Big"].map(r=>`<span class="clgd"><i style="background:${ROLE_COLORS[r]}"></i>${r}</span>`).join("");}
+  if(by==="role")return ["Guard","Wing","Big"].map(r=>`<span class="clgd"><i style="background:${ROLE_COLORS[r]}"></i>${r}</span>`).join("");
   const present=[...new Set(pool.map(p=>p.league))];
   return present.map(id=>{const L=STATE.data.leagues.find(l=>l.meta.id===id);return `<span class="clgd"><i style="background:${LEAGUE_COLORS[id]||'#9aa0aa'}"></i>${L?L.meta.name:id}</span>`;}).join("");
 }
+function chartFiltersHTML(c){
+  const leagues=STATE.data.leagues.filter(l=>!l.meta.exhibition);
+  const lgOpts=`<option value="all"${c.fLeague==="all"?" selected":""}>All leagues</option>`+leagues.map(l=>`<option value="${l.meta.id}"${c.fLeague===l.meta.id?" selected":""}>${l.meta.name}</option>`).join("");
+  let teamOpts=`<option value="">All teams</option>`;
+  if(c.fLeague&&c.fLeague!=="all"){const L=leagues.find(l=>l.meta.id===c.fLeague);
+    if(L)teamOpts+=L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${t.code}"${c.fTeam===t.code?" selected":""}>${escAttr(t.name)}</option>`).join("");}
+  const countries=[...new Set((c.fLeague&&c.fLeague!=="all"?(leagues.find(l=>l.meta.id===c.fLeague)||{players:[]}).players:allPlayersFlat()).filter(p=>p.qualified&&p.country).map(p=>p.country))].sort();
+  const ctOpts=`<option value="">All countries</option>`+countries.map(ct=>`<option value="${escAttr(ct)}"${c.fCountry===ct?" selected":""}>${escAttr(ct)}</option>`).join("");
+  const roleOpts=`<option value="">All positions</option>`+["Guard","Wing","Big"].map(r=>`<option value="${r}"${c.fRole===r?" selected":""}>${r}</option>`).join("");
+  return `<div class="chartfilters">
+    <label class="chlab">League <select id="fLeague">${lgOpts}</select></label>
+    <label class="chlab">Team <select id="fTeam"${(!c.fLeague||c.fLeague==="all")?" disabled":""}>${teamOpts}</select></label>
+    <label class="chlab">Country <select id="fCountry">${ctOpts}</select></label>
+    <label class="chlab">Position <select id="fRole">${roleOpts}</select></label>
+    ${c.fLeague||c.fTeam||c.fCountry||c.fRole?`<button class="btn ghost sm" id="fClear">Clear</button>`:""}
+  </div>`;
+}
 function renderCharts(){
-  const c=STATE.charts, pool=chartPool();
+  const c=STATE.charts;
+  if(c.fLeague===null)c.fLeague=STATE.allLeagues?"all":STATE.league.meta.id;
+  const pool=chartPool();
+  const hiName=(()=>{const p=c.hi?pool.find(x=>x.id===c.hi):null;return p?p.name:"";})();
   const opts=sel=>CHART_STATS.map(([lab,k])=>`<option value="${k}"${sel===k?" selected":""}>${lab}</option>`).join("");
-  const chart=c.type==="scatter"?scatterSVG(pool,c.x,c.y,c.colorBy):distSVG(pool,c.dist);
+  const chart=c.type==="scatter"?scatterSVG(pool,c.x,c.y,c.colorBy,c.hi):distSVG(pool,c.dist,c.hi);
+  const dataList=`<datalist id="chHiList">${pool.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${escAttr(p.name)}">`).join("")}</datalist>`;
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Charts</h1>
-    <div class="sub" style="margin-bottom:12px">${pool.length} qualified players \u00b7 ${STATE.allLeagues?"all competitions":STATE.league.meta.name} \u00b7 change scope with the league selector up top</div>
+    <div class="sub" style="margin-bottom:10px">${pool.length} qualified player${pool.length===1?"":"s"} in view</div>
     <div class="panel">
+      ${chartFiltersHTML(c)}
       <div class="chartctl">
         <div class="seg"><button class="${c.type==='scatter'?'active':''}" data-ct="scatter">Scatter</button><button class="${c.type==='distribution'?'active':''}" data-ct="distribution">Distribution</button></div>
         ${c.type==='scatter'
-          ?`<label class="chlab">X axis <select id="chX">${opts(c.x)}</select></label>
-            <label class="chlab">Y axis <select id="chY">${opts(c.y)}</select></label>
-            <label class="chlab">Color <select id="chColor"><option value="league"${c.colorBy==='league'?' selected':''}>By league</option><option value="role"${c.colorBy==='role'?' selected':''}>By position</option></select></label>`
+          ?`<label class="chlab">X <select id="chX">${opts(c.x)}</select></label>
+            <label class="chlab">Y <select id="chY">${opts(c.y)}</select></label>
+            <label class="chlab">Color <select id="chColor"><option value="league"${c.colorBy==='league'?' selected':''}>League</option><option value="role"${c.colorBy==='role'?' selected':''}>Position</option></select></label>`
           :`<label class="chlab">Stat <select id="chDist">${opts(c.dist)}</select></label>`}
+        <label class="chlab">Highlight <input id="chHi" list="chHiList" placeholder="player\u2026" value="${escAttr(hiName)}" autocomplete="off"/>${c.hi?`<button class="chHiX" id="chHiClear" title="Clear">\u2715</button>`:""}</label>
       </div>
+      ${dataList}
       <div class="chartwrap">${chart}</div>
       ${c.type==='scatter'?`<div class="chartlegend">${chartLegendHTML(pool,c.colorBy)}</div>`:""}
-      <p class="hint" style="margin-top:6px">${c.type==='scatter'?'Dashed lines mark the median on each axis (four quadrants). Hover a dot for values; watchlisted players are ringed. Click to open the player.':'Bars show how many players fall in each range. Dashed line is the mean. Hover a bar for its count.'}</p>
+      <p class="hint" style="margin-top:6px">${c.type==='scatter'?'Dots are player photos; dashed lines are the medians (quadrants). Type a name to highlight. Click a dot to open the player.':'Bars = players per range; dashed line = mean. Type a name to mark that player on the distribution.'}</p>
     </div>
   </div>`;
   $$("[data-ct]").forEach(b=>b.onclick=()=>{c.type=b.dataset.ct;renderCharts();});
   const bind=(id,prop)=>{const el=$(id);if(el)el.onchange=()=>{c[prop]=el.value;renderCharts();};};
   bind("#chX","x");bind("#chY","y");bind("#chColor","colorBy");bind("#chDist","dist");
+  const fl=$("#fLeague");if(fl)fl.onchange=()=>{c.fLeague=fl.value;c.fTeam="";c.hi=null;renderCharts();};
+  bind("#fTeam","fTeam");bind("#fCountry","fCountry");bind("#fRole","fRole");
+  const fc=$("#fClear");if(fc)fc.onclick=()=>{c.fTeam="";c.fCountry="";c.fRole="";renderCharts();};
+  const hiIn=$("#chHi");if(hiIn)hiIn.onchange=()=>{const nm=hiIn.value.trim().toLowerCase();const m=pool.find(p=>p.name.toLowerCase()===nm);c.hi=m?m.id:null;renderCharts();};
+  const hiX=$("#chHiClear");if(hiX)hiX.onclick=()=>{c.hi=null;renderCharts();};
   $$(".scdot").forEach(d=>d.onclick=()=>openProfile(d.dataset.id));
 }
 function renderCompare(){
@@ -3466,7 +3524,6 @@ function renderCompare(){
       +bioRow(p=>leagueOf(p).meta.name,"LEAGUE");
     const heads=active.map((p,i)=>`<th class="nm" onclick="openProfile('${p.id}')" style="color:${COLORS[i]}">${p.name}</th>`).join("");
     const legend=active.map((p,i)=>`<span><span class="dot" style="background:${COLORS[i]}"></span>${p.name}</span>`).join("");
-    const shots=active.map((p,i)=>`<div class="cmpshot" style="--cc:${COLORS[i]}">${shotChartSVG(p)}<div class="cmpshot-nm"><span class="sw" style="background:${COLORS[i]}"></span>${p.name}</div></div>`).join("");
     body=`
     <div class="twocol">
       <div class="panel"><h3>Skill radar overlay <span class="hint" style="font-weight:400;font-size:12px">percentiles vs each player's league</span></h3>
@@ -3480,9 +3537,6 @@ function renderCompare(){
         </table>
         <p class="hint" style="margin-top:8px">${ST} = best value among the compared players \u00b7 stats within each player's own competition.</p>
       </div>
-    </div>
-    <div class="panel" style="margin-top:16px"><h3>Shot chart by zones</h3>
-      <div class="cmpshots cmpshots${active.length}">${shots}</div>
     </div>`;
   }
   $("#app").innerHTML=`<div class="view">
@@ -4247,9 +4301,6 @@ function renderTeam(){
           <tbody>${glrows}</tbody></table></div>`
         :`<p class="hint">No game data in this build \u2014 regenerate data.json with the updated build_all.py.</p>`}
       </div>
-    </div>
-    <div class="panel" style="margin-top:16px"><h3>Team shot chart</h3>
-      <p class="hint" style="padding:20px 4px">Zone shot chart appears here once shot-location data is loaded (run <code>scraper_shots.py</code>, then <code>build_all.py</code>).</p>
     </div>
     <div class="panel" style="margin-top:16px" id="rosterPanel">
       <h3>Roster \u00b7 ${roster.length} players</h3>
