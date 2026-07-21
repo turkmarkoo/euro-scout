@@ -711,6 +711,40 @@ body.drawer-lock{overflow:hidden}
 .simGrade{flex:0 0 auto;font-family:var(--disp);font-size:15px;font-weight:800;color:var(--accent-deep)}
 .cardmatch{position:absolute;top:9px;left:9px;z-index:2;background:var(--accent);color:#fff;border-radius:8px;padding:2px 7px;font-family:var(--disp);font-weight:800;font-size:14px;line-height:1.05;text-align:center;box-shadow:var(--shadow)}
 .cardmatch small{display:block;font-size:7.5px;font-weight:700;letter-spacing:.04em;opacity:.9}
+.tneeds{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.tn-row{display:grid;grid-template-columns:104px 1fr 34px 74px;align-items:center;gap:10px}
+.tn-name{font-family:var(--disp);font-size:11px;font-weight:800;letter-spacing:.05em}
+.tn-track{position:relative;height:16px;background:var(--bg2);border-radius:5px;overflow:hidden}
+.tn-fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.tn-avg{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--muted2);opacity:.55}
+.tn-score{font-family:var(--mono);font-size:13px;font-weight:700;text-align:right;color:var(--muted)}
+.tn-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;text-align:center;padding:3px 0;border-radius:6px}
+.tn-tag.need{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.tn-tag.ok{color:var(--mid);background:color-mix(in srgb,var(--mid) 14%,transparent)}
+.tn-tag.str{color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent)}
+.tn-thin{margin-top:12px;font-size:12.5px;color:var(--txt)}
+.tn-thin .tn-op{color:var(--muted2);font-size:11px}
+@media(max-width:560px){.tn-row{grid-template-columns:80px 1fr 30px 60px;gap:7px}}
+.arlink{color:var(--accent-deep);cursor:pointer;font-weight:700}
+.arlink:hover{text-decoration:underline}
+.agGroups{display:flex;flex-direction:column;gap:16px}
+.agSect{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.agSectHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 12px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.agName{font-family:var(--disp);font-weight:800;font-size:14px;color:var(--txt)}
+.agName.clk{cursor:pointer;color:var(--accent-deep)}
+.agName.clk:hover{text-decoration:underline}
+.agCount{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.agSect .arost{padding:6px 8px}
+.chartctl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}
+.chlab{display:flex;align-items:center;gap:6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+.chlab select{font-family:var(--body);font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--txt)}
+.chartwrap{width:100%;overflow:hidden}
+.chartsvg{width:100%;height:auto;display:block}
+.chartsvg .scdot{cursor:pointer;transition:r .1s}
+.chartsvg .scdot:hover{r:6.5;fill-opacity:1}
+.chartlegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;justify-content:center}
+.clgd{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
+.clgd i{width:11px;height:11px;border-radius:50%;display:inline-block}
 .skillradar{align-self:center}
 .skillradar .scoutradar{display:block;width:100%;max-width:360px;margin:0 auto;height:auto}
 .skillrate{align-self:center}
@@ -1007,6 +1041,7 @@ body.drawer-lock{overflow:hidden}
       <button data-view="watchlist">Watchlist</button>
       <button data-view="exhib">Exhibitions</button>
       <button data-view="compare" class="t-secondary">Compare</button>
+      <button data-view="charts" class="t-secondary">Charts</button>
       <button data-view="glossary" class="glosstab" title="Glossary" aria-label="Glossary">📖<span class="glosslab">Glossary</span></button>
     </nav>
     <span class="spacer"></span>
@@ -1044,6 +1079,7 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
+  charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league"},
   scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
@@ -2114,6 +2150,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   if(v==="scout")     renderScout();
   else if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
+  else if(v==="charts") renderCharts();
   else if(v==="watchlist") renderWatchlist();
   else if(v==="exhib") renderExhib();
   else if(v==="scouting") renderScouting();
@@ -2626,6 +2663,44 @@ function skillRadarSVG(p,pool){
     const[dx,dy]=pt(i,R*pctOf(s.k)/100);dots+=`<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="2.6" fill="${s.col}"/>`;});
   return `<svg viewBox="0 0 300 300" class="skillcard-radar">${rings}${spokes}<polygon points="${poly}" fill="var(--accent)" fill-opacity="0.13" stroke="var(--accent)" stroke-width="2"/>${dots}${labels}</svg>`;
 }
+function teamNeedsHTML(roster){
+  const rot=roster.filter(p=>p.pct&&p.g>=5).sort((a,b)=>(b.mpg||0)-(a.mpg||0)).slice(0,10);
+  if(rot.length<3)return "";
+  const groups=SKILL_GROUPS.map(g=>{
+    const subs=g.items.map(([lab,k])=>{const best=Math.max(...rot.map(p=>p.pct[k]==null?0:p.pct[k]));return {lab,k,best:Math.round(best)};});
+    const score=Math.round(subs.reduce((s,x)=>s+x.best,0)/subs.length);
+    return {name:g.name,col:g.col,score,subs};});
+  const rows=groups.map(g=>{
+    const cls=g.score<45?"need":(g.score<63?"ok":"str"), tag=g.score<45?"Need":(g.score<63?"Solid":"Strength");
+    return `<div class="tn-row"><div class="tn-name" style="color:${g.col}">${g.name}</div>
+      <div class="tn-track"><div class="tn-fill" style="width:${g.score}%;background:${g.col}"></div><div class="tn-avg"></div></div>
+      <div class="tn-score">${g.score}</div><div class="tn-tag ${cls}">${tag}</div></div>`;}).join("");
+  const allsubs=[].concat(...groups.map(g=>g.subs)).sort((a,b)=>a.best-b.best).slice(0,3);
+  const thin=allsubs.map(s=>`${s.lab} <span class="tn-op">${ord(s.best)}</span>`).join(" \u00b7 ");
+  return `<div class="panel" style="margin-top:16px"><h3>Team needs <span class="hint" style="font-weight:400;font-size:12px">how strong the roster's best option is in each skill (percentile vs league)</span></h3>
+    <div class="tneeds">${rows}</div>
+    <div class="tn-thin">Thinnest skills: ${thin}</div>
+    <p class="hint" style="margin-top:8px">Each bar is the <b>best player on the roster</b> in that skill group \u2014 a low bar means nobody covers it. Rotation = top ${rot.length} by minutes.</p></div>`;
+}
+function skillRadarMulti(players,colors){
+  const N=SKILL_FLAT.length, cx=170, cy=162, R=116;
+  const pt=(i,r)=>{const a=(-90+i*360/N)*Math.PI/180;return [cx+r*Math.cos(a), cy+r*Math.sin(a)];};
+  const pctOf=(p,k)=>{const x=p.pct?p.pct[k]:null;return x==null?3:Math.max(3,x);};
+  let rings="";
+  [[0.5,"stroke-dasharray:3 4;stroke:var(--muted2)"],[1,"stroke-dasharray:1 5;stroke:var(--line)"]].forEach(([f,st])=>{
+    const pts=SKILL_FLAT.map((_,i)=>pt(i,R*f).map(n=>n.toFixed(1)).join(",")).join(" ");
+    rings+=`<polygon points="${pts}" fill="none" style="${st}" stroke-width="1"/>`;});
+  let spokes="",labels="";
+  SKILL_FLAT.forEach((s,i)=>{const[ex,ey]=pt(i,R);spokes+=`<line x1="${cx}" y1="${cy}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="var(--line-soft)" stroke-width="1"/>`;
+    const[lx,ly]=pt(i,R+15);const anch=Math.abs(lx-cx)<8?"middle":(lx>cx?"start":"end");
+    labels+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anch}" dominant-baseline="middle" font-size="10" font-weight="700" fill="var(--muted)">${s.ab}</text>`;});
+  let shapes="";
+  players.forEach((p,pi)=>{const col=colors[pi%colors.length];
+    const poly=SKILL_FLAT.map((s,i)=>pt(i,R*pctOf(p,s.k)/100).map(n=>n.toFixed(1)).join(",")).join(" ");
+    let dots="";SKILL_FLAT.forEach((s,i)=>{const[dx,dy]=pt(i,R*pctOf(p,s.k)/100);dots+=`<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="2.4" fill="${col}"/>`;});
+    shapes+=`<polygon points="${poly}" fill="${col}" fill-opacity="0.1" stroke="${col}" stroke-width="2"/>${dots}`;});
+  return `<svg viewBox="0 0 340 330" class="skillcard-radar" style="max-width:360px">${rings}${spokes}${shapes}${labels}</svg>`;
+}
 function skillCardHTML(p,pool){
   const bars=SKILL_GROUPS.map(g=>{
     const rows=g.items.map(([lab,k,unit])=>{
@@ -2888,27 +2963,47 @@ function agentRosterList(matchFn){
   return scoutPool().filter(matchFn).sort((a,b)=>
     ((statGradeOverall(b,{raw:true})??-1)-(statGradeOverall(a,{raw:true})??-1))||a.name.localeCompare(b.name));
 }
-function rosterModal(title,sub,list,kind){
-  if(!list.length){showModal(`<h3>${escAttr(title)}</h3><p class="arsub">${escAttr(sub)}</p><p class="empty">No players with this ${kind} in your database yet.</p>`);return;}
-  const rows=list.map(p=>{const L=leagueOf(p),rec=recOf(p),g=statGradeOverall(p,{raw:true});
-    const stars=rec&&rec.rating?"\u2605".repeat(rec.rating):"";
-    return `<div class="arow" data-id="${p.id}">
-      ${p.img?`<img class="aav" src="${p.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<span class="aav anoimg"></span>'}
-      <span class="an">${p.name}</span>
-      <span class="ameta"><span class="badge role">${p.role||""}</span> <span class="atm">${p.teamName||p.team||""}</span></span>
-      <span class="alg">${L?L.meta.name:""}</span>
-      <span class="astars">${stars}</span>
-      <span class="agr">${g==null?"":g.toFixed(1)}</span>
-    </div>`;}).join("");
-  showModal(`<h3>${escAttr(title)}</h3><p class="arsub">${escAttr(sub)}</p><div class="arost">${rows}</div>`,true);
+function arowHTML(p){const L=leagueOf(p),rec=recOf(p),g=statGradeOverall(p,{raw:true});
+  const stars=rec&&rec.rating?"\u2605".repeat(rec.rating):"";
+  return `<div class="arow" data-id="${p.id}">
+    ${p.img?`<img class="aav" src="${p.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<span class="aav anoimg"></span>'}
+    <span class="an">${p.name}</span>
+    <span class="ameta"><span class="badge role">${p.role||""}</span> <span class="atm">${p.teamName||p.team||""}</span></span>
+    <span class="alg">${L?L.meta.name:""}</span>
+    <span class="astars">${stars}</span>
+    <span class="agr">${g==null?"":g.toFixed(1)}</span>
+  </div>`;}
+function rosterModal(title,subHTML,list,kind){
+  if(!list.length){showModal(`<h3>${escAttr(title)}</h3><p class="arsub">${subHTML}</p><p class="empty">No players with this ${kind} in your database yet.</p>`);return;}
+  const rows=list.map(arowHTML).join("");
+  showModal(`<h3>${escAttr(title)}</h3><p class="arsub">${subHTML}</p><div class="arost">${rows}</div>`,true);
   $$(".arost .arow").forEach(r=>r.onclick=()=>{const id=r.dataset.id;hideModal();openProfile(id);});
 }
+function agencyEnc(a){return encodeURIComponent(a).replace(/'/g,"%27");}
+function agencyOfAgent(key){const p=scoutPool().find(x=>x.agent&&normName(x.agent)===key&&x.agency&&x.agency.trim());return p?p.agency.trim():null;}
 function openAgentRoster(enc){const agent=decodeURIComponent(enc),key=normName(agent);
   const list=agentRosterList(p=>p.agent&&normName(p.agent)===key);
-  rosterModal(agent,`${list.length} player${list.length===1?"":"s"} represented by ${agent} in your database`,list,"agent");}
+  const agency=agencyOfAgent(key);
+  const sub=`${list.length} player${list.length===1?"":"s"} represented`+
+    (agency?` \u00b7 <span class="arlink" onclick="hideModal();openAgencyRoster('${agencyEnc(agency)}')">${escAttr(agency)}</span>`:"");
+  rosterModal(agent,sub,list,"agent");}
 function openAgencyRoster(enc){const agency=decodeURIComponent(enc),key=normAgency(agency);
   const list=agentRosterList(p=>p.agency&&normAgency(p.agency)===key);
-  rosterModal(agency,`${list.length} player${list.length===1?"":"s"} at ${agency} in your database`,list,"agency");}
+  if(!list.length){showModal(`<h3>${escAttr(agency)}</h3><p class="empty">No players at this agency in your database yet.</p>`);return;}
+  const byAgent=new Map();
+  list.forEach(p=>{const a=(p.agent&&p.agent.trim())?p.agent.trim():"\u2014 no agent listed";const k=normName(a)||"_none";
+    if(!byAgent.has(k))byAgent.set(k,{name:a,players:[]});byAgent.get(k).players.push(p);});
+  const groups=[...byAgent.values()].sort((a,b)=>b.players.length-a.players.length||a.name.localeCompare(b.name));
+  const sections=groups.map(gp=>{
+    const named=gp.name.indexOf("\u2014 no agent")!==0;
+    const rows=gp.players.map(arowHTML).join("");
+    return `<div class="agSect">
+      <div class="agSectHead"><span class="agName${named?" clk":""}" ${named?`onclick="hideModal();openAgentRoster('${agencyEnc(gp.name)}')"`:""}>${escAttr(gp.name)}</span>
+        <span class="agCount">${gp.players.length} player${gp.players.length===1?"":"s"}</span></div>
+      <div class="arost">${rows}</div></div>`;}).join("");
+  showModal(`<h3>${escAttr(agency)}</h3><p class="arsub">${groups.length} agent${groups.length===1?"":"s"} \u00b7 ${list.length} player${list.length===1?"":"s"} in your database</p><div class="agGroups">${sections}</div>`,true);
+  $$(".arost .arow").forEach(r=>r.onclick=()=>{const id=r.dataset.id;hideModal();openProfile(id);});
+}
 function renderProfile(){
   const p=player(CURRENT);
   if(!p){closeDrawer();return;}
@@ -3244,6 +3339,95 @@ function printScoutingMatchup(va,vb){
   win.document.close();
 }
 
+/* ---------- Charts: scatter (choose axes) + distribution ---------- */
+const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
+const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0"};
+const ROLE_COLORS={Guard:"#8E86C9",Wing:"#6FA39B",Big:"#C99A3C"};
+function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
+function chartPool(){const base=STATE.allLeagues?allPlayersFlat():STATE.league.players;return base.filter(p=>p&&p.qualified&&!isExhib(p));}
+function chartColor(p,by){return by==="role"?(ROLE_COLORS[p.role]||"#9aa0aa"):(LEAGUE_COLORS[p.league]||"#9aa0aa");}
+function niceTicks(a,b,n){const span=b-a||1,step0=span/n,mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  const norm=step0/mag,step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
+  const start=Math.ceil(a/step)*step,out=[];for(let v=start;v<=b+1e-9;v+=step)out.push(Math.round(v*100)/100);return out;}
+function median(arr){const a=[...arr].sort((m,n)=>m-n),h=Math.floor(a.length/2);return a.length?(a.length%2?a[h]:(a[h-1]+a[h])/2):0;}
+function scatterSVG(pool,xk,yk,by){
+  pool=pool.filter(p=>p[xk]!=null&&!isNaN(p[xk])&&p[yk]!=null&&!isNaN(p[yk]));
+  if(pool.length<3)return `<div class="empty">Not enough qualified players for this scope.</div>`;
+  const W=700,H=480,mL=56,mR=18,mT=18,mB=48,pw=W-mL-mR,ph=H-mT-mB;
+  const xs=pool.map(p=>p[xk]),ys=pool.map(p=>p[yk]);
+  let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const px=(x1-x0)*0.06||1,py=(y1-y0)*0.06||1;x0-=px;x1+=px;y0-=py;y1+=py;
+  const sx=v=>mL+(v-x0)/(x1-x0)*pw, sy=v=>mT+ph-(v-y0)/(y1-y0)*ph;
+  let grid="",xlab="",ylab="";
+  niceTicks(x0,x1,6).forEach(v=>{const X=sx(v);grid+=`<line x1="${X.toFixed(1)}" y1="${mT}" x2="${X.toFixed(1)}" y2="${mT+ph}" stroke="var(--line-soft)" stroke-width="1"/>`;xlab+=`<text x="${X.toFixed(1)}" y="${mT+ph+16}" text-anchor="middle" font-size="10" fill="var(--muted)">${fmt(v)}</text>`;});
+  niceTicks(y0,y1,6).forEach(v=>{const Y=sy(v);grid+=`<line x1="${mL}" y1="${Y.toFixed(1)}" x2="${mL+pw}" y2="${Y.toFixed(1)}" stroke="var(--line-soft)" stroke-width="1"/>`;ylab+=`<text x="${mL-8}" y="${(Y+3).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">${fmt(v)}</text>`;});
+  const mx=sx(median(xs)),my=sy(median(ys));
+  const medLines=`<line x1="${mx.toFixed(1)}" y1="${mT}" x2="${mx.toFixed(1)}" y2="${mT+ph}" stroke="var(--muted2)" stroke-dasharray="4 4" stroke-width="1"/>
+    <line x1="${mL}" y1="${my.toFixed(1)}" x2="${mL+pw}" y2="${my.toFixed(1)}" stroke="var(--muted2)" stroke-dasharray="4 4" stroke-width="1"/>`;
+  const dots=pool.map(p=>{const c=chartColor(p,by),w=isWatched(p);
+    return `<circle class="scdot${w?" watched":""}" data-id="${p.id}" cx="${sx(p[xk]).toFixed(1)}" cy="${sy(p[yk]).toFixed(1)}" r="${w?5.2:4}" fill="${c}" fill-opacity="${w?0.95:0.7}" stroke="${w?'var(--txt)':c}" stroke-width="${w?1.4:0.8}"><title>${escAttr(p.name)} \u00b7 ${escAttr(p.teamName||'')}
+${chartLabel(xk)}: ${fmt(p[xk])} \u00b7 ${chartLabel(yk)}: ${fmt(p[yk])}</title></circle>`;}).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" class="chartsvg">
+    <rect x="${mL}" y="${mT}" width="${pw}" height="${ph}" fill="var(--panel2)" stroke="var(--line)"/>
+    ${grid}${medLines}${dots}${xlab}${ylab}
+    <text x="${mL+pw/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--txt)">${chartLabel(xk)}</text>
+    <text x="14" y="${mT+ph/2}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--txt)" transform="rotate(-90 14 ${mT+ph/2})">${chartLabel(yk)}</text>
+  </svg>`;
+}
+function distSVG(pool,k){
+  const vals=pool.map(p=>p[k]).filter(v=>v!=null&&!isNaN(v));
+  if(vals.length<3)return `<div class="empty">Not enough qualified players for this scope.</div>`;
+  const W=700,H=380,mL=44,mR=18,mT=16,mB=46,pw=W-mL-mR,ph=H-mT-mB;
+  let mn=Math.min(...vals),mx=Math.max(...vals);if(mn===mx){mn-=1;mx+=1;}
+  const bins=16,bw=(mx-mn)/bins,counts=new Array(bins).fill(0);
+  vals.forEach(v=>{let b=Math.floor((v-mn)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
+  const cmax=Math.max(...counts)||1;
+  const sx=v=>mL+(v-mn)/(mx-mn)*pw, syB=cc=>mT+ph-(cc/cmax)*ph;
+  const mean=vals.reduce((a,b)=>a+b,0)/vals.length;
+  let bars="";for(let i=0;i<bins;i++){const x=mL+(i/bins)*pw,w=pw/bins-1.5,y=syB(counts[i]),h=mT+ph-y;
+    bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" fill="var(--accent)" fill-opacity="0.72" rx="2"><title>${fmt(mn+i*bw)}\u2013${fmt(mn+(i+1)*bw)}: ${counts[i]}</title></rect>`;}
+  let xlab="";niceTicks(mn,mx,7).forEach(v=>{const X=sx(v);xlab+=`<line x1="${X.toFixed(1)}" y1="${mT+ph}" x2="${X.toFixed(1)}" y2="${mT+ph+4}" stroke="var(--muted2)"/><text x="${X.toFixed(1)}" y="${mT+ph+16}" text-anchor="middle" font-size="10" fill="var(--muted)">${fmt(v)}</text>`;});
+  const mX=sx(mean);
+  return `<svg viewBox="0 0 ${W} ${H}" class="chartsvg">
+    <rect x="${mL}" y="${mT}" width="${pw}" height="${ph}" fill="var(--panel2)" stroke="var(--line)"/>
+    ${bars}
+    <line x1="${mX.toFixed(1)}" y1="${mT}" x2="${mX.toFixed(1)}" y2="${mT+ph}" stroke="var(--accent-deep)" stroke-dasharray="5 4" stroke-width="1.5"/>
+    <text x="${mX.toFixed(1)}" y="${mT+10}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--accent-deep)">mean ${fmt(mean)}</text>
+    ${xlab}
+    <text x="${mL+pw/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--txt)">${chartLabel(k)}</text>
+  </svg>`;
+}
+function chartLegendHTML(pool,by){
+  if(by==="role"){return ["Guard","Wing","Big"].map(r=>`<span class="clgd"><i style="background:${ROLE_COLORS[r]}"></i>${r}</span>`).join("");}
+  const present=[...new Set(pool.map(p=>p.league))];
+  return present.map(id=>{const L=STATE.data.leagues.find(l=>l.meta.id===id);return `<span class="clgd"><i style="background:${LEAGUE_COLORS[id]||'#9aa0aa'}"></i>${L?L.meta.name:id}</span>`;}).join("");
+}
+function renderCharts(){
+  const c=STATE.charts, pool=chartPool();
+  const opts=sel=>CHART_STATS.map(([lab,k])=>`<option value="${k}"${sel===k?" selected":""}>${lab}</option>`).join("");
+  const chart=c.type==="scatter"?scatterSVG(pool,c.x,c.y,c.colorBy):distSVG(pool,c.dist);
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Charts</h1>
+    <div class="sub" style="margin-bottom:12px">${pool.length} qualified players \u00b7 ${STATE.allLeagues?"all competitions":STATE.league.meta.name} \u00b7 change scope with the league selector up top</div>
+    <div class="panel">
+      <div class="chartctl">
+        <div class="seg"><button class="${c.type==='scatter'?'active':''}" data-ct="scatter">Scatter</button><button class="${c.type==='distribution'?'active':''}" data-ct="distribution">Distribution</button></div>
+        ${c.type==='scatter'
+          ?`<label class="chlab">X axis <select id="chX">${opts(c.x)}</select></label>
+            <label class="chlab">Y axis <select id="chY">${opts(c.y)}</select></label>
+            <label class="chlab">Color <select id="chColor"><option value="league"${c.colorBy==='league'?' selected':''}>By league</option><option value="role"${c.colorBy==='role'?' selected':''}>By position</option></select></label>`
+          :`<label class="chlab">Stat <select id="chDist">${opts(c.dist)}</select></label>`}
+      </div>
+      <div class="chartwrap">${chart}</div>
+      ${c.type==='scatter'?`<div class="chartlegend">${chartLegendHTML(pool,c.colorBy)}</div>`:""}
+      <p class="hint" style="margin-top:6px">${c.type==='scatter'?'Dashed lines mark the median on each axis (four quadrants). Hover a dot for values; watchlisted players are ringed. Click to open the player.':'Bars show how many players fall in each range. Dashed line is the mean. Hover a bar for its count.'}</p>
+    </div>
+  </div>`;
+  $$("[data-ct]").forEach(b=>b.onclick=()=>{c.type=b.dataset.ct;renderCharts();});
+  const bind=(id,prop)=>{const el=$(id);if(el)el.onchange=()=>{c[prop]=el.value;renderCharts();};};
+  bind("#chX","x");bind("#chY","y");bind("#chColor","colorBy");bind("#chDist","dist");
+  $$(".scdot").forEach(d=>d.onclick=()=>openProfile(d.dataset.id));
+}
 function renderCompare(){
   const groups=[]; const seen=new Set();
   allPlayersFlat().forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);
@@ -3285,8 +3469,8 @@ function renderCompare(){
     const shots=active.map((p,i)=>`<div class="cmpshot" style="--cc:${COLORS[i]}">${shotChartSVG(p)}<div class="cmpshot-nm"><span class="sw" style="background:${COLORS[i]}"></span>${p.name}</div></div>`).join("");
     body=`
     <div class="twocol">
-      <div class="panel"><h3>Percentile overlay (per-40)</h3>
-        ${radarSVG(active,COLORS)}
+      <div class="panel"><h3>Skill radar overlay <span class="hint" style="font-weight:400;font-size:12px">percentiles vs each player's league</span></h3>
+        ${skillRadarMulti(active,COLORS)}
         <div class="legend">${legend}</div>
       </div>
       <div class="panel"><h3>Head to head</h3>
@@ -3586,6 +3770,7 @@ function renderScout(){
   const rateOf=p=>{const r=recOf(p);return r&&r.rating||0;};
   if(simP){ pool.forEach(p=>p._sim=simMatch(simP,p)); pool=pool.filter(p=>p._sim!=null); pool.sort((a,b)=>b._sim-a._sim); }
   else if(s.sort==="grade")      pool.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+  else if(s.sort==="form")   pool.sort((a,b)=>{const fa=formOf(a),fb=formOf(b);return (fb?fb.delta:-999)-(fa?fa.delta:-999);});
   else if(s.sort==="myrating")pool.sort((a,b)=>rateOf(b)-rateOf(a)||((statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)));
   else if(s.sort==="ppg")   pool.sort((a,b)=>(b.ppg||0)-(a.ppg||0));
   else if(s.sort==="name")  pool.sort((a,b)=>a.name.localeCompare(b.name));
@@ -3682,6 +3867,7 @@ function renderScout(){
           <span class="sortlab">Sort</span>
           <select id="scoutSort">
             <option value="grade"${s.sort==="grade"?" selected":""}>Stats grade</option>
+            <option value="form"${s.sort==="form"?" selected":""}>Trending (hot form)</option>
             <option value="myrating"${s.sort==="myrating"?" selected":""}>My rating</option>
             <option value="ppg"${s.sort==="ppg"?" selected":""}>Points</option>
             <option value="age"${s.sort==="age"?" selected":""}>Youngest</option>
@@ -4048,6 +4234,7 @@ function renderTeam(){
       <div class="cardgrid smgrid">${STATE.tsMode==='adv'?advCards:cards}</div>
       <p class="hint" style="margin-top:8px">Tap any stat for the full ${L.teams.length}-team ranking \u00b7 badge = rank vs. the league${STATE.tsMode==='adv'?' \u00b7 ratings per 100 possessions':''}.</p>
     </div>
+    ${teamNeedsHTML(roster)}
     <div class="twocol" style="margin-top:16px">
       <div class="panel"><h3>Standings \u00b7 ${L.meta.name}${t.group?" \u00b7 Group "+t.group:""}</h3>
         <div class="tablewrap stwrap"><table class="sttbl">
