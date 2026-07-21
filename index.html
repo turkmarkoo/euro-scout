@@ -1801,8 +1801,18 @@ function flagEmoji(country){ const iso=isoOf(country); if(!iso)return ""; return
 // Level barometer: where the player projects, from the tier-adjusted board grade.
 // Bands mirror a scout's mental ladder. Returns {i (0=bottom..3=top), label, bands[]}.
 const LEVEL_BANDS=["Low-Level","Mid-Level","Top Level","EuroCup","EuroLeague"];
+// The projected level describes the PERSON, so it must be identical no matter which
+// competition tab is open. We take the player's best (tier-adjusted) grade across all
+// their merged competitions — a player who profiles as Top Level in the EuroLeague is
+// Top Level, even if his BBL/ABA line grades lower.
+function personGrade(p){
+  const grp=(p&&p._grp&&p._grp.length)?p._grp:[p];
+  let best=null;
+  grp.forEach(x=>{const g=statGradeOverall(x);if(g!=null&&(best==null||g>best))best=g;});
+  return best;
+}
 function levelBand(p){
-  const g=statGradeOverall(p); // tier-adjusted 0-10
+  const g=personGrade(p); // person-level, competition-independent
   if(g==null)return null;
   let i;
   if(g>=8.6)i=4; else if(g>=7.2)i=3; else if(g>=5.6)i=2; else if(g>=3.8)i=1; else i=0;
@@ -2364,7 +2374,11 @@ function riserBadgeHTML(p){
 const RECENT_KEY="euroscout:recent";
 function recentGet(){try{return JSON.parse(localStorage.getItem(RECENT_KEY)||"[]");}catch(e){return [];}}
 function recentPush(id){
-  let a=recentGet().filter(x=>x!==id); a.unshift(id); a=a.slice(0,12);
+  // store the person's canonical id so switching competitions doesn't list them multiple times
+  const p=player(id); const key=(p&&gid(p))||id;
+  // also drop any stale ids that resolve to the same person
+  let a=recentGet().filter(x=>{const xp=player(x);const xk=(xp&&gid(xp))||x;return xk!==key;});
+  a.unshift(key); a=a.slice(0,12);
   try{localStorage.setItem(RECENT_KEY,JSON.stringify(a));}catch(e){}
 }
 // SAVED VIEWS (localStorage): named filter combinations
