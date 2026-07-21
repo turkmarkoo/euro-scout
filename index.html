@@ -674,6 +674,9 @@ body.drawer-lock{overflow:hidden}
 /* barometer */
 .barometer{align-self:stretch;min-width:150px;padding-left:22px;border-left:1px solid rgba(255,255,255,.24)}
 .bar-title{font-size:11px;opacity:.9;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+.bar-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.3px;padding:1px 5px;border-radius:5px;margin-left:4px;vertical-align:middle;text-transform:none}
+.bar-tag.manual{background:var(--gold);color:#1a1207}
+.bar-tag.rated{background:rgba(255,255,255,.28);color:#fff}
 .bar-body{display:flex;gap:13px;align-items:stretch}
 .bar-tube{position:relative;width:11px;border-radius:7px;background:rgba(255,255,255,.22);display:flex;flex-direction:column-reverse;min-height:92px}
 .bar-fill{width:100%;background:linear-gradient(180deg,#ffe6a6,var(--gold));border-radius:7px 7px 0 0;transition:height .3s}
@@ -781,8 +784,8 @@ body.drawer-lock{overflow:hidden}
   <div class="hwrap">
     <div class="logo" id="homeLogo" title="Back to players" role="button" tabindex="0"><span class="mark">E</span><span class="logotext">Euro<b>Scout</b></span></div>
     <nav class="tabs" id="tabs">
-      <button data-view="scout" class="active">Scout</button>
-      <button data-view="players">Players</button>
+      <button data-view="scout" class="active">Players</button>
+      <button data-view="players">Stats</button>
       <button data-view="teams">Teams</button>
       <button data-view="exhib">Exhibitions</button>
       <button data-view="compare" class="t-secondary">Compare</button>
@@ -820,6 +823,8 @@ body.drawer-lock{overflow:hidden}
 <script src="data/exhibitions.js"></script>
 <script>
 /* ============================ EuroScout app ============================ */
+/* Capture any deep-link hash (#p=<id>) before anything can wipe it. */
+const __DEEPHASH=(location.hash||"");
 document.documentElement.dataset.theme='light';
 const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
@@ -1018,11 +1023,12 @@ function applyOverrides(){
     if(!p._orig)p._orig={height:p.height,weight:p.weight,country:p.country,pos:p.pos,born:p.born,name:p.name};
     const o=p._orig; p.height=o.height;p.weight=o.weight;p.country=o.country;p.pos=o.pos;p.born=o.born;p.name=o.name;
     const b=bioFor(p);
-    p.hand=null;p.license=null;p.agent=null;p.agency=null;p.agentUrl=null;p._rgm=null;
+    p.hand=null;p.license=null;p.agent=null;p.agency=null;p.agentUrl=null;p._rgm=null;p.projLevel=null;
     if(b){ if(b.height!=null&&b.height!=="")p.height=Number(b.height); if(b.weight!=null&&b.weight!=="")p.weight=Number(b.weight);
       if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name;
       if(b.hand)p.hand=b.hand; if(b.license)p.license=b.license;
-      if(b.agent)p.agent=b.agent; if(b.agency)p.agency=normAgency(b.agency); if(b.agentUrl)p.agentUrl=b.agentUrl; if(b.rgm)p._rgm=b.rgm; }
+      if(b.agent)p.agent=b.agent; if(b.agency)p.agency=normAgency(b.agency); if(b.agentUrl)p.agentUrl=b.agentUrl; if(b.rgm)p._rgm=b.rgm;
+      if(b.projLevel!=null&&b.projLevel!=="")p.projLevel=Number(b.projLevel); }
     p._ext=extFor(p)||null;
   }));
 }
@@ -1107,6 +1113,10 @@ function openEditModal(id){
    +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
    +esel("Agency","eAgency",p.agency||"",agencyList())+efld("Add new agency","eAgencyNew","")
    +efld("RealGM agent-client URL","eAgentUrl",p.agentUrl||"")
+   +'<div class="efld"><label>Projected level</label><select id="eProj">'
+     +'<option value="">Auto (production + your rating)</option>'
+     +LEVEL_BANDS.map((lab,i)=>'<option value="'+i+'"'+((p.projLevel!=null&&Number(p.projLevel)===i)?' selected':'')+'>'+lab+'</option>').reverse().join("")
+     +'</select></div>'
    +'</div>'
    +'<div class="hint" style="margin-top:6px">Bio edits apply to this player across every competition. Agency dropdown lists agencies you\u2019ve added \u2014 type a new one in \u201cAdd new agency\u201d to save it. Paste a RealGM agent-client page URL to link the agency.</div>'
    +'<div class="nlab" style="margin-top:16px">Linked competitions ('+grp.length+')</div>'
@@ -1133,7 +1143,7 @@ function openEditModal(id){
     const agency=newAg||g("eAgency");
     // key the bio to the person (group canonical id) so it applies across all their competitions
     const key=gid(p)||id;
-    ovrSaveLocal({bio:{[key]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm")}},ext:{[key]:g("eExt")}});
+    ovrSaveLocal({bio:{[key]:{height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm"),projLevel:g("eProj")}},ext:{[key]:g("eExt")}});
     toast("Saved");hideModal();renderProfile();};
   const ex=$("#ovrExport"); if(ex)ex.onclick=ovrExportBlob;
   const im=$("#ovrImport"); if(im)im.onchange=e=>{if(e.target.files[0])ovrImportFile(e.target.files[0]);};
@@ -1218,6 +1228,38 @@ async function boot(){
   const sc=$("#scrim");if(sc)sc.onclick=closeDrawer;
   document.addEventListener("keydown",onGlobalKey);
   renderAuth(); render();
+  // deep-link: open a player if the URL points at one (#p=<id>), e.g. a shared link
+  openFromHash(__DEEPHASH);
+  window.addEventListener("hashchange",()=>openFromHash(location.hash));
+}
+// Parse #p=<id> and open that player. Ids like "aba-5150" contain a dash but no "=",
+// so we only split on the first "=". Falls back silently if the id isn't found.
+// Copy a shareable absolute link to a player (base URL + #p=<id>).
+function playerLink(id){return location.origin+location.pathname+location.search+"#p="+encodeURIComponent(id);}
+function copyPlayerLink(id,btn){
+  const url=playerLink(id);
+  const done=()=>{if(btn){const t=btn.textContent;btn.textContent="✓ Copied";setTimeout(()=>{btn.textContent=t;},1400);}};
+  try{navigator.clipboard.writeText(url).then(done,()=>fallbackCopy(url,done));}
+  catch(e){fallbackCopy(url,done);}
+}
+function fallbackCopy(text,cb){
+  try{const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);cb&&cb();}
+  catch(e){try{prompt("Copy this link:",text);}catch(_){}}
+}
+// Parse #p=<id> and open that player. Ids like "aba-5150" contain a dash but no "=",
+// so we only split on the first "=". Falls back silently if the id isn't found.
+function parsePlayerHash(h){
+  if(!h)return null;
+  const m=/^#p=(.+)$/.exec(h);
+  if(!m)return null;
+  try{return decodeURIComponent(m[1]);}catch(e){return m[1];}
+}
+function openFromHash(h){
+  const id=parsePlayerHash(h);
+  if(!id){ if(DRAWER_OPEN&&!/^#p=/.test(location.hash))closeDrawer(); return; }
+  if(CURRENT===id&&DRAWER_OPEN)return;      // already showing this player
+  if(player(id))openProfile(id);
 }
 
 function goHome(){
@@ -1642,7 +1684,10 @@ let DRAWER_OPEN=false;
 function openProfile(id){const _p=player(id);if(!_p)return;CURRENT=id;const _L=leagueOf(_p);if(_L)STATE.league=_L;
   recentPush(id);
   updateScopeLabel();
-  DRAWER_OPEN=true; renderProfile(); openDrawerUI();}
+  DRAWER_OPEN=true; renderProfile(); openDrawerUI();
+  // shareable deep link: reflect the open player in the URL (#p=<id>)
+  try{const h="#p="+encodeURIComponent(id); if(location.hash!==h)history.replaceState(null,"",h);}catch(e){}
+}
 function drawerJump(id){
   const dr=$("#drawer"), el=document.getElementById(id), scr=dr&&dr.querySelector(".dr-scroll");
   if(!el)return;
@@ -1673,6 +1718,8 @@ function closeDrawer(){
   if(sc)sc.classList.remove("on");
   document.body.classList.remove("drawer-lock");
   DRAWER_OPEN=false;CURRENT=null;
+  // drop the deep-link hash when the profile is closed
+  try{if(/^#p=/.test(location.hash))history.replaceState(null,"",location.pathname+location.search);}catch(e){}
 }
 function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
   if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
@@ -1811,12 +1858,36 @@ function personGrade(p){
   grp.forEach(x=>{const g=statGradeOverall(x);if(g!=null&&(best==null||g>best))best=g;});
   return best;
 }
-function levelBand(p){
-  const g=personGrade(p); // person-level, competition-independent
+// Auto grade for the projected level = peak production blended with YOUR star rating.
+// A star rating is a level opinion: 5★≈EuroLeague, 4★≈EuroCup, 3★≈Top, 2★≈Mid, 1★≈Low.
+// We pull the production grade toward the rating so a proven player with a down season
+// isn't stuck at a harsh level once you've rated him. No rating → pure production.
+const STAR_LEVEL_GRADE={1:3.0,2:5.0,3:6.8,4:8.2,5:9.4};
+function autoLevelGrade(p){
+  const prod=personGrade(p);
+  const rating=(recOf(p)||{}).rating||0;
+  if(!rating) return prod;               // unrated → production only
+  const target=STAR_LEVEL_GRADE[rating];
+  if(prod==null) return target;          // rated but no stats → use rating
+  // higher ratings trust your eye more: 3★ is an even blend, 5★ is mostly your call.
+  // w = weight on YOUR rating (0.5 at 3★ up to 0.8 at 5★, down to 0.4 at 1★)
+  const w={1:0.45,2:0.5,3:0.6,4:0.72,5:0.82}[rating];
+  return prod*(1-w) + target*w;
+}
+function bandIndexFromGrade(g){
   if(g==null)return null;
-  let i;
-  if(g>=8.6)i=4; else if(g>=7.2)i=3; else if(g>=5.6)i=2; else if(g>=3.8)i=1; else i=0;
-  return {i,label:LEVEL_BANDS[i]};
+  if(g>=8.6)return 4; if(g>=7.2)return 3; if(g>=5.6)return 2; if(g>=3.8)return 1; return 0;
+}
+function levelBand(p){
+  // manual override wins outright
+  if(p&&p.projLevel!=null&&p.projLevel!==""){
+    const i=Number(p.projLevel);
+    if(i>=0&&i<=4)return {i,label:LEVEL_BANDS[i],manual:true};
+  }
+  const g=autoLevelGrade(p);
+  const i=bandIndexFromGrade(g);
+  if(i==null)return null;
+  return {i,label:LEVEL_BANDS[i],manual:false};
 }
 function levelBarometerHTML(p){
   const b=levelBand(p); if(!b)return "";
@@ -1826,8 +1897,13 @@ function levelBarometerHTML(p){
     return `<div class="lvrow${on?' on':''}"><span class="lvdot${on?' on':below?' below':''}"></span><span class="lvlab${on?' on':''}">${lab}</span></div>`;
   }).reverse().join("");
   const fillPct=Math.round(((b.i+1)/n)*100);
-  return `<div class="barometer" title="Projected level from the tier-adjusted grade">
-    <div class="bar-title">Projected level</div>
+  const rated=!b.manual && ((recOf(p)||{}).rating||0)>0;
+  const tag=b.manual?`<span class="bar-tag manual" title="You set this level manually">set</span>`
+    :(rated?`<span class="bar-tag rated" title="Blended with your star rating">★</span>`:"");
+  const tip=b.manual?"Projected level — set manually in Edit bio"
+    :(rated?"Projected level — production blended with your star rating":"Projected level — from season production");
+  return `<div class="barometer" title="${tip}">
+    <div class="bar-title">Projected level ${tag}</div>
     <div class="bar-body">
       <div class="bar-tube"><div class="bar-fill" style="height:${fillPct}%"></div><div class="bar-bulb"></div></div>
       <div class="bar-rows">${rows}</div>
@@ -1956,6 +2032,7 @@ function renderProfile(){
             </div>
             <div class="ph-actions">
               <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
+              <button class="btn ghost sm" onclick="copyPlayerLink('${p.id}',this)" title="Copy a shareable link to this player">🔗 Copy link</button>
               <a class="btn ghost sm" href="${realgmSearchURL(p)}" target="_blank" rel="noopener" title="Search this player on RealGM">↗ RealGM</a>
               <a class="btn ghost sm" href="${eurobasketURL(p)}" target="_blank" rel="noopener" title="Find this player on Eurobasket.com">↗ Eurobasket</a>
               ${(p._ext&&!/eurobasket\.com/i.test(p._ext))?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Profile link</a>`:''}
@@ -2899,7 +2976,7 @@ function renderTeam(){
 /* ---------- Glossary ---------- */
 function renderGlossary(){
   const guide=[
-    ["Getting around","EuroScout covers nine competitions for the 2025\u201326 season \u2014 the two European cups (EuroLeague, EuroCup) plus seven domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands) and SBL Herr (Sweden). The home <b>Scout board</b> is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Players</b> table, the <b>Teams</b> list, your <b>Watchlist</b>, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player."],
+    ["Getting around","EuroScout covers nine competitions for the 2025\u201326 season \u2014 the two European cups (EuroLeague, EuroCup) plus seven domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands) and SBL Herr (Sweden). The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
     ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all nine competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
     ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
     ["Matchup (live scouting)","In the header\u2019s second row, pick the two teams playing each other. Two quick pills appear \u2014 tap either to jump straight to that team\u2019s roster, so you can bounce between the two benches in one click while watching a game."],
