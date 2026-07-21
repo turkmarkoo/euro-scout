@@ -57,6 +57,40 @@ nav.tabs button:hover{color:var(--txt)}
 .spacer{flex:1}
 .leaguesel,.authbtn{background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:8px 12px;border-radius:9px;font-size:12.5px;font-weight:600;box-shadow:var(--shadow)}
 .authbtn:hover,.leaguesel:hover{border-color:var(--accent)}
+.syncpill{cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.syncpill.s-off{color:var(--muted)}
+.syncpill.s-ok{border-color:color-mix(in srgb,var(--good) 45%,var(--line));color:var(--good)}
+.syncpill.s-sync{border-color:var(--accent);color:var(--accent-deep)}
+.syncpill.s-dirty{border-color:color-mix(in srgb,var(--gold) 55%,var(--line));color:var(--gold)}
+.syncpill.s-err{border-color:color-mix(in srgb,var(--bad) 55%,var(--line));color:var(--bad)}
+.synchelp{font-size:13px;color:var(--muted);line-height:1.5;margin:2px 0 12px}
+.syncsteps{font-size:12.5px;color:var(--txt);line-height:1.55;margin:0 0 14px;padding-left:18px}
+.syncsteps li{margin-bottom:7px}
+.syncsteps code{background:var(--chip);padding:1px 5px;border-radius:5px;font-family:var(--mono);font-size:11.5px}
+.synclbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:11px 0 4px}
+.synclbl .muted2{text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted2)}
+#modal #syToken,#modal #syGist,#modal #syDev{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:12.5px;background:var(--panel2);color:var(--txt);box-sizing:border-box}
+.syncchk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);margin:14px 0 4px;cursor:pointer}
+.syncbtns{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.syncbtns .btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,var(--line))}
+.syncstat{font-size:11.5px;color:var(--muted);margin-top:10px;font-family:var(--mono);line-height:1.5;word-break:break-word}
+.authgate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.authgate.hidden{display:none}
+.agbox{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 28px;box-shadow:var(--shadow)}
+.aglogo{display:flex;align-items:center;gap:8px;font-family:var(--disp);font-size:20px;font-weight:800;margin-bottom:18px}
+.aglogo .mark{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:var(--accent);color:#fff;font-size:16px}
+.agbox h2{font-size:20px;margin:0 0 8px}
+.agbox p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0 0 16px}
+.agbox input{width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:var(--panel2);color:var(--txt);margin-bottom:12px}
+.agbox input:focus{outline:none;border-color:var(--accent)}
+.agbox .btn{width:100%;justify-content:center}
+.agmsg{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:12px;min-height:1em}
+/* viewer (read-only): state stays visible but frozen; writes are also blocked in JS and by RLS */
+.role-viewer .starbtn,.role-viewer .cardwatch,.role-viewer .pc-watch,.role-viewer .bigstar,
+.role-viewer #watchToggle,.role-viewer #rating button,.role-viewer .phstar,
+.role-viewer #eyeGrid input,.role-viewer .tagpick{pointer-events:none}
+.role-viewer .biedit,.role-viewer .agentext{display:none}
+.role-viewer .notesec{background:var(--panel2)}
 .leaguesel{appearance:none;padding-right:28px;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239AA1AC'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 10px center}
@@ -614,6 +648,10 @@ body.drawer-lock{overflow:hidden}
 @media(max-width:760px){.skillwrap{grid-template-columns:1fr;gap:12px}.skillradar .scoutradar{max-width:320px}}
 
 /* Exhibitions / Summer League */
+.boardbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 2px 12px;flex-wrap:wrap}
+.boardbar .bbcount{font-size:13px;color:var(--muted);font-weight:600}
+.boardbar .bbsort{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.boardbar .bbsort select{font-family:var(--body);font-size:13px;font-weight:600;color:var(--txt);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer}
 .exhibhero{padding:4px 2px 14px}
 .exhibtitle{font-size:23px;font-weight:800;letter-spacing:-.5px}
 .exhibtitle .exsub{font-size:14px;font-weight:600;color:var(--muted);margin-left:8px}
@@ -717,6 +755,23 @@ body.drawer-lock{overflow:hidden}
 .bival .agentlink:hover{border-bottom-color:var(--accent)}
 .bival .agentlink .bisub{display:block}
 .biedit{color:var(--muted2);cursor:pointer;border-bottom:1px dashed var(--line)}
+.bival .agentchip{color:var(--accent-deep);font-weight:700;cursor:pointer;border-bottom:1px solid var(--accent-soft)}
+.bival .agentchip:hover{border-bottom-color:var(--accent)}
+.bival .agencychip{display:block;font-size:11.5px;color:var(--muted);font-weight:500;cursor:pointer;margin-top:1px;width:fit-content;border-bottom:1px solid transparent}
+.bival .agencychip:hover{color:var(--accent-deep);border-bottom-color:var(--accent-soft)}
+.bival .agentext{margin-left:5px;text-decoration:none;color:var(--muted2);font-weight:700}
+.bival .agentext:hover{color:var(--accent)}
+.arsub{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+.arost{display:flex;flex-direction:column;gap:2px;max-height:60vh;overflow:auto;margin:0 -6px}
+.arow{display:grid;grid-template-columns:32px 1.6fr 1.4fr auto auto 42px;align-items:center;gap:10px;padding:7px 10px;border-radius:9px;cursor:pointer}
+.arow:hover{background:var(--panel2)}
+.arow .aav{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--chip)}
+.arow .an{font-weight:700;font-size:13.5px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arow .ameta{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;min-width:0}
+.arow .ameta .atm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arow .alg{font-size:11px;color:var(--muted2);white-space:nowrap}
+.arow .astars{font-size:11px;color:var(--gold);letter-spacing:-1px;white-space:nowrap}
+.arow .agr{font-size:13px;font-weight:800;color:var(--accent-deep);text-align:right}
 .ph-summary{margin:18px 0 0;padding:14px 16px;background:color-mix(in srgb,var(--sage) 10%,var(--panel));
   border:1px solid color-mix(in srgb,var(--sage) 26%,var(--line));border-radius:12px;font-size:13.5px;color:var(--txt);line-height:1.55}
 .biopanel-edit{position:absolute;top:14px;right:14px;background:var(--panel2);border:1px solid var(--line);
@@ -892,6 +947,7 @@ body.drawer-lock{overflow:hidden}
 </header>
 <main id="app"><div class="empty">Loading data…</div></main>
 <div id="toast" class="toast"></div>
+<div id="authgate" class="authgate hidden"><div class="agbox" id="agBox"></div></div>
 
 <script src="config.js"></script>
 <script src="overrides.js"></script>
@@ -1019,12 +1075,16 @@ const BARSET = [
   {k:"spg",t:"Steals"},{k:"bpg",t:"Blocks"},{k:"ts",t:"True Shooting"},
   {k:"f3p",t:"3PT %"},{k:"pir",t:"PIR"}];
 
-/* ---------- Storage: Supabase if configured + signed in, else localStorage ---------- */
+/* ---------- Storage: shared-team Supabase backend when configured; localStorage is the offline cache/fallback ----------
+   Model: ONE shared dataset (not per-user) so a viewer (director) sees the editor's scouting work.
+   Access: an allowlist `members` table maps email -> role ('editor'|'viewer'). RLS lets members read,
+   editors write. Non-members (even if logged in) get zero rows and hit the not-authorized screen. */
 const Store = (()=>{
   const cfg = window.EUROSCOUT_CONFIG||{};
   const enabled = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
-  let sb=null, user=null, cache={};
+  let sb=null, user=null, role=null, member=false, cache={};
   const LKEY="euroscout:records";
+  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup"];
   const local = {
     all(){try{return JSON.parse(localStorage.getItem(LKEY))||{}}catch(e){return{}}},
     set(o){localStorage.setItem(LKEY,JSON.stringify(o))}
@@ -1034,40 +1094,91 @@ const Store = (()=>{
     await new Promise((res,rej)=>{const s=document.createElement("script");
       s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
       s.onload=res;s.onerror=rej;document.head.appendChild(s);});
-    sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+    sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,
+      {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const {data}=await sb.auth.getSession();
     user=data.session?.user||null;
-    sb.auth.onAuthStateChange((_e,sess)=>{user=sess?.user||null;renderAuth();});
+    if(user)await resolveMembership();
+    sb.auth.onAuthStateChange(async(_e,sess)=>{
+      user=sess?.user||null;
+      if(user){await resolveMembership();}else{role=null;member=false;}
+      try{onAuthChange();}catch(e){}
+    });
   }
+  async function resolveMembership(){
+    role=null;member=false;
+    if(!sb||!user)return;
+    const email=(user.email||"").toLowerCase();
+    try{const {data,error}=await sb.from("members").select("role").eq("email",email).maybeSingle();
+      if(!error&&data){member=true;role=(data.role==="editor")?"editor":"viewer";}}catch(e){}
+  }
+  function canEdit(){ return !enabled ? true : (member && role==="editor"); }
+  // pull the whole shared dataset into the local cache
   async function load(){
-    cache = local.all();               // local cache first (instant)
-    if(sb && user){
-      const {data,error}=await sb.from("scouting").select("*").eq("user_id",user.id);
-      if(!error && data){data.forEach(r=>{cache[r.player_id]={report:r.report||"",
-        rating:r.rating||0,tags:r.tags||[],watch:!!r.watch,board:r.board??null,eye:r.eye||{}};});
-        local.set(cache);}
+    cache = local.all();                 // instant local cache first
+    if(sb && user && member){
+      try{const {data,error}=await sb.from("scouting").select("*");
+        if(!error && data){
+          if(data.length){const c={};data.forEach(r=>{c[r.player_id]={report:r.report||"",
+            rating:r.rating||0,tags:r.tags||[],watch:!!r.watch,board:r.board??null,eye:r.eye||{}};});
+            cache=c;local.set(cache);}
+          else if(!canEdit()){cache={};local.set(cache);} // viewer: empty shared set (don't show stale local)
+          // editor + empty DB: keep local cache so migrateLocalUp() can push it up
+        }}catch(e){}
+      await loadAppData();
     }
     return cache;
   }
+  async function loadAppData(){
+    if(!sb||!user||!member)return;
+    try{const {data,error}=await sb.from("appdata").select("*");
+      if(error||!data)return;
+      data.forEach(r=>{if(APP_KEYS.includes(r.k)&&r.v!=null){
+        try{localStorage.setItem(r.k,typeof r.v==="string"?r.v:JSON.stringify(r.v));}catch(e){}}});
+    }catch(e){}
+  }
   function get(id){return cache[id]||{report:"",rating:0,tags:[],watch:false,board:null,eye:{}};}
   async function save(id,rec){
+    if(enabled && !canEdit()) return;    // viewers cannot write
     cache[id]={...get(id),...rec}; local.set(cache);
-    if(sb && user){
+    if(sb && user && canEdit()){
       const r=cache[id];
-      await sb.from("scouting").upsert({user_id:user.id,player_id:id,report:r.report,
-        rating:r.rating,tags:r.tags,watch:r.watch,board:r.board,eye:r.eye,updated_at:new Date().toISOString()},
-        {onConflict:"user_id,player_id"});
+      try{await sb.from("scouting").upsert({player_id:id,report:r.report,rating:r.rating,
+        tags:r.tags,watch:r.watch,board:r.board,eye:r.eye,updated_at:new Date().toISOString(),
+        updated_by:user.email},{onConflict:"player_id"});}catch(e){}
     }
   }
+  async function pushAppKey(k){
+    if(!sb||!user||!canEdit())return;
+    let v=null;try{v=JSON.parse(localStorage.getItem(k));}catch(e){v=localStorage.getItem(k);}
+    try{await sb.from("appdata").upsert({k,v,updated_at:new Date().toISOString()},{onConflict:"k"});}catch(e){}
+  }
+  // first-run migration: if the shared DB is empty and this editor has local work, push it up
+  async function migrateLocalUp(){
+    if(!sb||!user||!canEdit())return;
+    try{const {data}=await sb.from("scouting").select("player_id").limit(1);
+      if(data&&data.length)return; // already has data
+      const loc=local.all(); const ids=Object.keys(loc);
+      if(!ids.length)return;
+      const rows=ids.map(id=>{const r=loc[id];return{player_id:id,report:r.report||"",rating:r.rating||0,
+        tags:r.tags||[],watch:!!r.watch,board:r.board??null,eye:r.eye||{},updated_at:new Date().toISOString(),updated_by:user.email};});
+      await sb.from("scouting").upsert(rows,{onConflict:"player_id"});
+      for(const k of APP_KEYS){await pushAppKey(k);}
+    }catch(e){}
+  }
   return {
-    get enabled(){return enabled}, get user(){return user},
-    initSB, load, get, save,
-    async signIn(email){if(!sb)return;const {error}=await sb.auth.signInWithOtp({email});
-      if(error)throw error;},
-    async signOut(){if(sb)await sb.auth.signOut();user=null;},
+    get enabled(){return enabled}, get user(){return user}, get role(){return role}, get member(){return member},
+    canEdit, initSB, load, get, save, pushAppKey, migrateLocalUp, resolveMembership,
+    async signIn(email){if(!sb)return;const redirect=location.origin+location.pathname;
+      const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:redirect}});if(error)throw error;},
+    async signOut(){if(sb)await sb.auth.signOut();user=null;role=null;member=false;},
     allCache(){return cache;}
   };
 })();
+/* every record write funnels through Store.save(gid,rec); stamp it so sync can merge per-player */
+(function(){const _save=Store.save;
+  Store.save=function(id,rec){const r=_save.call(Store,id,rec);
+    try{Sync.stampRecord(id);}catch(e){}return r;};})();
 
 /* ---------------------------- boot ---------------------------- */
 /* ---------- manual overrides: links, bio, external URLs ---------- */
@@ -1081,11 +1192,14 @@ function ovrMerged(){const b=ovrBase(),l=ovrLocal();
   return{links,bio,ext};}
 let OVR={links:[],bio:{},ext:{}};
 function ovrSaveLocal(patch){
+  if(!Store.canEdit())return;
   const l=ovrLocal();
   if(patch.bio)Object.keys(patch.bio).forEach(id=>{const clean={};Object.keys(patch.bio[id]).forEach(k=>{const v=patch.bio[id][k];if(v!=null&&v!=="")clean[k]=v;});l.bio[id]={...(l.bio[id]||{}),...clean};});
   if(patch.ext)Object.keys(patch.ext).forEach(id=>{if(patch.ext[id])l.ext[id]=patch.ext[id];else delete l.ext[id];});
   if(patch.links)patch.links.forEach(pr=>{if(!l.links.some(x=>(x[0]===pr[0]&&x[1]===pr[1])||(x[0]===pr[1]&&x[1]===pr[0])))l.links.push(pr);});
   localStorage.setItem(OVR_KEY,JSON.stringify(l));
+  try{Sync.stampKey(OVR_KEY);}catch(e){}
+  try{Store.pushAppKey(OVR_KEY);}catch(e){}
   OVR=ovrMerged(); rebuildLinks(); applyOverrides(); STATE._tagg=null;
 }
 function applyOverrides(){
@@ -1180,6 +1294,7 @@ function esel(lab,id,val,opts){
   return '<div class="efld"><label>'+lab+'</label><select id="'+id+'">'+optHtml+'</select></div>';
 }
 function openEditModal(id){
+  if(!Store.canEdit())return;
   const p=player(id); if(!p)return; const grp=p._grp||[p];
   const html='<h3>Edit \u2014 '+esc(p.name)+'</h3>'
    +'<div class="editgrid">'
@@ -1246,7 +1361,7 @@ function openEditModal(id){
 /* ---------- live-scouting matchup switcher ---------- */
 const MU_KEY="euroscout:matchup";
 function muState(){try{return JSON.parse(localStorage.getItem(MU_KEY))||{}}catch(e){return{}}}
-function muSave(o){localStorage.setItem(MU_KEY,JSON.stringify(o));}
+function muSave(o){if(!Store.canEdit())return;localStorage.setItem(MU_KEY,JSON.stringify(o));try{Sync.stampKey(MU_KEY);}catch(e){}try{Store.pushAppKey(MU_KEY);}catch(e){}}
 function muInit(){
   const bar=$("#matchupBar");if(!bar)return;
   const opts=[];STATE.data.leagues.forEach(L=>L.teams.forEach(t=>opts.push({v:L.meta.id+"|"+t.code,n:t.name,lg:L.meta.name,s:(t.name+" "+t.code).toLowerCase()})));
@@ -1279,6 +1394,171 @@ function muInit(){
   wire("a");wire("b");
   paint();
 }
+
+/* ==================== cross-device sync (private GitHub gist) ====================
+   One private gist holds euroscout-sync.json. Scouting records merge PER PLAYER by
+   last-edit timestamp; lower-stakes keys (overrides, agents, agencies, views, matchup)
+   use whole-key last-write-wins. Auth: a classic PAT with ONLY the `gist` scope. */
+const Sync = (()=>{
+  const CFG_KEY="euroscout:sync";        // {token,gistId,device,on}
+  const RT_KEY ="euroscout:records_t";   // {gid:ms} per-player edit stamps
+  const KM_KEY ="euroscout:sync_km";     // {key:ms} whole-key stamps
+  const FILE   ="euroscout-sync.json";
+  const DATA_KEYS =["euroscout:records","euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup"];
+  const OTHER_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup"];
+  let cfg=loadCfg(), status="idle", busy=false, pushT=null, lastPull=0, lastPush=0, lastErr="";
+
+  function loadCfg(){try{return Object.assign({token:"",gistId:"",device:"",on:false},JSON.parse(localStorage.getItem(CFG_KEY)||"{}"));}catch(e){return{token:"",gistId:"",device:"",on:false};}}
+  function saveCfg(){localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}
+  function jget(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}}
+  function sp(s){try{return JSON.parse(s);}catch(e){return null;}}
+  function configured(){return !!(cfg.on&&cfg.token&&cfg.gistId);}
+  function ready(){return !!cfg.token;}
+
+  /* ---- edit stamps (called from every write site) ---- */
+  function stampRecord(gid){if(!gid)return;const m=jget(RT_KEY,{});m[gid]=Date.now();localStorage.setItem(RT_KEY,JSON.stringify(m));schedule();}
+  function stampKey(key){const m=jget(KM_KEY,{});m[key]=Date.now();localStorage.setItem(KM_KEY,JSON.stringify(m));schedule();}
+  function schedule(){if(!configured())return;setPill("dirty");clearTimeout(pushT);pushT=setTimeout(()=>push().catch(()=>{}),4000);}
+
+  function readBundle(){
+    const keys={};DATA_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!=null)keys[k]=v;});
+    return{_meta:{app:"euroscout",v:1,device:cfg.device||"",at:Date.now()},records_t:jget(RT_KEY,{}),keyMeta:jget(KM_KEY,{}),keys};
+  }
+  /* merge a remote bundle into local storage; returns true if anything local changed */
+  function mergeIn(remote){
+    if(!remote||!remote.keys)return false;
+    let changed=false; const rk=remote.keys, rRT=remote.records_t||{}, rKM=remote.keyMeta||{};
+    // records: per-player last-write-wins
+    const lRT=jget(RT_KEY,{}), lRecs=jget("euroscout:records",{})||{};
+    const rRecs=rk["euroscout:records"]?(sp(rk["euroscout:records"])||{}):{};
+    const mRecs={...lRecs}, mRT={...lRT};
+    Object.keys(rRecs).forEach(gid=>{const lt=lRT[gid]||0, rt=rRT[gid]||0;
+      if(!(gid in lRecs)||rt>lt){mRecs[gid]=rRecs[gid];mRT[gid]=rt||Date.now();changed=true;}});
+    if(changed)localStorage.setItem("euroscout:records",JSON.stringify(mRecs));
+    localStorage.setItem(RT_KEY,JSON.stringify(mRT));
+    // other keys: whole-key last-write-wins
+    const lKM=jget(KM_KEY,{});
+    OTHER_KEYS.forEach(k=>{if(!(k in rk))return;const lt=lKM[k]||0, rt=rKM[k]||0;
+      if(rt>lt){localStorage.setItem(k,rk[k]);lKM[k]=rt;changed=true;}});
+    localStorage.setItem(KM_KEY,JSON.stringify(lKM));
+    return changed;
+  }
+  async function refresh(){ // rebuild in-memory caches that were seeded from localStorage at boot
+    try{await Store.load();}catch(e){}
+    try{OVR=ovrMerged();rebuildLinks();applyOverrides();STATE._tagg=null;}catch(e){}
+    try{render();}catch(e){}
+  }
+
+  /* ---- GitHub gist REST ---- */
+  function hdr(){return{"Authorization":"Bearer "+cfg.token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};}
+  async function apiGet(id){
+    const r=await fetch("https://api.github.com/gists/"+id,{headers:hdr()});
+    if(r.status===401)throw new Error("Bad token (401) — the PAT needs the gist scope.");
+    if(r.status===404)throw new Error("Gist not found (404) — check the Gist ID.");
+    if(!r.ok)throw new Error("GitHub error "+r.status);
+    const g=await r.json(), f=g.files&&g.files[FILE]; if(!f)return null;
+    let c=f.content; if(f.truncated&&f.raw_url){const rr=await fetch(f.raw_url,{headers:hdr()});c=await rr.text();}
+    return sp(c);
+  }
+  async function apiCreate(){
+    const body={description:"EuroScout sync — do not edit by hand",public:false,files:{[FILE]:{content:JSON.stringify(readBundle())}}};
+    const r=await fetch("https://api.github.com/gists",{method:"POST",headers:hdr(),body:JSON.stringify(body)});
+    if(r.status===401)throw new Error("Bad token (401) — needs the gist scope.");
+    if(!r.ok)throw new Error("Create failed ("+r.status+")");
+    return (await r.json()).id;
+  }
+  async function apiUpdate(){
+    const body={files:{[FILE]:{content:JSON.stringify(readBundle())}}};
+    const r=await fetch("https://api.github.com/gists/"+cfg.gistId,{method:"PATCH",headers:hdr(),body:JSON.stringify(body)});
+    if(r.status===401)throw new Error("Bad token (401).");
+    if(r.status===404)throw new Error("Gist not found (404).");
+    if(!r.ok)throw new Error("Update failed ("+r.status+")");
+  }
+
+  /* ---- high-level ops ---- */
+  async function pull(){
+    if(!ready()||!cfg.gistId||busy)return; busy=true; setPill("sync"); lastErr="";
+    try{ const changed=mergeIn(await apiGet(cfg.gistId)); lastPull=Date.now();
+      if(changed){await refresh();toast("Sync — pulled updates from your other device");}
+      setPill("ok");
+    }catch(e){lastErr=e.message;setPill("err");toast("Sync: "+e.message);}
+    finally{busy=false;}
+  }
+  async function push(){
+    if(!ready())return;
+    if(busy){clearTimeout(pushT);pushT=setTimeout(()=>push().catch(()=>{}),1500);return;}
+    busy=true; setPill("sync"); lastErr="";
+    try{
+      if(!cfg.gistId){ cfg.gistId=await apiCreate(); saveCfg(); }
+      else{ // pull-merge first so we never clobber the other device's newer edits
+        try{ if(mergeIn(await apiGet(cfg.gistId)))await refresh(); }catch(e){}
+        await apiUpdate();
+      }
+      lastPush=Date.now(); setPill("ok");
+    }catch(e){lastErr=e.message;setPill("err");toast("Sync: "+e.message);}
+    finally{busy=false;}
+  }
+
+  /* ---- status pill ---- */
+  function setPill(s){status=s;renderPill();}
+  function renderPill(){
+    const b=document.getElementById("authBtn"); if(!b)return;
+    b.classList.add("syncpill"); b.classList.remove("s-ok","s-err","s-sync","s-off","s-dirty");
+    if(!configured()){b.textContent="\u21c5 Sync off";b.classList.add("s-off");b.title="Cross-device sync is off — tap to set up";return;}
+    if(status==="sync"){b.textContent="\u21c5 Syncing\u2026";b.classList.add("s-sync");}
+    else if(status==="err"){b.textContent="\u21c5 Sync error";b.classList.add("s-err");b.title=lastErr||"";}
+    else if(status==="dirty"){b.textContent="\u21c5 Pending\u2026";b.classList.add("s-dirty");b.title="Unsynced edits — will push shortly";}
+    else{b.textContent="\u21c5 Synced";b.classList.add("s-ok");b.title=lastPush?("Last push "+new Date(lastPush).toLocaleTimeString()):"Ready";}
+  }
+  function bootPull(){
+    renderPill();
+    if(configured())pull();
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible"&&configured()&&!busy&&Date.now()-lastPull>20000)pull();});
+  }
+
+  /* ---- settings modal ---- */
+  function statLine(){
+    const p=[]; p.push(configured()?"Auto-sync ON":(cfg.token?"Configured — auto-sync off":"Not configured"));
+    if(cfg.gistId)p.push("gist "+cfg.gistId.slice(0,10)+"\u2026");
+    if(lastPush)p.push("pushed "+new Date(lastPush).toLocaleTimeString());
+    if(lastPull)p.push("pulled "+new Date(lastPull).toLocaleTimeString());
+    if(lastErr)p.push("\u26a0 "+lastErr);
+    return p.join(" \u00b7 ");
+  }
+  function openSettings(){
+    showModal(`<h3>Cross-device sync</h3>
+      <p class="synchelp">Keep your ratings, notes, tags, watchlist and bio edits in step across your PC and iPad through one <b>private GitHub gist</b>. Nothing is public, and your local data is never wiped by setting this up.</p>
+      <ol class="syncsteps">
+        <li>GitHub \u2192 <b>Settings \u2192 Developer settings \u2192 Personal access tokens \u2192 Tokens (classic)</b> \u2192 <b>Generate new token (classic)</b>. Tick <b>only the <code>gist</code></b> scope, generate, copy it.</li>
+        <li>Paste it below and hit <b>Sync now</b>. Leave Gist ID blank the first time \u2014 it's created for you and the ID appears here.</li>
+        <li>On the other device, open this panel, paste the <b>same token</b> and that <b>Gist ID</b>, tick auto-sync.</li>
+      </ol>
+      <label class="synclbl">Token <span class="muted2">(classic, gist scope only)</span></label>
+      <input type="password" id="syToken" placeholder="ghp_\u2026" value="${escAttr(cfg.token)}" autocomplete="off" spellcheck="false"/>
+      <label class="synclbl">Gist ID <span class="muted2">(blank = create a new one)</span></label>
+      <input type="text" id="syGist" placeholder="created automatically on first sync" value="${escAttr(cfg.gistId)}" autocomplete="off" spellcheck="false"/>
+      <label class="synclbl">This device's label</label>
+      <input type="text" id="syDev" placeholder="e.g. PC or iPad" value="${escAttr(cfg.device)}" autocomplete="off"/>
+      <label class="syncchk"><input type="checkbox" id="syOn" ${cfg.on?"checked":""}/> Enable auto-sync (pull on open, push on change)</label>
+      <div class="syncbtns">
+        <button class="btn" id="syPush">Sync now</button>
+        <button class="btn ghost" id="syPull">Pull only</button>
+        <button class="btn ghost" id="sySave">Save</button>
+        <button class="btn ghost danger" id="syWipe">Disconnect</button>
+      </div>
+      <div class="syncstat" id="syStat">${statLine()}</div>`,true);
+    const grab=()=>{cfg.token=$("#syToken").value.trim();cfg.gistId=$("#syGist").value.trim();cfg.device=$("#syDev").value.trim();cfg.on=$("#syOn").checked;saveCfg();renderPill();};
+    const stat=()=>{const s=$("#syStat");if(s)s.textContent=statLine();};
+    $("#sySave").onclick=()=>{grab();stat();toast("Sync settings saved");};
+    $("#syPush").onclick=async()=>{grab();const s=$("#syStat");if(s)s.textContent="Syncing\u2026";await push();const g=$("#syGist");if(g)g.value=cfg.gistId;stat();};
+    $("#syPull").onclick=async()=>{grab();const s=$("#syStat");if(s)s.textContent="Pulling\u2026";await pull();stat();};
+    $("#syWipe").onclick=()=>{cfg={token:"",gistId:"",device:cfg.device,on:false};saveCfg();renderPill();hideModal();toast("Sync disconnected — your local data is untouched");};
+  }
+
+  return {stampRecord,stampKey,pull,push,renderPill,bootPull,openSettings,get configured(){return configured();}};
+})();
+
 async function boot(){
   try{ await Store.initSB(); }catch(e){ console.warn("Supabase init failed",e); }
   let raw;
@@ -1311,7 +1591,6 @@ async function boot(){
   STATE.league = raw.leagues[0];
   $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;
     $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
-  $("#authBtn").onclick=authClick;
   const home=$("#homeLogo");
   if(home){home.onclick=goHome;home.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();goHome();}}}
   $$("#scopeSeg button").forEach(b=>b.onclick=()=>setScopeMode(b.dataset.scope));
@@ -1320,10 +1599,19 @@ async function boot(){
   scheduleSticky();
   const sc=$("#scrim");if(sc)sc.onclick=closeDrawer;
   document.addEventListener("keydown",onGlobalKey);
-  renderAuth(); render();
+  render();
   // deep-link: open a player if the URL points at one (#p=<id>), e.g. a shared link
   openFromHash(__DEEPHASH);
   window.addEventListener("hashchange",()=>openFromHash(location.hash));
+  if(Store.enabled){
+    // Supabase mode: gate the app behind sign-in + membership; header shows the account
+    if(Store.canEdit())await Store.migrateLocalUp();
+    applyRoleClass(); applyAuthGate();
+  }else{
+    // local mode: single-user gist sync (pull on open, auto-push on edits)
+    renderHeaderAuth();
+    Sync.bootPull();
+  }
 }
 // Parse #p=<id> and open that player. Ids like "aba-5150" contain a dash but no "=",
 // so we only split on the first "=". Falls back silently if the id isn't found.
@@ -1515,24 +1803,66 @@ function wireGlobalSearch(){
   document.addEventListener("click",e=>{if(!e.target.closest(".gsearch"))close();});
 }
 
-function renderAuth(){
-  const b=$("#authBtn");
-  if(!Store.enabled){b.textContent="Local mode";b.title="Cloud backend not configured — data saved in this browser. See README.";return;}
-  b.textContent = Store.user ? (Store.user.email.split("@")[0]+" · Sign out") : "Sign in";
+/* ---------- auth gate + roles (Supabase shared-team mode) ---------- */
+function applyRoleClass(){
+  const viewer=Store.enabled && Store.member && Store.role==="viewer";
+  document.body.classList.toggle("role-viewer",viewer);
+  document.body.classList.toggle("role-editor",Store.enabled && Store.canEdit());
 }
-function authClick(){
-  if(!Store.enabled){showModal(`<h3>Local mode</h3>
-    <p>You're running without the cloud backend, so scouting reports, ratings, your
-    watchlist and big board are saved in <b>this browser</b> only. To sync across
-    devices, add your Supabase URL + anon key in <code>config.js</code> (setup steps
-    in the README).</p><button class="btn" onclick="hideModal()">Got it</button>`);return;}
-  if(Store.user){Store.signOut().then(()=>{renderAuth();render();toast("Signed out");});return;}
-  showModal(`<h3>Sign in</h3><p>Enter your email and we'll send a magic sign-in link.</p>
-    <input type="text" id="mEmail" placeholder="you@example.com" style="width:100%;margin-bottom:12px"/>
-    <button class="btn" id="mGo">Send link</button>`);
-  $("#mGo").onclick=async()=>{const em=$("#mEmail").value.trim();if(!em)return;
-    try{await Store.signIn(em);hideModal();toast("Check your email for the sign-in link");}
-    catch(e){toast("Sign-in error: "+e.message);}};
+function renderHeaderAuth(){
+  const b=$("#authBtn"); if(!b)return;
+  if(!Store.enabled){ b.classList.add("syncpill"); Sync.renderPill(); b.onclick=()=>Sync.openSettings(); return; }
+  b.classList.remove("syncpill","s-ok","s-err","s-sync","s-off","s-dirty");
+  if(Store.user && Store.member){
+    const nm=(Store.user.email||"").split("@")[0];
+    b.textContent=(Store.role==="viewer"?"\uD83D\uDC41 ":"")+nm+" \u00b7 Sign out";
+    b.title=Store.user.email+" ("+Store.role+")";
+    b.onclick=async()=>{await Store.signOut();location.reload();};
+  }else{
+    b.textContent="Sign in"; b.title="Sign in to EuroScout"; b.onclick=()=>applyAuthGate();
+  }
+}
+function renderAuthGate(){
+  const box=$("#agBox"); if(!box)return;
+  const logo=`<div class="aglogo"><span class="mark">E</span><span>Euro<b>Scout</b></span></div>`;
+  if(Store.user && !Store.member){
+    box.innerHTML=`${logo}<h2>Not approved yet</h2>
+      <p>You're signed in as <b>${escAttr(Store.user.email||"")}</b>, but this address hasn't been granted access. Ask the EuroScout owner to add your email, then reload.</p>
+      <button class="btn ghost" id="agOut">Sign out</button>`;
+    const o=$("#agOut"); if(o)o.onclick=async()=>{await Store.signOut();location.reload();};
+    return;
+  }
+  box.innerHTML=`${logo}<h2>Sign in</h2>
+    <p>EuroScout is private. Access is limited to approved emails \u2014 enter yours and we'll send a one-time sign-in link.</p>
+    <input id="agEmail" type="email" inputmode="email" placeholder="you@club.com" autocomplete="email"/>
+    <button class="btn" id="agGo">Send sign-in link</button>
+    <div class="agmsg" id="agMsg"></div>`;
+  const go=$("#agGo"), em=$("#agEmail"), msg=$("#agMsg");
+  const submit=async()=>{const v=(em.value||"").trim();if(!v){msg.textContent="Enter your email.";return;}
+    go.disabled=true;msg.textContent="Sending\u2026";
+    try{await Store.signIn(v);msg.innerHTML="\u2713 Check <b>"+escAttr(v)+"</b> for your sign-in link. You can close this tab \u2014 the link opens EuroScout signed in.";}
+    catch(e){msg.textContent="Couldn't send link: "+e.message;go.disabled=false;}};
+  if(go)go.onclick=submit;
+  if(em)em.onkeydown=e=>{if(e.key==="Enter")submit();};
+}
+function applyAuthGate(){
+  const g=$("#authgate"); if(!g)return;
+  const blocked = Store.enabled && !(Store.user && Store.member);
+  g.classList.toggle("hidden",!blocked);
+  if(blocked)renderAuthGate();
+  renderHeaderAuth();
+}
+// called by Store on any Supabase auth state change (magic-link login, sign-out)
+async function onAuthChange(){
+  if(!Store.enabled)return;
+  if(Store.user && Store.member){
+    await Store.load();
+    if(Store.canEdit())await Store.migrateLocalUp();
+    try{OVR=ovrMerged();rebuildLinks();applyOverrides();STATE._tagg=null;}catch(e){}
+    applyRoleClass(); applyAuthGate(); render();
+  }else{
+    applyRoleClass(); applyAuthGate();
+  }
 }
 
 /* ---------------------------- render ---------------------------- */
@@ -2176,9 +2506,9 @@ function agencyList(){
   let local=[];try{local=JSON.parse(localStorage.getItem("euroscout:agencies")||"[]");}catch(e){}
   return [...new Set([...base,...local].map(normAgency))].filter(Boolean).sort((a,b)=>a.localeCompare(b));
 }
-function addAgency(name){name=(name||"").trim();if(!name)return;
+function addAgency(name){if(!Store.canEdit())return;name=(name||"").trim();if(!name)return;
   let local=[];try{local=JSON.parse(localStorage.getItem("euroscout:agencies")||"[]");}catch(e){}
-  if(!local.includes(name)){local.push(name);localStorage.setItem("euroscout:agencies",JSON.stringify(local));}
+  if(!local.includes(name)){local.push(name);localStorage.setItem("euroscout:agencies",JSON.stringify(local));try{Sync.stampKey("euroscout:agencies");}catch(e){}try{Store.pushAppKey("euroscout:agencies");}catch(e){}}
 }
 /* Agent roster + agent→agency map. Base map from overrides.js, plus any you add live. */
 function agentMap(){
@@ -2188,17 +2518,46 @@ function agentMap(){
 }
 function agentList(){return Object.keys(agentMap()).sort((a,b)=>a.localeCompare(b));}
 function agencyForAgent(agent){const m=agentMap();return agent&&m[agent]?normAgency(m[agent]):"";}
-function addAgent(agent,agency){agent=(agent||"").trim();if(!agent)return;
+function addAgent(agent,agency){if(!Store.canEdit())return;agent=(agent||"").trim();if(!agent)return;
   let local={};try{local=JSON.parse(localStorage.getItem("euroscout:agents")||"{}");}catch(e){}
-  local[agent]=(agency||"").trim(); localStorage.setItem("euroscout:agents",JSON.stringify(local));
+  local[agent]=(agency||"").trim(); localStorage.setItem("euroscout:agents",JSON.stringify(local));try{Sync.stampKey("euroscout:agents");}catch(e){}try{Store.pushAppKey("euroscout:agents");}catch(e){}
 }
 function agentCellHTML(p){
   const agent=p.agent, agency=p.agency, url=p.agentUrl;
-  if(!agent&&!agency)return '<span class="biedit" onclick="openEditModal(\''+p.id+'\')">—</span>';
-  const inner=agent&&agency?`${agent} <span class="bisub">${agency}</span>`:(agent||agency);
-  return url?`<a href="${url}" target="_blank" rel="noopener" class="agentlink">${agent?`<b>${agent}</b>`:""}${agent&&agency?` <span class="bisub">${agency}</span>`:(agency?`<b>${agency}</b>`:"")}</a>`
-    :`${agent?`<b>${agent}</b>`:""}${agent&&agency?` <span class="bisub">${agency}</span>`:(agency&&!agent?`<b>${agency}</b>`:"")}`;
+  if(!agent&&!agency)return '<span class="biedit" onclick="openEditModal(\''+p.id+'\')">\u2014</span>';
+  const ae=agent?encodeURIComponent(agent).replace(/'/g,"%27"):"";
+  const ce=agency?encodeURIComponent(agency).replace(/'/g,"%27"):"";
+  const agentEl=agent?`<span class="agentchip" onclick="openAgentRoster('${ae}')" title="Show ${escAttr(agent)}'s players">${agent}</span>`:"";
+  const agencyEl=agency?`<span class="agencychip" onclick="openAgencyRoster('${ce}')" title="Show all ${escAttr(agency)} players">${agency}</span>`:"";
+  const ext=url?` <a href="${escAttr(url)}" target="_blank" rel="noopener" class="agentext" title="Open agent profile" onclick="event.stopPropagation()">\u2197</a>`:"";
+  return `${agentEl}${agent&&agency?" ":""}${agencyEl}${ext}`;
 }
+/* Agent/agency rosters — one card per person, sorted by raw stat grade */
+function agentRosterList(matchFn){
+  return scoutPool().filter(matchFn).sort((a,b)=>
+    ((statGradeOverall(b,{raw:true})??-1)-(statGradeOverall(a,{raw:true})??-1))||a.name.localeCompare(b.name));
+}
+function rosterModal(title,sub,list,kind){
+  if(!list.length){showModal(`<h3>${escAttr(title)}</h3><p class="arsub">${escAttr(sub)}</p><p class="empty">No players with this ${kind} in your database yet.</p>`);return;}
+  const rows=list.map(p=>{const L=leagueOf(p),rec=recOf(p),g=statGradeOverall(p,{raw:true});
+    const stars=rec&&rec.rating?"\u2605".repeat(rec.rating):"";
+    return `<div class="arow" data-id="${p.id}">
+      ${p.img?`<img class="aav" src="${p.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<span class="aav anoimg"></span>'}
+      <span class="an">${p.name}</span>
+      <span class="ameta"><span class="badge role">${p.role||""}</span> <span class="atm">${p.teamName||p.team||""}</span></span>
+      <span class="alg">${L?L.meta.name:""}</span>
+      <span class="astars">${stars}</span>
+      <span class="agr">${g==null?"":g.toFixed(1)}</span>
+    </div>`;}).join("");
+  showModal(`<h3>${escAttr(title)}</h3><p class="arsub">${escAttr(sub)}</p><div class="arost">${rows}</div>`,true);
+  $$(".arost .arow").forEach(r=>r.onclick=()=>{const id=r.dataset.id;hideModal();openProfile(id);});
+}
+function openAgentRoster(enc){const agent=decodeURIComponent(enc),key=normName(agent);
+  const list=agentRosterList(p=>p.agent&&normName(p.agent)===key);
+  rosterModal(agent,`${list.length} player${list.length===1?"":"s"} represented by ${agent} in your database`,list,"agent");}
+function openAgencyRoster(enc){const agency=decodeURIComponent(enc),key=normAgency(agency);
+  const list=agentRosterList(p=>p.agency&&normAgency(p.agency)===key);
+  rosterModal(agency,`${list.length} player${list.length===1?"":"s"} at ${agency} in your database`,list,"agency");}
 function renderProfile(){
   const p=player(CURRENT);
   if(!p){closeDrawer();return;}
@@ -2400,6 +2759,7 @@ function renderProfile(){
   requestAnimationFrame(syncDrNav);
   $$("#drawer .biochip.clk").forEach(c=>c.onclick=()=>filterByAttr(c.dataset.filter,c.dataset.val,c.dataset.lab));
   renderTags(p);
+  if(!Store.canEdit()){$$("#drawer .notesec").forEach(t=>{t.readOnly=true;});$$("#eyeGrid input").forEach(s=>{s.disabled=true;});}
   const wt=$("#watchToggle");if(wt)wt.onclick=async()=>{await toggleTag(p.id,WATCH_TAG);renderProfile();};
   // eye-grade sliders → live radar + persist (debounced cloud write, instant local)
   let eyeTmr;
@@ -2807,7 +3167,7 @@ function recentPush(id){
 // SAVED VIEWS (localStorage): named filter combinations
 const VIEWS_KEY="euroscout:views";
 function viewsGet(){try{return JSON.parse(localStorage.getItem(VIEWS_KEY)||"[]");}catch(e){return [];}}
-function viewsSave(list){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(list));}catch(e){}}
+function viewsSave(list){if(!Store.canEdit())return;try{localStorage.setItem(VIEWS_KEY,JSON.stringify(list));Sync.stampKey(VIEWS_KEY);Store.pushAppKey(VIEWS_KEY);}catch(e){}}
 function currentViewState(){const s=STATE.scout;return {q:s.q,leagues:[...s.leagues],roles:[...s.roles],tags:[...s.tags],status:s.status,sort:s.sort};}
 function viewIsActive(v){const s=STATE.scout;
   return v.q===s.q && v.status===s.status && v.sort===s.sort
@@ -3458,7 +3818,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,$,$$});
 
 boot();
 </script>
