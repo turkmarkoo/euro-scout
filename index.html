@@ -107,6 +107,12 @@ nav.tabs button:hover{color:var(--txt)}
 .reqrow{grid-template-columns:1fr auto auto 24px;background:color-mix(in srgb,var(--gold) 9%,var(--panel2));border-color:color-mix(in srgb,var(--gold) 30%,var(--line-soft))}
 .reqrow .reqok{padding:4px 9px;font-size:11.5px}
 .reqlist{margin-bottom:14px}
+.acctbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:7px 9px;line-height:0}
+.acctbtn .acctav{display:inline-flex;color:var(--muted)}
+.acctbtn:hover .acctav{color:var(--accent-deep)}
+.acctbtn.acct-viewer .acctav{color:var(--sage)}
+.acctbadge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;line-height:16px;text-align:center;box-shadow:0 0 0 2px var(--panel)}
+.acctbadge.hidden{display:none}
 .btn.sm{padding:6px 12px;font-size:12.5px}
 .leaguesel{appearance:none;padding-right:28px;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239AA1AC'/%3E%3C/svg%3E");
@@ -1198,10 +1204,17 @@ const Store = (()=>{
     async requestAccess(){if(!sb||!user)return;
       try{await sb.from("access_requests").upsert({email:(user.email||"").toLowerCase()},{onConflict:"email",ignoreDuplicates:true});}catch(e){}},
     async listRequests(){if(!sb||!canEdit())return[];
-      try{const {data}=await sb.from("access_requests").select("*").order("created_at");
+      const {data,error}=await sb.from("access_requests").select("*").order("created_at");
+      if(error)throw error;
+      const mem=await sb.from("members").select("email");
+      const set=new Set((mem.data||[]).map(m=>(m.email||"").toLowerCase()));
+      return (data||[]).filter(r=>!set.has((r.email||"").toLowerCase()));},
+    async pendingCount(){if(!sb||!canEdit())return 0;
+      try{const {data,error}=await sb.from("access_requests").select("email");
+        if(error)return 0;
         const mem=await sb.from("members").select("email");
         const set=new Set((mem.data||[]).map(m=>(m.email||"").toLowerCase()));
-        return (data||[]).filter(r=>!set.has((r.email||"").toLowerCase()));}catch(e){return[];}},
+        return (data||[]).filter(r=>!set.has((r.email||"").toLowerCase())).length;}catch(e){return 0;}},
     async approveRequest(email,role){if(!sb||!canEdit())return;
       email=(email||"").trim().toLowerCase();role=role==="editor"?"editor":"viewer";
       const {error}=await sb.from("members").upsert({email,role},{onConflict:"email"});if(error)throw error;
@@ -1652,7 +1665,7 @@ async function boot(){
   if(Store.enabled){
     // Supabase mode: gate the app behind sign-in + membership; header shows the account
     if(Store.canEdit())await Store.migrateLocalUp();
-    applyRoleClass(); applyAuthGate();
+    applyRoleClass(); applyAuthGate(); startPendingPoll();
   }else{
     // local mode: single-user gist sync (pull on open, auto-push on edits)
     renderHeaderAuth();
@@ -1860,13 +1873,41 @@ function renderHeaderAuth(){
   if(!Store.enabled){ b.classList.add("syncpill"); Sync.renderPill(); b.onclick=()=>Sync.openSettings(); return; }
   b.classList.remove("syncpill","s-ok","s-err","s-sync","s-off","s-dirty");
   if(Store.user && Store.member){
-    const nm=(Store.user.email||"").split("@")[0];
-    b.textContent=(Store.role==="viewer"?"\uD83D\uDC41 ":"")+nm;
-    b.title=Store.user.email+" ("+Store.role+")";
+    const viewer=Store.role==="viewer";
+    const sil=`<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.4 0-8 2.6-8 6v1h16v-1c0-3.4-3.6-6-8-6z"/></svg>`;
+    b.classList.add("acctbtn"); b.classList.toggle("acct-viewer",viewer);
+    b.innerHTML=`<span class="acctav">${sil}</span><span class="acctbadge hidden" id="acctBadge"></span>`;
+    b.title=Store.user.email+" \u00b7 "+Store.role;
     b.onclick=()=>openAccountModal();
+    if(Store.canEdit())refreshPending();
   }else{
+    b.classList.remove("acctbtn","acct-viewer");
     b.textContent="Sign in"; b.title="Sign in to EuroScout"; b.onclick=()=>applyAuthGate();
   }
+}
+async function refreshPending(){
+  if(!(Store.enabled&&Store.canEdit()))return 0;
+  const n=await Store.pendingCount();
+  setPendingBadge(n);
+  return n;
+}
+function setPendingBadge(n){
+  const bd=$("#acctBadge"); if(!bd)return;
+  if(n>0){bd.textContent=n>9?"9+":String(n);bd.classList.remove("hidden");}
+  else bd.classList.add("hidden");
+}
+let _pollStarted=false;
+function startPendingPoll(){
+  if(_pollStarted)return;
+  if(!(Store.enabled&&Store.canEdit()))return;
+  _pollStarted=true;
+  let prev=null;
+  const tick=async()=>{const n=await Store.pendingCount();setPendingBadge(n);
+    if(prev!=null && n>prev)toast(n-prev===1?"New access request \u2014 open your account to approve":(n-prev)+" new access requests");
+    prev=n;};
+  tick();
+  setInterval(tick,60000);
+  window.addEventListener("focus",tick);
 }
 let AG_MODE="signin"; // 'signin' | 'signup'
 function renderAuthGate(){
@@ -1920,7 +1961,7 @@ async function onAuthChange(){
     await Store.load();
     if(Store.canEdit())await Store.migrateLocalUp();
     try{OVR=ovrMerged();rebuildLinks();applyOverrides();STATE._tagg=null;}catch(e){}
-    applyRoleClass(); applyAuthGate(); render();
+    applyRoleClass(); applyAuthGate(); render(); startPendingPoll();
   }else{
     applyRoleClass(); applyAuthGate();
   }
@@ -1947,8 +1988,11 @@ function openAccountModal(){
 }
 async function loadRequests(){
   const sec=$("#reqSection"); if(!sec)return;
-  const reqs=await Store.listRequests();
-  if(!reqs.length){sec.innerHTML="";return;}
+  let reqs;
+  try{reqs=await Store.listRequests();}
+  catch(e){sec.innerHTML=`<div class="synclbl">Waiting for approval</div>
+    <div class="agmsg">Couldn't load requests: ${escAttr(e.message||String(e))}<br>Have you created the <code>access_requests</code> table yet? (README \u2192 "Self-signup + approval".)</div>`;return;}
+  if(!reqs.length){sec.innerHTML="";refreshPending();return;}
   sec.innerHTML=`<div class="synclbl">Waiting for approval (${reqs.length})</div>
     <div class="admlist reqlist">${reqs.map(r=>`<div class="admrow reqrow">
       <span class="ame">${escAttr(r.email)}</span>
@@ -1957,10 +2001,10 @@ async function loadRequests(){
       <button class="amdel reqno" data-em="${escAttr(r.email)}" title="Dismiss">\u2715</button>
     </div>`).join("")}</div>`;
   $$("#reqSection .reqok").forEach(b=>b.onclick=async()=>{
-    try{await Store.approveRequest(b.dataset.em,b.dataset.role);toast("Approved "+b.dataset.em);loadRequests();loadAdminList();}
+    try{await Store.approveRequest(b.dataset.em,b.dataset.role);toast("Approved "+b.dataset.em);loadRequests();loadAdminList();refreshPending();}
     catch(e){toast("Error: "+e.message);}});
   $$("#reqSection .reqno").forEach(b=>b.onclick=async()=>{
-    try{await Store.dismissRequest(b.dataset.em);loadRequests();}catch(e){toast("Error: "+e.message);}});
+    try{await Store.dismissRequest(b.dataset.em);loadRequests();refreshPending();}catch(e){toast("Error: "+e.message);}});
 }
 async function loadAdminList(){
   const wrap=$("#admList"); if(!wrap)return;
