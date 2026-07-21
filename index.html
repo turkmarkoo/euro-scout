@@ -744,6 +744,15 @@ body.drawer-lock{overflow:hidden}
 .chHiX{border:0;background:none;color:var(--muted2);cursor:pointer;font-size:13px;padding:0 2px;margin-left:-2px}
 .chHiX:hover{color:var(--bad)}
 .chartwrap{width:100%;max-width:600px;margin:0 auto;overflow:hidden}
+.charttools{display:inline-flex;align-items:center;gap:6px;margin-left:auto}
+.chtool{border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:7px;padding:5px 9px;font-size:13px;cursor:pointer;line-height:1}
+.chtool:hover{border-color:var(--accent);color:var(--accent-deep)}
+.chsize{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:44px;text-align:center}
+#chartStage{width:100%}
+#chartStage:fullscreen{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2vh 2vw}
+#chartStage:fullscreen .chartwrap{max-width:min(94vw,1200px)!important;width:auto}
+#chartStage:fullscreen .chartsvg{max-height:88vh}
+#chartStage:-webkit-full-screen{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center}
 .chartsvg{width:100%;height:auto;display:block}
 .chartsvg .scdot{transition:transform .08s}
 .chartsvg .scdot:hover{transform:scale(1.25);transform-box:fill-box;transform-origin:center}
@@ -1085,7 +1094,7 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
-  charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null},
+  charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
@@ -2748,10 +2757,16 @@ function skillCardHTML(p,pool){
 /* ---------- Similar player finder: distance over league-relative percentile vectors ---------- */
 const SIM_KEYS=["pts40","ts","f3p","fgp","ftp","ast40","topg","usg","reb40","stl40","blk40"];
 function simVec(p){ if(!p.pct)return null; const v=[]; for(const k of SIM_KEYS){const x=p.pct[k]; v.push(x==null?50:x);} return v; }
-function simMatch(a,b){ // 0-100, higher = more similar (100 - RMS percentile difference)
+const ROLE_IDX={Guard:0,Wing:1,Big:2};
+function roleSteps(a,b){const ia=ROLE_IDX[a],ib=ROLE_IDX[b];return (ia==null||ib==null)?1:Math.abs(ia-ib);}
+function simMatch(a,b){ // 0-100, higher = more similar. Stats + position + size.
   const va=simVec(a),vb=simVec(b); if(!va||!vb)return null;
   let s=0; for(let i=0;i<va.length;i++){const d=va[i]-vb[i]; s+=d*d;}
-  return Math.max(0,Math.round(100-Math.sqrt(s/va.length)));
+  const statRMS=Math.sqrt(s/va.length);                 // 0-100, statistical style distance
+  const rPen=[0,15,32][roleSteps(a.role,b.role)];       // same role / adjacent / opposite
+  let hPen=0;                                            // height difference (cm)
+  if(a.height&&b.height) hPen=Math.min(22, Math.abs(a.height-b.height)*1.1);
+  return Math.max(0, Math.round(100-(statRMS+rPen+hPen)));
 }
 function similarPlayers(p, opts){
   opts=opts||{}; const refG=gid(p);
@@ -3449,16 +3464,22 @@ function chartFiltersHTML(c){
   </div>`;
 }
 function renderCharts(){
-  const c=STATE.charts;
+  const c=STATE.charts; const CAP=250;
   if(c.fLeague===null)c.fLeague=STATE.allLeagues?"all":STATE.league.meta.id;
   const pool=chartPool();
+  // cap the scatter (photo dots are heavy); keep the most-played when over the limit
+  let plotPool=pool, capNote="";
+  if(c.type==="scatter"&&pool.length>CAP){
+    plotPool=pool.slice().sort((a,b)=>(b.mpg||0)-(a.mpg||0)).slice(0,CAP);
+    capNote=`Showing the top ${CAP} of ${pool.length} by minutes — add a filter (league / team / country) to see a specific set.`;
+  }
   const hiName=(()=>{const p=c.hi?pool.find(x=>x.id===c.hi):null;return p?p.name:"";})();
   const opts=sel=>CHART_STATS.map(([lab,k])=>`<option value="${k}"${sel===k?" selected":""}>${lab}</option>`).join("");
-  const chart=c.type==="scatter"?scatterSVG(pool,c.x,c.y,c.colorBy,c.hi):distSVG(pool,c.dist,c.hi);
+  const chart=c.type==="scatter"?scatterSVG(plotPool,c.x,c.y,c.colorBy,c.hi):distSVG(pool,c.dist,c.hi);
   const dataList=`<datalist id="chHiList">${pool.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${escAttr(p.name)}">`).join("")}</datalist>`;
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Charts</h1>
-    <div class="sub" style="margin-bottom:10px">${pool.length} qualified player${pool.length===1?"":"s"} in view</div>
+    <div class="sub" style="margin-bottom:10px">${pool.length} qualified player${pool.length===1?"":"s"} in view${capNote?` \u00b7 <span style="color:var(--accent-deep)">${capNote}</span>`:""}</div>
     <div class="panel">
       ${chartFiltersHTML(c)}
       <div class="chartctl">
@@ -3469,11 +3490,19 @@ function renderCharts(){
             <label class="chlab">Color <select id="chColor"><option value="league"${c.colorBy==='league'?' selected':''}>League</option><option value="role"${c.colorBy==='role'?' selected':''}>Position</option></select></label>`
           :`<label class="chlab">Stat <select id="chDist">${opts(c.dist)}</select></label>`}
         <label class="chlab">Highlight <input id="chHi" list="chHiList" placeholder="player\u2026" value="${escAttr(hiName)}" autocomplete="off"/>${c.hi?`<button class="chHiX" id="chHiClear" title="Clear">\u2715</button>`:""}</label>
+        <span class="charttools">
+          <button class="chtool" data-zoom="-" title="Smaller">\u2212</button>
+          <span class="chsize" id="chSizeLbl">${c.size}px</span>
+          <button class="chtool" data-zoom="+" title="Bigger">+</button>
+          <button class="chtool" id="chFull" title="Full screen">\u26F6 Full screen</button>
+        </span>
       </div>
       ${dataList}
-      <div class="chartwrap">${chart}</div>
-      ${c.type==='scatter'?`<div class="chartlegend">${chartLegendHTML(pool,c.colorBy)}</div>`:""}
-      <p class="hint" style="margin-top:6px">${c.type==='scatter'?'Dots are player photos; dashed lines are the medians (quadrants). Type a name to highlight. Click a dot to open the player.':'Bars = players per range; dashed line = mean. Type a name to mark that player on the distribution.'}</p>
+      <div id="chartStage">
+        <div class="chartwrap" style="max-width:${c.size}px">${chart}</div>
+        ${c.type==='scatter'?`<div class="chartlegend">${chartLegendHTML(plotPool,c.colorBy)}</div>`:""}
+      </div>
+      <p class="hint" style="margin-top:6px">${c.type==='scatter'?'Dots are player photos; dashed lines are the medians (quadrants). Type a name to highlight. Click a dot to open the player. Use \u2212/+ or full screen to resize.':'Bars = players per range; dashed line = mean. Type a name to mark that player on the distribution.'}</p>
     </div>
   </div>`;
   $$("[data-ct]").forEach(b=>b.onclick=()=>{c.type=b.dataset.ct;renderCharts();});
@@ -3484,6 +3513,14 @@ function renderCharts(){
   const fc=$("#fClear");if(fc)fc.onclick=()=>{c.fTeam="";c.fCountry="";c.fRole="";renderCharts();};
   const hiIn=$("#chHi");if(hiIn)hiIn.onchange=()=>{const nm=hiIn.value.trim().toLowerCase();const m=pool.find(p=>p.name.toLowerCase()===nm);c.hi=m?m.id:null;renderCharts();};
   const hiX=$("#chHiClear");if(hiX)hiX.onclick=()=>{c.hi=null;renderCharts();};
+  // zoom adjusts width in place (no re-render, so photos don't reload)
+  $$("[data-zoom]").forEach(b=>b.onclick=()=>{const step=b.dataset.zoom==='+'?120:-120;
+    c.size=Math.max(360,Math.min(1200,c.size+step));
+    const cw=document.querySelector('#chartStage .chartwrap');if(cw)cw.style.maxWidth=c.size+'px';
+    const lbl=$("#chSizeLbl");if(lbl)lbl.textContent=c.size+'px';});
+  const full=$("#chFull");if(full)full.onclick=()=>{const st=document.getElementById('chartStage');
+    if(!document.fullscreenElement){(st.requestFullscreen||st.webkitRequestFullscreen||function(){}).call(st);}
+    else{(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document);}};
   $$(".scdot").forEach(d=>d.onclick=()=>openProfile(d.dataset.id));
 }
 function renderCompare(){
