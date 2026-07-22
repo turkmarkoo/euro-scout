@@ -707,6 +707,16 @@ body.drawer-lock{overflow:hidden}
 .psTier{font-family:var(--disp);font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .psDot{width:11px;height:11px;border-radius:50%}
 .psName{font-weight:700;color:var(--txt)}
+.psLink{background:none;border:none;padding:0;font:inherit;font-weight:700;color:var(--txt);cursor:pointer;text-align:left}
+.psLink:hover{color:var(--accent-deep);text-decoration:underline}
+.archfilters{display:flex;flex-wrap:wrap;gap:5px}
+.archchip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:999px;padding:4px 9px;font-size:11.5px;cursor:pointer;line-height:1.2}
+.archchip:hover{border-color:var(--accent)}
+.archchip.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.archchip.on .fdot{background:#fff!important}
+.archchip .fdot{width:7px;height:7px;border-radius:50%;border:1px solid var(--line)}
+.archClr{border:none;background:var(--line);color:var(--txt);border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;line-height:1;margin-left:4px;vertical-align:middle}
+.archClr:hover{background:var(--bad);color:#fff}
 .psBar2{height:8px;border-radius:5px;background:var(--line);overflow:hidden;grid-column:auto}
 .psBar2>span{display:block;height:100%;border-radius:5px}
 .psPct{font-family:var(--mono);font-size:12px;color:var(--accent-deep);text-align:right;font-weight:700}
@@ -775,10 +785,13 @@ body.drawer-lock{overflow:hidden}
 .chtool:hover{border-color:var(--accent);color:var(--accent-deep)}
 .chsize{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:44px;text-align:center}
 #chartStage{width:100%}
-#chartStage:fullscreen{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2vh 2vw}
-#chartStage:fullscreen .chartwrap{max-width:min(94vw,1200px)!important;width:auto}
-#chartStage:fullscreen .chartsvg{max-height:88vh}
-#chartStage:-webkit-full-screen{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center}
+#chartStage:fullscreen{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1vh 1vw;overflow:auto}
+#chartStage:fullscreen .chartwrap{max-width:none!important;width:auto!important;height:auto;margin:0;overflow:visible}
+#chartStage:fullscreen .chartsvg{height:90vh;width:auto;max-width:97vw}
+#chartStage:fullscreen .chartlegend{margin-top:8px}
+#chartStage:-webkit-full-screen{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1vh 1vw}
+#chartStage:-webkit-full-screen .chartwrap{max-width:none!important;width:auto!important;overflow:visible}
+#chartStage:-webkit-full-screen .chartsvg{height:90vh;width:auto;max-width:97vw}
 .chartsvg{width:100%;height:auto;display:block}
 .chartsvg .scdot{transition:transform .08s}
 .chartsvg .scdot:hover{transform:scale(1.25);transform-box:fill-box;transform-origin:center}
@@ -1122,7 +1135,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -2800,6 +2813,15 @@ const ARCHETYPES=[
 function archLabel(idx,p){const A=ARCHETYPES[idx];if(!A)return"";
   if(A.sizeBands&&p&&p.height){for(const b of A.sizeBands){if(p.height<=b[0])return b[1];}return A.sizeBands[A.sizeBands.length-1][1];}
   return A.name;}
+const ARCH_FILTERS=(()=>{const out=[];ARCHETYPES.forEach((A,i)=>{
+  if(A.sizeBands)A.sizeBands.forEach((b,bi)=>out.push({key:i+":"+bi,label:b[1],c:A.c}));
+  else out.push({key:""+i,label:A.name,c:A.c});});return out;})();
+function archKeyFor(idx,p){const A=ARCHETYPES[idx];if(A&&A.sizeBands&&p&&p.height){
+  for(let bi=0;bi<A.sizeBands.length;bi++){if(p.height<=A.sizeBands[bi][0])return idx+":"+bi;}return idx+":"+(A.sizeBands.length-1);}
+  return ""+idx;}
+function openArchFilter(key){STATE.scout.arch=key;STATE.scout.simRef=null;STATE.view="scout";
+  $$("#tabs button").forEach(x=>x.classList.toggle("active",x.dataset.view==="scout"));
+  closeDrawer();renderScout();}
 function playingStyleHTML(p){
   if(!p.arch||!p.arch.length)return "";
   const idx=p.arch.map((w,i)=>[i,w]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
@@ -2810,7 +2832,7 @@ function playingStyleHTML(p){
   const tiers=["Primary","Secondary","Tertiary"];
   const rows=top.map((x,i)=>{const A=ARCHETYPES[x[0]];
     return `<div class="psRow"><span class="psTier">${tiers[i]}</span><span class="psDot" style="background:${A.c}"></span>
-      <span class="psName">${archLabel(x[0],p)}</span><span class="psBar2"><span style="width:${x[1]}%;background:${A.c}"></span></span>
+      <button class="psName psLink" onclick="openArchFilter('${archKeyFor(x[0],p)}')" title="See all ${archLabel(x[0],p)}s">${archLabel(x[0],p)}</button><span class="psBar2"><span style="width:${x[1]}%;background:${A.c}"></span></span>
       <span class="psPct">${x[1]}%</span><span class="psDesc">${A.desc}</span></div>`;}).join("");
   return `<div class="panel psPanel" style="margin-top:16px">
     <div class="sc-cardhead"><h3 style="margin:0">Playing style <span class="hint" style="font-weight:400;font-size:12px">archetype blend from box-score profile</span></h3></div>
@@ -3955,11 +3977,17 @@ function renderScout(){
   if(s.status!=="all") pool=pool.filter(p=>scoutStatusOf(p)===s.status);
   if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
+  if(s.arch){const parts=s.arch.split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
+    pool=pool.filter(p=>{if(!p.arch||(p.arch[ai]||0)<20)return false;
+      if(band!=null&&A&&A.sizeBands){const h=p.height;if(!h)return band===1;
+        const prev=band===0?0:A.sizeBands[band-1][0];return h>prev&&h<=A.sizeBands[band][0];}
+      return true;});}
   if(s.q){const q=s.q.toLowerCase(),qn=normName(s.q);
     pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn)||noteText(p).includes(q));}
   // sort
   const rateOf=p=>{const r=recOf(p);return r&&r.rating||0;};
   if(simP){ pool.forEach(p=>p._sim=simMatch(simP,p)); pool=pool.filter(p=>p._sim!=null); pool.sort((a,b)=>b._sim-a._sim); }
+  else if(s.arch){const ai=+s.arch.split(":")[0]; pool.sort((a,b)=>(b.arch?b.arch[ai]:0)-(a.arch?a.arch[ai]:0));}
   else if(s.sort==="grade")      pool.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
   else if(s.sort==="form")   pool.sort((a,b)=>{const fa=formOf(a),fb=formOf(b);return (fb?fb.delta:-999)-(fa?fa.delta:-999);});
   else if(s.sort==="myrating")pool.sort((a,b)=>rateOf(b)-rateOf(a)||((statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)));
@@ -4041,18 +4069,22 @@ function renderScout(){
         <div class="frows">${ROLE_OPTS.map(roleChip).join("")}</div>
       </div>
 
+      <div class="railsec"><div class="raillab">Playing style${s.arch?` <button class="archClr" id="archClr" title="Clear">\u2715</button>`:""}</div>
+        <div class="archfilters">${ARCH_FILTERS.map(a=>`<button class="archchip ${s.arch===a.key?"on":""}" data-arch="${a.key}"><span class="fdot" style="background:${s.arch===a.key?a.c:"transparent"}"></span>${a.label}</button>`).join("")}</div>
+      </div>
+
       <div class="railsec"><div class="raillab">Tags</div>
         <div class="tagcloud">${TAG_LIBRARY.filter(t=>t!==WATCH_TAG).map(t=>activeTags.includes(t)||true?tagChip(t):"").join("")}</div>
       </div>
 
-      ${(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||s.q)?`<button class="railclear" id="scoutClear">Clear all filters</button>`:""}
+      ${(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||s.q||s.arch)?`<button class="railclear" id="scoutClear">Clear all filters</button>`:""}
     </aside>
 
     <section class="scoutmain">
       <div class="scouthead">
         <div>
-          <h1 class="title" style="margin:0">${simP?"Similar to "+esc(simP.name):"Scout board"}</h1>
-          <div class="sub" style="margin-top:2px">${simP?`${pool.length} player${pool.length!==1?"s":""} by statistical match \u00b7 refine with the filters on the left`:`${pool.length} player${pool.length!==1?"s":""}${s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"?" match your filters":" across eleven competitions"}`}</div>
+          <h1 class="title" style="margin:0">${simP?"Similar to "+esc(simP.name):(s.arch?(ARCH_FILTERS.find(a=>a.key===s.arch)||{}).label+"s":"Scout board")}</h1>
+          <div class="sub" style="margin-top:2px">${simP?`${pool.length} player${pool.length!==1?"s":""} by statistical match \u00b7 refine with the filters on the left`:`${pool.length} player${pool.length!==1?"s":""}${s.arch?" tagged \u2014 ranked by archetype fit":(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"?" match your filters":" across eleven competitions")}`}</div>
         </div>
         ${simP?`<button class="btn ghost sm" onclick="clearSimRef()">\u2715 Exit similar</button>`:`<div class="scoutsort">
           <span class="sortlab">Sort</span>
@@ -4083,7 +4115,9 @@ function renderScout(){
   $$("[data-status]").forEach(b=>b.onclick=()=>{s.status=b.dataset.status;renderScout();});
   $$("[data-tag]").forEach(b=>b.onclick=()=>{const t=b.dataset.tag;s.tags.has(t)?s.tags.delete(t):s.tags.add(t);renderScout();});
   const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderScout();};
-  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;renderScout();};
+  $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
+  const aClr=$("#archClr");if(aClr)aClr.onclick=(e)=>{e.stopPropagation();s.arch=null;renderScout();};
+  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;renderScout();};
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
   // saved views
   const saveViewBtn=$("#saveViewBtn");if(saveViewBtn)saveViewBtn.onclick=saveCurrentView;
@@ -4570,7 +4604,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,$,$$});
 
 boot();
 </script>
