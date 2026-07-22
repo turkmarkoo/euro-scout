@@ -1837,7 +1837,7 @@ const Sync = (()=>{
 async function boot(){
   try{ await Store.initSB(); }catch(e){ console.warn("Supabase init failed",e); }
   let raw;
-  try{ raw = await (await fetch("data/data.json")).json(); }
+  try{ raw = await (await fetch("data/data.json",{cache:"no-cache"})).json(); }
   catch(e){ raw = window.EUROSCOUT_INLINE || null; }
   if(!raw){ $("#app").innerHTML='<div class="empty">Could not load data. Make sure '+
     '<code>data/data.json</code> (or <code>data/data.js</code>) is present — see README.</div>'; return; }
