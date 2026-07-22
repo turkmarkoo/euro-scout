@@ -636,7 +636,39 @@ body.drawer-lock{overflow:hidden}
 .scoutsort{display:flex;align-items:center;gap:8px}
 .sortlab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .scoutsort select{padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-family:var(--body);font-size:13px;color:var(--txt)}
-.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:13px}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(345px,1fr));gap:14px}
+.scoutcard2{position:relative;display:grid;grid-template-columns:92px 1fr;grid-template-areas:"photo head" "vitals summary" "tags tags";column-gap:15px;row-gap:11px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.15s;color:var(--txt);text-align:left}
+.scoutcard2:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-2px)}
+.scoutcard2.watched{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
+.scoutcard2 .sc2-corner{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:7px}
+.sc2-grade{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent-deep);background:var(--accent-soft);border-radius:8px;padding:2px 8px}
+.scoutcard2 .cardwatch{position:static;border:none;background:none;font-size:18px;line-height:1;color:var(--gold);cursor:pointer;padding:0}
+.scoutcard2 .cardwatch:not(.on){color:var(--line)}
+.scoutcard2 .cardmatch{position:absolute;top:14px;left:14px}
+.sc2-photo{grid-area:photo;width:88px;height:88px;border-radius:50%;overflow:hidden;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--accent-deep)}
+.sc2-photo img{width:100%;height:100%;object-fit:cover}
+.sc2-head{grid-area:head;min-width:0;padding-right:52px}
+.sc2-name{font-family:var(--disp);font-size:19px;font-weight:800;line-height:1.15;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sc2-club{font-size:12.5px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc2-lg{opacity:.75}
+.sc2-starsrow{display:flex;align-items:center;gap:7px;margin-top:8px}
+.sc2-star{color:var(--gold);font-size:15px;letter-spacing:1px}
+.sc2-star .off{color:var(--line)}
+.sc2-rateN{font-size:12px;font-weight:700;color:var(--muted)}
+.sc2-posrow{display:flex;align-items:center;gap:8px;margin-top:9px}
+.sc2-pos{font-size:12px;font-weight:700;padding:3px 11px;border-radius:999px}
+.scoutcard2 .cardtagbtn{border:none;background:none;font-size:13px;cursor:pointer;opacity:.4;padding:0}
+.scoutcard2 .cardtagbtn:hover{opacity:1}
+.sc2-vitals{grid-area:vitals;display:flex;flex-direction:column;gap:5px}
+.sc2v{display:flex;justify-content:space-between;gap:6px;font-size:11.5px}
+.sc2v span{color:var(--muted);font-weight:700;letter-spacing:.04em}
+.sc2v b{font-family:var(--mono);font-weight:600}
+.sc2-summary{grid-area:summary;min-width:0;font-size:12.5px;line-height:1.5;color:var(--txt);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.sc2-sumph{color:var(--muted);font-style:italic}
+.sc2-tags{grid-area:tags;display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:2px}
+.sc2-tag{position:relative;font-size:12px;color:var(--txt);padding-left:14px}
+.sc2-tag::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:var(--accent)}
+@media(max-width:560px){.scoutcard2{grid-template-columns:76px 1fr}.sc2-photo{width:72px;height:72px}}
 .scoutcard{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s}
 .scoutcard:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow-lift)}
 .scoutcard.watched{border-color:var(--gold)}
@@ -4748,33 +4780,38 @@ function onGlobalKey(e){
   else if(e.key==="Enter"&&KBD_SEL>=0){e.preventDefault();openProfile(cards[KBD_SEL].dataset.id);}
   else if((e.key==="w"||e.key==="W")&&KBD_SEL>=0){e.preventDefault();toggleTag(cards[KBD_SEL].dataset.id,WATCH_TAG).then(renderScout);}
 }
+function noteSummary(p){const rep=parseReport(recOf(p).report||"");
+  for(const k of ["nProj","nOff","nDef","nAth","nIntel"]){const v=rep[k];if(v&&String(v).trim())return String(v).trim();}
+  return "";}
 function scoutCard(p){
   const r=recOf(p),tags=playerTags(p);
   const watched=tags.includes(WATCH_TAG);
   const og=statGradeOverall(p);
   const lg=leagueOf(p);
   const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:"";
-  const rate=r.rating?`<span class="cardstars">${"★".repeat(r.rating)}<span class="off">${"★".repeat(5-r.rating)}</span></span>`:`<span class="cardstars off">☆☆☆☆☆</span>`;
-  const tagPills=tags.filter(t=>t!==WATCH_TAG).slice(0,3).map(t=>`<span class="ctag">${t}</span>`).join("");
+  const rating=r.rating||0;
+  const stars=`<span class="sc2-star">${"\u2605".repeat(rating)}<span class="off">${"\u2605".repeat(Math.max(0,5-rating))}</span></span><span class="sc2-rateN">${rating}/5</span>`;
+  const rc=ROLE_COLORS[p.role]||"#9aa0aa";
+  const summary=noteSummary(p);
+  const tagPills=tags.filter(t=>t!==WATCH_TAG).slice(0,4).map(t=>`<span class="sc2-tag">${t}</span>`).join("");
   const unscouted=scoutStatusOf(p)==="unscouted";
-  return `<div class="scoutcard${unscouted?" unscouted":""}${watched?" watched":""}" data-id="${p.id}" tabindex="-1">
+  return `<div class="scoutcard scoutcard2${watched?" watched":""}${unscouted?" unscouted":""}" data-id="${p.id}" tabindex="-1">
     ${p._sim!=null?`<span class="cardmatch" title="Statistical match">${p._sim}<small>match</small></span>`:""}
-    <button class="cardwatch ${watched?"on":""}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"★":"☆"}</button>
-    <button class="cardtagbtn" title="Quick tag" aria-label="Quick tag">🏷</button>
-    <div class="cardtop">
-      <div class="cardphoto${p.img?"":" noimg"}">${photo||initials(p.name)}</div>
-      <div class="cardid">
-        <div class="cardname">${p.name} ${formArrowHTML(p)}${riserBadgeHTML(p)}</div>
-        <div class="cardmeta">${p.teamName} · ${p.role||p.pos||"—"}${p.age?" · "+p.age:""}</div>
-        <div class="cardlg">${lg.meta.name}</div>
-      </div>
+    <div class="sc2-corner">${og!=null?`<span class="sc2-grade" title="Overall stats grade">${og.toFixed(1)}</span>`:""}<button class="cardwatch ${watched?"on":""}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"\u2605":"\u2606"}</button></div>
+    <div class="sc2-photo${p.img?"":" noimg"}">${photo||initials(p.name)}</div>
+    <div class="sc2-head">
+      <div class="sc2-name">${p.name} ${formArrowHTML(p)}${riserBadgeHTML(p)}</div>
+      <div class="sc2-club">${p.teamName?esc(p.teamName):"\u2014"}${lg?`<span class="sc2-lg"> \u00b7 ${lg.meta.name}</span>`:""}</div>
+      <div class="sc2-starsrow">${stars}</div>
+      <div class="sc2-posrow"><span class="sc2-pos" style="color:${rc};background:${rc}20">${posLabel(p)}</span><button class="cardtagbtn" title="Quick tag" aria-label="Quick tag">\uD83C\uDFF7</button></div>
     </div>
-    ${scoutRadarSVG(p,{mini:true})}
-    <div class="cardfoot">
-      ${rate}
-      <span class="cardgrade" title="Overall stats grade">${og!=null?og.toFixed(1):"—"}</span>
+    <div class="sc2-vitals">
+      <div class="sc2v"><span>HEIGHT</span><b>${p.height?p.height+" cm":"\u2014"}</b></div>
+      <div class="sc2v"><span>WEIGHT</span><b>${p.weight?p.weight+" kg":"\u2014"}</b></div>
+      <div class="sc2v"><span>AGE</span><b>${p.age!=null?p.age:"\u2014"}</b></div>
     </div>
-    ${tagPills?`<div class="ctags">${tagPills}</div>`:(unscouted?`<div class="ctags"><span class="ctag ghost">Start a report ▸</span></div>`:"")}
+    <div class="sc2-summary">${summary?esc(summary):`<span class="sc2-sumph">${unscouted?"No notes yet \u2014 click to start a report \u25b8":""}</span>`}</div>
+    ${tagPills?`<div class="sc2-tags">${tagPills}</div>`:""}
   </div>`;
 }
 async function toggleTag(id,tag){
