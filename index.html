@@ -1371,6 +1371,10 @@ function set26(pid,key){const m=next26Get();if(key)m[pid]=key;else delete m[pid]
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
 function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,code:t.code}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));return out;}
 function dbTeamByKey(k){if(!DBTEAM_BYKEY)allDbTeams();return DBTEAM_BYKEY.get(k)||null;}
+function openTeamPickerProfile(pid){openTeamPicker(pid,()=>{if(typeof openProfile==="function")openProfile(pid);});}
+function next26CellHTML(p){const k=effective26(p);const t=k?dbTeamByKey(k):null;
+  if(t)return `<b>${esc(t.name)}</b><div class="bisub">${esc(t.lgName)}</div><span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 team"><span class="bioaddhint">change</span></span>`;
+  return `<span class="bioadd n26fa" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Assign a 26/27 team"><b>Free agent</b> <span class="bioaddhint">sign</span></span>`;}
 /* ---------- transfer approval inbox (review only, never auto-commit) ---------- */
 const TR_HANDLED_KEY="euroscout:trHandled:v1";
 function trHandledGet(){try{return JSON.parse(localStorage.getItem(TR_HANDLED_KEY)||"{}");}catch(e){return {};}}
@@ -3495,7 +3499,7 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
     const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||normClub(t.city).includes(qn)||normClub(t.lgName).includes(qn)):teams;
     listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
       (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}"><span class="tpName">${esc(t.name)}</span><span class="tpLg">${esc(t.lgName)}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
-    listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);reRenderTeams();});};
+    listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});};
   render("");
   const si=ov.querySelector("#tpSearch");si.oninput=()=>render(si.value);setTimeout(()=>si.focus(),30);
   ov.querySelector("#tpClose").onclick=closeTeamPicker;
@@ -3764,6 +3768,7 @@ function renderProfile(){
         ${bioCell("badge","Agent / Agency",agentCellHTML(p))}
         ${bioCell("team","Team",`<b>${(t?t.name:p.teamName)||"—"}</b>`)}
         ${bioCell("globe","League",`<b>${L.meta.name}</b>`)}
+        ${bioCell("cal","Team for 2026/27",next26CellHTML(p))}
         ${bioCell("weight","Weight",p.weight?`<b>${p.weight} kg</b>`:null)}
       </div>
     </div>
@@ -5169,7 +5174,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,$,$$});
 
 boot();
 </script>
