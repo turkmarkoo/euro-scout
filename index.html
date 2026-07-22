@@ -755,6 +755,21 @@ body.drawer-lock{overflow:hidden}
 .rbAddInline .rbSug{max-width:420px}
 .rbSugNone{padding:8px 10px;font-size:12px;color:var(--muted)}
 .rbEmptyRow td{color:var(--muted);font-size:12.5px;padding:12px}
+.tpOverlay{position:fixed;inset:0;background:rgba(20,18,15,.5);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px}
+.tpModal{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:440px;box-shadow:var(--shadow-lift);display:flex;flex-direction:column;max-height:74vh;overflow:hidden}
+.tpHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.tpClose{border:none;background:var(--line);color:var(--txt);border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;flex:0 0 auto}
+.tpClose:hover{background:var(--bad);color:#fff}
+.tpSearch{margin:12px 16px 8px;border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:9px 12px;font:inherit;font-size:13.5px;color:var(--txt)}
+.tpList{overflow-y:auto;padding:0 8px 10px}
+.tpItem{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;border:none;background:none;padding:9px 12px;border-radius:8px;font:inherit;font-size:13.5px;color:var(--txt);cursor:pointer}
+.tpItem:hover{background:var(--accent);color:#fff}
+.tpItem:hover .tpLg{color:rgba(255,255,255,.8)}
+.tpItem.cur{background:var(--accent-soft)}
+.tpItem.tpFa{color:var(--muted);font-weight:600}
+.tpName{font-weight:600}
+.tpLg{font-size:11px;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+.tpNone{padding:14px 12px;color:var(--muted);font-size:13px}
 .rbFilters select,.rbFilters input{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 12px;font:inherit;font-size:13px;color:var(--txt)}
 .rbFilters input{flex:1;min-width:180px;max-width:320px}
 .rbClubs{display:flex;flex-direction:column;gap:20px}
@@ -3367,12 +3382,29 @@ function teamsModeToggle(){const md=STATE.teamsMode||"current";
   return `<div class="subnav" style="margin-bottom:16px">${b("current","2025/26 Standings")}${b("next","Rosters 26/27")}${b("fa","Free agents 26/27")}</div>`;}
 function wireTeamsToggle(){$$("[data-tmode]").forEach(b=>b.onclick=()=>{STATE.teamsMode=b.dataset.tmode;renderTeams();});}
 function reRenderTeams(){(STATE.teamsMode==="fa"?renderFreeAgents:renderTeamsNext)();}
-function promptTeam(pid){const p=player(pid);if(!p)return;const teams=allDbTeams();const cur=effective26(p);const curT=cur?dbTeamByKey(cur):null;
-  const inp=prompt("Assign "+p.name+" to which team? (type the club name; leave blank to unassign)",curT?curT.name:"");
-  if(inp==null)return;const q=normClub(inp);
-  if(!q){set26(pid,"");reRenderTeams();return;}
-  const hit=teams.find(t=>normClub(t.name)===q)||teams.find(t=>normClub(t.name).includes(q))||teams.find(t=>normClub(t.city).includes(q));
-  if(hit){set26(pid,hit.key);reRenderTeams();}else{alert('No team matching "'+inp+'" in the database. Check the spelling.');}}
+function openTeamPicker(pid){const p=player(pid);if(!p)return;
+  const teams=allDbTeams().slice().sort((a,b)=>a.lgName.localeCompare(b.lgName)||a.name.localeCompare(b.name));
+  const cur=effective26(p);
+  closeTeamPicker();
+  const ov=document.createElement("div");ov.className="tpOverlay";ov.id="tpOverlay";
+  ov.innerHTML=`<div class="tpModal"><div class="tpHead"><span>Sign <b>${esc(p.name)}</b> to\u2026</span><button class="tpClose" id="tpClose" aria-label="Close">\u2715</button></div>
+    <input class="tpSearch" id="tpSearch" placeholder="Search club or league\u2026" autocomplete="off"/>
+    <div class="tpList" id="tpList"></div></div>`;
+  document.body.appendChild(ov);
+  const listEl=ov.querySelector("#tpList");
+  const render=q=>{const qn=normClub(q||"");
+    const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||normClub(t.city).includes(qn)||normClub(t.lgName).includes(qn)):teams;
+    listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
+      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}"><span class="tpName">${esc(t.name)}</span><span class="tpLg">${esc(t.lgName)}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
+    listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();reRenderTeams();});};
+  render("");
+  const si=ov.querySelector("#tpSearch");si.oninput=()=>render(si.value);setTimeout(()=>si.focus(),30);
+  ov.querySelector("#tpClose").onclick=closeTeamPicker;
+  ov.onclick=e=>{if(e.target===ov)closeTeamPicker();};
+  document.addEventListener("keydown",tpEsc);}
+function tpEsc(e){if(e.key==="Escape")closeTeamPicker();}
+function closeTeamPicker(){const ov=$("#tpOverlay");if(ov)ov.remove();document.removeEventListener("keydown",tpEsc);}
+function promptTeam(pid){openTeamPicker(pid);}
 const rbPhoto=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
 const RBCOLS=`<colgroup><col style="width:27%"><col style="width:9%"><col style="width:16%"><col style="width:8%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:88px"></colgroup>`;
 const RBHEAD=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
