@@ -745,6 +745,22 @@ body.drawer-lock{overflow:hidden}
 .rbTeamName{flex:1;min-width:0;font-family:var(--disp);font-size:16px;font-weight:800;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rbAssign{position:relative;max-width:520px;margin-bottom:20px}
 .rbAssign>input{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 13px;font:inherit;font-size:13.5px;color:var(--txt)}
+.rbFilters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.rbFilters select,.rbFilters input{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 12px;font:inherit;font-size:13px;color:var(--txt)}
+.rbFilters input{flex:1;min-width:180px;max-width:320px}
+.rbClubs{display:flex;flex-direction:column;gap:20px}
+.rbClub{}
+.rbClubHead{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.rbClubName{font-family:var(--disp);font-size:18px;font-weight:800;color:var(--txt)}
+.rbClubLg{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-deep);background:var(--accent-soft);padding:2px 8px;border-radius:999px}
+.rbClubCount{font-size:12px;color:var(--muted);margin-left:auto;font-family:var(--mono)}
+.rbActs{text-align:right;white-space:nowrap}
+.rbAct{border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:7px;width:26px;height:26px;font-size:13px;cursor:pointer;line-height:1;margin-left:4px}
+.rbAct:hover{border-color:var(--accent);color:var(--accent-deep)}
+.rbAct.del:hover{border-color:var(--bad);color:var(--bad)}
+.rbAct.assign{width:auto;padding:0 12px;font-size:12px;font-weight:700;color:var(--accent-deep);border-color:var(--accent)}
+.rbAct.assign:hover{background:var(--accent);color:#fff}
+.rbFromCell{color:var(--muted);font-size:12px}
 .rbCount{font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
 .rbTeamDel{border:none;background:none;cursor:pointer;font-size:14px;opacity:.5}
 .rbTeamDel:hover{opacity:1}
@@ -1227,14 +1243,16 @@ const surnameOf = n => {const parts=(n||"").trim().split(/\s+/);const suf=/^(jr\
 const posLabel = p => p.role||((p.pos&&p.pos!=="-")?p.pos:"\u2014");
 
 /* ---------- 2026/27 transfers (live from euroball-tracker, same origin) ---------- */
-let TRANSFERS=new Map(), TRANSFERS_SUR=new Map(), TRANSFERS_LOADED=false;
+let TRANSFERS=new Map(), TRANSFERS_SUR=new Map(), TRANSFERS_LOADED=false, CLUB_LG=new Map();
 const normNm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();
+const normClub=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
 function buildTransferIndex(items){
-  TRANSFERS=new Map(); TRANSFERS_SUR=new Map();
+  TRANSFERS=new Map(); TRANSFERS_SUR=new Map(); CLUB_LG=new Map();
   (items||[]).forEach(it=>{if(!it||!it.player||!it.status)return;
     const n=normNm(it.player); if(!TRANSFERS.has(n))TRANSFERS.set(n,it);
     const parts=n.split(" "),sur=parts[parts.length-1];
-    if(sur){if(!TRANSFERS_SUR.has(sur))TRANSFERS_SUR.set(sur,[]);TRANSFERS_SUR.get(sur).push(it);}});
+    if(sur){if(!TRANSFERS_SUR.has(sur))TRANSFERS_SUR.set(sur,[]);TRANSFERS_SUR.get(sur).push(it);}
+    if(it.to&&it.league&&!/free agent/i.test(it.to)){const c=normClub(it.to);if(!CLUB_LG.has(c))CLUB_LG.set(c,it.league);}});
   TRANSFERS_LOADED=TRANSFERS.size>0;
 }
 async function loadTransfers(){
@@ -3339,47 +3357,83 @@ function agencyOfAgent(key){const p=scoutPool().find(x=>x.agent&&normName(x.agen
 function openAgencyPage(kind,name){STATE.agencyView={kind,name};STATE.view="agencies";render();try{window.scrollTo(0,0);}catch(e){}}
 function backToAgencies(){STATE.agencyView=null;renderAgencies();}
 function teamsModeToggle(){const md=STATE.teamsMode||"current";
-  return `<div class="subnav" style="margin-bottom:16px"><button class="subnavbtn ${md==="current"?"on":""}" data-tmode="current">2025/26 Standings</button><button class="subnavbtn ${md==="next"?"on":""}" data-tmode="next">Rosters 26/27</button></div>`;}
+  const b=(k,l)=>`<button class="subnavbtn ${md===k?"on":""}" data-tmode="${k}">${l}</button>`;
+  return `<div class="subnav" style="margin-bottom:16px">${b("current","2025/26 Standings")}${b("next","Rosters 26/27")}${b("fa","Free agents 26/27")}</div>`;}
 function wireTeamsToggle(){$$("[data-tmode]").forEach(b=>b.onclick=()=>{STATE.teamsMode=b.dataset.tmode;renderTeams();});}
+function reRenderTeams(){(STATE.teamsMode==="fa"?renderFreeAgents:renderTeamsNext)();}
 function promptAssign(pid){const p=player(pid);if(!p)return;const suggested=effective26(p)||((nextOf(p)||{}).club)||"";
-  const club=prompt("Assign "+p.name+" to which 26/27 club?\n(Leave blank to mark as a free agent.)",suggested);
-  if(club===null)return;set26(pid,club.trim());renderTeamsNext();}
+  const club=prompt("Assign "+p.name+" to which 2026/27 club?\n(Leave blank to mark as a free agent.)",suggested);
+  if(club===null)return;set26(pid,club.trim());reRenderTeams();}
+const rbPhoto=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+function rbPlayerRow(p,extraCol,acts){const g=statGradeOverall(p);
+  return `<tr data-pid="${p.id}">
+    <td class="agp"><span class="agpInner">${rbPhoto(p)}<span class="agpName">${p.name}</span></span></td>
+    <td>${posLabel(p)}</td><td>${p.country||"\u2014"}</td><td>${p.height?p.height+"cm":"\u2014"}</td><td>${p.age!=null?p.age:"\u2014"}</td>
+    ${extraCol||""}
+    <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td><td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td><td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
+    <td class="num"><b class="agscore">${g!=null?g.toFixed(1):"\u2014"}</b></td>
+    <td class="rbActs">${acts}</td></tr>`;}
+function wireRosterCommon(){
+  wireTeamsToggle();
+  $$("[data-reassign]").forEach(b=>b.onclick=(e)=>{e.stopPropagation();promptAssign(b.dataset.reassign);});
+  $$("[data-drop]").forEach(b=>b.onclick=(e)=>{e.stopPropagation();set26(b.dataset.drop,"");reRenderTeams();});
+  const lg=$("#rbLg");if(lg)lg.onchange=()=>{STATE.next26Lg=lg.value;reRenderTeams();};
+  const cq=$("#rbClubQ");if(cq)cq.oninput=()=>{STATE.next26Q=cq.value;const pos=cq.selectionStart;reRenderTeams();const el=$("#rbClubQ");if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(e){}}};
+  $$("#app tbody tr[data-pid]").forEach(tr=>tr.addEventListener("dblclick",()=>openProfile(tr.dataset.pid)));
+}
 function renderTeamsNext(){
-  const m=next26Get();
-  const pool=scoutPool();
+  const m=next26Get(),pool=scoutPool();
   const teams=new Map();
   pool.forEach(p=>{const club=effective26(p,m);if(club){if(!teams.has(club))teams.set(club,[]);teams.get(club).push(p);}});
-  const clubs=[...teams.keys()].sort((a,b)=>teams.get(b).length-teams.get(a).length||a.localeCompare(b));
-  const assignedCount=[...teams.values()].reduce((s,a)=>s+a.length,0);
-  const fa=TRANSFERS_LOADED?pool.filter(p=>{if(effective26(p,m))return false;const n=nextOf(p);return (n&&n.kind==="available")||m[p.id]==="";}).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)):[];
-  const ph=p=>`<span class="rbPh${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
-  const teamCard=(club)=>{
-    const players=teams.get(club).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
-    const rows=players.map(p=>`<div class="rbRow" data-pid="${p.id}">${ph(p)}
-      <span class="rbNm">${p.name}</span><span class="rbMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""}${p.height?" \u00b7 "+p.height+"cm":""}</span>
-      <span class="rbSc">${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span>
-      <button class="rbDel" data-drop="${p.id}" title="Remove from ${escAttr(club)}">\u2715</button></div>`).join("");
-    return `<div class="rbTeam"><div class="rbHead"><span class="rbTeamName">${esc(club)}</span><span class="rbCount">${players.length}</span></div>
-      <div class="rbList">${rows}</div></div>`;};
+  const clubLg=c=>CLUB_LG.get(normClub(c))||null;
+  let clubs=[...teams.keys()];
+  const allLgs=[...new Set(clubs.map(clubLg).filter(Boolean))].sort();
+  const lgSel=STATE.next26Lg||"",q=normClub(STATE.next26Q||"");
+  if(lgSel)clubs=clubs.filter(c=>clubLg(c)===lgSel);
+  if(q)clubs=clubs.filter(c=>normClub(c).includes(q));
+  clubs.sort((a,b)=>teams.get(b).length-teams.get(a).length||a.localeCompare(b));
+  const placed=[...teams.values()].reduce((s,a)=>s+a.length,0);
+  const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th>Ht</th><th>Age</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
+  const clubBlock=club=>{const players=teams.get(club).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+    const lg=clubLg(club);
+    const rows=players.map(p=>rbPlayerRow(p,"",`<button class="rbAct" data-reassign="${p.id}" title="Change club">\u21c4</button><button class="rbAct del" data-drop="${p.id}" title="Move to free agents">\u2715</button>`)).join("");
+    return `<div class="rbClub"><div class="rbClubHead"><span class="rbClubName">${esc(club)}</span>${lg?`<span class="rbClubLg">${esc(lg)}</span>`:""}<span class="rbClubCount">${players.length} player${players.length===1?"":"s"}</span></div>
+      <div class="agtableWrap"><table class="agtable"><thead>${head}</thead><tbody>${rows}</tbody></table></div></div>`;};
   $("#app").innerHTML=`<div class="view">
-    <h1 class="title">${STATE.allLeagues?"All teams":STATE.league.meta.name+" teams"}</h1>
-    <div class="sub" style="margin-bottom:14px">Pre-assign players who\u2019ve signed for 2026/27${TRANSFERS_LOADED?` \u2014 auto-filled from your transfer tracker (<b>${assignedCount}</b> placed across <b>${clubs.length}</b> clubs).`:". Transfer data unavailable right now."}</div>
+    <h1 class="title">Teams \u00b7 2026/27</h1>
+    <div class="sub" style="margin-bottom:14px">Pre-assign players who\u2019ve signed for next season${TRANSFERS_LOADED?` \u2014 auto-filled from your transfer tracker (<b>${placed}</b> placed across <b>${teams.size}</b> clubs).`:". Transfer data unavailable right now."}</div>
     ${teamsModeToggle()}
+    <div class="rbFilters">
+      <select id="rbLg"><option value="">All leagues</option>${allLgs.map(l=>`<option value="${escAttr(l)}"${l===lgSel?" selected":""}>${esc(l)}</option>`).join("")}</select>
+      <input id="rbClubQ" placeholder="Search club\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/>
+    </div>
     <div class="rbAssign"><input id="assignSearch" placeholder="Search a player to place on a 26/27 club\u2026" autocomplete="off"/><div class="rbSug" id="assignSug"></div></div>
-    ${clubs.length?`<div class="rbGrid">${clubs.map(teamCard).join("")}</div>`:`<div class="empty" style="margin-top:16px">No 26/27 signings placed yet. Search a player above to assign them, or use the free-agent pool below.</div>`}
-    ${fa.length?`<div class="rbPool"><h2 class="rbPoolH">Free agents \u00b7 still on the market (${fa.length})</h2>
-      <div class="rbPoolGrid">${fa.slice(0,80).map(p=>`<button class="rbPoolCard" data-fa="${p.id}" title="Assign to a 26/27 club">${ph(p)}<span class="rbpcId"><span class="rbNm">${p.name}</span><span class="rbMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span></span><span class="rbFrom">was ${esc((nextOf(p)||{}).from||"\u2014")}</span></button>`).join("")}</div></div>`:""}
+    ${clubs.length?`<div class="rbClubs">${clubs.map(clubBlock).join("")}</div>`:`<div class="empty" style="margin-top:16px">${teams.size?"No clubs match your filter.":"No 26/27 signings placed yet. Search a player above, or use the Free agents tab."}</div>`}
   </div>`;
-  wireTeamsToggle();
+  wireRosterCommon();
   const asi=$("#assignSearch");
-  if(asi)asi.oninput=()=>{const q=asi.value.toLowerCase().trim();const box=$("#assignSug");if(!box)return;
-    if(q.length<2){box.innerHTML="";return;}const qn=normNm(q);
-    const hits=pool.filter(p=>p.name.toLowerCase().includes(q)||normNm(p.name).includes(qn)).slice(0,7);
-    box.innerHTML=hits.map(p=>{const cur=effective26(p,m);return `<button class="rbSugItem" data-assign="${p.id}">${p.name} <small>${posLabel(p)}${p.age?" \u00b7 "+p.age:""}${cur?" \u00b7 now: "+esc(cur):""}</small></button>`;}).join("");
-    box.querySelectorAll("[data-assign]").forEach(it=>it.onclick=()=>promptAssign(it.dataset.assign));};
-  $$("[data-fa]").forEach(b=>b.onclick=()=>promptAssign(b.dataset.fa));
-  $$("[data-drop]").forEach(b=>b.onclick=()=>{set26(b.dataset.drop,"");renderTeamsNext();});
-  $$(".rbRow").forEach(el=>el.addEventListener("dblclick",()=>{if(el.dataset.pid)openProfile(el.dataset.pid);}));
+  if(asi)asi.oninput=()=>{const qq=asi.value.toLowerCase().trim();const box=$("#assignSug");if(!box)return;
+    if(qq.length<2){box.innerHTML="";return;}const qn=normNm(qq);
+    const hits=pool.filter(p=>p.name.toLowerCase().includes(qq)||normNm(p.name).includes(qn)).slice(0,7);
+    box.innerHTML=hits.map(p=>{const cur=effective26(p,m);return `<button class="rbSugItem" data-reassign="${p.id}">${p.name} <small>${posLabel(p)}${p.age?" \u00b7 "+p.age:""}${cur?" \u00b7 now: "+esc(cur):""}</small></button>`;}).join("");
+    box.querySelectorAll("[data-reassign]").forEach(it=>it.onclick=()=>promptAssign(it.dataset.reassign));};
+}
+function renderFreeAgents(){
+  const m=next26Get(),pool=scoutPool();
+  const fa=TRANSFERS_LOADED?pool.filter(p=>{if(effective26(p,m))return false;const n=nextOf(p);return (n&&n.kind==="available")||m[p.id]==="";}):[];
+  const q=STATE.next26Q?normNm(STATE.next26Q):"";
+  let list=q?fa.filter(p=>normNm(p.name).includes(q)):fa.slice();
+  list.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+  const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th>Ht</th><th>Age</th><th>Last club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
+  const rows=list.map(p=>rbPlayerRow(p,`<td class="rbFromCell">${esc((nextOf(p)||{}).from||"\u2014")}</td>`,`<button class="rbAct assign" data-reassign="${p.id}" title="Assign to a club">+ Sign</button>`)).join("");
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Free agents \u00b7 2026/27</h1>
+    <div class="sub" style="margin-bottom:14px">${TRANSFERS_LOADED?`Players still on the market \u2014 <b>${fa.length}</b> without a club for next season.`:"Transfer data unavailable right now."}</div>
+    ${teamsModeToggle()}
+    <div class="rbFilters"><input id="rbClubQ" placeholder="Search player\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/></div>
+    ${list.length?`<div class="agtableWrap"><table class="agtable"><thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="empty" style="margin-top:16px">${fa.length?"No free agents match your search.":"No free agents found yet \u2014 they\u2019ll appear here as your tracker logs players leaving clubs."}</div>`}
+  </div>`;
+  wireRosterCommon();
 }
 function renderAgencyRoster(){
   const {kind,name}=STATE.agencyView;
@@ -4687,11 +4741,13 @@ function openTeamBoard(k,label,hi){
 }
 function renderTeams(){
   if(STATE.teamsMode==="next")return renderTeamsNext();
+  if(STATE.teamsMode==="fa")return renderFreeAgents();
   const all=STATE.allLeagues;
   const q=normName(STATE.teamQ||"");
   const pool=all?allTeamsFlat():STATE.league.teams.map(t=>({...t,_lid:STATE.league.meta.id}));
   let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
   if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
+  if(all&&STATE.teamLgFilter)teams=teams.filter(t=>t._lid===STATE.teamLgFilter);
   const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL"};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
@@ -4699,6 +4755,7 @@ function renderTeams(){
     ${scopeChips()}
     ${teamsModeToggle()}
     <div class="controls"><input type="text" id="teamSearch" placeholder="Search teams\u2026" value="${STATE.teamQ||""}" style="min-width:220px"/>
+      ${all?`<select id="teamLgSel"><option value="">All leagues</option>${STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>`<option value="${L.meta.id}"${STATE.teamLgFilter===L.meta.id?" selected":""}>${esc(L.meta.name)}</option>`).join("")}</select>`:""}
       ${STATE.teamQ?`<span class="hint">${teams.length} match${teams.length===1?"":"es"}</span>`:""}</div>
     <div class="tablewrap"><table>
       <thead><tr>${all?"":'<th class="l">#</th>'}<th class="l">TEAM</th>${all?'<th class="l">LG</th>':''}<th class="l">COUNTRY</th>
@@ -4715,6 +4772,7 @@ function renderTeams(){
   </div>`;
   const ts=$("#teamSearch");
   if(ts){ts.oninput=()=>{STATE.teamQ=ts.value;const pos=ts.selectionStart;renderTeams();const el=$("#teamSearch");if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(e){}}};}
+  const tls=$("#teamLgSel");if(tls)tls.onchange=()=>{STATE.teamLgFilter=tls.value;renderTeams();};
   $$("#app tbody tr.clickteam").forEach(tr=>tr.onclick=()=>openTeamIn(tr.dataset.lg,tr.dataset.team));
   wireTeamsToggle();
 }
