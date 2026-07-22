@@ -729,6 +729,22 @@ body.drawer-lock{overflow:hidden}
 .aseg button.on{background:var(--accent);color:#fff}
 .agencySearch{flex:1;min-width:180px;max-width:340px;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 12px;font:inherit;font-size:13px;color:var(--txt)}
 .agencyGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.agtableWrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.agtable{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+.agtable thead th{text-align:left;font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.agtable th.num,.agtable td.num{text-align:right}
+.agtable tbody tr{cursor:pointer;transition:background .12s}
+.agtable tbody tr:hover{background:var(--panel2)}
+.agtable td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--txt)}
+.agtable tbody tr:last-child td{border-bottom:none}
+.agp{display:flex;align-items:center;gap:9px}
+.agpPhoto{width:30px;height:30px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent-deep)}
+.agpPhoto img{width:100%;height:100%;object-fit:cover}
+.agpName{font-weight:600}
+.agclub{display:flex;flex-direction:column;gap:1px}
+.agLg{font-size:10.5px;color:var(--muted)}
+.agrate{color:var(--gold);letter-spacing:1px;font-size:12px}
+.agscore{font-family:var(--mono);color:var(--accent-deep)}
 .agencyCard{text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.14s;color:var(--txt);font:inherit}
 .agencyCard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-lift)}
 .acName{font-family:var(--disp);font-size:16px;font-weight:700;margin-bottom:5px;line-height:1.25}
@@ -1161,6 +1177,7 @@ const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
 const fmt = (v,d=1)=> (v===undefined||v===null||isNaN(v))?"—":Number(v).toFixed(d);
 const initials = n => n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+const surnameOf = n => {const parts=(n||"").trim().split(/\s+/);const suf=/^(jr\.?|sr\.?|ii|iii|iv|v)$/i;let i=parts.length-1;if(i>0&&suf.test(parts[i]))i--;return parts[i]||n||"";};
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
 
@@ -1846,7 +1863,7 @@ async function boot(){
       updateScopeLabel(); render(); };
   }
   STATE.league = raw.leagues[0];
-  $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;
+  $$("#tabs button").forEach(b=>b.onclick=()=>{STATE.view=b.dataset.view;STATE.agencyView=null;
     $$("#tabs button").forEach(x=>x.classList.toggle("active",x===b));render();});
   const home=$("#homeLogo");
   if(home){home.onclick=goHome;home.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();goHome();}}}
@@ -2868,6 +2885,7 @@ function openArchFilter(key){STATE.scout.arch=key;STATE.scout.simRef=null;STATE.
   closeDrawer();renderScout();}
 const FILTER_STATS=[
  {key:"age",label:"Age",min:16,max:42,step:1},
+ {key:"grade",label:"Overall score",min:0,max:10,step:0.5},
  {key:"height",label:"Height",min:170,max:225,step:1,suffix:"cm"},
  {key:"g",label:"Games",min:0,max:60,step:1},
  {key:"mpg",label:"Minutes / game",min:0,max:40,step:1},
@@ -3225,7 +3243,44 @@ function rosterModal(title,subHTML,list,kind){
 }
 function agencyEnc(a){return encodeURIComponent(a).replace(/'/g,"%27");}
 function agencyOfAgent(key){const p=scoutPool().find(x=>x.agent&&normName(x.agent)===key&&x.agency&&x.agency.trim());return p?p.agency.trim():null;}
+function openAgencyPage(kind,name){STATE.agencyView={kind,name};STATE.view="agencies";render();try{window.scrollTo(0,0);}catch(e){}}
+function backToAgencies(){STATE.agencyView=null;renderAgencies();}
+function renderAgencyRoster(){
+  const {kind,name}=STATE.agencyView;
+  let players;
+  if(kind==="agency"){const key=normAgency(name);players=scoutPool().filter(p=>p.agency&&normAgency(p.agency)===key);}
+  else{const key=normName(name);players=scoutPool().filter(p=>p.agent&&normName(p.agent)===key);}
+  players.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+  let sub;
+  if(kind==="agent"){const ag=players.find(p=>p.agency&&p.agency.trim());sub=ag?"Agent \u00b7 "+esc(ag.agency.trim()):"Agent";}
+  else{const agents=new Set(players.filter(p=>p.agent&&p.agent.trim()).map(p=>normName(p.agent)));sub="Agency \u00b7 "+agents.size+" agent"+(agents.size===1?"":"s");}
+  const rows=players.map(p=>{const L=leagueOf(p);const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
+    const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
+    return `<tr data-id="${p.id}">
+      <td class="agp"><span class="agpPhoto${p.img?'':' noimg'}">${photo}</span><span class="agpName">${p.name}</span></td>
+      <td>${(p.pos&&p.pos!=="-")?p.pos:(p.role||"\u2014")}</td>
+      <td>${p.country||"\u2014"}</td>
+      <td>${p.height?p.height+"cm":"\u2014"}</td>
+      <td>${p.age!=null?p.age:"\u2014"}</td>
+      <td class="agclub"><span>${p.teamName||"\u2014"}</span><span class="agLg">${L.meta.name}</span></td>
+      <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td>
+      <td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
+      <td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
+      <td class="agrate">${rt?"\u2605".repeat(rt):"\u2014"}</td>
+      <td class="num"><b class="agscore">${g!=null?g.toFixed(1):"\u2014"}</b></td>
+    </tr>`;}).join("");
+  $("#app").innerHTML=`<div class="view">
+    <button class="btn ghost sm" onclick="backToAgencies()">\u2190 Agencies</button>
+    <h1 class="title" style="margin-top:10px">${esc(name)}</h1>
+    <div class="sub" style="margin-bottom:16px">${sub} \u00b7 ${players.length} player${players.length===1?"":"s"}</div>
+    ${players.length?`<div class="agtableWrap"><table class="agtable">
+      <thead><tr><th>Player</th><th>Pos</th><th>Nat</th><th>Ht</th><th>Age</th><th>Club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th>Rating</th><th class="num">Score</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`:`<div class="empty">No players found for this ${kind}.</div>`}
+  </div>`;
+  $$(".agtable tbody tr").forEach(tr=>tr.onclick=()=>openProfile(tr.dataset.id));
+}
 function renderAgencies(){
+  if(STATE.agencyView)return renderAgencyRoster();
   const pool=scoutPool();
   const mode=STATE.agencyMode||"agency";
   const agMap=new Map();
@@ -3248,8 +3303,8 @@ function renderAgencies(){
     ${items.length?`<div class="agencyGrid">${cards}</div>`:`<div class="empty">No ${mode==="agency"?"agencies":"agents"} yet. Add an agent or agency to a player with the \u270e Edit button on their profile, and they'll appear here.</div>`}
   </div>`;
   $$("[data-amode]").forEach(b=>b.onclick=()=>{STATE.agencyMode=b.dataset.amode;renderAgencies();});
-  $$(".agencyCard[data-ag]").forEach(c=>c.onclick=()=>openAgencyRoster(c.dataset.ag));
-  $$(".agencyCard[data-agt]").forEach(c=>c.onclick=()=>openAgentRoster(c.dataset.agt));
+  $$(".agencyCard[data-ag]").forEach(c=>c.onclick=()=>openAgencyPage("agency",decodeURIComponent(c.dataset.ag)));
+  $$(".agencyCard[data-agt]").forEach(c=>c.onclick=()=>openAgencyPage("agent",decodeURIComponent(c.dataset.agt)));
   const sq=$("#agencyQ");if(sq)sq.oninput=()=>{const q=sq.value.toLowerCase();
     $$(".agencyCard").forEach(c=>{const t=c.textContent.toLowerCase();c.style.display=(!q||t.includes(q))?"":"none";});};
 }
@@ -3352,7 +3407,6 @@ function renderProfile(){
         ${bioCell("globe","League",`<b>${L.meta.name}</b>`)}
         ${bioCell("weight","Weight",p.weight?`<b>${p.weight} kg</b>`:null)}
       </div>
-      <div class="ph-summary">${profileSummary(p)}</div>
     </div>
 
     ${p._exhib?`<div class="panel exhibnote" style="margin-top:16px">
@@ -4116,7 +4170,7 @@ function renderScout(){
       return true;});}
   {(s.filters||[]).forEach(f=>{const st=filterStat(f.key);if(!st)return;
     const active=f.min>st.min||f.max<st.max; if(!active)return;
-    pool=pool.filter(p=>{const v=p[f.key];return v!=null&&v>=f.min&&v<=f.max;});});}
+    pool=pool.filter(p=>{const v=(f.key==="grade")?statGradeOverall(p):p[f.key];return v!=null&&v>=f.min&&v<=f.max;});});}
   if(s.q){const q=s.q.toLowerCase(),qn=normName(s.q);
     pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn)||noteText(p).includes(q));}
   // sort
@@ -4168,7 +4222,7 @@ function renderScout(){
   const recentRow=recentIds.length?`
     <div class="recentRow">
       <span class="recentLab">Recently viewed</span>
-      <div class="recentItems">${recentIds.map(rp=>`<button class="recentChip" data-id="${rp.id}">${rp.img?`<img src="${rp.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:`<span class="rcInit">${initials(rp.name)}</span>`}<span class="rcName">${rp.name.split(" ").slice(-1)[0]}</span></button>`).join("")}</div>
+      <div class="recentItems">${recentIds.map(rp=>`<button class="recentChip" data-id="${rp.id}">${rp.img?`<img src="${rp.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:`<span class="rcInit">${initials(rp.name)}</span>`}<span class="rcName">${surnameOf(rp.name)}</span></button>`).join("")}</div>
     </div>`:"";
 
   const lgChip=L=>{const on=s.leagues.has(L.meta.id);
@@ -4740,7 +4794,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,$,$$});
 
 boot();
 </script>
