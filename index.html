@@ -735,13 +735,13 @@ body.drawer-lock{overflow:hidden}
 .agtable th.num,.agtable td.num{text-align:right}
 .agtable tbody tr{cursor:pointer;transition:background .12s}
 .agtable tbody tr:hover{background:var(--panel2)}
-.agtable td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--txt)}
+.agtable td{padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--txt);vertical-align:middle}
 .agtable tbody tr:last-child td{border-bottom:none}
-.agp{display:flex;align-items:center;gap:9px}
+.agpInner{display:flex;align-items:center;gap:9px}
 .agpPhoto{width:30px;height:30px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent-deep)}
 .agpPhoto img{width:100%;height:100%;object-fit:cover}
 .agpName{font-weight:600}
-.agclub{display:flex;flex-direction:column;gap:1px}
+.agclubInner{display:flex;flex-direction:column;gap:1px}
 .agLg{font-size:10.5px;color:var(--muted)}
 .agrate{color:var(--gold);letter-spacing:1px;font-size:12px}
 .agscore{font-family:var(--mono);color:var(--accent-deep)}
@@ -1178,6 +1178,7 @@ const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
 const fmt = (v,d=1)=> (v===undefined||v===null||isNaN(v))?"—":Number(v).toFixed(d);
 const initials = n => n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
 const surnameOf = n => {const parts=(n||"").trim().split(/\s+/);const suf=/^(jr\.?|sr\.?|ii|iii|iv|v)$/i;let i=parts.length-1;if(i>0&&suf.test(parts[i]))i--;return parts[i]||n||"";};
+const posLabel = p => p.role||((p.pos&&p.pos!=="-")?p.pos:"\u2014");
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
 
@@ -1465,12 +1466,12 @@ function applyOverrides(){
   const extFor=p=>{const ids=(p._grp&&p._grp.length?p._grp:[p]).map(x=>x.id);
     for(const id of ids){if(OVR.ext[id])return OVR.ext[id];}return null;};
   STATE.data.leagues.forEach(L=>L.players.forEach(p=>{
-    if(!p._orig)p._orig={height:p.height,weight:p.weight,country:p.country,pos:p.pos,born:p.born,name:p.name};
-    const o=p._orig; p.height=o.height;p.weight=o.weight;p.country=o.country;p.pos=o.pos;p.born=o.born;p.name=o.name;
+    if(!p._orig)p._orig={height:p.height,weight:p.weight,country:p.country,pos:p.pos,role:p.role,born:p.born,name:p.name};
+    const o=p._orig; p.height=o.height;p.weight=o.weight;p.country=o.country;p.pos=o.pos;p.role=o.role;p.born=o.born;p.name=o.name;
     const b=bioFor(p);
     p.hand=null;p.license=null;p.agent=null;p.agency=null;p.agentUrl=null;p._rgm=null;p.projLevel=null;
     if(b){ if(b.height!=null&&b.height!=="")p.height=Number(b.height); if(b.weight!=null&&b.weight!=="")p.weight=Number(b.weight);
-      if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name;
+      if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.role){p.role=b.role;p.pos=b.role;} if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name;
       if(b.hand)p.hand=b.hand; if(b.license)p.license=b.license;
       if(b.agent)p.agent=b.agent; if(b.agency)p.agency=normAgency(b.agency); if(b.agentUrl)p.agentUrl=b.agentUrl; if(b.rgm)p._rgm=b.rgm;
       if(b.projLevel!=null&&b.projLevel!=="")p.projLevel=Number(b.projLevel); }
@@ -1560,7 +1561,7 @@ function openEditModal(id){
    +'<div class="editgrid">'
    +'<div class="efld" style="grid-column:1/-1"><label>Player name</label><input type="text" id="eName" value="'+esc(p.name||"")+'" autocomplete="off"/></div>'
    +efld("Height (cm)","eHeight",p.height||"")+efld("Weight (kg)","eWeight",p.weight||"")
-   +ecountryField(p.country||"")+efld("Position (G/F/C)","ePos",(p.pos&&p.pos!=="-")?p.pos:"")
+   +ecountryField(p.country||"")+esel("Position","ePos",p.role||"",["Guard","Wing","Big"])
    +efld("Year of birth","eBorn",p.born||"")+efld("Eurobasket / external profile link","eExt",p._ext||"")
    +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
    +'<div class="efld"><label>Agent</label><select id="eAgent"><option value="">— none —</option>'
@@ -1626,7 +1627,7 @@ function openEditModal(id){
     if(agent)addAgent(agent,agency); // remember this agent→agency for next time
     // key the bio to the person (group canonical id) so it applies across all their competitions
     const key=gid(p)||id;
-    ovrSaveLocal({bio:{[key]:{name:g("eName"),height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),pos:g("ePos"),born:g("eBorn"),hand:g("eHand"),agent:agent,agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm"),projLevel:g("eProj")}},ext:{[key]:g("eExt")}});
+    ovrSaveLocal({bio:{[key]:{name:g("eName"),height:g("eHeight"),weight:g("eWeight"),country:g("eCountry"),role:g("ePos"),born:g("eBorn"),hand:g("eHand"),agent:agent,agency:agency,agentUrl:g("eAgentUrl"),rgm:g("eRgm"),projLevel:g("eProj")}},ext:{[key]:g("eExt")}});
     toast("Saved");hideModal();renderProfile();};
   const ex=$("#ovrExport"); if(ex)ex.onclick=ovrExportBlob;
   const im=$("#ovrImport"); if(im)im.onchange=e=>{if(e.target.files[0])ovrImportFile(e.target.files[0]);};
@@ -1968,7 +1969,7 @@ function exportPlayerReport(id){
     <div class="rpt-id">
       <h1>${esc(p.name)}</h1>
       <div class="meta">${esc((t?t.name:p.teamName)||"")} · ${esc(L.meta.name)} ${esc(L.meta.season||"")}${p.age?" · "+p.age+" y/o":""}${p.height?" · "+p.height+" cm":""}${p.country?" · "+esc(p.country):""}</div>
-      <div class="pills"><span class="rpt-pill">${(p.pos&&p.pos!=="-")?p.pos:(p.role||"—")}</span>${p.agency?`<span class="rpt-pill">${esc(p.agency)}</span>`:""}${p.hand?`<span class="rpt-pill">${esc(p.hand)}-handed</span>`:""}</div>
+      <div class="pills"><span class="rpt-pill">${posLabel(p)}</span>${p.agency?`<span class="rpt-pill">${esc(p.agency)}</span>`:""}${p.hand?`<span class="rpt-pill">${esc(p.hand)}-handed</span>`:""}</div>
     </div>
     <div class="rpt-scores">
       <div class="lbl">Stat grade</div><div class="g">${grade!=null?grade.toFixed(1):"—"}</div>
@@ -3260,12 +3261,12 @@ function renderAgencyRoster(){
   const rows=players.map(p=>{const L=leagueOf(p);const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
     const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
     return `<tr data-id="${p.id}">
-      <td class="agp"><span class="agpPhoto${p.img?'':' noimg'}">${photo}</span><span class="agpName">${p.name}</span></td>
-      <td>${(p.pos&&p.pos!=="-")?p.pos:(p.role||"\u2014")}</td>
+      <td class="agp"><span class="agpInner"><span class="agpPhoto${p.img?'':' noimg'}">${photo}</span><span class="agpName">${p.name}</span></span></td>
+      <td>${posLabel(p)}</td>
       <td>${p.country||"\u2014"}</td>
       <td>${p.height?p.height+"cm":"\u2014"}</td>
       <td>${p.age!=null?p.age:"\u2014"}</td>
-      <td class="agclub"><span>${p.teamName||"\u2014"}</span><span class="agLg">${L.meta.name}</span></td>
+      <td class="agclub"><span class="agclubInner"><span>${p.teamName||"\u2014"}</span><span class="agLg">${L.meta.name}</span></span></td>
       <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td>
       <td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
       <td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
@@ -3369,7 +3370,7 @@ function renderProfile(){
             <div class="ph-nrow"><h1>${p.name}</h1>${p.country?`<span class="ph-flag" title="${p.country}">${flagEmoji(p.country)||isoOf(p.country)||""}</span>`:""}<button class="bigstar ${isWatched(p)?'on':''}" id="watchToggle" title="${isWatched(p)?'On watchlist — tap to remove':'Add to watchlist'}">${isWatched(p)?'★':'☆'}</button></div>
             <div class="ph-pills">
               <span class="ph-pill lg" onclick="openLeaguePlayers('${p.league}')">${L.meta.name}</span>
-              <span class="ph-pill arch">${p.pos&&p.pos!=='-'?p.pos:(p.role||'—')}</span>
+              <span class="ph-pill arch">${posLabel(p)}</span>
               ${p.multiTeam?'<span class="ph-pill soft">2 clubs</span>':''}
               ${p.qualified?'':'<span class="ph-pill soft">below min</span>'}
               ${p._exhib?'<span class="ph-pill soft">exhibition</span>':''}
@@ -3581,7 +3582,7 @@ function rosterCardHTML(p){
     <span class="rrPhoto${p.img?"":" noimg"}">${photo}</span>
     <span class="rrMain">
       <span class="rrName">${p.name}${watched?' <span class="rrStar">★</span>':''}</span>
-      <span class="rrMeta">${(p.pos&&p.pos!=="-")?p.pos:(p.role||"—")}${p.height?" · "+p.height+"cm":""}${p.age?" · "+p.age+"y":""}</span>
+      <span class="rrMeta">${posLabel(p)}${p.height?" · "+p.height+"cm":""}${p.age?" · "+p.age+"y":""}</span>
     </span>
     <span class="rrRight">${stars}<span class="rrGrade" title="Stat grade">${og!=null?og.toFixed(1):"—"}</span></span>
   </button>`;
