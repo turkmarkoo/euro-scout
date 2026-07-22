@@ -717,6 +717,26 @@ body.drawer-lock{overflow:hidden}
 .archchip .fdot{width:7px;height:7px;border-radius:50%;border:1px solid var(--line)}
 .archClr{border:none;background:var(--line);color:var(--txt);border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;line-height:1;margin-left:4px;vertical-align:middle}
 .archClr:hover{background:var(--bad);color:#fff}
+.filterbar{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:12px}
+.filterbarHead{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.fbTitle{font-family:var(--disp);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.addFiltSel{border:1px dashed var(--accent);background:var(--panel);color:var(--accent-deep);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;cursor:pointer}
+.fbClear{margin-left:auto;border:none;background:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline}
+.fbClear:hover{color:var(--bad)}
+.fbEmpty{font-size:12.5px;color:var(--muted);padding:8px 2px 2px}
+.filtrows{display:flex;flex-direction:column;gap:11px;margin-top:11px}
+.filtrow{display:grid;grid-template-columns:120px 1fr 92px 22px;align-items:center;gap:12px}
+.filtName{font-size:13px;font-weight:600;color:var(--txt)}
+.filtVal{font-family:var(--mono);font-size:12px;color:var(--accent-deep);text-align:right}
+.filtX{border:none;background:var(--line);color:var(--txt);border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;line-height:1}
+.filtX:hover{background:var(--bad);color:#fff}
+.dualrange{position:relative;height:22px}
+.dr-track{position:absolute;top:9px;left:0;right:0;height:4px;background:var(--line);border-radius:3px}
+.dr-fill{position:absolute;top:9px;height:4px;background:var(--accent);border-radius:3px}
+.dualrange input[type=range]{position:absolute;top:0;left:0;width:100%;height:22px;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none}
+.dualrange input[type=range]::-webkit-slider-thumb{pointer-events:auto;-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
+.dualrange input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--panel)}
+@media(max-width:640px){.filtrow{grid-template-columns:88px 1fr 78px 20px;gap:8px}.filtName{font-size:12px}}
 .psBar2{height:8px;border-radius:5px;background:var(--line);overflow:hidden;grid-column:auto}
 .psBar2>span{display:block;height:100%;border-radius:5px}
 .psPct{font-family:var(--mono);font-size:12px;color:var(--accent-deep);text-align:right;font-weight:700}
@@ -1135,7 +1155,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[]}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -2822,6 +2842,64 @@ function archKeyFor(idx,p){const A=ARCHETYPES[idx];if(A&&A.sizeBands&&p&&p.heigh
 function openArchFilter(key){STATE.scout.arch=key;STATE.scout.simRef=null;STATE.view="scout";
   $$("#tabs button").forEach(x=>x.classList.toggle("active",x.dataset.view==="scout"));
   closeDrawer();renderScout();}
+const FILTER_STATS=[
+ {key:"age",label:"Age",min:16,max:42,step:1},
+ {key:"height",label:"Height",min:170,max:225,step:1,suffix:"cm"},
+ {key:"g",label:"Games",min:0,max:60,step:1},
+ {key:"mpg",label:"Minutes / game",min:0,max:40,step:1},
+ {key:"ppg",label:"Points / game",min:0,max:40,step:1},
+ {key:"rpg",label:"Rebounds / game",min:0,max:16,step:1},
+ {key:"apg",label:"Assists / game",min:0,max:12,step:1},
+ {key:"spg",label:"Steals / game",min:0,max:4,step:0.5},
+ {key:"bpg",label:"Blocks / game",min:0,max:4,step:0.5},
+ {key:"topg",label:"Turnovers / game",min:0,max:6,step:0.5},
+ {key:"usg",label:"Usage",min:0,max:45,step:1,suffix:"%"},
+ {key:"ts",label:"TS%",min:0,max:80,step:1,suffix:"%"},
+ {key:"efg",label:"eFG%",min:0,max:80,step:1,suffix:"%"},
+ {key:"fgp",label:"FG%",min:0,max:75,step:1,suffix:"%"},
+ {key:"f3p",label:"3P%",min:0,max:60,step:1,suffix:"%"},
+ {key:"ftp",label:"FT%",min:0,max:100,step:1,suffix:"%"},
+ {key:"pir",label:"PIR",min:-5,max:40,step:1},
+ {key:"pts40",label:"Points / 40",min:0,max:45,step:1},
+ {key:"reb40",label:"Rebounds / 40",min:0,max:20,step:1},
+ {key:"ast40",label:"Assists / 40",min:0,max:15,step:1}];
+function filterStat(k){return FILTER_STATS.find(x=>x.key===k);}
+function addFilter(key){if(!key)return;const st=filterStat(key);if(!st)return;
+  const f=STATE.scout.filters||(STATE.scout.filters=[]);
+  if(f.find(x=>x.key===key))return;
+  f.push({key,min:st.min,max:st.max});renderScout();}
+function removeFilter(key){STATE.scout.filters=(STATE.scout.filters||[]).filter(f=>f.key!==key);renderScout();}
+function clearFilters(){STATE.scout.filters=[];renderScout();}
+function drLive(key){const row=document.querySelector('.filtrow[data-key="'+key+'"]');if(!row)return;
+  const st=filterStat(key);const mn=row.querySelector('.dr-min'),mx=row.querySelector('.dr-max');
+  let a=+mn.value,b=+mx.value;
+  if(a>b){if(document.activeElement===mn){mx.value=a;b=a;}else{mn.value=b;a=b;}}
+  const f=(STATE.scout.filters||[]).find(x=>x.key===key);if(f){f.min=a;f.max=b;}
+  const pct=v=>((v-st.min)/(st.max-st.min)*100);const fill=row.querySelector('.dr-fill');
+  if(fill){fill.style.left=pct(a)+'%';fill.style.right=(100-pct(b))+'%';}
+  const suf=st.suffix||"";const val=$("#val-"+key);if(val)val.textContent=a+suf+"\u2013"+b+suf;}
+function filterBarHTML(s){
+  const used=new Set((s.filters||[]).map(f=>f.key));
+  const avail=FILTER_STATS.filter(st=>!used.has(st.key));
+  const addSel=`<select id="addFilt" class="addFiltSel" onchange="addFilter(this.value);this.value=''"><option value="">+ Add filter</option>${avail.map(st=>`<option value="${st.key}">${st.label}</option>`).join("")}</select>`;
+  const rows=(s.filters||[]).map(f=>{const st=filterStat(f.key);if(!st)return"";
+    const pct=v=>((v-st.min)/(st.max-st.min)*100);const suf=st.suffix||"";
+    return `<div class="filtrow" data-key="${f.key}">
+      <span class="filtName">${st.label}</span>
+      <div class="dualrange">
+        <div class="dr-track"></div>
+        <div class="dr-fill" style="left:${pct(f.min)}%;right:${100-pct(f.max)}%"></div>
+        <input type="range" class="dr-min" min="${st.min}" max="${st.max}" step="${st.step||1}" value="${f.min}" oninput="drLive('${f.key}')" onchange="renderScout()">
+        <input type="range" class="dr-max" min="${st.min}" max="${st.max}" step="${st.step||1}" value="${f.max}" oninput="drLive('${f.key}')" onchange="renderScout()">
+      </div>
+      <span class="filtVal" id="val-${f.key}">${f.min}${suf}\u2013${f.max}${suf}</span>
+      <button class="filtX" onclick="removeFilter('${f.key}')" title="Remove">\u2715</button>
+    </div>`;}).join("");
+  return `<div class="filterbar">
+    <div class="filterbarHead"><span class="fbTitle">Filters</span>${addSel}${(s.filters&&s.filters.length)?`<button class="fbClear" onclick="clearFilters()">Clear all</button>`:""}</div>
+    ${rows?`<div class="filtrows">${rows}</div>`:`<div class="fbEmpty">Add a filter to narrow the board \u2014 age range, minutes, usage, shooting\u2026</div>`}
+  </div>`;
+}
 function playingStyleHTML(p){
   if(!p.arch||!p.arch.length)return "";
   const idx=p.arch.map((w,i)=>[i,w]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
@@ -3982,6 +4060,9 @@ function renderScout(){
       if(band!=null&&A&&A.sizeBands){const h=p.height;if(!h)return band===1;
         const prev=band===0?0:A.sizeBands[band-1][0];return h>prev&&h<=A.sizeBands[band][0];}
       return true;});}
+  {(s.filters||[]).forEach(f=>{const st=filterStat(f.key);if(!st)return;
+    const active=f.min>st.min||f.max<st.max; if(!active)return;
+    pool=pool.filter(p=>{const v=p[f.key];return v!=null&&v>=f.min&&v<=f.max;});});}
   if(s.q){const q=s.q.toLowerCase(),qn=normName(s.q);
     pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn)||noteText(p).includes(q));}
   // sort
@@ -4077,14 +4158,14 @@ function renderScout(){
         <div class="tagcloud">${TAG_LIBRARY.filter(t=>t!==WATCH_TAG).map(t=>activeTags.includes(t)||true?tagChip(t):"").join("")}</div>
       </div>
 
-      ${(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||s.q||s.arch)?`<button class="railclear" id="scoutClear">Clear all filters</button>`:""}
+      ${(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||s.q||s.arch||(s.filters&&s.filters.length))?`<button class="railclear" id="scoutClear">Clear all filters</button>`:""}
     </aside>
 
     <section class="scoutmain">
       <div class="scouthead">
         <div>
           <h1 class="title" style="margin:0">${simP?"Similar to "+esc(simP.name):(s.arch?(ARCH_FILTERS.find(a=>a.key===s.arch)||{}).label+"s":"Scout board")}</h1>
-          <div class="sub" style="margin-top:2px">${simP?`${pool.length} player${pool.length!==1?"s":""} by statistical match \u00b7 refine with the filters on the left`:`${pool.length} player${pool.length!==1?"s":""}${s.arch?" tagged \u2014 ranked by archetype fit":(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"?" match your filters":" across eleven competitions")}`}</div>
+          <div class="sub" style="margin-top:2px">${simP?`${pool.length} player${pool.length!==1?"s":""} by statistical match \u00b7 refine with the filters on the left`:`${pool.length} player${pool.length!==1?"s":""}${s.arch?" tagged \u2014 ranked by archetype fit":(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||(s.filters&&s.filters.length)?" match your filters":" across eleven competitions")}`}</div>
         </div>
         ${simP?`<button class="btn ghost sm" onclick="clearSimRef()">\u2715 Exit similar</button>`:`<div class="scoutsort">
           <span class="sortlab">Sort</span>
@@ -4098,6 +4179,7 @@ function renderScout(){
           </select>
         </div>`}
       </div>
+      ${simP?"":filterBarHTML(s)}
       ${simP?"":naStrip}
       ${simP?simSliderHTML("readSimWeights()","simBoardWeight()"):""}
       ${simP?"":viewsBar}
@@ -4117,7 +4199,7 @@ function renderScout(){
   const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderScout();};
   $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
   const aClr=$("#archClr");if(aClr)aClr.onclick=(e)=>{e.stopPropagation();s.arch=null;renderScout();};
-  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;renderScout();};
+  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];renderScout();};
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
   // saved views
   const saveViewBtn=$("#saveViewBtn");if(saveViewBtn)saveViewBtn.onclick=saveCurrentView;
@@ -4604,7 +4686,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,$,$$});
 
 boot();
 </script>
