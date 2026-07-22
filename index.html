@@ -605,6 +605,7 @@ body.drawer-lock{overflow:hidden}
 .drawer .profnav .inscope{margin-left:10px}
 /* ===== Scout board ===== */
 .scoutwrap{display:grid;grid-template-columns:236px 1fr;gap:22px;max-width:1320px;margin:0 auto;padding:20px 22px 60px}
+.scoutmain{min-width:0}
 .scoutrail{position:sticky;top:120px;align-self:start;display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - 140px);overflow-y:auto;padding-right:4px}
 .railsearch input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-family:var(--body);font-size:13px;color:var(--txt)}
 .railsearch input:focus{outline:none;border-color:var(--gold)}
@@ -718,6 +719,20 @@ body.drawer-lock{overflow:hidden}
 .archClr{border:none;background:var(--line);color:var(--txt);border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;line-height:1;margin-left:4px;vertical-align:middle}
 .archClr:hover{background:var(--bad);color:#fff}
 .filterbar{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:12px}
+.subnav{display:inline-flex;gap:3px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:14px}
+.subnavbtn{border:none;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:6px 15px;border-radius:8px;cursor:pointer}
+.subnavbtn:hover{color:var(--txt)}
+.subnavbtn.on{background:var(--accent);color:#fff}
+.agencyBar{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.aseg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:3px}
+.aseg button{border:none;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer}
+.aseg button.on{background:var(--accent);color:#fff}
+.agencySearch{flex:1;min-width:180px;max-width:340px;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 12px;font:inherit;font-size:13px;color:var(--txt)}
+.agencyGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.agencyCard{text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.14s;color:var(--txt);font:inherit}
+.agencyCard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+.acName{font-family:var(--disp);font-size:16px;font-weight:700;margin-bottom:5px;line-height:1.25}
+.acMeta{font-size:12.5px;color:var(--muted)}
 .filterbarHead{display:flex;align-items:center;gap:10px;margin-bottom:2px}
 .fbTitle{font-family:var(--disp);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .addFiltSel{border:1px dashed var(--accent);background:var(--panel);color:var(--accent-deep);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;cursor:pointer}
@@ -1109,13 +1124,12 @@ body.drawer-lock{overflow:hidden}
     <div class="logo" id="homeLogo" title="Back to players" role="button" tabindex="0"><span class="mark">E</span><span class="logotext">Euro<b>Scout</b></span></div>
     <nav class="tabs" id="tabs">
       <button data-view="scout" class="active">Players</button>
-      <button data-view="players">Stats</button>
       <button data-view="teams">Teams</button>
+      <button data-view="agencies">Agencies</button>
+      <button data-view="players">Stats</button>
       <button data-view="scouting">Scouting</button>
       <button data-view="watchlist">Watchlist</button>
       <button data-view="exhib">Exhibitions</button>
-      <button data-view="compare" class="t-secondary">Compare</button>
-      <button data-view="charts" class="t-secondary">Charts</button>
       <button data-view="glossary" class="glosstab" title="Glossary" aria-label="Glossary">📖<span class="glosslab">Glossary</span></button>
     </nav>
     <span class="spacer"></span>
@@ -2227,6 +2241,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
   else if(v==="charts") renderCharts();
+  else if(v==="agencies") renderAgencies();
   else if(v==="watchlist") renderWatchlist();
   else if(v==="exhib") renderExhib();
   else if(v==="scouting") renderScouting();
@@ -2234,6 +2249,14 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="glossary") renderGlossary();
   else if(v==="team") renderTeam();
   else if(v==="profile") renderProfile();
+  // centralized top-tab highlighting (compare/charts group under Stats; team under Teams)
+  const TOPTAB={scout:"scout",players:"players",compare:"players",charts:"players",agencies:"agencies",teams:"teams",team:"teams",scouting:"scouting",watchlist:"watchlist",exhib:"exhib",glossary:"glossary"};
+  const tt=TOPTAB[v];
+  if(tt)$$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===tt));
+}
+function goView(v){STATE.view=v;render();}
+function statsSubNav(active){
+  return `<div class="subnav">${[["players","Stats"],["compare","Compare"],["charts","Charts"]].map(([v,l])=>`<button class="subnavbtn ${active===v?"on":""}" onclick="goView('${v}')">${l}</button>`).join("")}</div>`;
 }
 
 function allTeamsFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.teams.forEach(t=>a.push({...t,_lid:L.meta.id}));});return a;}
@@ -2279,6 +2302,7 @@ function renderPlayers(){
     const tn=(allTeamsFlat().find(t=>t.code===tc)||{}).name||tc;chips.push(`<span class="filterchip">Team: <b>${tn}</b><button data-clear="team" title="Clear">\u2715</button></span>`);}
   $("#app").innerHTML=`
   <div class="view">
+    ${statsSubNav("players")}
     <h1 class="title">${title}</h1>
     <div class="sub">${sub}</div>
     ${scopeChips()}
@@ -3201,6 +3225,34 @@ function rosterModal(title,subHTML,list,kind){
 }
 function agencyEnc(a){return encodeURIComponent(a).replace(/'/g,"%27");}
 function agencyOfAgent(key){const p=scoutPool().find(x=>x.agent&&normName(x.agent)===key&&x.agency&&x.agency.trim());return p?p.agency.trim():null;}
+function renderAgencies(){
+  const pool=scoutPool();
+  const mode=STATE.agencyMode||"agency";
+  const agMap=new Map();
+  pool.forEach(p=>{if(p.agency&&p.agency.trim()){const k=normAgency(p.agency);if(!agMap.has(k))agMap.set(k,{name:p.agency.trim(),players:[],agents:new Set()});const e=agMap.get(k);e.players.push(p);if(p.agent&&p.agent.trim())e.agents.add(normName(p.agent));}});
+  const agencies=[...agMap.values()].sort((a,b)=>b.players.length-a.players.length||a.name.localeCompare(b.name));
+  const agtMap=new Map();
+  pool.forEach(p=>{if(p.agent&&p.agent.trim()){const k=normName(p.agent);if(!agtMap.has(k))agtMap.set(k,{name:p.agent.trim(),agency:(p.agency||"").trim(),players:[]});agtMap.get(k).players.push(p);}});
+  const agents=[...agtMap.values()].sort((a,b)=>b.players.length-a.players.length||a.name.localeCompare(b.name));
+  const items=mode==="agency"?agencies:agents;
+  const cards=mode==="agency"
+    ? agencies.map(a=>`<button class="agencyCard" data-ag="${agencyEnc(a.name)}"><div class="acName">${esc(a.name)}</div><div class="acMeta">${a.players.length} player${a.players.length===1?"":"s"} \u00b7 ${a.agents.size} agent${a.agents.size===1?"":"s"}</div></button>`).join("")
+    : agents.map(a=>`<button class="agencyCard" data-agt="${agencyEnc(a.name)}"><div class="acName">${esc(a.name)}</div><div class="acMeta">${a.players.length} player${a.players.length===1?"":"s"}${a.agency?" \u00b7 "+esc(a.agency):""}</div></button>`).join("");
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Agencies</h1>
+    <div class="sub" style="margin-bottom:14px">${agencies.length} agenc${agencies.length===1?"y":"ies"} \u00b7 ${agents.length} agent${agents.length===1?"":"s"} in your database</div>
+    <div class="agencyBar">
+      <div class="aseg"><button class="${mode==="agency"?"on":""}" data-amode="agency">Agencies</button><button class="${mode==="agent"?"on":""}" data-amode="agent">Agents</button></div>
+      <input id="agencyQ" class="agencySearch" placeholder="Search ${mode==="agency"?"agencies":"agents"}\u2026" autocomplete="off"/>
+    </div>
+    ${items.length?`<div class="agencyGrid">${cards}</div>`:`<div class="empty">No ${mode==="agency"?"agencies":"agents"} yet. Add an agent or agency to a player with the \u270e Edit button on their profile, and they'll appear here.</div>`}
+  </div>`;
+  $$("[data-amode]").forEach(b=>b.onclick=()=>{STATE.agencyMode=b.dataset.amode;renderAgencies();});
+  $$(".agencyCard[data-ag]").forEach(c=>c.onclick=()=>openAgencyRoster(c.dataset.ag));
+  $$(".agencyCard[data-agt]").forEach(c=>c.onclick=()=>openAgentRoster(c.dataset.agt));
+  const sq=$("#agencyQ");if(sq)sq.oninput=()=>{const q=sq.value.toLowerCase();
+    $$(".agencyCard").forEach(c=>{const t=c.textContent.toLowerCase();c.style.display=(!q||t.includes(q))?"":"none";});};
+}
 function openAgentRoster(enc){const agent=decodeURIComponent(enc),key=normName(agent);
   const list=agentRosterList(p=>p.agent&&normName(p.agent)===key);
   const agency=agencyOfAgent(key);
@@ -3678,6 +3730,7 @@ function renderCharts(){
   const chart=c.type==="scatter"?scatterSVG(plotPool,c.x,c.y,c.colorBy,c.hi):distSVG(pool,c.dist,c.hi);
   const dataList=`<datalist id="chHiList">${pool.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${escAttr(p.name)}">`).join("")}</datalist>`;
   $("#app").innerHTML=`<div class="view">
+    ${statsSubNav("charts")}
     <h1 class="title">Charts</h1>
     <div class="sub" style="margin-bottom:10px">${pool.length} qualified player${pool.length===1?"":"s"} in view${capNote?` \u00b7 <span style="color:var(--accent-deep)">${capNote}</span>`:""}</div>
     <div class="panel">
@@ -3777,6 +3830,7 @@ function renderCompare(){
     </div>`;
   }
   $("#app").innerHTML=`<div class="view">
+    ${statsSubNav("compare")}
     <h1 class="title">Compare players</h1>
     <div class="sub">Pick two to four players from any competition \u00b7 bio, stats head-to-head, radar overlay and shot charts.</div>
     <div class="cmpsel cmpsel4">${slots.map((cur,i)=>sel(i,cur)).join("")}</div>
@@ -4686,7 +4740,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,$,$$});
 
 boot();
 </script>
