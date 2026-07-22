@@ -2785,26 +2785,32 @@ function skillCardHTML(p,pool){
 /* ---------- Similar player finder: distance over league-relative percentile vectors ---------- */
 const SIM_KEYS=["pts40","ts","f3p","fgp","ftp","ast40","topg","usg","reb40","stl40","blk40"];
 const ARCHETYPES=[
- {name:"Scoring Guard",desc:"Undersized, high-volume perimeter scorer",c:"#C5824E"},
- {name:"Rim Protector",desc:"Shot-blocking interior anchor",c:"#6FA39B"},
- {name:"Floor General",desc:"Pass-first, disruptive playmaker",c:"#C99A3C"},
+ {name:"Combo Guard",desc:"Scoring-first guard, low assist rate",c:"#C5824E"},
  {name:"Primary Creator",desc:"High-usage offensive engine",c:"#A96A38"},
- {name:"Complementary Guard",desc:"Low-usage backcourt role player",c:"#8C93A0"},
- {name:"3&D Wing",desc:"Efficient low-usage shooter & defender",c:"#6E9F6A"},
- {name:"Interior Scorer",desc:"Post-scoring, rebounding big",c:"#B0663F"},
+ {name:"Floor General",desc:"Pass-first, disruptive playmaker",c:"#C99A3C"},
  {name:"Slashing Creator",desc:"Foul-drawing downhill driver",c:"#7E8CA0"},
- {name:"Stretch Big",desc:"Floor-spacing, shooting big",c:"#8E7CC3"}];
+ {name:"3&D",desc:"Shooting, defending, low usage",c:"#6E9F6A",sizeBands:[[191,"3&D Guard"],[203,"3&D Wing"],[9999,"3&D Forward"]]},
+ {name:"Complementary Guard",desc:"Low-usage backcourt role player",c:"#8C93A0"},
+ {name:"Rim Protector",desc:"Shot-blocking interior anchor",c:"#6FA39B"},
+ {name:"Interior Scorer",desc:"Post-scoring, rebounding big",c:"#B0663F"},
+ {name:"Energy Big",desc:"Rim-running, rebounding, non-shooting big",c:"#9C6B4A"},
+ {name:"Stretch Big",desc:"Floor-spacing, shooting big",c:"#8E7CC3"},
+ {name:"Playmaking Big",desc:"Passing hub with size",c:"#5E97B0"},
+ {name:"Connector",desc:"Low-usage, efficient, no-weakness glue",c:"#A8AAB0"}];
+function archLabel(idx,p){const A=ARCHETYPES[idx];if(!A)return"";
+  if(A.sizeBands&&p&&p.height){for(const b of A.sizeBands){if(p.height<=b[0])return b[1];}return A.sizeBands[A.sizeBands.length-1][1];}
+  return A.name;}
 function playingStyleHTML(p){
   if(!p.arch||!p.arch.length)return "";
   const idx=p.arch.map((w,i)=>[i,w]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
   if(!idx.length)return "";
   const top=idx.slice(0,3).filter(x=>x[1]>=5);
-  const summary=top.map(x=>`<b style="color:${ARCHETYPES[x[0]].c}">${x[1]}%</b> ${ARCHETYPES[x[0]].name}`).join(" \u00b7 ");
-  const bar=idx.map(x=>`<span style="width:${x[1]}%;background:${ARCHETYPES[x[0]].c}" title="${ARCHETYPES[x[0]].name} ${x[1]}%"></span>`).join("");
+  const summary=top.map(x=>`<b style="color:${ARCHETYPES[x[0]].c}">${x[1]}%</b> ${archLabel(x[0],p)}`).join(" \u00b7 ");
+  const bar=idx.map(x=>`<span style="width:${x[1]}%;background:${ARCHETYPES[x[0]].c}" title="${archLabel(x[0],p)} ${x[1]}%"></span>`).join("");
   const tiers=["Primary","Secondary","Tertiary"];
   const rows=top.map((x,i)=>{const A=ARCHETYPES[x[0]];
     return `<div class="psRow"><span class="psTier">${tiers[i]}</span><span class="psDot" style="background:${A.c}"></span>
-      <span class="psName">${A.name}</span><span class="psBar2"><span style="width:${x[1]}%;background:${A.c}"></span></span>
+      <span class="psName">${archLabel(x[0],p)}</span><span class="psBar2"><span style="width:${x[1]}%;background:${A.c}"></span></span>
       <span class="psPct">${x[1]}%</span><span class="psDesc">${A.desc}</span></div>`;}).join("");
   return `<div class="panel psPanel" style="margin-top:16px">
     <div class="sc-cardhead"><h3 style="margin:0">Playing style <span class="hint" style="font-weight:400;font-size:12px">archetype blend from box-score profile</span></h3></div>
@@ -4476,7 +4482,7 @@ function renderGlossary(){
     ["Team pages","Open a team for its roster (as cards), a full stat-card panel (Basic and Advanced, tap any card for the league ranking), the group standings, and the season game log. Teams that play two competitions get the same Competitions switch as players."],
     ["Data & freshness","Numbers come from official sources: EuroLeague/EuroCup feeds and aba-liga.com box scores, reconciled game-by-game (every team\u2019s player points sum to the final score). \u201cLocal mode\u201d means your notes live in this browser only. The site is a single page \u2014 a fresh version loads when the data is updated."],
     ["Skill Card & radar","Every profile opens with a Skill Card: an 11-spoke radar of the player\u2019s percentile profile plus grouped bars across four families \u2014 Scoring, Playmaking, Rebounding and Defense. Bars and radar follow the scope switch (vs League / vs All), so the same player can be read against his own league or the whole database."],
-    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of nine modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Wing \u00b7 26% Primary Creator.\u201d The nine roles are Scoring Guard, Rim Protector, Floor General, Primary Creator, Complementary Guard, 3&D Wing, Interior Scorer, Slashing Creator and Stretch Big. It\u2019s computed with Archetypal Analysis over all eleven competitions, so styles are comparable across leagues. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
+    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of twelve modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Wing \u00b7 26% Primary Creator.\u201d The twelve roles are Combo Guard, Primary Creator, Floor General, Slashing Creator, 3&D, Complementary Guard, Rim Protector, Interior Scorer, Energy Big, Stretch Big, Playmaking Big and Connector. They\u2019re computed with Archetypal Analysis over all eleven competitions, with player height weighted so a role fits the player\u2019s size \u2014 a guard is never labelled a big, and the 3&D role reads as 3&D Guard / Wing / Forward by height. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
     ["Similar players & comp weights","Each profile lists the closest players across every league. The <b>Comp weights</b> sliders tune what \u201csimilar\u201d means, blending three components: <b>Statistical fingerprint</b> (production and shooting profile), <b>Position + size</b> (role and height), and <b>Playing style</b> (the archetype blend). Drag any slider and the list re-ranks live. \u201cFind more \u2192\u201d turns the whole board into a ranked similarity search against that player."],
     ["Compare","The <b>Compare</b> tab overlays up to four players on one skill radar with a shared stat table, so you can read strengths and gaps side by side. Pick players from any leagues."],
     ["Team needs","On a team page, <b>Team needs</b> grades the roster across the four skill families (from its best player in each), flagging where the group is a Strength, Solid, or a Need."],
