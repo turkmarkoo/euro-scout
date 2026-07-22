@@ -2861,24 +2861,27 @@ const SIM_KEYS=["pts40","ts","f3p","fgp","ftp","ast40","topg","usg","reb40","stl
 const ARCHETYPES=[
  {name:"Combo Guard",desc:"Scoring-first guard, low assist rate",c:"#C5824E"},
  {name:"Primary Creator",desc:"High-usage offensive engine",c:"#A96A38"},
- {name:"Floor General",desc:"Pass-first, disruptive playmaker",c:"#C99A3C"},
+ {name:"Floor General",desc:"Pass-first facilitator",c:"#C99A3C",roleBands:{Guard:"Floor General",Wing:"Point Forward",Big:"Playmaking Big"}},
  {name:"Slashing Creator",desc:"Foul-drawing downhill driver",c:"#7E8CA0"},
- {name:"3&D",desc:"Shooting, defending, low usage",c:"#6E9F6A",sizeBands:[[191,"3&D Guard"],[203,"3&D Wing"],[9999,"3&D Forward"]]},
+ {name:"3&D",desc:"Shooting, defending, low usage",c:"#6E9F6A",roleBands:{Guard:"3&D Guard",Wing:"3&D Wing",Big:"3&D Forward"}},
  {name:"Complementary Guard",desc:"Low-usage backcourt role player",c:"#8C93A0"},
  {name:"Rim Protector",desc:"Shot-blocking interior anchor",c:"#6FA39B"},
  {name:"Interior Scorer",desc:"Post-scoring, rebounding big",c:"#B0663F"},
  {name:"Energy Big",desc:"Rim-running, rebounding, non-shooting big",c:"#9C6B4A"},
  {name:"Stretch Big",desc:"Floor-spacing, shooting big",c:"#8E7CC3"},
- {name:"Playmaking Big",desc:"Passing hub with size",c:"#5E97B0"},
  {name:"Connector",desc:"Low-usage, efficient, no-weakness glue",c:"#A8AAB0"}];
 function archLabel(idx,p){const A=ARCHETYPES[idx];if(!A)return"";
+  if(A.roleBands&&p&&p.role)return A.roleBands[p.role]||A.name;
   if(A.sizeBands&&p&&p.height){for(const b of A.sizeBands){if(p.height<=b[0])return b[1];}return A.sizeBands[A.sizeBands.length-1][1];}
   return A.name;}
+const ROLE_ORDER=["Guard","Wing","Big"];
 const ARCH_FILTERS=(()=>{const out=[];ARCHETYPES.forEach((A,i)=>{
-  if(A.sizeBands)A.sizeBands.forEach((b,bi)=>out.push({key:i+":"+bi,label:b[1],c:A.c}));
+  if(A.roleBands)ROLE_ORDER.forEach((r,ri)=>out.push({key:i+":"+ri,label:A.roleBands[r],c:A.c}));
+  else if(A.sizeBands)A.sizeBands.forEach((b,bi)=>out.push({key:i+":"+bi,label:b[1],c:A.c}));
   else out.push({key:""+i,label:A.name,c:A.c});});return out;})();
-function archKeyFor(idx,p){const A=ARCHETYPES[idx];if(A&&A.sizeBands&&p&&p.height){
-  for(let bi=0;bi<A.sizeBands.length;bi++){if(p.height<=A.sizeBands[bi][0])return idx+":"+bi;}return idx+":"+(A.sizeBands.length-1);}
+function archKeyFor(idx,p){const A=ARCHETYPES[idx];
+  if(A&&A.roleBands&&p&&p.role){const ri=ROLE_ORDER.indexOf(p.role);return idx+":"+(ri<0?1:ri);}
+  if(A&&A.sizeBands&&p&&p.height){for(let bi=0;bi<A.sizeBands.length;bi++){if(p.height<=A.sizeBands[bi][0])return idx+":"+bi;}return idx+":"+(A.sizeBands.length-1);}
   return ""+idx;}
 function openArchFilter(key){STATE.scout.arch=key;STATE.scout.simRef=null;STATE.view="scout";
   $$("#tabs button").forEach(x=>x.classList.toggle("active",x.dataset.view==="scout"));
@@ -4165,6 +4168,7 @@ function renderScout(){
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
   if(s.arch){const parts=s.arch.split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
     pool=pool.filter(p=>{if(!p.arch||(p.arch[ai]||0)<20)return false;
+      if(band!=null&&A&&A.roleBands){return p.role===ROLE_ORDER[band];}
       if(band!=null&&A&&A.sizeBands){const h=p.height;if(!h)return band===1;
         const prev=band===0?0:A.sizeBands[band-1][0];return h>prev&&h<=A.sizeBands[band][0];}
       return true;});}
@@ -4706,7 +4710,7 @@ function renderGlossary(){
     ["Team pages","Open a team for its roster (as cards), a full stat-card panel (Basic and Advanced, tap any card for the league ranking), the group standings, and the season game log. Teams that play two competitions get the same Competitions switch as players."],
     ["Data & freshness","Numbers come from official sources: EuroLeague/EuroCup feeds and aba-liga.com box scores, reconciled game-by-game (every team\u2019s player points sum to the final score). \u201cLocal mode\u201d means your notes live in this browser only. The site is a single page \u2014 a fresh version loads when the data is updated."],
     ["Skill Card & radar","Every profile opens with a Skill Card: an 11-spoke radar of the player\u2019s percentile profile plus grouped bars across four families \u2014 Scoring, Playmaking, Rebounding and Defense. Bars and radar follow the scope switch (vs League / vs All), so the same player can be read against his own league or the whole database."],
-    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of twelve modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Wing \u00b7 26% Primary Creator.\u201d The twelve roles are Combo Guard, Primary Creator, Floor General, Slashing Creator, 3&D, Complementary Guard, Rim Protector, Interior Scorer, Energy Big, Stretch Big, Playmaking Big and Connector. They\u2019re computed with Archetypal Analysis over all eleven competitions, with player height weighted so a role fits the player\u2019s size \u2014 a guard is never labelled a big, and the 3&D role reads as 3&D Guard / Wing / Forward by height. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
+    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of eleven modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Wing \u00b7 26% Primary Creator.\u201d The eleven roles are Combo Guard, Primary Creator, Floor General, Slashing Creator, 3&D, Complementary Guard, Rim Protector, Interior Scorer, Energy Big, Stretch Big and Connector. They\u2019re computed with Archetypal Analysis over all eleven competitions, gated by the player\u2019s position so a role fits their size \u2014 a guard is never labelled a big. Two styles read by position: 3&D shows as 3&D Guard / Wing / Forward, and the pass-first facilitator shows as Floor General (guards), Point Forward (wings) or Playmaking Big (bigs) \u2014 so a tall guard stays a Floor General, not a big. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
     ["Similar players & comp weights","Each profile lists the closest players across every league. The <b>Comp weights</b> sliders tune what \u201csimilar\u201d means, blending three components: <b>Statistical fingerprint</b> (production and shooting profile), <b>Position + size</b> (role and height), and <b>Playing style</b> (the archetype blend). Drag any slider and the list re-ranks live. \u201cFind more \u2192\u201d turns the whole board into a ranked similarity search against that player."],
     ["Compare","The <b>Compare</b> tab overlays up to four players on one skill radar with a shared stat table, so you can read strengths and gaps side by side. Pick players from any leagues."],
     ["Team needs","On a team page, <b>Team needs</b> grades the roster across the four skill families (from its best player in each), flagging where the group is a Strength, Solid, or a Need."],
