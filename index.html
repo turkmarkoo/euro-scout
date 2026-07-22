@@ -729,6 +729,51 @@ body.drawer-lock{overflow:hidden}
 .aseg button.on{background:var(--accent);color:#fff}
 .agencySearch{flex:1;min-width:180px;max-width:340px;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 12px;font:inherit;font-size:13px;color:var(--txt)}
 .agencyGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.nextbadge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--line);white-space:nowrap;margin-top:5px}
+.nextbadge.big{font-size:12px;padding:4px 11px;margin-top:0}
+.nextbadge.nx-signed{background:color-mix(in srgb,var(--good) 16%,var(--panel));border-color:color-mix(in srgb,var(--good) 40%,var(--line));color:#3f7a3b}
+.nextbadge.nx-ext{background:color-mix(in srgb,var(--sage) 14%,var(--panel));border-color:color-mix(in srgb,var(--sage) 35%,var(--line));color:#4a7a58}
+.nextbadge.nx-avail{background:color-mix(in srgb,var(--accent) 16%,var(--panel));border-color:color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--accent-deep)}
+.nextbadge.nx-rum{background:color-mix(in srgb,var(--gold) 15%,var(--panel));border-color:color-mix(in srgb,var(--gold) 40%,var(--line));color:#977321}
+.pillrow{display:flex;flex-wrap:wrap;gap:5px}
+.pillrow .pill{border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer}
+.pillrow .pill:hover{border-color:var(--accent)}
+.pillrow .pill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.rbGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:16px}
+.rbTeam{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.rbHead{display:flex;align-items:center;gap:8px}
+.rbName{flex:1;border:1px solid transparent;background:transparent;font-family:var(--disp);font-size:17px;font-weight:800;color:var(--txt);border-radius:7px;padding:3px 6px;min-width:0}
+.rbName:hover,.rbName:focus{border-color:var(--line);background:var(--panel2);outline:none}
+.rbCount{font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.rbTeamDel{border:none;background:none;cursor:pointer;font-size:14px;opacity:.5}
+.rbTeamDel:hover{opacity:1}
+.rbList{display:flex;flex-direction:column;gap:2px}
+.rbRow{display:flex;align-items:center;gap:9px;padding:5px 4px;border-radius:8px}
+.rbRow:hover{background:var(--panel2)}
+.rbPh{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent-deep)}
+.rbPh img{width:100%;height:100%;object-fit:cover}
+.rbNm{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbRow .rbMeta{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.rbSc{font-family:var(--mono);font-size:12px;color:var(--accent-deep);width:30px;text-align:right}
+.rbDel{border:none;background:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 4px}
+.rbDel:hover{color:var(--bad)}
+.rbEmpty{font-size:12px;color:var(--muted);padding:8px 4px}
+.rbAdd{position:relative;margin-top:2px}
+.rbSearch{width:100%;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:7px 10px;font:inherit;font-size:12.5px;color:var(--txt)}
+.rbSug{position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-top:3px;z-index:20;overflow:hidden;box-shadow:var(--shadow-lift)}
+.rbSug:empty{display:none}
+.rbSugItem{display:block;width:100%;text-align:left;border:none;background:none;padding:8px 10px;font:inherit;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer}
+.rbSugItem small{font-weight:400;color:var(--muted)}
+.rbSugItem:hover{background:var(--accent);color:#fff}
+.rbSugItem:hover small{color:#fff}
+.rbPool{margin-top:30px}
+.rbPoolH{font-family:var(--disp);font-size:15px;font-weight:800;margin:0 0 12px}
+.rbPoolGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.rbPoolCard{display:flex;align-items:center;gap:8px;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--txt);font:inherit}
+.rbPoolCard:hover{border-color:var(--accent);background:var(--panel)}
+.rbpcId{display:flex;flex-direction:column;min-width:0}
+.rbPoolCard .rbMeta{font-size:11px;color:var(--muted)}
+.rbFrom{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap;text-align:right}
 .agtableWrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 .agtable{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
 .agtable thead th{text-align:left;font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -1145,6 +1190,7 @@ body.drawer-lock{overflow:hidden}
       <button data-view="players">Stats</button>
       <button data-view="scouting">Scouting</button>
       <button data-view="watchlist">Watchlist</button>
+      <button data-view="rosters">Rosters</button>
       <button data-view="exhib">Exhibitions</button>
       <button data-view="glossary" class="glosstab" title="Glossary" aria-label="Glossary">📖<span class="glosslab">Glossary</span></button>
     </nav>
@@ -1179,6 +1225,41 @@ const fmt = (v,d=1)=> (v===undefined||v===null||isNaN(v))?"—":Number(v).toFixe
 const initials = n => n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
 const surnameOf = n => {const parts=(n||"").trim().split(/\s+/);const suf=/^(jr\.?|sr\.?|ii|iii|iv|v)$/i;let i=parts.length-1;if(i>0&&suf.test(parts[i]))i--;return parts[i]||n||"";};
 const posLabel = p => p.role||((p.pos&&p.pos!=="-")?p.pos:"\u2014");
+
+/* ---------- 2026/27 transfers (live from euroball-tracker, same origin) ---------- */
+let TRANSFERS=new Map(), TRANSFERS_SUR=new Map(), TRANSFERS_LOADED=false;
+const normNm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();
+function buildTransferIndex(items){
+  TRANSFERS=new Map(); TRANSFERS_SUR=new Map();
+  (items||[]).forEach(it=>{if(!it||!it.player||!it.status)return;
+    const n=normNm(it.player); if(!TRANSFERS.has(n))TRANSFERS.set(n,it);
+    const parts=n.split(" "),sur=parts[parts.length-1];
+    if(sur){if(!TRANSFERS_SUR.has(sur))TRANSFERS_SUR.set(sur,[]);TRANSFERS_SUR.get(sur).push(it);}});
+  TRANSFERS_LOADED=TRANSFERS.size>0;
+}
+async function loadTransfers(){
+  const urls=["../euroball-tracker/transfers_all.json","https://turkmarkoo.github.io/euroball-tracker/transfers_all.json"];
+  for(const u of urls){try{const j=await fetch(u,{cache:"no-cache"}).then(r=>r.json());if(j&&j.items){buildTransferIndex(j.items);return;}}catch(e){}}
+}
+function nextOf(p){
+  if(!TRANSFERS_LOADED||!p)return null;
+  let it=TRANSFERS.get(normNm(p.name));
+  if(!it){const parts=normNm(p.name).split(" "),sur=parts[parts.length-1];const cands=TRANSFERS_SUR.get(sur)||[];
+    it=cands.find(c=>c.birth_year&&p.born&&+c.birth_year===+p.born)||(cands.length===1?cands[0]:null);}
+  if(!it)return null;
+  let kind=it.status, club=it.to;
+  if(it.status==="left"){ if(!it.to||/free agent|unknown|^$/i.test(it.to)){kind="available";club=null;} else kind="signed"; }
+  return {kind,club,from:it.from,contract:it.contract,source:it.source_name,url:it.source_url,league:it.league};
+}
+const NEXT_META={signed:{lab:"Signed",cls:"nx-signed"},extended:{lab:"Re-signed",cls:"nx-ext"},available:{lab:"Available",cls:"nx-avail"},rumor:{lab:"Rumor",cls:"nx-rum"}};
+function nextBadge(p,big){const n=nextOf(p);if(!n)return "";const m=NEXT_META[n.kind]||{lab:n.kind,cls:""};
+  const txt=n.kind==="available"?"\u2713 Available 26/27":(n.club?m.lab+" \u2192 "+esc(n.club):m.lab);
+  return `<span class="nextbadge ${m.cls}${big?" big":""}"${n.source?` title="${escAttr(n.source)}${n.contract?" \u00b7 "+escAttr(n.contract):""}"`:""}>${txt}</span>`;}
+
+/* ---------- 2026/27 roster builder (localStorage) ---------- */
+const ROSTER_KEY="euroscout:rosters:v1";
+function rostersGet(){try{return JSON.parse(localStorage.getItem(ROSTER_KEY)||"[]");}catch(e){return [];}}
+function rostersSet(r){try{localStorage.setItem(ROSTER_KEY,JSON.stringify(r));}catch(e){}}
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
 
@@ -1187,7 +1268,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[]}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[],next:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -1875,6 +1956,8 @@ async function boot(){
   const sc=$("#scrim");if(sc)sc.onclick=closeDrawer;
   document.addEventListener("keydown",onGlobalKey);
   render();
+  // 2026/27 transfer statuses (live from euroball-tracker) — load async, refresh view when ready
+  loadTransfers().then(()=>{if(TRANSFERS_LOADED)render();});
   // deep-link: open a player if the URL points at one (#p=<id>), e.g. a shared link
   openFromHash(__DEEPHASH);
   window.addEventListener("hashchange",()=>openFromHash(location.hash));
@@ -2260,6 +2343,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="compare") renderCompare();
   else if(v==="charts") renderCharts();
   else if(v==="agencies") renderAgencies();
+  else if(v==="rosters") renderRosters();
   else if(v==="watchlist") renderWatchlist();
   else if(v==="exhib") renderExhib();
   else if(v==="scouting") renderScouting();
@@ -2268,7 +2352,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="team") renderTeam();
   else if(v==="profile") renderProfile();
   // centralized top-tab highlighting (compare/charts group under Stats; team under Teams)
-  const TOPTAB={scout:"scout",players:"players",compare:"players",charts:"players",agencies:"agencies",teams:"teams",team:"teams",scouting:"scouting",watchlist:"watchlist",exhib:"exhib",glossary:"glossary"};
+  const TOPTAB={scout:"scout",players:"players",compare:"players",charts:"players",agencies:"agencies",teams:"teams",team:"teams",scouting:"scouting",watchlist:"watchlist",rosters:"rosters",exhib:"exhib",glossary:"glossary"};
   const tt=TOPTAB[v];
   if(tt)$$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===tt));
 }
@@ -3249,6 +3333,47 @@ function agencyEnc(a){return encodeURIComponent(a).replace(/'/g,"%27");}
 function agencyOfAgent(key){const p=scoutPool().find(x=>x.agent&&normName(x.agent)===key&&x.agency&&x.agency.trim());return p?p.agency.trim():null;}
 function openAgencyPage(kind,name){STATE.agencyView={kind,name};STATE.view="agencies";render();try{window.scrollTo(0,0);}catch(e){}}
 function backToAgencies(){STATE.agencyView=null;renderAgencies();}
+function renderRosters(){
+  const rosters=rostersGet();
+  const assigned=new Set(rosters.flatMap(r=>r.players||[]));
+  const avail=TRANSFERS_LOADED?scoutPool().filter(p=>{const n=nextOf(p);return n&&n.kind==="available"&&!assigned.has(p.id);}).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)):[];
+  const ph=p=>`<span class="rbPh${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const teamCard=(r,ti)=>{
+    const players=(r.players||[]).map(id=>player(id)).filter(Boolean).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+    const avg=players.length?(players.reduce((s,p)=>s+(statGradeOverall(p)||0),0)/players.length).toFixed(1):"\u2014";
+    const rows=players.map(p=>`<div class="rbRow" data-pid="${p.id}">${ph(p)}
+        <span class="rbNm">${p.name}</span><span class="rbMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""}${p.height?" \u00b7 "+p.height+"cm":""}</span>
+        <span class="rbSc">${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span>
+        <button class="rbDel" data-rm="${ti}:${p.id}" title="Remove">\u2715</button></div>`).join("")||`<div class="rbEmpty">Empty \u2014 add from the free-agent pool below, or search.</div>`;
+    return `<div class="rbTeam" data-ti="${ti}">
+      <div class="rbHead"><input class="rbName" data-name="${ti}" value="${escAttr(r.name)}" spellcheck="false"/><span class="rbCount">${players.length} \u00b7 avg ${avg}</span><button class="rbTeamDel" data-delteam="${ti}" title="Delete team">\uD83D\uDDD1</button></div>
+      <div class="rbList">${rows}</div>
+      <div class="rbAdd"><input class="rbSearch" data-search="${ti}" placeholder="Add player by name\u2026" autocomplete="off"/><div class="rbSug" id="rbSug${ti}"></div></div>
+    </div>`;};
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Roster builder <span class="hint" style="font-size:12px;font-weight:400">2026/27</span></h1>
+    <div class="sub" style="margin-bottom:14px">Build next season's rosters.${TRANSFERS_LOADED?` <b>${avail.length}</b> free agents in the pool.`:" Transfer data unavailable right now."}</div>
+    <button class="btn" id="rbNew">+ New team</button>
+    ${rosters.length?`<div class="rbGrid">${rosters.map(teamCard).join("")}</div>`:`<div class="empty" style="margin-top:16px">No teams yet. Click \u201c+ New team\u201d to start building a 2026/27 roster.</div>`}
+    ${TRANSFERS_LOADED&&avail.length?`<div class="rbPool"><h2 class="rbPoolH">Free agents \u00b7 available for 2026/27 (${avail.length})</h2>
+      <div class="rbPoolGrid">${avail.slice(0,80).map(p=>`<button class="rbPoolCard" data-add="${p.id}" title="Add to a team">${ph(p)}<span class="rbpcId"><span class="rbNm">${p.name}</span><span class="rbMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span></span><span class="rbFrom">was ${esc((nextOf(p)||{}).from||"\u2014")}</span></button>`).join("")}</div></div>`:""}
+  </div>`;
+  const save=()=>rostersSet(rosters);
+  $("#rbNew").onclick=()=>{const nm=prompt("Team name for 2026/27:","New team");if(nm==null)return;rosters.push({id:"rb"+Date.now(),name:(nm.trim()||"New team"),players:[]});save();renderRosters();};
+  $$(".rbName").forEach(inp=>inp.onchange=()=>{const ti=+inp.dataset.name;rosters[ti].name=inp.value.trim()||"Team";save();});
+  $$("[data-delteam]").forEach(b=>b.onclick=()=>{const ti=+b.dataset.delteam;if(confirm("Delete "+rosters[ti].name+"?")){rosters.splice(ti,1);save();renderRosters();}});
+  $$("[data-rm]").forEach(b=>b.onclick=()=>{const a=b.dataset.rm.split(":");rosters[+a[0]].players=(rosters[+a[0]].players||[]).filter(x=>x!==a[1]);save();renderRosters();});
+  $$("[data-add]").forEach(b=>b.onclick=()=>{const pid=b.dataset.add;
+    if(!rosters.length){alert("Create a team first (+ New team).");return;}
+    let ti=0; if(rosters.length>1){const names=rosters.map((r,i)=>(i+1)+". "+r.name).join("\n");const pick=prompt("Add to which team?\n"+names+"\n\nEnter number:","1");if(pick==null)return;ti=Math.max(0,Math.min(rosters.length-1,(+pick||1)-1));}
+    if(!rosters[ti].players.includes(pid)){rosters[ti].players.push(pid);save();renderRosters();}});
+  $$(".rbSearch").forEach(inp=>{inp.oninput=()=>{const ti=+inp.dataset.search;const q=inp.value.toLowerCase().trim();const box=$("#rbSug"+ti);if(!box)return;
+    if(q.length<2){box.innerHTML="";return;}
+    const qn=normNm(q);const hits=scoutPool().filter(p=>p.name.toLowerCase().includes(q)||normNm(p.name).includes(qn)).slice(0,6);
+    box.innerHTML=hits.map(p=>`<button class="rbSugItem" data-pick="${ti}:${p.id}">${p.name} <small>${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</small></button>`).join("");
+    box.querySelectorAll(".rbSugItem").forEach(it=>it.onclick=()=>{const a=it.dataset.pick.split(":");if(!rosters[+a[0]].players.includes(a[1])){rosters[+a[0]].players.push(a[1]);save();renderRosters();}});};});
+  $$(".rbRow,.rbPoolCard").forEach(el=>el.addEventListener("dblclick",()=>{const id=el.dataset.pid||el.dataset.add;if(id)openProfile(id);}));
+}
 function renderAgencyRoster(){
   const {kind,name}=STATE.agencyView;
   let players;
@@ -3374,6 +3499,7 @@ function renderProfile(){
               ${p.multiTeam?'<span class="ph-pill soft">2 clubs</span>':''}
               ${p.qualified?'':'<span class="ph-pill soft">below min</span>'}
               ${p._exhib?'<span class="ph-pill soft">exhibition</span>':''}
+              ${nextBadge(p,true)}
             </div>
             <div class="ph-actions">
               <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
@@ -4167,6 +4293,7 @@ function renderScout(){
   if(s.status!=="all") pool=pool.filter(p=>scoutStatusOf(p)===s.status);
   if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
+  if(s.next)         pool=pool.filter(p=>{const n=nextOf(p);return s.next==="none"?!n:(n&&n.kind===s.next);});
   if(s.arch){const parts=s.arch.split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
     pool=pool.filter(p=>{if(!p.arch||(p.arch[ai]||0)<20)return false;
       if(band!=null&&A&&A.roleBands){return p.role===ROLE_ORDER[band];}
@@ -4267,6 +4394,16 @@ function renderScout(){
         <div class="archfilters">${ARCH_FILTERS.map(a=>`<button class="archchip ${s.arch===a.key?"on":""}" data-arch="${a.key}"><span class="fdot" style="background:${s.arch===a.key?a.c:"transparent"}"></span>${a.label}</button>`).join("")}</div>
       </div>
 
+      ${TRANSFERS_LOADED?`<div class="railsec"><div class="raillab">2026/27 status${s.next?` <button class="archClr" id="nextClr" title="Clear">\u2715</button>`:""}</div>
+        <div class="pillrow">
+          <button class="pill ${s.next==="available"?"on":""}" data-next="available">Available</button>
+          <button class="pill ${s.next==="signed"?"on":""}" data-next="signed">Signed</button>
+          <button class="pill ${s.next==="extended"?"on":""}" data-next="extended">Re-signed</button>
+          <button class="pill ${s.next==="rumor"?"on":""}" data-next="rumor">Rumored</button>
+          <button class="pill ${s.next==="none"?"on":""}" data-next="none">No news</button>
+        </div>
+      </div>`:""}
+
       <div class="railsec"><div class="raillab">Tags</div>
         <div class="tagcloud">${TAG_LIBRARY.filter(t=>t!==WATCH_TAG).map(t=>activeTags.includes(t)||true?tagChip(t):"").join("")}</div>
       </div>
@@ -4311,8 +4448,10 @@ function renderScout(){
   $$("[data-tag]").forEach(b=>b.onclick=()=>{const t=b.dataset.tag;s.tags.has(t)?s.tags.delete(t):s.tags.add(t);renderScout();});
   const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderScout();};
   $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
+  $$("[data-next]").forEach(b=>b.onclick=()=>{const k=b.dataset.next;s.next=(s.next===k?null:k);renderScout();});
+  const nClr=$("#nextClr");if(nClr)nClr.onclick=(e)=>{e.stopPropagation();s.next=null;renderScout();};
   const aClr=$("#archClr");if(aClr)aClr.onclick=(e)=>{e.stopPropagation();s.arch=null;renderScout();};
-  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];renderScout();};
+  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.next=null;renderScout();};
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
   // saved views
   const saveViewBtn=$("#saveViewBtn");if(saveViewBtn)saveViewBtn.onclick=saveCurrentView;
@@ -4443,6 +4582,7 @@ function scoutCard(p){
         <div class="cardname">${p.name} ${formArrowHTML(p)}${riserBadgeHTML(p)}</div>
         <div class="cardmeta">${p.teamName} · ${p.role||p.pos||"—"}${p.age?" · "+p.age:""}</div>
         <div class="cardlg">${lg.meta.name}</div>
+        ${nextBadge(p)}
       </div>
     </div>
     ${scoutRadarSVG(p,{mini:true})}
