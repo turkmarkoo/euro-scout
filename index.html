@@ -645,7 +645,7 @@ body.drawer-lock{overflow:hidden}
 /* centred columns across roster / free-agent / agency tables */
 .agtable th,.agtable td{text-align:center}
 .agtable th.num,.agtable td.num{text-align:center}
-.agtable th:first-child,.agtable td.agp{text-align:left}
+.agtable th:first-child,.agtable thead th:first-child,.agtable td.agp{text-align:left}
 .agtable td.agp .agpInner{justify-content:flex-start}
 .agtable td.agclub .agclubInner{align-items:center}
 .rbActs{text-align:center}
@@ -948,7 +948,7 @@ body.drawer-lock{overflow:hidden}
 .rbFrom{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap;text-align:right}
 .agtableWrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 .agtable{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
-.agtable thead th{text-align:left;font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.agtable thead th{text-align:center;font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
 .agtable th.num,.agtable td.num{text-align:right}
 .agtable tbody tr{cursor:pointer;transition:background .12s}
 .agtable tbody tr:hover{background:var(--panel2)}
@@ -1396,6 +1396,8 @@ const fmt = (v,d=1)=> (v===undefined||v===null||isNaN(v))?"—":Number(v).toFixe
 const initials = n => n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
 const surnameOf = n => {const parts=(n||"").trim().split(/\s+/);const suf=/^(jr\.?|sr\.?|ii|iii|iv|v)$/i;let i=parts.length-1;if(i>0&&suf.test(parts[i]))i--;return parts[i]||n||"";};
 const posLabel = p => p.role||((p.pos&&p.pos!=="-")?p.pos:"\u2014");
+const photoOf = p => {if(!p)return null;if(p.img)return p.img;
+  const g=p._grp||[];for(const x of g){if(x.img)return x.img;}return null;};
 
 /* ---------- 2026/27 transfers (live from euroball-tracker, same origin) ---------- */
 let TRANSFERS=new Map(), TRANSFERS_SUR=new Map(), TRANSFERS_LOADED=false, CLUB_LG=new Map();
@@ -1434,8 +1436,14 @@ const NEXT26_KEY="euroscout:next26:v1";
 function next26Get(){try{return JSON.parse(localStorage.getItem(NEXT26_KEY)||"{}");}catch(e){return {};}}
 function next26Set(m){try{localStorage.setItem(NEXT26_KEY,JSON.stringify(m));}catch(e){}
   try{Sync.stampKey(NEXT26_KEY);}catch(e){} try{Store.pushAppKey(NEXT26_KEY);}catch(e){}}
-function effective26(p,m){m=m||next26Get();const k=m[p.id];return k?canonKey(k):null;}   // resolved to the club, shared across its competitions
-function set26(pid,key){const m=next26Get();if(key)m[pid]=canonKey(key);else delete m[pid];next26Set(m);}
+function effective26(p,m){m=m||next26Get();
+  const k=m[gid(p)]||m[p.id]||((p._grp||[]).map(x=>m[x.id]).find(Boolean));
+  return k?canonKey(k):null;}   // keyed per person, so it is shared across every competition he plays
+function set26(pid,key){const m=next26Get();const p=player(pid);
+  const ids=p?[gid(p),p.id].concat((p._grp||[]).map(x=>x.id)):[pid];
+  [...new Set(ids)].forEach(k=>delete m[k]);          // clear every alias for this person
+  if(key)m[p?gid(p):pid]=canonKey(key);
+  next26Set(m);}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
 function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,code:t.code}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
 
@@ -1839,6 +1847,15 @@ function rebuildLinks(){
   Object.values(byName).forEach(a=>{for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){
     const A=byId[a[i]],B=byId[a[j]];
     if(!A.born||!B.born||A.born===B.born)uni(a[i],a[j]);}});
+  // nickname variants: same surname + same birth year + first name is a prefix of the other
+  // (links "Matt Hurt" to "Matthew Christopher Hurt", "Nico" to "Nicolas", etc.)
+  const bucket={};
+  all.forEach(p=>{if(!p.born)return;const t=normName(p.name).split(" ").filter(Boolean);
+    if(t.length<2)return;const k=t[t.length-1]+"|"+p.born;(bucket[k]=bucket[k]||[]).push(p);});
+  Object.values(bucket).forEach(arr=>{for(let i=0;i<arr.length;i++)for(let j=i+1;j<arr.length;j++){
+    const a=normName(arr[i].name).split(" ")[0], b=normName(arr[j].name).split(" ")[0];
+    const m=Math.min(a.length,b.length);
+    if(m>=3&&a.slice(0,m)===b.slice(0,m))uni(arr[i].id,arr[j].id);}});
   (OVR.links||[]).forEach(pr=>uni(pr[0],pr[1]));
   const groups={}; all.forEach(p=>{const r=find(p.id);(groups[r]=groups[r]||[]).push(p);});
   Object.values(groups).forEach(g=>{if(g.length>8)g.forEach(x=>{x._solo=true;});});   // guard against bad links
@@ -2219,6 +2236,10 @@ async function boot(){
   scheduleSticky();
   const sc=$("#scrim");if(sc)sc.onclick=closeDrawer;
   document.addEventListener("keydown",onGlobalKey);
+  (function migrate26(){try{const m=next26Get();let changed=false;
+    Object.keys(m).forEach(k=>{const p=player(k);if(!p)return;const g=gid(p);
+      if(g&&g!==k){if(!m[g])m[g]=m[k];delete m[k];changed=true;}});
+    if(changed)next26Set(m);}catch(e){}})();
   render();
   // keep other open tabs in step: roster/transfer edits made elsewhere refresh this view
   window.addEventListener("storage",e=>{
@@ -3642,7 +3663,7 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
 function tpEsc(e){if(e.key==="Escape")closeTeamPicker();}
 function closeTeamPicker(){const ov=$("#tpOverlay");if(ov)ov.remove();document.removeEventListener("keydown",tpEsc);}
 function promptTeam(pid){openTeamPicker(pid);}
-const rbPhoto=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+const rbPhoto=p=>`<span class="agpPhoto${photoOf(p)?"":" noimg"}">${photoOf(p)?`<img src="${photoOf(p)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
 const RBCOLS=`<colgroup><col style="width:27%"><col style="width:9%"><col style="width:16%"><col style="width:8%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:88px"></colgroup>`;
 const RBHEAD=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
 function rbRow(p,acts){const g=statGradeOverall(p);
@@ -3725,7 +3746,7 @@ function renderNextRoster(club){
   const staying=next.filter(p=>nowIds.has(gid(p)));
   const arrivals=next.filter(p=>!nowIds.has(gid(p)));
   const departures=now.filter(p=>!nextIds.has(gid(p)));
-  const ph=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const ph=p=>`<span class="agpPhoto${photoOf(p)?"":" noimg"}">${photoOf(p)?`<img src="${photoOf(p)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
   const line=(p,extra,acts)=>`<div class="cmpRow" data-pid="${p.id}">${ph(p)}
       <span class="cmpId"><span class="cmpNm">${p.name}</span><span class="cmpMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""}${p.height?" \u00b7 "+p.height+"cm":""}${p.ppg!=null?" \u00b7 "+p.ppg.toFixed(1)+" ppg":""}</span></span>
       ${extra||""}<span class="cmpSc">${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span>${acts||""}</div>`;
@@ -3783,7 +3804,7 @@ function renderFreeAgents(){
   list.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
   const capped=list.slice(0,150);
   const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition);
-  const ph=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const ph=p=>`<span class="agpPhoto${photoOf(p)?"":" noimg"}">${photoOf(p)?`<img src="${photoOf(p)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
   const cols=`<colgroup><col style="width:21%"><col style="width:8%"><col style="width:12%"><col style="width:6%"><col style="width:5%"><col style="width:15%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:78px"></colgroup>`;
   const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th>Current club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
   const rows=capped.map(p=>{const g=statGradeOverall(p);
@@ -3842,7 +3863,7 @@ function renderAgencyRoster(){
   if(kind==="agent"){const ag=players.find(p=>p.agency&&p.agency.trim());sub=ag?"Agent \u00b7 "+esc(ag.agency.trim()):"Agent";}
   else{const agents=new Set(players.filter(p=>p.agent&&p.agent.trim()).map(p=>normName(p.agent)));sub="Agency \u00b7 "+agents.size+" agent"+(agents.size===1?"":"s");}
   const rows=players.map(p=>{const L=leagueOf(p);const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
-    const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
+    const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
     return `<tr data-id="${p.id}">
       <td class="agp"><span class="agpInner"><span class="agpPhoto${p.img?'':' noimg'}">${photo}</span><span class="agpName">${p.name}</span></span></td>
       <td>${posLabel(p)}</td>
@@ -3950,7 +3971,7 @@ function renderProfile(){
     <div class="prohero-wrap">
       <div class="prohero">
         <div class="ph-top">
-          <div class="ph-photo${p.img?' zoomable':''}" ${p.img?`onclick="showPhoto('${p.img}','${p.name.replace(/'/g,"")}')" title="View photo"`:''}>${p.img?`<img src="${p.img}" alt="" onerror="this.parentNode.classList.add('noimg');this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>
+          ${(()=>{const _i=photoOf(p);return `<div class="ph-photo${_i?' zoomable':''}" ${_i?`onclick="showPhoto('${_i}','${p.name.replace(/'/g,"")}')" title="View photo"`:''}>${_i?`<img src="${_i}" alt="" onerror="this.parentNode.classList.add('noimg');this.parentNode.textContent='${initials(p.name)}'"/>`:initials(p.name)}</div>`;})()}
           <div class="ph-id">
             <div class="ph-nrow"><h1>${p.name}</h1>${p.country?`<span class="ph-flag" title="${p.country}">${flagEmoji(p.country)||isoOf(p.country)||""}</span>`:""}<button class="bigstar ${isWatched(p)?'on':''}" id="watchToggle" title="${isWatched(p)?'On watchlist — tap to remove':'Add to watchlist'}">${isWatched(p)?'★':'☆'}</button></div>
             <div class="ph-pills">
@@ -4148,7 +4169,7 @@ function rosterCardHTML(p){
   const watched=isWatched(p);
   const jersey=(p.jersey!=null&&p.jersey!=="")?p.jersey:"–";
   const stars=rec.rating?`<span class="rcStars">${"★".repeat(rec.rating)}<span class="off">${"★".repeat(5-rec.rating)}</span></span>`:`<span class="rcStars off">☆☆☆☆☆</span>`;
-  const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
+  const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
   return `<button class="rosterRow${watched?" watched":""}" data-id="${p.id}">
     <span class="rrNum">${jersey}</span>
     <span class="rrPhoto${p.img?"":" noimg"}">${photo}</span>
@@ -4698,7 +4719,7 @@ function renderWatchlist(){
   const row=p=>{
     const rec=recOf(p),og=statGradeOverall(p),band=levelBand(p),L=leagueOf(p);
     const stars=rec.rating?`<span class="wStars">${"★".repeat(rec.rating)}<span class="off">${"★".repeat(5-rec.rating)}</span></span>`:`<span class="wStars off">☆☆☆☆☆</span>`;
-    const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
+    const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
     const form=formArrowHTML(p);
     return `<div class="wrow" data-id="${p.id}">
       <div class="wPhoto${p.img?"":" noimg"}">${photo}</div>
@@ -5048,7 +5069,7 @@ function scoutCard(p){
   const watched=tags.includes(WATCH_TAG);
   const og=statGradeOverall(p);
   const lg=leagueOf(p);
-  const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:"";
+  const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:"";
   const rating=r.rating||0;
   const stars=`<span class="sc2-star">${"\u2605".repeat(rating)}<span class="off">${"\u2605".repeat(Math.max(0,5-rating))}</span></span><span class="sc2-rateN">${rating}/5</span>`;
   const rc=ROLE_COLORS[p.role]||"#9aa0aa";
@@ -5057,7 +5078,7 @@ function scoutCard(p){
   return `<div class="scoutcard scoutcard2${watched?" watched":""}${unscouted?" unscouted":""}" data-id="${p.id}" tabindex="-1">
     ${p._sim!=null?`<span class="cardmatch" title="Statistical match">${p._sim}<small>match</small></span>`:""}
     <div class="sc2-corner">${og!=null?`<span class="sc2-grade" title="Overall stats grade">${og.toFixed(1)}</span>`:""}<button class="cardwatch ${watched?"on":""}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"\u2605":"\u2606"}</button></div>
-    <div class="sc2-photo${p.img?"":" noimg"}">${photo||initials(p.name)}</div>
+    <div class="sc2-photo${_ph?"":" noimg"}">${photo||initials(p.name)}</div>
     <div class="sc2-head">
       <div class="sc2-name">${p.name} ${formArrowHTML(p)}${riserBadgeHTML(p)}</div>
       <div class="sc2-club">${p.teamName?esc(p.teamName):"\u2014"}${lg?`<span class="sc2-lg"> \u00b7 ${lg.meta.name}</span>`:""}</div>
@@ -5223,7 +5244,7 @@ function renderCurRoster(lgId,code){
   const L=(STATE.data.leagues||[]).find(x=>x.meta.id===lgId); if(!L){STATE.curTeam=null;return renderTeams();}
   const t=(L.teams||[]).find(x=>x.code===code)||{name:code};
   const roster=L.players.filter(p=>p.team===code).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
-  const ph=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const ph=p=>`<span class="agpPhoto${photoOf(p)?"":" noimg"}">${photoOf(p)?`<img src="${photoOf(p)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
   const rows=roster.map(p=>{const g=statGradeOverall(p);
     return `<tr data-pid="${p.id}">
       <td class="agp"><span class="agpInner">${ph(p)}<span class="agpName">${p.name}</span></span></td>
