@@ -807,6 +807,34 @@ body.drawer-lock{overflow:hidden}
 .rbAssign{position:relative;max-width:520px;margin-bottom:20px}
 .rbAssign>input{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 13px;font:inherit;font-size:13.5px;color:var(--txt)}
 .rbFilters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tmN.zero{background:var(--line);color:var(--muted)}
+.cmpWrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.cmpCol{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.cmpHead{font-family:var(--disp);font-size:14px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.cmpN{font-family:var(--mono);font-size:11px;color:var(--accent-deep);background:var(--accent-soft);border-radius:999px;padding:1px 8px}
+.cmpRow{display:flex;align-items:center;gap:9px;padding:5px 4px;border-radius:8px}
+.cmpRow:hover{background:var(--panel2)}
+.cmpId{display:flex;flex-direction:column;min-width:0;flex:1}
+.cmpNm{font-size:13px;font-weight:600;cursor:pointer}
+.cmpNm:hover{color:var(--accent-deep);text-decoration:underline}
+.cmpMeta{font-size:10.5px;color:var(--muted)}
+.cmpSc{font-family:var(--mono);font-size:12px;color:var(--accent-deep);width:28px;text-align:right}
+.cmpTag{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.cmpTag.stay{background:color-mix(in srgb,var(--sage) 18%,var(--panel));color:#4a7a58}
+.cmpTag.in{background:color-mix(in srgb,var(--good) 18%,var(--panel));color:#3f7a3b}
+.cmpTag.out{background:color-mix(in srgb,var(--bad) 16%,var(--panel));color:var(--bad)}
+.cmpTo{font-size:10.5px;color:var(--accent-deep);white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.cmpTo.none{color:var(--muted);font-style:italic}
+.cmpTo.from{color:var(--muted)}
+.cmpGrid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.cmpBox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.cmpBoxH{font-family:var(--disp);font-size:13px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.cmpBoxH.in{color:#3f7a3b}.cmpBoxH.out{color:var(--bad)}.cmpBoxH.stay{color:#4a7a58}
+.faNum{width:78px;border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:5px 8px;font:inherit;font-size:12.5px;color:var(--txt)}
+.filtdash{font-size:11px;color:var(--muted)}
+.filtx{border:none;background:none;color:var(--muted);cursor:pointer;font-size:11px}
+.filtx:hover{color:var(--bad)}
+@media(max-width:820px){.cmpWrap{grid-template-columns:1fr}}
 .tmGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .tmCard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;cursor:pointer;font:inherit;color:var(--txt);transition:.13s}
 .tmCard:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-1px)}
@@ -1502,7 +1530,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[],level:null}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[],level:null,next26:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -3645,68 +3673,149 @@ function wireTransferInbox(){
   $$("[data-approve]").forEach(b=>b.onclick=()=>approveTransfer(b.dataset.approve,b.dataset.pid,b.dataset.tk||null));
   $$("[data-reject]").forEach(b=>b.onclick=()=>rejectTransfer(b.dataset.reject));
   $$(".trName[data-pid]").forEach(el=>el.onclick=()=>openProfile(el.dataset.pid));}
+function clubRoster2526(club){ // this season's squad across every competition the club plays
+  const seen=new Set(),out=[];
+  (club.teams||[]).forEach(t=>{const L=(STATE.data.leagues||[]).find(x=>x.meta.id===t.lg);if(!L)return;
+    L.players.filter(p=>p.team===t.code).forEach(p=>{const k=gid(p);if(seen.has(k))return;seen.add(k);out.push(p);});});
+  return out.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+}
+function clubRoster2627(club,m){m=m||next26Get();
+  return scoutPool().filter(p=>effective26(p,m)===club.key).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+}
 function renderTeamsNext(){
-  const m=next26Get(),pool=scoutPool();
+  if(STATE.nextTeam){const c=allClubs().find(x=>x.key===STATE.nextTeam);
+    if(c)return renderNextRoster(c); STATE.nextTeam=null;}
+  const m=next26Get();
   const byTeam=new Map();
-  pool.forEach(p=>{const k=effective26(p,m);if(k){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
+  scoutPool().forEach(p=>{const k=effective26(p,m);if(k){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
   const clubs=allClubs();
   const lgs=[...new Set(allDbTeams().map(t=>t.lgName))];
   const lgSel=STATE.next26Lg||"",q=normClub(STATE.next26Q||"");
-  let show;
-  if(lgSel||q){show=clubs.filter(c=>(!lgSel||c.leagues.some(l=>l.name===lgSel))&&(!q||normClub(c.name).includes(q)||c.teams.some(t=>normClub(t.city).includes(q))));}
-  else{show=clubs.filter(c=>byTeam.has(c.key));}
+  let show=clubs.filter(c=>(!lgSel||c.leagues.some(l=>l.name===lgSel))&&(!q||normClub(c.name).includes(q)||c.teams.some(t=>normClub(t.city).includes(q))));
   show.sort((a,b)=>((byTeam.get(b.key)||[]).length-(byTeam.get(a.key)||[]).length)||a.name.localeCompare(b.name));
   const placed=[...byTeam.values()].reduce((s,a)=>s+a.length,0);
-  const teamCard=(t,i)=>{const players=(byTeam.get(t.key)||[]).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
-    const rows=players.length?players.map(p=>rbRow(p,`<button class="rbAct" data-reassign="${p.id}" title="Change team">\u21c4</button><button class="rbAct del" data-drop="${p.id}" title="Remove from roster">\u2715</button>`)).join(""):`<tr class="rbEmptyRow"><td colspan="10">No players yet \u2014 add signings below.</td></tr>`;
-    return `<div class="rbClub"><div class="rbClubHead"><span class="rbClubName">${esc(t.name)}</span>${(t.leagues||[{name:t.lgName}]).map(l=>`<span class="rbClubLg">${esc(l.name)}</span>`).join("")}<span class="rbClubCount">${players.length} player${players.length===1?"":"s"}</span></div>
-      <div class="agtableWrap"><table class="agtable rbtable">${RBCOLS}<thead>${RBHEAD}</thead><tbody>${rows}</tbody></table></div>
-      <div class="rbAddInline"><input class="rbTeamAdd" data-tk="${escAttr(t.key)}" data-i="${i}" placeholder="Add a player to ${escAttr(t.name)}\u2026" autocomplete="off"/><div class="rbSug" id="rbSug${i}"></div></div></div>`;};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Rosters \u00b7 2026/27</h1>
-    <div class="sub" style="margin-bottom:14px">Manually build next-season rosters \u2014 assign players who\u2019ve signed to their new club. <b>${placed}</b> placed so far.</div>
+    <div class="sub" style="margin-bottom:14px">Pick a club to build next season\u2019s squad. <b>${placed}</b> players placed so far.</div>
     ${teamsModeToggle()}
     ${transferInboxHTML()}
     <div class="rbFilters">
       <select id="rbLg"><option value="">All leagues</option>${lgs.map(l=>`<option value="${escAttr(l)}"${l===lgSel?" selected":""}>${esc(l)}</option>`).join("")}</select>
-      <input id="rbClubQ" placeholder="Search a club to build its roster\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/>
+      <input id="rbClubQ" placeholder="Search club\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/>
     </div>
-    ${show.length?`<div class="rbClubs">${show.map(teamCard).join("")}</div>`:`<div class="empty" style="margin-top:16px">${byTeam.size?"":"No rosters started yet. "}Search a club above (or pick a league) to start adding players to a team.</div>`}
+    ${show.length?`<div class="tmGrid">${show.map(c=>{const n=(byTeam.get(c.key)||[]).length;
+      return `<button class="tmCard" data-club="${escAttr(c.key)}">
+        <span class="tmName">${esc(c.name)}</span>
+        <span class="tmMeta"><span class="tmLg">${c.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(c.leagues.map(l=>l.name).join(" \u00b7 "))}</span><span class="tmN${n?"":" zero"}">${n}</span></span>
+      </button>`;}).join("")}</div>`:`<div class="empty" style="margin-top:16px">No clubs match.</div>`}
   </div>`;
+  wireRosterCommon(); wireTransferInbox();
+  $$(".tmCard[data-club]").forEach(b=>b.onclick=()=>{STATE.nextTeam=b.dataset.club;renderTeams();try{window.scrollTo(0,0);}catch(e){}});
+}
+function renderNextRoster(club){
+  const m=next26Get();
+  const now=clubRoster2526(club), next=clubRoster2627(club,m);
+  const nowIds=new Set(now.map(p=>gid(p))), nextIds=new Set(next.map(p=>gid(p)));
+  const staying=next.filter(p=>nowIds.has(gid(p)));
+  const arrivals=next.filter(p=>!nowIds.has(gid(p)));
+  const departures=now.filter(p=>!nextIds.has(gid(p)));
+  const ph=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const line=(p,extra,acts)=>`<div class="cmpRow" data-pid="${p.id}">${ph(p)}
+      <span class="cmpId"><span class="cmpNm">${p.name}</span><span class="cmpMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""}${p.height?" \u00b7 "+p.height+"cm":""}${p.ppg!=null?" \u00b7 "+p.ppg.toFixed(1)+" ppg":""}</span></span>
+      ${extra||""}<span class="cmpSc">${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span>${acts||""}</div>`;
+  const whereTo=p=>{const k=effective26(p,m);const c=k?clubByKey(k):null;
+    return `<span class="cmpTo${c?"":" none"}">${c?"\u2192 "+esc(c.name):"unsigned"}</span>`;};
+  const whereFrom=p=>`<span class="cmpTo from">${esc(p.teamName||"\u2014")}</span>`;
+  $("#app").innerHTML=`<div class="view">
+    <button class="btn ghost" id="nextBack">\u2190 All clubs</button>
+    <h1 class="title" style="margin-top:10px">${esc(club.name)} <span class="rbClubLg">${club.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(club.leagues.map(l=>l.name).join(" \u00b7 "))}</span></h1>
+    <div class="sub" style="margin-bottom:14px">Compare this season\u2019s squad with the 2026/27 roster you\u2019re building.</div>
+    <div class="cmpWrap">
+      <div class="cmpCol"><div class="cmpHead">2025/26 <span class="cmpN">${now.length}</span></div>
+        ${now.length?now.map(p=>line(p,nextIds.has(gid(p))?`<span class="cmpTag stay">stays</span>`:`<span class="cmpTag out">out</span>`)).join(""):`<div class="rbEmpty">No squad recorded.</div>`}</div>
+      <div class="cmpCol"><div class="cmpHead">2026/27 <span class="cmpN">${next.length}</span></div>
+        ${next.length?next.map(p=>line(p,nowIds.has(gid(p))?`<span class="cmpTag stay">extended</span>`:`<span class="cmpTag in">new</span>`,
+          `<button class="rbAct" data-reassign="${p.id}" title="Change club">\u21c4</button><button class="rbAct del" data-drop="${p.id}" title="Remove">\u2715</button>`)).join(""):`<div class="rbEmpty">Nobody placed yet \u2014 add players below.</div>`}
+        <div class="rbAddInline"><input class="rbTeamAdd" data-tk="${escAttr(club.key)}" data-i="0" placeholder="Add a player to ${escAttr(club.name)}\u2026" autocomplete="off"/><div class="rbSug" id="rbSug0"></div></div>
+      </div>
+    </div>
+    <div class="cmpGrid3">
+      <div class="cmpBox"><div class="cmpBoxH in">Arrivals <span class="cmpN">${arrivals.length}</span></div>
+        ${arrivals.length?arrivals.map(p=>line(p,whereFrom(p))).join(""):`<div class="rbEmpty">None yet.</div>`}</div>
+      <div class="cmpBox"><div class="cmpBoxH out">Departures <span class="cmpN">${departures.length}</span></div>
+        ${departures.length?departures.map(p=>line(p,whereTo(p))).join(""):`<div class="rbEmpty">None yet.</div>`}</div>
+      <div class="cmpBox"><div class="cmpBoxH stay">Extensions <span class="cmpN">${staying.length}</span></div>
+        ${staying.length?staying.map(p=>line(p)).join(""):`<div class="rbEmpty">None yet.</div>`}</div>
+    </div>
+  </div>`;
+  $("#nextBack").onclick=()=>{STATE.nextTeam=null;renderTeams();};
   wireRosterCommon();
-  wireTransferInbox();
-  $$(".rbTeamAdd").forEach(inp=>inp.oninput=()=>{const tk=inp.dataset.tk,i=inp.dataset.i,box=$("#rbSug"+i);if(!box)return;
+  $$(".cmpRow[data-pid]").forEach(el=>el.addEventListener("dblclick",()=>openProfile(el.dataset.pid)));
+  $$(".cmpNm").forEach(el=>el.onclick=e=>{const row=e.target.closest(".cmpRow");if(row)openProfile(row.dataset.pid);});
+  const pool=scoutPool();
+  $$(".rbTeamAdd").forEach(inp=>inp.oninput=()=>{const tk=inp.dataset.tk,box=$("#rbSug0");if(!box)return;
     const qq=inp.value.toLowerCase().trim();if(qq.length<2){box.innerHTML="";return;}const qn=normNm(qq);
     const hits=pool.filter(p=>!m[p.id]&&(p.name.toLowerCase().includes(qq)||normNm(p.name).includes(qn))).slice(0,7);
     box.innerHTML=hits.map(p=>`<button class="rbSugItem" data-pick="${p.id}">${p.name} <small>${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${p.teamName||""}</small></button>`).join("")||'<div class="rbSugNone">No unassigned player matches.</div>';
-    box.querySelectorAll("[data-pick]").forEach(it=>it.onclick=()=>{set26(it.dataset.pick,tk);reRenderTeams();});});
+    box.querySelectorAll("[data-pick]").forEach(it=>it.onclick=()=>{set26(it.dataset.pick,tk);renderTeams();});});
 }
+function faState(){STATE.fa=STATE.fa||{q:"",role:"",lg:"",filters:[]};return STATE.fa;}
 function renderFreeAgents(){
-  const m=next26Get(),pool=scoutPool();
-  const q=STATE.next26Q?normNm(STATE.next26Q):"";
+  const m=next26Get(),pool=scoutPool(),f=faState();
   let list=pool.filter(p=>!m[p.id]);
-  if(q)list=list.filter(p=>normNm(p.name).includes(q));
+  if(f.q){const qn=normNm(f.q);list=list.filter(p=>normNm(p.name).includes(qn));}
+  if(f.role)list=list.filter(p=>p.role===f.role);
+  if(f.lg)list=list.filter(p=>p.league===f.lg);
+  (f.filters||[]).forEach(fl=>{const st=FILTER_STATS.find(x=>x.key===fl.key);if(!st)return;
+    list=list.filter(p=>{const v=fl.key==="grade"?statGradeOverall(p):(fl.key==="height"?p.height:p[fl.key]);
+      if(v==null||isNaN(v))return false;return v>=fl.min&&v<=fl.max;});});
   list.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
   const capped=list.slice(0,150);
+  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition);
+  const ph=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const cols=`<colgroup><col style="width:21%"><col style="width:8%"><col style="width:12%"><col style="width:6%"><col style="width:5%"><col style="width:15%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:78px"></colgroup>`;
   const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th>Current club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
-  const cols=`<colgroup><col style="width:22%"><col style="width:8%"><col style="width:13%"><col style="width:7%"><col style="width:5%"><col style="width:16%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:80px"></colgroup>`;
   const rows=capped.map(p=>{const g=statGradeOverall(p);
     return `<tr data-pid="${p.id}">
-      <td class="agp"><span class="agpInner">${rbPhoto(p)}<span class="agpName">${p.name}</span></span></td>
-      <td>${posLabel(p)}</td><td class="rbNat" title="${escAttr(p.country||"")}">${p.country||"\u2014"}</td>
+      <td class="agp"><span class="agpInner">${ph(p)}<span class="agpName">${p.name}</span></span></td>
+      <td>${posLabel(p)}</td><td class="rbNat">${p.country||"\u2014"}</td>
       <td class="num">${p.height?p.height+"cm":"\u2014"}</td><td class="num">${p.age!=null?p.age:"\u2014"}</td>
       <td class="rbNat">${esc(p.teamName||"\u2014")}</td>
-      <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td><td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td><td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
+      <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td><td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
+      <td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
       <td class="num"><b class="agscore">${g!=null?g.toFixed(1):"\u2014"}</b></td>
-      <td class="rbActs"><button class="rbAct assign" data-reassign="${p.id}" title="Assign to a team">+ Sign</button></td></tr>`;}).join("");
+      <td class="rbActs"><button class="rbAct assign" data-reassign="${p.id}" title="Assign to a club">+ Sign</button></td></tr>`;}).join("");
+  const used=new Set((f.filters||[]).map(x=>x.key));
+  const addOpts=FILTER_STATS.filter(x=>!used.has(x.key)).map(x=>`<option value="${x.key}">${esc(x.label)}</option>`).join("");
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Free agents \u00b7 2026/27</h1>
-    <div class="sub" style="margin-bottom:14px">Players not yet placed on a 2026/27 roster (<b>${list.length}</b>${list.length>150?", showing top 150 \u2014 search to narrow":""}). Assign one to move it onto a team.</div>
+    <div class="sub" style="margin-bottom:14px">Players not yet placed on a 2026/27 roster \u2014 <b>${list.length}</b> match${list.length===1?"":"es"}${list.length>150?", showing top 150":""}.</div>
     ${teamsModeToggle()}
-    <div class="rbFilters"><input id="rbClubQ" placeholder="Search player\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/></div>
-    ${capped.length?`<div class="agtableWrap"><table class="agtable rbtable">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="empty" style="margin-top:16px">No players match your search.</div>`}
+    <div class="rbFilters">
+      <input id="faQ" placeholder="Search player\u2026" value="${escAttr(f.q)}" autocomplete="off"/>
+      <select id="faRole"><option value="">All positions</option>${["Guard","Forward","Big"].map(r=>`<option value="${r}"${f.role===r?" selected":""}>${r}s</option>`).join("")}</select>
+      <select id="faLg"><option value="">All leagues</option>${lgs.map(L=>`<option value="${L.meta.id}"${f.lg===L.meta.id?" selected":""}>${esc(L.meta.name)}</option>`).join("")}</select>
+      ${addOpts?`<select id="faAdd"><option value="">+ Add stat filter</option>${addOpts}</select>`:""}
+      ${(f.filters||[]).length?`<button class="fchip clearall" id="faClear">Clear filters</button>`:""}
+    </div>
+    ${(f.filters||[]).length?`<div class="filterbar">${f.filters.map((fl,i)=>{const st=FILTER_STATS.find(x=>x.key===fl.key)||{};
+      return `<div class="filtrow"><span class="filtlab">${esc(st.label||fl.key)}</span>
+        <input class="faNum" type="number" data-fi="${i}" data-b="min" value="${fl.min}" step="${st.step||1}"/>
+        <span class="filtdash">to</span>
+        <input class="faNum" type="number" data-fi="${i}" data-b="max" value="${fl.max}" step="${st.step||1}"/>
+        <button class="filtx" data-frm="${i}">\u2715</button></div>`;}).join("")}</div>`:""}
+    ${capped.length?`<div class="agtableWrap"><table class="agtable rbtable">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="empty" style="margin-top:16px">No players match these filters.</div>`}
   </div>`;
   wireRosterCommon();
+  const q=$("#faQ");if(q)q.oninput=()=>{f.q=q.value;const p=q.selectionStart;renderFreeAgents();const el=$("#faQ");if(el){el.focus();try{el.setSelectionRange(p,p);}catch(e){}}};
+  const r=$("#faRole");if(r)r.onchange=()=>{f.role=r.value;renderFreeAgents();};
+  const l=$("#faLg");if(l)l.onchange=()=>{f.lg=l.value;renderFreeAgents();};
+  const ad=$("#faAdd");if(ad)ad.onchange=()=>{const st=FILTER_STATS.find(x=>x.key===ad.value);
+    if(st){f.filters.push({key:st.key,min:st.min,max:st.max});renderFreeAgents();}};
+  const fc=$("#faClear");if(fc)fc.onclick=()=>{f.filters=[];renderFreeAgents();};
+  $$(".faNum").forEach(inp=>inp.onchange=()=>{const i=+inp.dataset.fi;if(!f.filters[i])return;
+    const v=parseFloat(inp.value);if(!isNaN(v))f.filters[i][inp.dataset.b]=v;renderFreeAgents();});
+  $$("[data-frm]").forEach(b=>b.onclick=()=>{f.filters.splice(+b.dataset.frm,1);renderFreeAgents();});
 }
 function renderAgencyRoster(){
   const {kind,name}=STATE.agencyView;
@@ -4619,6 +4728,7 @@ function renderScout(){
   if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
   if(s.level!=null)  pool=pool.filter(p=>{const b=levelBand(p);return b&&b.i===s.level;});
+  if(s.next26){const mm=next26Get();pool=pool.filter(p=>s.next26==="free"?!mm[p.id]:!!mm[p.id]);}
   if(s.arch){const parts=s.arch.split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
     pool=pool.filter(p=>{if(!p.arch||(p.arch[ai]||0)<20)return false;
       if(band!=null&&A&&A.roleBands){return p.role===ROLE_ORDER[band];}
@@ -4705,6 +4815,13 @@ function renderScout(){
         <button class="tagfilter riser ${s.riserOnly?"on":""}" id="riserToggle" title="Players 21 or under producing above their league's level">↑ Young risers <b>${riserCount}</b></button>
       </div>
 
+      <div class="railsec"><div class="raillab">2026/27${s.next26?` <button class="archClr" id="n26Clr" title="Clear">\u2715</button>`:""}</div>
+        <div class="pillrow">
+          <button class="pill ${s.next26==="free"?"on":""}" data-n26="free">Free agents</button>
+          <button class="pill ${s.next26==="signed"?"on":""}" data-n26="signed">Signed</button>
+        </div>
+      </div>
+
       <div class="railsec"><div class="raillab">Projected level${s.level!=null?` <button class="archClr" id="lvlClr" title="Clear">\u2715</button>`:""}</div>
         <div class="frows">${LEVEL_BANDS.map((lab,i)=>{const on=s.level===i;const ct=full.filter(p=>{const b=levelBand(p);return b&&b.i===i;}).length;
           return `<button class="frow ${on?"on":""}" data-level="${i}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span>${lab}<span class="fct">${ct}</span></button>`;}).reverse().join("")}</div>
@@ -4764,11 +4881,13 @@ function renderScout(){
   const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderScout();};
   $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
   $$("[data-level]").forEach(b=>b.onclick=()=>{const k=+b.dataset.level;s.level=(s.level===k?null:k);renderScout();});
+  $$("[data-n26]").forEach(b=>b.onclick=()=>{const k=b.dataset.n26;s.next26=(s.next26===k?null:k);renderScout();});
+  const n26c=$("#n26Clr");if(n26c)n26c.onclick=e=>{e.stopPropagation();s.next26=null;renderScout();};
   const lvlClr=$("#lvlClr");if(lvlClr)lvlClr.onclick=e=>{e.stopPropagation();s.level=null;renderScout();};
   $$("[data-chip]").forEach(b=>b.onclick=()=>{removeChip(b.dataset.chip,s);renderScout();});
-  const chipClr=$("#chipClear");if(chipClr)chipClr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.simRef=null;s.level=null;renderScout();};
+  const chipClr=$("#chipClear");if(chipClr)chipClr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.simRef=null;s.level=null;s.next26=null;renderScout();};
   const aClr=$("#archClr");if(aClr)aClr.onclick=(e)=>{e.stopPropagation();s.arch=null;renderScout();};
-  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.level=null;renderScout();};
+  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.level=null;s.next26=null;renderScout();};
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
   // saved views
   const saveViewBtn=$("#saveViewBtn");if(saveViewBtn)saveViewBtn.onclick=saveCurrentView;
@@ -4871,6 +4990,7 @@ function activeChipsHTML(s){
     if(isMin&&isMax)txt+=lo+"\u2013"+hi; else if(isMin)txt+="\u2265"+lo; else if(isMax)txt+="\u2264"+hi; else txt+="any";
     chips.push({k:"f:"+i,lab:esc2(txt)});});
   if(s.level!=null)chips.push({k:"level",lab:"Level: "+esc2(LEVEL_BANDS[s.level])});
+  if(s.next26)chips.push({k:"next26",lab:s.next26==="free"?"Free agents 26/27":"Signed 26/27"});
   if(s.simRef){const rp=player(s.simRef);if(rp)chips.push({k:"sim",lab:"Similar to "+esc2(rp.name)});}
   if(!chips.length)return "";
   return `<div class="chipbar"><span class="chipLab">Filters</span>${chips.map(c=>`<button class="fchip" data-chip="${escAttr(c.k)}" title="Remove this filter">${c.lab}<span class="fchipX">\u2715</span></button>`).join("")}<button class="fchip clearall" id="chipClear">Clear all</button></div>`;
@@ -4885,6 +5005,7 @@ function removeChip(key,s){
   else if(key==="arch")s.arch=null;
   else if(key==="sim")s.simRef=null;
   else if(key==="level")s.level=null;
+  else if(key==="next26")s.next26=null;
   else if(key.startsWith("f:"))s.filters.splice(+key.slice(2),1);
 }
 function attemptsOf(p,which){ // total attempts for the season, whatever unit the league stored
