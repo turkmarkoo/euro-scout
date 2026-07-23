@@ -3706,7 +3706,7 @@ function openAgencyPage(kind,name){STATE.agencyView={kind,name};STATE.view="agen
 function backToAgencies(){STATE.agencyView=null;renderAgencies();}
 function teamsModeToggle(){const md=STATE.teamsMode||"current";
   const b=(k,l)=>`<button class="subnavbtn ${md===k?"on":""}" data-tmode="${k}">${l}</button>`;
-  return `<div class="subnav" style="margin-bottom:16px">${b("current","Rosters 2025/26")}${b("next","Rosters 2026/27")}${b("fa","Free agents 26/27")}</div>`;}
+  return `<div class="subnav" style="margin-bottom:16px">${b("current","Teams 2025/26")}${b("next","Teams 2026/27")}${b("fa","Free agents 26/27")}</div>`;}
 function wireTeamsToggle(){$$("[data-tmode]").forEach(b=>b.onclick=()=>{STATE.teamsMode=b.dataset.tmode;STATE.curTeam=null;renderTeams();});}
 function reRenderTeams(){(STATE.teamsMode==="fa"?renderFreeAgents:renderTeamsNext)();}
 function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
@@ -3869,21 +3869,24 @@ function renderTeamsNext(){
   const clubs=allClubs();
   const lgs=[...new Set(allDbTeams().map(t=>t.lgName))];
   const S=(STATE.data||{}).season2627, nextLgs=S&&S.comps?Object.entries(S.comps).map(([id,c])=>({id,name:c.name})):[];
+  // domestic leagues continue into 26/27; the European field comes from the confirmed entry lists
+  const domLgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly&&!EURO_COMPS.has(L.meta.id))
+    .map(L=>({id:L.meta.id,name:L.meta.name}));
   const lgSel=STATE.next26Lg||"",q=normClub(STATE.next26Q||"");
   const isNext=lgSel.startsWith("n27:"), nextId=isNext?lgSel.slice(4):"";
   let show=clubs.filter(c=>(isNext?nextCompsOf(c).some(x=>x.id===nextId)
-      :(!lgSel||c.leagues.some(l=>l.name===lgSel)))
+      :(!lgSel||c.leagues.some(l=>l.name===lgSel)||nextCompsOf(c).some(x=>x.name===lgSel)))
     &&(!q||normClub(c.name).includes(q)||c.teams.some(t=>normClub(t.city).includes(q))));
   show.sort((a,b)=>((byTeam.get(b.key)||[]).length-(byTeam.get(a.key)||[]).length)||a.name.localeCompare(b.name));
   const placed=[...byTeam.values()].reduce((s,a)=>s+a.length,0);
   $("#app").innerHTML=`<div class="view">
-    <h1 class="title">Rosters \u00b7 2026/27</h1>
-    <div class="sub" style="margin-bottom:14px">Pick a club to build next season\u2019s squad. <b>${placed}</b> players placed so far.</div>
+    <h1 class="title">Teams \u00b7 2026/27</h1>
+    <div class="sub" style="margin-bottom:14px">Pick a league, then open a club to see this season\u2019s roster. <b>${placed}</b> players placed so far.</div>
     ${teamsModeToggle()}
     <div class="rbFilters">
-      <select id="rbLg"><option value="">All clubs</option>
-        ${nextLgs.length?`<optgroup label="Playing in 2026/27">${nextLgs.map(l=>`<option value="n27:${escAttr(l.id)}"${lgSel==="n27:"+l.id?" selected":""}>${esc(l.name)} 2026/27</option>`).join("")}</optgroup>`:""}
-        <optgroup label="2025/26 competition">${lgs.map(l=>`<option value="${escAttr(l)}"${l===lgSel?" selected":""}>${esc(l)}</option>`).join("")}</optgroup></select>
+      <select id="rbLg"><option value="">All leagues</option>
+        ${nextLgs.length?`<optgroup label="European 2026/27">${nextLgs.map(l=>`<option value="n27:${escAttr(l.id)}"${lgSel==="n27:"+l.id?" selected":""}>${esc(l.name)}</option>`).join("")}</optgroup>`:""}
+        <optgroup label="Domestic 2026/27">${domLgs.map(l=>`<option value="${escAttr(l.name)}"${l.name===lgSel?" selected":""}>${esc(l.name)}</option>`).join("")}</optgroup></select>
       <input id="rbClubQ" placeholder="Search club\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/>
     </div>
     ${show.length?`<div class="tmGrid">${show.map(c=>{const n=(byTeam.get(c.key)||[]).length;
@@ -5380,8 +5383,9 @@ function renderTeamsCurrent(){
   const sel=STATE.curLg||"";
   const q=normClub(STATE.teamQ||"");
   // one card per real club — a club that plays ABA + EuroLeague appears once, not twice
+  const CLUBS_ONLY=new Set((STATE.data.leagues||[]).filter(L=>L.meta.teamsOnly).map(L=>L.meta.id));
   let cards=allClubs().filter(c=>{
-      if(c.teams.some(t=>t.lg==="n2627"))return false;
+      if(c.teams.every(t=>CLUBS_ONLY.has(t.lg)))return false;   // NCAA / 26-27 entrants have no 25/26 squad
       if(sel&&!c.leagues.some(l=>l.id===sel))return false;
       if(q&&!normClub(c.name).includes(q)&&!c.teams.some(t=>normClub(t.city||"").includes(q)))return false;
       return true;})
