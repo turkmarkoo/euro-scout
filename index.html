@@ -1984,7 +1984,7 @@ function muState(){try{return JSON.parse(localStorage.getItem(MU_KEY))||{}}catch
 function muSave(o){if(!Store.canEdit())return;localStorage.setItem(MU_KEY,JSON.stringify(o));try{Sync.stampKey(MU_KEY);}catch(e){}try{Store.pushAppKey(MU_KEY);}catch(e){}}
 function muInit(){
   const bar=$("#matchupBar");if(!bar)return;
-  const opts=[];STATE.data.leagues.forEach(L=>L.teams.forEach(t=>opts.push({v:L.meta.id+"|"+t.code,n:t.name,lg:L.meta.name,s:(t.name+" "+t.code).toLowerCase()})));
+  const opts=[];STATE.data.leagues.filter(L=>!L.meta.exhibition).forEach(L=>L.teams.forEach(t=>opts.push({v:L.meta.id+"|"+t.code,n:t.name,lg:L.meta.name,s:(t.name+" "+t.code).toLowerCase()})));
   const paint=()=>{
     const st=muState(),host=$("#muPills");if(!host)return;
     const pill=v=>{if(!v)return "";const[l,c]=v.split("|");
@@ -2661,7 +2661,7 @@ function setScope(id){
 function scopeChips(){
   const cur=STATE.allLeagues?"all":STATE.league.meta.id;
   const chip=(id,lab)=>`<button class="scopechip ${cur===id?"on":""}" onclick="setScope('${id}')">${lab}</button>`;
-  return `<div class="scopechips">${chip("all","All competitions")}${STATE.data.leagues.map(L=>chip(L.meta.id,L.meta.name)).join("")}</div>`;
+  return `<div class="scopechips">${chip("all","All competitions")}${STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>chip(L.meta.id,L.meta.name)).join("")}</div>`;
 }
 function renderPlayers(){
   const all=STATE.allLeagues, f=STATE.filters;
@@ -2688,7 +2688,7 @@ function renderPlayers(){
     <div class="controls">
       <input type="text" id="q" placeholder="Search player" value="${f.q}" style="min-width:200px"/>
       ${all?`<select class="f" id="teamF"><option value="">All teams</option>
-        ${STATE.data.leagues.map(L=>`<optgroup label="${L.meta.name}">${L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${L.meta.id}|${t.code}" ${f.team===L.meta.id+"|"+t.code?"selected":""}>${t.name}</option>`).join("")}</optgroup>`).join("")}</select>`
+        ${STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>`<optgroup label="${L.meta.name}">${L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${L.meta.id}|${t.code}" ${f.team===L.meta.id+"|"+t.code?"selected":""}>${t.name}</option>`).join("")}</optgroup>`).join("")}</select>`
       :`<select class="f" id="teamF"><option value="">All teams</option>
         ${teams.map(t=>`<option value="${t.code}" ${f.team===t.code?"selected":""}>${t.name}</option>`).join("")}</select>`}
       <select class="f" id="roleF"><option value="">All positions</option>
@@ -3074,7 +3074,7 @@ function showListModal(title,sub,rows){let m=$("#modal");
   $$("#modal .lrow[data-open]").forEach(r=>r.onclick=()=>{const id=r.dataset.open,lg=r.dataset.league;hideModal();openGlobal(lg,id);});
   const me=$("#modal .lrow.me");if(me)me.scrollIntoView({block:"center"});}
 function openLeaderboard(k,lab){const p=player(CURRENT),all=STATE.profileScope==="all";
-  const list=[];STATE.data.leagues.forEach(L=>L.players.forEach(x=>{if(x.qualified&&(all||x.league===p.league))list.push({p:x,L});}));
+  const list=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(x=>{if(x.qualified&&(all||x.league===p.league))list.push({p:x,L});});});
   const lower=LOWER_BETTER.has(k);
   list.sort((a,b)=>lower?(a.p[k]-b.p[k]):(b.p[k]-a.p[k]));
   const tot=list.length;
@@ -3084,8 +3084,8 @@ function openLeaderboard(k,lab){const p=player(CURRENT),all=STATE.profileScope==
   const scopeLbl=all?"All players":leagueOf(p).meta.name;
   showListModal(lab+" \u00b7 leaderboard",scopeLbl+" \u00b7 "+tot+" qualified"+(lower?" \u00b7 lower is better":""),rows);}
 function openDbFilter(kind,val){
-  const list=[];STATE.data.leagues.forEach(L=>L.players.forEach(p=>{
-    if(kind==="country"?p.country===val:String(p.born)===String(val))list.push({p,L});}));
+  const list=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(p=>{
+    if(kind==="country"?p.country===val:String(p.born)===String(val))list.push({p,L});});});
   list.sort((a,b)=>(b.p.pir||0)-(a.p.pir||0));
   const rows=list.map(({p,L})=>pRow(p,L,{meta:fmt(p.ppg)+" pts \u00b7 "+fmt(p.rpg)+" reb \u00b7 "+fmt(p.apg)+" ast",right:"PIR "+fmt(p.pir)}));
   const title=kind==="country"?("Players from "+val):("Players born in "+val);
@@ -4419,7 +4419,7 @@ function renderCompare(){
   if(!STATE.compare.slots){STATE.compare.slots=[STATE.compare.a||null,STATE.compare.b||null,null,null];}
   const slots=STATE.compare.slots;
   const sel=(idx,cur)=>{
-    const opts=STATE.data.leagues.map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("");
+    const opts=STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("");
     return `<div class="cbx" data-cbx="cmp${idx}">
       <input type="text" class="cbxin" id="cmp${idx}in" placeholder="Player ${idx+1}\u2026" autocomplete="off" value="${cur?player(cur).name:""}"/>
       <select class="cbxsel f" id="cmp${idx}"><option value="">\u2014 or pick from list \u2014</option>${opts}</select>
@@ -4843,7 +4843,7 @@ function renderScout(){
       </div>
 
       <div class="railsec"><div class="raillab">Leagues</div>
-        <div class="frows">${STATE.data.leagues.map(lgChip).join("")}</div>
+        <div class="frows">${STATE.data.leagues.filter(L=>!L.meta.exhibition).slice().sort((a,b)=>(leagueTier({league:b.meta.id})-leagueTier({league:a.meta.id}))||a.meta.name.localeCompare(b.meta.name)).map(lgChip).join("")}</div>
       </div>
 
       <div class="railsec"><div class="raillab">Position</div>
