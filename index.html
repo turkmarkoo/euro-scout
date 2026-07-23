@@ -1539,10 +1539,34 @@ function nextCompMap(){
   return NEXTCOMP;
 }
 const EURO_COMPS=new Set(["euroleague","eurocup","bcl"]);
+let DOM27=null;
+/* confirmed 2026/27 domestic fields (promotions + relegations). Leagues not yet
+   verified fall back to this season's membership and are flagged provisional. */
+function dom27Map(){
+  if(DOM27)return DOM27;
+  DOM27=new Map();
+  const S=(STATE.data||{}).domestic2627; if(!S||!S.leagues)return DOM27;
+  Object.entries(S.leagues).forEach(([lg,c])=>{(c.teams||[]).forEach(t=>{
+    if(!t.key)return;
+    const club=CLUB_BY_TEAMKEY?CLUB_BY_TEAMKEY.get(t.key):null;
+    const ck=club?club.key:t.key;
+    if(!DOM27.has(ck))DOM27.set(ck,[]);
+    DOM27.get(ck).push({id:lg,name:c.name});});});
+  return DOM27;
+}
+function dom27Confirmed(lgId){const S=(STATE.data||{}).domestic2627;return !!(S&&S.leagues&&S.leagues[lgId]);}
+function domCompsOf(club){
+  if(!club)return [];
+  if(!CLUBS)allDbTeams();
+  const confirmed=dom27Map().get(club.key)||[];
+  const carried=(club.leagues||[]).filter(l=>!EURO_COMPS.has(l.id)&&l.id!=="n2627"&&!dom27Confirmed(l.id))
+    .map(l=>({id:l.id,name:l.name,provisional:true}));
+  return confirmed.concat(carried);
+}
 /* what the club actually plays in 2026/27: its domestic league(s) carry over,
    but the European entry is taken from next season’s confirmed lists, not last season’s */
 function comps2627Label(club){
-  const dom=(club.leagues||[]).filter(l=>!EURO_COMPS.has(l.id)).map(l=>l.name);
+  const dom=domCompsOf(club).map(l=>l.name+(l.provisional?"*":""));
   const eu=nextCompsOf(club).map(c=>c.name);
   const all=dom.concat(eu);
   return all.length?all.join(" \u00b7 "):"\u2014";
@@ -3875,7 +3899,7 @@ function renderTeamsNext(){
   const lgSel=STATE.next26Lg||"",q=normClub(STATE.next26Q||"");
   const isNext=lgSel.startsWith("n27:"), nextId=isNext?lgSel.slice(4):"";
   let show=clubs.filter(c=>(isNext?nextCompsOf(c).some(x=>x.id===nextId)
-      :(!lgSel||c.leagues.some(l=>l.name===lgSel)||nextCompsOf(c).some(x=>x.name===lgSel)))
+      :(!lgSel||domCompsOf(c).some(l=>l.name===lgSel)||nextCompsOf(c).some(x=>x.name===lgSel)))
     &&(!q||normClub(c.name).includes(q)||c.teams.some(t=>normClub(t.city).includes(q))));
   show.sort((a,b)=>((byTeam.get(b.key)||[]).length-(byTeam.get(a.key)||[]).length)||a.name.localeCompare(b.name));
   const placed=[...byTeam.values()].reduce((s,a)=>s+a.length,0);
@@ -3886,7 +3910,8 @@ function renderTeamsNext(){
     <div class="rbFilters">
       <select id="rbLg"><option value="">All leagues</option>
         ${nextLgs.length?`<optgroup label="European 2026/27">${nextLgs.map(l=>`<option value="n27:${escAttr(l.id)}"${lgSel==="n27:"+l.id?" selected":""}>${esc(l.name)}</option>`).join("")}</optgroup>`:""}
-        <optgroup label="Domestic 2026/27">${domLgs.map(l=>`<option value="${escAttr(l.name)}"${l.name===lgSel?" selected":""}>${esc(l.name)}</option>`).join("")}</optgroup></select>
+        <optgroup label="Domestic 2026/27">${domLgs.map(l=>`<option value="${escAttr(l.name)}"${l.name===lgSel?" selected":""}>${esc(l.name)}${dom27Confirmed(l.id)?"":" *"}</option>`).join("")}</optgroup></select>
+      ${domLgs.some(l=>!dom27Confirmed(l.id))?`<span class="hint" style="align-self:center">* promotions/relegations not yet verified \u2014 showing 2025/26 membership</span>`:""}
       <input id="rbClubQ" placeholder="Search club\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/>
     </div>
     ${show.length?`<div class="tmGrid">${show.map(c=>{const n=(byTeam.get(c.key)||[]).length;
