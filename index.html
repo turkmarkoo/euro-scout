@@ -873,6 +873,7 @@ body.drawer-lock{overflow:hidden}
 .tpLg{font-size:11px;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
 .tpNone{padding:14px 12px;color:var(--muted);font-size:13px}
 .tabbadge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 5px;margin-left:6px;border-radius:999px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;font-family:var(--mono);vertical-align:middle}
+.trInbox.quiet{background:var(--panel);border-color:var(--line);color:var(--muted)}
 .trInbox{background:color-mix(in srgb,var(--gold) 7%,var(--panel));border:1px solid color-mix(in srgb,var(--gold) 35%,var(--line));border-radius:14px;padding:14px 16px;margin-bottom:18px}
 .trInboxHead{font-size:14px;margin-bottom:10px}
 .trInboxHead b{font-size:15px}
@@ -1417,15 +1418,20 @@ function buildTransferIndex(items){
   TRANSFERS_LOADED=TRANSFERS.size>0;
 }
 async function loadTransfers(){
-  // two sources: transfers baked into the dataset (e.g. the ACB market table) and the live tracker feed
-  let items=(STATE.data&&Array.isArray(STATE.data.transfers))?STATE.data.transfers.slice():[];
+  // 1) transfers shipped with the dataset (e.g. the ACB market) — available immediately
+  const baked=(STATE.data&&Array.isArray(STATE.data.transfers))?STATE.data.transfers.slice():[];
+  if(baked.length){buildTransferIndex(baked);try{updateTransferBadge();}catch(e){}}
+  // 2) live tracker feed, merged in when it answers. Timed out so a slow feed can never
+  //    stop the baked transfers from showing.
   const urls=["../euroball-tracker/transfers_all.json","https://turkmarkoo.github.io/euroball-tracker/transfers_all.json"];
   for(const u of urls){
-    try{const j=await fetch(u,{cache:"no-cache"}).then(r=>r.json());
-      if(j&&j.items){items=items.concat(j.items);break;}
+    try{
+      const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),4000);
+      const j=await fetch(u,{cache:"no-cache",signal:ctl.signal}).then(r=>r.json());
+      clearTimeout(t);
+      if(j&&j.items){buildTransferIndex(baked.concat(j.items));break;}
     }catch(e){}
   }
-  if(items.length)buildTransferIndex(items);
 }
 function nextOf(p){
   if(!TRANSFERS_LOADED||!p)return null;
@@ -1456,7 +1462,7 @@ function set26(pid,key){const m=next26Get();const p=player(pid);
   if(key)m[p?gid(p):pid]=canonKey(key);
   next26Set(m);}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
-function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:t.conference||L.meta.name,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
+function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,conf:t.conference||null,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
 
 /* ---------- clubs: one entry per real club, tagged with every competition it plays ---------- */
 let CLUBS=null, CLUB_BY_TEAMKEY=null;
@@ -1561,6 +1567,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
 const WATCH_TAG="Watchlist";
+let KBD_SEL=-1;
 
 /* Metric definitions for tables/bars */
 const PG_COLS = [
@@ -3670,7 +3677,7 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
   const render=q=>{const qn=normClub(q||"");
     const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||t.teams.some(x=>normClub(x.city).includes(qn))||t.leagues.some(l=>normClub(l.name).includes(qn))):teams;
     listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
-      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
+      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}${(t.teams&&t.teams[0]&&t.teams[0].conf)?" \u00b7 "+esc(t.teams[0].conf):""}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
     listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});};
   render("");
   const si=ov.querySelector("#tpSearch");si.oninput=()=>render(si.value);setTimeout(()=>si.focus(),30);
@@ -3707,7 +3714,13 @@ function trRow(x){const {tr,p,team}=x;const st=tr.status==="extended"?"Re-signed
     <span class="trMove"><span class="trStatus ${tr.status}">${st}</span>${tr.league?`<span class="trLeagueTag">${esc(tr.league)}</span>`:""}<span class="trFrom">${esc(tr.from||"\u2014")}</span><span class="trArrow">\u2192</span>${dest}</span>
     <span class="trActs"><button class="trBtn ok" data-approve="${escAttr(tr.id)}" data-pid="${p.id}" data-tk="${team?escAttr(team.key):""}">Approve</button><button class="trBtn no" data-reject="${escAttr(tr.id)}">Reject</button></span>
   </div>`;}
-function transferInboxHTML(){const pend=pendingTransfers();if(!pend.length)return TRANSFERS_LOADED?"":"";
+function transferInboxHTML(){const pend=pendingTransfers();
+  if(!pend.length){
+    const total=TRANSFERS.size;
+    if(!total)return "";
+    const handled=Object.keys(trHandledGet()).length;
+    return `<div class="trInbox quiet"><div class="trInboxHead"><span class="trBell">\uD83D\uDD14</span> No transfers waiting \u2014 <b>${total}</b> loaded${handled?`, ${handled} already handled`:""}.</div></div>`;
+  }
   return `<div class="trInbox">
     <div class="trInboxHead"><span class="trBell">\uD83D\uDD14</span> <b>${pend.length}</b> transfer${pend.length===1?"":"s"} to review <span class="trHint">\u2014 approve to move the player onto their 26/27 roster</span></div>
     <div class="trList">${pend.slice(0,60).map(trRow).join("")}</div>
@@ -4280,7 +4293,7 @@ function printScoutingMatchup(va,vb){
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
 const LEAGUE_FLAG={euroleague:"\uD83C\uDDEA\uD83C\uDDFA",eurocup:"\uD83C\uDDEA\uD83C\uDDFA",bcl:"\uD83C\uDDEA\uD83C\uDDFA",aba:"\uD83C\uDDEA\uD83C\uDDFA",bnxt:"\uD83C\uDDEA\uD83C\uDDFA",
   acb:"\uD83C\uDDEA\uD83C\uDDF8",lba:"\uD83C\uDDEE\uD83C\uDDF9",bbl:"\uD83C\uDDE9\uD83C\uDDEA",lnb:"\uD83C\uDDEB\uD83C\uDDF7",sbl:"\uD83C\uDDF8\uD83C\uDDEA",
-  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",vtb:"\uD83C\uDDEA\uD83C\uDDFA",elb:"\uD83C\uDDEA\uD83C\uDDFA",nbl:"\uD83C\uDDE6\uD83C\uDDFA",slo:"\uD83C\uDDF8\uD83C\uDDEE",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
+  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",vtb:"\uD83C\uDDEA\uD83C\uDDFA",elb:"\uD83C\uDDEA\uD83C\uDDFA",nbl:"\uD83C\uDDE6\uD83C\uDDFA",slo:"\uD83C\uDDF8\uD83C\uDDEE",ncaa:"\uD83C\uDDFA\uD83C\uDDF8",sl:"\uD83C\uDDFA\uD83C\uDDF8",ncaa:"\uD83C\uDDFA\uD83C\uDDF8"};
 function leagueFlag(id){return LEAGUE_FLAG[id]||"\uD83C\uDDEA\uD83C\uDDFA";}
 const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F",lkl:"#7AA35C",vtb:"#8E7CC3",elb:"#5FA89A",nbl:"#D08A3E",slo:"#6C93C7"};
 const ROLE_COLORS={Guard:"#8E86C9",Forward:"#6FA39B",Big:"#C99A3C"};
@@ -4976,7 +4989,13 @@ function renderScout(){
       openProfile(c.dataset.id);};});
   updateKbdSelection();
 }
-// Quick-tag popover on a board card — assign archetype tags without opening the profile
+// keyboard navigation highlight on the board
+function updateKbdSelection(){
+  const cards=boardCards();
+  cards.forEach((c,i)=>c.classList.toggle("kbdsel",i===KBD_SEL));
+  const sel=(KBD_SEL>=0)?cards[KBD_SEL]:null;
+  if(sel){try{sel.scrollIntoView({block:"nearest"});}catch(e){}}
+}
 function moveKbd(delta){
   const cards=boardCards(); if(!cards.length)return;
   // figure columns from layout to make Up/Down move by a row
