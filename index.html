@@ -1769,7 +1769,8 @@ const Store = (()=>{
     if(!sb||!user)return;
     const email=(user.email||"").toLowerCase();
     try{const {data,error}=await sb.from("members").select("role").eq("email",email).maybeSingle();
-      if(!error&&data){member=true;role=(data.role==="editor")?"editor":"viewer";}}catch(e){}
+      if(!error&&data){member=true;role=(data.role==="editor")?"editor":"viewer";
+        try{localStorage.setItem("es:wasmember:"+(email||"").toLowerCase(),"1");}catch(e){}}}catch(e){}
   }
   function canEdit(){ return !enabled ? true : (member && role==="editor"); }
   // pull the whole shared dataset into the local cache
@@ -1867,7 +1868,10 @@ const Store = (()=>{
       role=role==="editor"?"editor":"viewer";
       const {error}=await sb.from("members").upsert({email,role},{onConflict:"email"});if(error)throw error;},
     async removeMember(email){if(!sb||!canEdit())return;
-      const {error}=await sb.from("members").delete().eq("email",(email||"").toLowerCase());if(error)throw error;},
+      const em=(email||"").toLowerCase();
+      const {error}=await sb.from("members").delete().eq("email",em);if(error)throw error;
+      // drop any old access request too, otherwise the revoked account resurfaces in the pending queue
+      try{await sb.from("access_requests").delete().eq("email",em);}catch(e){}},
     allCache(){return cache;}
   };
 })();
@@ -2603,11 +2607,29 @@ function renderAuthGate(){
   const box=$("#agBox"); if(!box)return;
   const logo=`<div class="aglogo"><span class="mark">E</span><span>Euro<b>Scout</b></span></div>`;
   if(Store.user && !Store.member){
-    try{Store.requestAccess();}catch(e){}  // record a pending request for an editor to approve
-    box.innerHTML=`${logo}<h2>Waiting for approval</h2>
-      <p>Your account <b>${escAttr(Store.user.email||"")}</b> is set up, but EuroScout access is granted by an editor. You'll be let in once you're approved \u2014 check back shortly.</p>
-      <button class="btn ghost" id="agOut">Sign out</button>`;
-    const o=$("#agOut"); if(o)o.onclick=async()=>{await Store.signOut();location.reload();};
+    const em=(Store.user.email||"").toLowerCase();
+    let wasMember=false; try{wasMember=localStorage.getItem("es:wasmember:"+em)==="1";}catch(e){}
+    if(wasMember){
+      // had access, and no longer does \u2014 say so plainly rather than implying it is pending
+      box.innerHTML=`${logo}<h2>Access revoked</h2>
+        <p>Access for <b>${escAttr(Store.user.email||"")}</b> has been removed by an editor. Your scouting notes are safe \u2014 they are stored on the account and will be there if access is restored.</p>
+        <button class="btn" id="agReq">Request access again</button>
+        <button class="btn ghost" id="agOut">Sign out</button>
+        <div class="agmsg" id="agMsg"></div>`;
+      const rq=$("#agReq"); if(rq)rq.onclick=async()=>{
+        rq.disabled=true;
+        try{localStorage.removeItem("es:wasmember:"+em);}catch(e){}
+        try{await Store.requestAccess();}catch(e){}
+        const m=$("#agMsg"); if(m)m.textContent="Request sent \u2014 an editor will review it.";};
+    } else {
+      try{Store.requestAccess();}catch(e){}  // record a pending request for an editor to approve
+      box.innerHTML=`${logo}<h2>Waiting for approval</h2>
+        <p>Your account <b>${escAttr(Store.user.email||"")}</b> is set up, but EuroScout access is granted by an editor. You'll be let in once you're approved \u2014 check back shortly.</p>
+        <button class="btn ghost" id="agOut">Sign out</button>`;
+    }
+    const o=$("#agOut"); if(o)o.onclick=async()=>{
+      try{localStorage.removeItem("es:wasmember:"+em);}catch(e){}
+      await Store.signOut();location.reload();};
     return;
   }
   const su=AG_MODE==="signup";
@@ -3249,7 +3271,7 @@ const SKILL_GROUPS=[
    The % family needs team + opponent box scores, so it is only present for leagues with game logs. */
 const ADV_GROUPS=[
   {name:"SHOT PROFILE", col:"var(--accent)", items:[["2PT Shooting","f2p","%"],["3PA share","r3a","%"],["FT rate","ftr",""],["Points per shot","pps",""]]},
-  {name:"RATE STATS",   col:"#8E86C9",       items:[["Assist %","astp","%"],["Turnover %","tovp","%"],["Rebound %","trbp","%"],["Steal %","stlp","%"],["Block %","blkp","%"]]},
+  {name:"RATE STATS",   col:"#8E86C9",       items:[["Assist %","astp","%"],["Turnover %","tovp","%"],["Rebound %","trbp","%"],["Off Rebound %","orbp","%"],["Def Rebound %","drbp","%"],["Steal %","stlp","%"],["Block %","blkp","%"]]},
 ];
 const SKILL_FLAT=(()=>{const f=[];SKILL_GROUPS.forEach(g=>g.items.forEach(it=>f.push({lab:it[0],k:it[1],unit:it[2],col:g.col,ab:{"Finishing":"Fin","3PT Shooting":"3PT","Free Throws":"FT","Scoring Volume":"Vol","Efficiency":"TS","Passing":"Pass","Ball Security":"Sec","Usage":"Usg","Rebounding":"Reb","Steals":"Stl","Blocks":"Blk"}[it[0]]||it[0].slice(0,4)})));return f;})();
 function skillRadarSVG(p,pool){
@@ -3427,7 +3449,9 @@ const FILTER_STATS=[
  {key:"tovp",label:"Turnover %",min:0,max:40,step:2,suffix:"%"},
  {key:"trbp",label:"Rebound %",min:0,max:30,step:1,suffix:"%"},
  {key:"stlp",label:"Steal %",min:0,max:6,step:0.25,suffix:"%"},
- {key:"blkp",label:"Block %",min:0,max:10,step:0.5,suffix:"%"}];
+ {key:"blkp",label:"Block %",min:0,max:10,step:0.5,suffix:"%"},
+ {key:"orbp",label:"Offensive rebound %",min:0,max:20,step:1,suffix:"%"},
+ {key:"drbp",label:"Defensive rebound %",min:0,max:40,step:2,suffix:"%"}];
 function filterStat(k){return FILTER_STATS.find(x=>x.key===k);}
 function addFilter(key){if(!key)return;const st=filterStat(key);if(!st)return;
   const f=STATE.scout.filters||(STATE.scout.filters=[]);
