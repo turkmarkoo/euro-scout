@@ -5235,7 +5235,7 @@ function renderTeamsCurrent(){
   lgs.forEach(L=>{ if(sel&&L.meta.id!==sel)return;
     (L.teams||[]).forEach(t=>{ if(q&&!normClub(t.name).includes(q)&&!normClub(t.city||"").includes(q))return;
       const n=L.players.filter(p=>p.team===t.code).length;
-      cards.push({lg:L.meta.id,lgName:L.meta.name,code:t.code,name:t.name,n});});});
+      cards.push({lg:L.meta.id,lgName:L.meta.name,code:t.code,name:t.name,n,logo:t.logo||null});});});
   cards.sort((a,b)=>a.lgName.localeCompare(b.lgName)||a.name.localeCompare(b.name));
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Teams \u00b7 2025/26</h1>
@@ -5275,7 +5275,7 @@ function renderCurRoster(lgId,code){
   const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th class="num">GP</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th></tr>`;
   $("#app").innerHTML=`<div class="view">
     <button class="btn ghost" id="curBack">\u2190 All teams</button>
-    <h1 class="title" style="margin-top:10px">${esc(t.name)} <span class="rbClubLg">${leagueFlag(lgId)} ${esc(L.meta.name)}</span></h1>
+    <h1 class="title" style="margin-top:10px">${t.logo?`<span class="clubBadge" style="--bs:30px;vertical-align:middle"><img src="${t.logo}" onerror="this.parentNode.remove()"/></span>`:""}${esc(t.name)} <span class="rbClubLg">${leagueFlag(lgId)} ${esc(L.meta.name)}</span></h1>
     <div class="sub" style="margin-bottom:14px">2025/26 roster \u00b7 ${roster.length} player${roster.length===1?"":"s"}</div>
     ${roster.length?`<div class="agtableWrap"><table class="agtable rbtable">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="empty">No players recorded for this club.</div>`}
   </div>`;
