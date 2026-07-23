@@ -1456,7 +1456,7 @@ function set26(pid,key){const m=next26Get();const p=player(pid);
   if(key)m[p?gid(p):pid]=canonKey(key);
   next26Set(m);}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
-function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:t.conference||L.meta.name,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
+function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:t.conference||L.meta.name,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
 
 /* ---------- clubs: one entry per real club, tagged with every competition it plays ---------- */
 let CLUBS=null, CLUB_BY_TEAMKEY=null;
