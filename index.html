@@ -1364,6 +1364,7 @@ body.drawer-lock{overflow:hidden}
       <button data-view="scout" class="active">Players</button>
       <button data-view="teams">Teams</button>
       <button data-view="agencies">Agencies</button>
+      <button data-view="transfers">Transfers</button>
       <button data-view="players">Stats</button>
       <button data-view="scouting">Scouting</button>
       <button data-view="watchlist">Watchlist</button>
@@ -1556,11 +1557,11 @@ function pendingTransfers(){
   out.sort((a,b)=>(statGradeOverall(b.p)??-1)-(statGradeOverall(a.p)??-1));
   return out;}
 function approveTransfer(trId,pid,teamKey){
-  const mark=()=>{const h=trHandledGet();h[trId]="approved";trHandledSet(h);reRenderTeams();updateTransferBadge();};
+  const mark=()=>{const h=trHandledGet();h[trId]="approved";trHandledSet(h);trAfterHandled(trId);};
   if(teamKey){set26(pid,teamKey);mark();}
   else openTeamPicker(pid,()=>mark());}
-function rejectTransfer(trId){const h=trHandledGet();h[trId]="rejected";trHandledSet(h);reRenderTeams();updateTransferBadge();}
-function updateTransferBadge(){const btn=$('#tabs button[data-view="teams"]');if(!btn)return;
+function rejectTransfer(trId){const h=trHandledGet();h[trId]="rejected";trHandledSet(h);trAfterHandled(trId);}
+function updateTransferBadge(){const btn=$('#tabs button[data-view="transfers"]');if(!btn)return;
   let b=btn.querySelector(".tabbadge");const n=pendingTransfers().length;
   if(n>0){if(!b){b=document.createElement("span");b.className="tabbadge";btn.appendChild(b);}b.textContent=n;}else if(b)b.remove();}
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
@@ -2674,6 +2675,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="compare") renderCompare();
   else if(v==="charts") renderCharts();
   else if(v==="agencies") renderAgencies();
+  else if(v==="transfers") renderTransfers();
   else if(v==="watchlist") renderWatchlist();
   else if(v==="exhib") renderExhib();
   else if(v==="scouting") renderScouting();
@@ -2682,7 +2684,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="team") renderTeam();
   else if(v==="profile") renderProfile();
   // centralized top-tab highlighting (compare/charts group under Stats; team under Teams)
-  const TOPTAB={scout:"scout",players:"players",compare:"players",charts:"players",agencies:"agencies",teams:"teams",team:"teams",scouting:"scouting",watchlist:"watchlist",exhib:"exhib",glossary:"glossary"};
+  const TOPTAB={scout:"scout",players:"players",compare:"players",charts:"players",agencies:"agencies",transfers:"transfers",teams:"teams",team:"teams",scouting:"scouting",watchlist:"watchlist",exhib:"exhib",glossary:"glossary"};
   const tt=TOPTAB[v];
   if(tt)$$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===tt));
   updateTransferBadge();
@@ -3717,12 +3719,88 @@ function wireRosterCommon(){
 }
 function trRow(x){const {tr,p,team}=x;const st=tr.status==="extended"?"Re-signed":"Signed";
   const dest=team?`<span class="trDest ok">${esc(team.name)}</span><span class="trLg">${esc(team.lgName)}</span>`:`<span class="trDest raw">${esc(tr.to||"?")}</span><span class="trNoMatch">not in DB \u2014 pick on approve</span>`;
-  return `<div class="trItem">
+  return `<div class="trItem" data-tr="${escAttr(tr.id)}">
     <span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>
     <span class="trPlayer"><b class="trName" data-pid="${p.id}">${p.name}</b><span class="trMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span></span>
     <span class="trMove"><span class="trStatus ${tr.status}">${st}</span>${tr.league?`<span class="trLeagueTag">${esc(tr.league)}</span>`:""}<span class="trFrom">${esc(tr.from||"\u2014")}</span><span class="trArrow">\u2192</span>${dest}</span>
     <span class="trActs"><button class="trBtn ok" data-approve="${escAttr(tr.id)}" data-pid="${p.id}" data-tk="${team?escAttr(team.key):""}">Approve</button><button class="trBtn no" data-reject="${escAttr(tr.id)}">Reject</button></span>
   </div>`;}
+function trF(){if(!STATE.trF)STATE.trF={lg:"",club:"",q:""};return STATE.trF;}
+function trLgKey(x){return x.team?x.team.lg:("~"+(x.tr.league||"?"));}
+function trLgName(x){if(x.team){const L=(STATE.data.leagues||[]).find(l=>l.meta.id===x.team.lg);return L?L.meta.name:x.team.lg;}
+  return (x.tr.league||"Unknown")+" (not in database)";}
+function trClubKey(x){return x.team?x.team.key:("~"+normClub(x.tr.to||"?"));}
+function trClubName(x){return x.team?x.team.name:(x.tr.to||"?");}
+function trFiltered(){const f=trF();const q=normNm(f.q||"");
+  return pendingTransfers().filter(x=>{
+    if(f.lg&&trLgKey(x)!==f.lg)return false;
+    if(f.club&&trClubKey(x)!==f.club)return false;
+    if(q&&!normNm(x.p.name).includes(q))return false;
+    return true;});}
+function trOptions(){const all=pendingTransfers();
+  const lgs=new Map(), clubs=new Map();
+  all.forEach(x=>{const lk=trLgKey(x);
+    if(!lgs.has(lk))lgs.set(lk,{key:lk,name:trLgName(x),n:0});
+    lgs.get(lk).n++;});
+  const f=trF();
+  all.filter(x=>!f.lg||trLgKey(x)===f.lg).forEach(x=>{const ck=trClubKey(x);
+    if(!clubs.has(ck))clubs.set(ck,{key:ck,name:trClubName(x),n:0});
+    clubs.get(ck).n++;});
+  const srt=m=>[...m.values()].sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name));
+  return {lgs:srt(lgs),clubs:srt(clubs)};}
+function renderTransfers(){
+  const f=trF(), total=pendingTransfers().length, list=trFiltered(), {lgs,clubs}=trOptions();
+  const handled=Object.keys(trHandledGet()).length;
+  const CAP=200;
+  $("#app").innerHTML=`<div class="view">
+    <h1 class="title">Transfers</h1>
+    <div class="sub" style="margin-bottom:14px">Approve a move to place the player on their 2026/27 roster. <b id="trCount">${total}</b> waiting${handled?` \u00b7 ${handled} already handled`:""}.</div>
+    <div class="rbFilters">
+      <select id="trLgSel"><option value="">All leagues (${total})</option>${lgs.map(l=>`<option value="${escAttr(l.key)}"${l.key===f.lg?" selected":""}>${esc(l.name)} (${l.n})</option>`).join("")}</select>
+      <select id="trClubSel"><option value="">All clubs</option>${clubs.map(c=>`<option value="${escAttr(c.key)}"${c.key===f.club?" selected":""}>${esc(c.name)} (${c.n})</option>`).join("")}</select>
+      <input id="trQ" placeholder="Search player\u2026" value="${escAttr(f.q||"")}" autocomplete="off"/>
+      ${(f.lg||f.club||f.q)?`<button class="subnavbtn" id="trClear">Clear</button>`:""}
+    </div>
+    <div class="trInbox${list.length?"":" quiet"}" id="trBox">
+      <div class="trList" id="trList">${list.slice(0,CAP).map(trRow).join("")}</div>
+      <div class="trMore" id="trMore">${trMoreText(list.length,total,handled)}</div>
+    </div>
+  </div>`;
+  wireTransferInbox();
+  const lg=$("#trLgSel"); if(lg)lg.onchange=()=>{f.lg=lg.value;f.club="";renderTransfers();};
+  const cl=$("#trClubSel"); if(cl)cl.onchange=()=>{f.club=cl.value;renderTransfers();};
+  const q=$("#trQ"); if(q)q.oninput=()=>{f.q=q.value;trRepaintList();};
+  const cb=$("#trClear"); if(cb)cb.onclick=()=>{STATE.trF={lg:"",club:"",q:""};renderTransfers();};
+}
+function trMoreText(shown,total,handled){const CAP=200;
+  if(!shown)return total?"No transfers match this filter.":(handled?`Nothing waiting \u2014 all ${handled} handled.`:"No transfers loaded.");
+  return shown>CAP?`Showing ${CAP} of ${shown} \u2014 narrow the filter or handle some to reveal more.`:"";}
+// repaint just the rows: keeps caret in the search box and the page scrolled where it was
+function trRepaintList(){
+  const box=$("#trList"); if(!box){renderTransfers();return;}
+  const CAP=200, list=trFiltered(), total=pendingTransfers().length;
+  const handled=Object.keys(trHandledGet()).length;
+  box.innerHTML=list.slice(0,CAP).map(trRow).join("");
+  const m=$("#trMore"); if(m)m.textContent=trMoreText(list.length,total,handled);
+  const bx=$("#trBox"); if(bx)bx.classList.toggle("quiet",!list.length);
+  const c=$("#trCount"); if(c)c.textContent=total;
+  wireTransferInbox();
+}
+// remove one handled row in place \u2014 keeps the scroll position exactly where it was
+function trDropRow(trId){
+  const el=document.querySelector(`.trItem[data-tr="${(window.CSS&&CSS.escape)?CSS.escape(trId):trId}"]`);
+  if(el)el.remove();
+  const CAP=200, list=trFiltered(), total=pendingTransfers().length;
+  const handled=Object.keys(trHandledGet()).length;
+  const m=$("#trMore"); if(m)m.textContent=trMoreText(list.length,total,handled);
+  const bx=$("#trBox"); if(bx)bx.classList.toggle("quiet",!list.length);
+  const c=$("#trCount"); if(c)c.textContent=total;
+}
+function trAfterHandled(trId){
+  if(STATE.view==="transfers")trDropRow(trId);
+  else reRenderTeams();
+  updateTransferBadge();
+}
 function transferInboxHTML(){const pend=pendingTransfers();
   if(!pend.length){
     const total=TRANSFERS.size;
@@ -3764,7 +3842,6 @@ function renderTeamsNext(){
     <h1 class="title">Rosters \u00b7 2026/27</h1>
     <div class="sub" style="margin-bottom:14px">Pick a club to build next season\u2019s squad. <b>${placed}</b> players placed so far.</div>
     ${teamsModeToggle()}
-    ${transferInboxHTML()}
     <div class="rbFilters">
       <select id="rbLg"><option value="">All leagues</option>${lgs.map(l=>`<option value="${escAttr(l)}"${l===lgSel?" selected":""}>${esc(l)}</option>`).join("")}</select>
       <input id="rbClubQ" placeholder="Search club\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/>
@@ -5270,7 +5347,6 @@ function renderTeamsCurrent(){
     <h1 class="title">Teams \u00b7 2025/26</h1>
     <div class="sub" style="margin-bottom:14px">Pick a league, then open a club to see this season\u2019s roster.</div>
     ${teamsModeToggle()}
-    ${transferInboxHTML()}
     <div class="rbFilters">
       <select id="curLgSel"><option value="">All leagues</option>${lgs.map(L=>`<option value="${L.meta.id}"${sel===L.meta.id?" selected":""}>${esc(L.meta.name)}</option>`).join("")}</select>
       <input id="curTeamQ" placeholder="Search club\u2026" value="${escAttr(STATE.teamQ||"")}" autocomplete="off"/>
