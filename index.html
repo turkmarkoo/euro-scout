@@ -807,6 +807,15 @@ body.drawer-lock{overflow:hidden}
 .rbAssign{position:relative;max-width:520px;margin-bottom:20px}
 .rbAssign>input{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 13px;font:inherit;font-size:13.5px;color:var(--txt)}
 .rbFilters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tmGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.tmCard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;cursor:pointer;font:inherit;color:var(--txt);transition:.13s}
+.tmCard:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-1px)}
+.tmName{font-family:var(--disp);font-size:15px;font-weight:800;line-height:1.2}
+.tmMeta{display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px}
+.tmLg{font-size:11px;color:var(--muted)}
+.tmN{font-family:var(--mono);font-size:11px;color:var(--accent-deep);background:var(--accent-soft);border-radius:999px;padding:1px 8px}
+.btn.ghost{background:var(--panel);color:var(--muted);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent-deep)}
 .rbtable{table-layout:fixed}
 .rbtable td,.rbtable th{overflow:hidden;text-overflow:ellipsis}
 .rbtable .agpName{overflow:hidden;text-overflow:ellipsis}
@@ -1563,7 +1572,7 @@ async function setEyeGrade(p,axisKey,val){
 const LEAGUE_TIER={
   euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
   bbl:0.82, lnb:0.82, il:0.80, gbl:0.86, bnxt:0.72, sbl:0.60, sl:0.78,
-  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80
+  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86
 };
 function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
 /* overall stats grade 0-10 for the board headline: a production-quality measure,
@@ -2675,7 +2684,7 @@ function renderPlayers(){
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
-      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU',bsl:'BSL',lkl:'LKL'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
+      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU',bsl:'BSL',lkl:'LKL',vtb:'VTB'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k],c.d==null?1:c.d)}</td>`).join("")}
@@ -3573,8 +3582,8 @@ function openAgencyPage(kind,name){STATE.agencyView={kind,name};STATE.view="agen
 function backToAgencies(){STATE.agencyView=null;renderAgencies();}
 function teamsModeToggle(){const md=STATE.teamsMode||"current";
   const b=(k,l)=>`<button class="subnavbtn ${md===k?"on":""}" data-tmode="${k}">${l}</button>`;
-  return `<div class="subnav" style="margin-bottom:16px">${b("current","2025/26 Standings")}${b("next","Rosters 26/27")}${b("fa","Free agents 26/27")}</div>`;}
-function wireTeamsToggle(){$$("[data-tmode]").forEach(b=>b.onclick=()=>{STATE.teamsMode=b.dataset.tmode;renderTeams();});}
+  return `<div class="subnav" style="margin-bottom:16px">${b("current","Rosters 2025/26")}${b("next","Rosters 2026/27")}${b("fa","Free agents 26/27")}</div>`;}
+function wireTeamsToggle(){$$("[data-tmode]").forEach(b=>b.onclick=()=>{STATE.teamsMode=b.dataset.tmode;STATE.curTeam=null;renderTeams();});}
 function reRenderTeams(){(STATE.teamsMode==="fa"?renderFreeAgents:renderTeamsNext)();}
 function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
   const teams=allClubs().slice().sort((a,b)=>a.name.localeCompare(b.name));
@@ -3654,7 +3663,7 @@ function renderTeamsNext(){
       <div class="agtableWrap"><table class="agtable rbtable">${RBCOLS}<thead>${RBHEAD}</thead><tbody>${rows}</tbody></table></div>
       <div class="rbAddInline"><input class="rbTeamAdd" data-tk="${escAttr(t.key)}" data-i="${i}" placeholder="Add a player to ${escAttr(t.name)}\u2026" autocomplete="off"/><div class="rbSug" id="rbSug${i}"></div></div></div>`;};
   $("#app").innerHTML=`<div class="view">
-    <h1 class="title">Teams \u00b7 2026/27</h1>
+    <h1 class="title">Rosters \u00b7 2026/27</h1>
     <div class="sub" style="margin-bottom:14px">Manually build next-season rosters \u2014 assign players who\u2019ve signed to their new club. <b>${placed}</b> placed so far.</div>
     ${teamsModeToggle()}
     ${transferInboxHTML()}
@@ -4109,9 +4118,9 @@ function printScoutingMatchup(va,vb){
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
 const LEAGUE_FLAG={euroleague:"\uD83C\uDDEA\uD83C\uDDFA",eurocup:"\uD83C\uDDEA\uD83C\uDDFA",bcl:"\uD83C\uDDEA\uD83C\uDDFA",aba:"\uD83C\uDDEA\uD83C\uDDFA",bnxt:"\uD83C\uDDEA\uD83C\uDDFA",
   acb:"\uD83C\uDDEA\uD83C\uDDF8",lba:"\uD83C\uDDEE\uD83C\uDDF9",bbl:"\uD83C\uDDE9\uD83C\uDDEA",lnb:"\uD83C\uDDEB\uD83C\uDDF7",sbl:"\uD83C\uDDF8\uD83C\uDDEA",
-  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
+  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",vtb:"\uD83C\uDDEA\uD83C\uDDFA",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
 function leagueFlag(id){return LEAGUE_FLAG[id]||"\uD83C\uDDEA\uD83C\uDDFA";}
-const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F",lkl:"#7AA35C"};
+const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F",lkl:"#7AA35C",vtb:"#8E7CC3"};
 const ROLE_COLORS={Guard:"#8E86C9",Forward:"#6FA39B",Big:"#C99A3C"};
 function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
 function chartColor(p,by){return by==="role"?(ROLE_COLORS[p.role]||"#9aa0aa"):(LEAGUE_COLORS[p.league]||"#9aa0aa");}
@@ -5030,7 +5039,7 @@ function openTeamBoard(k,label,hi){
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL",lkl:"LKL"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL",lkl:"LKL",vtb:"VTB"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -5040,41 +5049,64 @@ function openTeamBoard(k,label,hi){
 function renderTeams(){
   if(STATE.teamsMode==="next")return renderTeamsNext();
   if(STATE.teamsMode==="fa")return renderFreeAgents();
-  const all=STATE.allLeagues;
-  const q=normName(STATE.teamQ||"");
-  const pool=all?allTeamsFlat():STATE.league.teams.map(t=>({...t,_lid:STATE.league.meta.id}));
-  let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
-  if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
-  if(all&&STATE.teamLgFilter)teams=teams.filter(t=>t._lid===STATE.teamLgFilter);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL",lkl:"LKL"};
+  return renderTeamsCurrent();
+}
+function renderTeamsCurrent(){
+  const cur=STATE.curTeam;
+  if(cur)return renderCurRoster(cur.lg,cur.code);
+  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition);
+  const sel=STATE.curLg||"";
+  const q=normClub(STATE.teamQ||"");
+  let cards=[];
+  lgs.forEach(L=>{ if(sel&&L.meta.id!==sel)return;
+    (L.teams||[]).forEach(t=>{ if(q&&!normClub(t.name).includes(q)&&!normClub(t.city||"").includes(q))return;
+      const n=L.players.filter(p=>p.team===t.code).length;
+      cards.push({lg:L.meta.id,lgName:L.meta.name,code:t.code,name:t.name,n});});});
+  cards.sort((a,b)=>a.lgName.localeCompare(b.lgName)||a.name.localeCompare(b.name));
   $("#app").innerHTML=`<div class="view">
-    <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
-    <div class="sub">${all?`Every club across <b>${STATE.data.leagues.length}</b> competitions \u00b7 use the chips to narrow`:`Regular season standings \u00b7 ${STATE.league.meta.season}`}</div>
-    ${scopeChips()}
+    <h1 class="title">Teams \u00b7 2025/26</h1>
+    <div class="sub" style="margin-bottom:14px">Pick a league, then open a club to see this season\u2019s roster.</div>
     ${teamsModeToggle()}
     ${transferInboxHTML()}
-    <div class="controls"><input type="text" id="teamSearch" placeholder="Search teams\u2026" value="${STATE.teamQ||""}" style="min-width:220px"/>
-      ${all?`<select id="teamLgSel"><option value="">All leagues</option>${STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>`<option value="${L.meta.id}"${STATE.teamLgFilter===L.meta.id?" selected":""}>${esc(L.meta.name)}</option>`).join("")}</select>`:""}
-      ${STATE.teamQ?`<span class="hint">${teams.length} match${teams.length===1?"":"es"}</span>`:""}</div>
-    <div class="tablewrap"><table>
-      <thead><tr>${all?"":'<th class="l">#</th>'}<th class="l">TEAM</th>${all?'<th class="l">LG</th>':''}<th class="l">COUNTRY</th>
-        <th>W</th><th>L</th><th>WIN%</th><th>PPG</th><th>OPP PPG</th><th>NET</th><th>ROSTER</th></tr></thead>
-      <tbody>${teams.length?teams.map(t=>`<tr class="clickteam" data-team="${t.code}" data-lg="${t._lid}">${all?"":`<td class="l" style="color:var(--muted)">${t.group?t.group+t.rank:t.rank}</td>`}
-        <td class="l"><span class="pname">${t.name}</span> <span class="pteam">${t.city}</span></td>
-        ${all?`<td class="l"><span class="badge">${LGB[t._lid]||t._lid}</span></td>`:''}
-        <td class="l pteam">${t.country}</td><td>${t.w}</td><td>${t.l}</td><td>${fmt(t.winPct)}</td>
-        <td>${fmt(t.ppg)}</td><td>${fmt(t.oppg)}</td>
-        <td style="color:${t.net>0?"var(--good)":"var(--bad)"}">${t.net>0?"+":""}${fmt(t.net)}</td>
-        <td>${t.rosterCount}</td></tr>`).join(""):`<tr><td colspan="11" class="l" style="padding:16px;color:var(--muted)">No teams match “${STATE.teamQ}”.</td></tr>`}
-      </tbody></table></div>
-    <p class="hint" style="margin-top:10px">Click a team for its roster, stats, standings and game log.</p>
+    <div class="rbFilters">
+      <select id="curLgSel"><option value="">All leagues</option>${lgs.map(L=>`<option value="${L.meta.id}"${sel===L.meta.id?" selected":""}>${esc(L.meta.name)}</option>`).join("")}</select>
+      <input id="curTeamQ" placeholder="Search club\u2026" value="${escAttr(STATE.teamQ||"")}" autocomplete="off"/>
+    </div>
+    ${cards.length?`<div class="tmGrid">${cards.map(c=>`<button class="tmCard" data-lg="${c.lg}" data-code="${escAttr(c.code)}">
+      <span class="tmName">${esc(c.name)}</span>
+      <span class="tmMeta"><span class="tmLg">${leagueFlag(c.lg)} ${esc(c.lgName)}</span><span class="tmN">${c.n}</span></span>
+    </button>`).join("")}</div>`:`<div class="empty" style="margin-top:16px">No clubs match.</div>`}
   </div>`;
-  const ts=$("#teamSearch");
-  if(ts){ts.oninput=()=>{STATE.teamQ=ts.value;const pos=ts.selectionStart;renderTeams();const el=$("#teamSearch");if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(e){}}};}
-  const tls=$("#teamLgSel");if(tls)tls.onchange=()=>{STATE.teamLgFilter=tls.value;renderTeams();};
-  $$("#app tbody tr.clickteam").forEach(tr=>tr.onclick=()=>openTeamIn(tr.dataset.lg,tr.dataset.team));
-  wireTeamsToggle();
-  wireTransferInbox();
+  wireTeamsToggle(); wireTransferInbox();
+  const ls=$("#curLgSel");if(ls)ls.onchange=()=>{STATE.curLg=ls.value;renderTeams();};
+  const tq=$("#curTeamQ");if(tq)tq.oninput=()=>{STATE.teamQ=tq.value;const p=tq.selectionStart;renderTeams();
+    const el=$("#curTeamQ");if(el){el.focus();try{el.setSelectionRange(p,p);}catch(e){}}};
+  $$(".tmCard").forEach(b=>b.onclick=()=>{STATE.curTeam={lg:b.dataset.lg,code:b.dataset.code};renderTeams();try{window.scrollTo(0,0);}catch(e){}});
+}
+function renderCurRoster(lgId,code){
+  const L=(STATE.data.leagues||[]).find(x=>x.meta.id===lgId); if(!L){STATE.curTeam=null;return renderTeams();}
+  const t=(L.teams||[]).find(x=>x.code===code)||{name:code};
+  const roster=L.players.filter(p=>p.team===code).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+  const ph=p=>`<span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const rows=roster.map(p=>{const g=statGradeOverall(p);
+    return `<tr data-pid="${p.id}">
+      <td class="agp"><span class="agpInner">${ph(p)}<span class="agpName">${p.name}</span></span></td>
+      <td>${posLabel(p)}</td><td class="rbNat">${p.country||"\u2014"}</td>
+      <td class="num">${p.height?p.height+"cm":"\u2014"}</td><td class="num">${p.age!=null?p.age:"\u2014"}</td>
+      <td class="num">${p.g!=null?p.g:"\u2014"}</td>
+      <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td><td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
+      <td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
+      <td class="num"><b class="agscore">${g!=null?g.toFixed(1):"\u2014"}</b></td></tr>`;}).join("");
+  const cols=`<colgroup><col style="width:26%"><col style="width:9%"><col style="width:15%"><col style="width:8%"><col style="width:6%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:9%"></colgroup>`;
+  const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th class="num">GP</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th></tr>`;
+  $("#app").innerHTML=`<div class="view">
+    <button class="btn ghost" id="curBack">\u2190 All teams</button>
+    <h1 class="title" style="margin-top:10px">${esc(t.name)} <span class="rbClubLg">${leagueFlag(lgId)} ${esc(L.meta.name)}</span></h1>
+    <div class="sub" style="margin-bottom:14px">2025/26 roster \u00b7 ${roster.length} player${roster.length===1?"":"s"}</div>
+    ${roster.length?`<div class="agtableWrap"><table class="agtable rbtable">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="empty">No players recorded for this club.</div>`}
+  </div>`;
+  $("#curBack").onclick=()=>{STATE.curTeam=null;renderTeams();};
+  $$("#app tbody tr[data-pid]").forEach(tr=>tr.onclick=()=>openProfile(tr.dataset.pid));
 }
 
 /* ---------- Team page ---------- */
@@ -5195,7 +5227,7 @@ function renderTeam(){
 /* ---------- Glossary ---------- */
 function renderGlossary(){
   const guide=[
-    ["Getting around","EuroScout covers sixteen competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus thirteen domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania), the Turkish BSL and the Lithuanian LKL. The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
+    ["Getting around","EuroScout covers seventeen competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus thirteen domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania), the Turkish BSL, the Lithuanian LKL and the regional VTB United League. The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
     ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all eleven competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
     ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
     ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side \u2014 pick the two clubs playing and their full rosters appear sorted by jersey number, so you can bounce between the two benches during a live game. Tap any player for the full card, or \u21c4 Swap to flip sides."],
