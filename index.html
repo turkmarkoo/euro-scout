@@ -836,6 +836,9 @@ body.drawer-lock{overflow:hidden}
 .filtx{border:none;background:none;color:var(--muted);cursor:pointer;font-size:11px}
 .filtx:hover{color:var(--bad)}
 @media(max-width:820px){.cmpWrap{grid-template-columns:1fr}}
+.clubBadge{display:inline-flex;align-items:center;justify-content:center;width:var(--bs,20px);height:var(--bs,20px);flex:0 0 auto;margin-right:7px}
+.clubBadge img{max-width:100%;max-height:100%;object-fit:contain}
+.tmCard{flex-direction:row;flex-wrap:wrap}
 .tmGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .tmCard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;cursor:pointer;font:inherit;color:var(--txt);transition:.13s}
 .tmCard:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-1px)}
@@ -1453,7 +1456,7 @@ function set26(pid,key){const m=next26Get();const p=player(pid);
   if(key)m[p?gid(p):pid]=canonKey(key);
   next26Set(m);}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
-function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,code:t.code}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
+function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:t.conference||L.meta.name,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
 
 /* ---------- clubs: one entry per real club, tagged with every competition it plays ---------- */
 let CLUBS=null, CLUB_BY_TEAMKEY=null;
@@ -1498,6 +1501,12 @@ function buildClubs(){
   return CLUBS;
 }
 function allClubs(){if(!CLUBS)allDbTeams();return CLUBS;}
+function clubLogo(c){if(!c)return null;
+  if(c.logo)return c.logo;
+  const t=(c.teams||[]).find(x=>x.logo); if(t)return t.logo;
+  const dbt=(c.key?dbTeamByKey(c.key):null); return (dbt&&dbt.logo)||null;}
+function clubBadge(c,size){const u=clubLogo(c);
+  return u?`<span class="clubBadge" style="--bs:${size||20}px"><img src="${u}" loading="lazy" onerror="this.parentNode.remove()"/></span>`:"";}
 function clubForTeamKey(k){if(!CLUB_BY_TEAMKEY)allDbTeams();return CLUB_BY_TEAMKEY.get(k)||null;}
 function clubByKey(k){if(!CLUBS)allDbTeams();return CLUBS.find(c=>c.key===k)||clubForTeamKey(k)||null;}
 function canonKey(k){const c=clubForTeamKey(k);return c?c.key:k;}
@@ -2009,7 +2018,7 @@ function muState(){try{return JSON.parse(localStorage.getItem(MU_KEY))||{}}catch
 function muSave(o){if(!Store.canEdit())return;localStorage.setItem(MU_KEY,JSON.stringify(o));try{Sync.stampKey(MU_KEY);}catch(e){}try{Store.pushAppKey(MU_KEY);}catch(e){}}
 function muInit(){
   const bar=$("#matchupBar");if(!bar)return;
-  const opts=[];STATE.data.leagues.filter(L=>!L.meta.exhibition).forEach(L=>L.teams.forEach(t=>opts.push({v:L.meta.id+"|"+t.code,n:t.name,lg:L.meta.name,s:(t.name+" "+t.code).toLowerCase()})));
+  const opts=[];STATE.data.leagues.filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly).forEach(L=>L.teams.forEach(t=>opts.push({v:L.meta.id+"|"+t.code,n:t.name,lg:L.meta.name,s:(t.name+" "+t.code).toLowerCase()})));
   const paint=()=>{
     const st=muState(),host=$("#muPills");if(!host)return;
     const pill=v=>{if(!v)return "";const[l,c]=v.split("|");
@@ -2412,7 +2421,7 @@ function daysAgo(iso){if(!iso)return null;const d=new Date(iso+"T00:00:00");if(i
 function freshLabel(iso){const n=daysAgo(iso);if(n==null)return "—";
   if(n<=0)return "today";if(n===1)return "yesterday";if(n<30)return n+" days ago";
   const mo=Math.round(n/30);return mo<=1?"~1 month ago":"~"+mo+" months ago";}
-function freshnessRows(){return STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>{
+function freshnessRows(){return STATE.data.leagues.filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly).map(L=>{
   const last=leagueLastGame(L);return {id:L.meta.id,name:L.meta.name,last,label:freshLabel(last)};});}
 function newestOf(p){if(!p._grp||p._grp.length<2)return p;
   return p._grp.slice().sort((a,b)=>lastGameDate(b).localeCompare(lastGameDate(a)))[0];}
@@ -2667,8 +2676,8 @@ function statsSubNav(active){
   return `<div class="subnav">${[["players","Stats"],["compare","Compare"],["charts","Charts"]].map(([v,l])=>`<button class="subnavbtn ${active===v?"on":""}" onclick="goView('${v}')">${l}</button>`).join("")}</div>`;
 }
 
-function allTeamsFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.teams.forEach(t=>a.push({...t,_lid:L.meta.id}));});return a;}
-function allPlayersFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(p=>a.push(p));});return a;}
+function allTeamsFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;L.teams.forEach(t=>a.push({...t,_lid:L.meta.id}));});return a;}
+function allPlayersFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;L.players.forEach(p=>a.push(p));});return a;}
 function isExhib(p){const L=p&&STATE.data.leagues.find(l=>l.meta.id===p.league);return !!(L&&L.meta.exhibition);}
 function leaguePlayers(){return STATE.allLeagues?allPlayersFlat():STATE.league.players;}
 function player(id){for(const L of STATE.data.leagues){const p=L.players.find(x=>x.id===id);if(p)return p;}return null;}
@@ -2690,7 +2699,7 @@ function setScope(id){
 function scopeChips(){
   const cur=STATE.allLeagues?"all":STATE.league.meta.id;
   const chip=(id,lab)=>`<button class="scopechip ${cur===id?"on":""}" onclick="setScope('${id}')">${lab}</button>`;
-  return `<div class="scopechips">${chip("all","All competitions")}${STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>chip(L.meta.id,L.meta.name)).join("")}</div>`;
+  return `<div class="scopechips">${chip("all","All competitions")}${STATE.data.leagues.filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly).map(L=>chip(L.meta.id,L.meta.name)).join("")}</div>`;
 }
 function renderPlayers(){
   const all=STATE.allLeagues, f=STATE.filters;
@@ -2717,7 +2726,7 @@ function renderPlayers(){
     <div class="controls">
       <input type="text" id="q" placeholder="Search player" value="${f.q}" style="min-width:200px"/>
       ${all?`<select class="f" id="teamF"><option value="">All teams</option>
-        ${STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>`<optgroup label="${L.meta.name}">${L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${L.meta.id}|${t.code}" ${f.team===L.meta.id+"|"+t.code?"selected":""}>${t.name}</option>`).join("")}</optgroup>`).join("")}</select>`
+        ${STATE.data.leagues.filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly).map(L=>`<optgroup label="${L.meta.name}">${L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${L.meta.id}|${t.code}" ${f.team===L.meta.id+"|"+t.code?"selected":""}>${t.name}</option>`).join("")}</optgroup>`).join("")}</select>`
       :`<select class="f" id="teamF"><option value="">All teams</option>
         ${teams.map(t=>`<option value="${t.code}" ${f.team===t.code?"selected":""}>${t.name}</option>`).join("")}</select>`}
       <select class="f" id="roleF"><option value="">All positions</option>
@@ -3067,7 +3076,7 @@ function scopePool(p){
   // Exhibitions/events (Summer League, national teams, G-League showcase, qualifiers…)
   // are ALWAYS ranked within their own event, never mixed into league/season pools.
   if(isExhib(p)) return leagueOf(p).players.filter(x=>x.qualified);
-  if(STATE.profileScope==="all"){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(x=>{if(x.qualified)a.push(x);});});return a;}
+  if(STATE.profileScope==="all"){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;L.players.forEach(x=>{if(x.qualified)a.push(x);});});return a;}
   return leagueOf(p).players.filter(x=>x.qualified);}
 function rankOf(pool,k,p){const lower=LOWER_BETTER.has(k);
   const vals=pool.map(x=>x[k]).filter(v=>v!=null&&!isNaN(v));const total=vals.length,v=p[k];
@@ -3103,7 +3112,7 @@ function showListModal(title,sub,rows){let m=$("#modal");
   $$("#modal .lrow[data-open]").forEach(r=>r.onclick=()=>{const id=r.dataset.open,lg=r.dataset.league;hideModal();openGlobal(lg,id);});
   const me=$("#modal .lrow.me");if(me)me.scrollIntoView({block:"center"});}
 function openLeaderboard(k,lab){const p=player(CURRENT),all=STATE.profileScope==="all";
-  const list=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(x=>{if(x.qualified&&(all||x.league===p.league))list.push({p:x,L});});});
+  const list=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;L.players.forEach(x=>{if(x.qualified&&(all||x.league===p.league))list.push({p:x,L});});});
   const lower=LOWER_BETTER.has(k);
   list.sort((a,b)=>lower?(a.p[k]-b.p[k]):(b.p[k]-a.p[k]));
   const tot=list.length;
@@ -3113,7 +3122,7 @@ function openLeaderboard(k,lab){const p=player(CURRENT),all=STATE.profileScope==
   const scopeLbl=all?"All players":leagueOf(p).meta.name;
   showListModal(lab+" \u00b7 leaderboard",scopeLbl+" \u00b7 "+tot+" qualified"+(lower?" \u00b7 lower is better":""),rows);}
 function openDbFilter(kind,val){
-  const list=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition)return;L.players.forEach(p=>{
+  const list=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;L.players.forEach(p=>{
     if(kind==="country"?p.country===val:String(p.born)===String(val))list.push({p,L});});});
   list.sort((a,b)=>(b.p.pir||0)-(a.p.pir||0));
   const rows=list.map(({p,L})=>pRow(p,L,{meta:fmt(p.ppg)+" pts \u00b7 "+fmt(p.rpg)+" reb \u00b7 "+fmt(p.apg)+" ast",right:"PIR "+fmt(p.pir)}));
@@ -3661,7 +3670,7 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
   const render=q=>{const qn=normClub(q||"");
     const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||t.teams.some(x=>normClub(x.city).includes(qn))||t.leagues.some(l=>normClub(l.name).includes(qn))):teams;
     listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
-      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}"><span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
+      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
     listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});};
   render("");
   const si=ov.querySelector("#tpSearch");si.oninput=()=>render(si.value);setTimeout(()=>si.focus(),30);
@@ -3740,7 +3749,7 @@ function renderTeamsNext(){
     </div>
     ${show.length?`<div class="tmGrid">${show.map(c=>{const n=(byTeam.get(c.key)||[]).length;
       return `<button class="tmCard" data-club="${escAttr(c.key)}">
-        <span class="tmName">${esc(c.name)}</span>
+        ${clubBadge(c,20)}<span class="tmName">${esc(c.name)}</span>
         <span class="tmMeta"><span class="tmLg">${c.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(c.leagues.map(l=>l.name).join(" \u00b7 "))}</span><span class="tmN${n?"":" zero"}">${n}</span></span>
       </button>`;}).join("")}</div>`:`<div class="empty" style="margin-top:16px">No clubs match.</div>`}
   </div>`;
@@ -3811,7 +3820,7 @@ function renderFreeAgents(){
       if(v==null||isNaN(v))return false;return v>=fl.min&&v<=fl.max;});});
   list.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
   const capped=list.slice(0,150);
-  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition);
+  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly);
   const ph=p=>`<span class="agpPhoto${photoOf(p)?"":" noimg"}">${photoOf(p)?`<img src="${photoOf(p)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
   const cols=`<colgroup><col style="width:21%"><col style="width:8%"><col style="width:12%"><col style="width:6%"><col style="width:5%"><col style="width:15%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:78px"></colgroup>`;
   const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th>Current club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
@@ -4149,7 +4158,7 @@ const CMP_ROWS=[["PTS","ppg",1],["REB","rpg",1],["AST","apg",1],["STL","spg",1],
 function cmpBioRow(la,lab,lb){return `<tr><td class="v">${la||"\u2013"}</td><td class="lbl">${lab}</td><td class="v">${lb||"\u2013"}</td></tr>`;}
 /* ---------- Scouting: two-team matchup, rosters side by side by jersey ---------- */
 function scoutingTeamOptions(cur){
-  const opts=STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>
+  const opts=STATE.data.leagues.filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly).map(L=>
     `<optgroup label="${L.meta.name}">`+
     L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>{
       const v=L.meta.id+"|"+t.code;
@@ -4448,7 +4457,7 @@ function renderCompare(){
   if(!STATE.compare.slots){STATE.compare.slots=[STATE.compare.a||null,STATE.compare.b||null,null,null];}
   const slots=STATE.compare.slots;
   const sel=(idx,cur)=>{
-    const opts=STATE.data.leagues.filter(L=>!L.meta.exhibition).map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("");
+    const opts=STATE.data.leagues.filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly).map(L=>`<optgroup label="${L.meta.name}">${groups.filter(p=>p.league===L.meta.id).sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}" ${cur===p.id?"selected":""}>${p.name} (${p.teamName})</option>`).join("")}</optgroup>`).join("");
     return `<div class="cbx" data-cbx="cmp${idx}">
       <input type="text" class="cbxin" id="cmp${idx}in" placeholder="Player ${idx+1}\u2026" autocomplete="off" value="${cur?player(cur).name:""}"/>
       <select class="cbxsel f" id="cmp${idx}"><option value="">\u2014 or pick from list \u2014</option>${opts}</select>
@@ -4872,7 +4881,7 @@ function renderScout(){
       </div>
 
       <div class="railsec"><div class="raillab">Leagues</div>
-        <div class="frows">${STATE.data.leagues.filter(L=>!L.meta.exhibition).slice().sort((a,b)=>(leagueTier({league:b.meta.id})-leagueTier({league:a.meta.id}))||a.meta.name.localeCompare(b.meta.name)).map(lgChip).join("")}</div>
+        <div class="frows">${STATE.data.leagues.filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly).slice().sort((a,b)=>(leagueTier({league:b.meta.id})-leagueTier({league:a.meta.id}))||a.meta.name.localeCompare(b.meta.name)).map(lgChip).join("")}</div>
       </div>
 
       <div class="railsec"><div class="raillab">Position</div>
@@ -5219,7 +5228,7 @@ function renderTeams(){
 function renderTeamsCurrent(){
   const cur=STATE.curTeam;
   if(cur)return renderCurRoster(cur.lg,cur.code);
-  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition);
+  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly);
   const sel=STATE.curLg||"";
   const q=normClub(STATE.teamQ||"");
   let cards=[];
@@ -5238,7 +5247,7 @@ function renderTeamsCurrent(){
       <input id="curTeamQ" placeholder="Search club\u2026" value="${escAttr(STATE.teamQ||"")}" autocomplete="off"/>
     </div>
     ${cards.length?`<div class="tmGrid">${cards.map(c=>`<button class="tmCard" data-lg="${c.lg}" data-code="${escAttr(c.code)}">
-      <span class="tmName">${esc(c.name)}</span>
+      ${clubBadge(c,20)}<span class="tmName">${esc(c.name)}</span>
       <span class="tmMeta"><span class="tmLg">${leagueFlag(c.lg)} ${esc(c.lgName)}</span><span class="tmN">${c.n}</span></span>
     </button>`).join("")}</div>`:`<div class="empty" style="margin-top:16px">No clubs match.</div>`}
   </div>`;
