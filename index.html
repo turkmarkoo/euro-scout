@@ -1396,14 +1396,61 @@ const NEXT26_KEY="euroscout:next26:v1";
 function next26Get(){try{return JSON.parse(localStorage.getItem(NEXT26_KEY)||"{}");}catch(e){return {};}}
 function next26Set(m){try{localStorage.setItem(NEXT26_KEY,JSON.stringify(m));}catch(e){}
   try{Sync.stampKey(NEXT26_KEY);}catch(e){} try{Store.pushAppKey(NEXT26_KEY);}catch(e){}}
-function effective26(p,m){m=m||next26Get();return m[p.id]||null;}        // returns team key or null (manual only)
-function set26(pid,key){const m=next26Get();if(key)m[pid]=key;else delete m[pid];next26Set(m);}
+function effective26(p,m){m=m||next26Get();const k=m[p.id];return k?canonKey(k):null;}   // resolved to the club, shared across its competitions
+function set26(pid,key){const m=next26Get();if(key)m[pid]=canonKey(key);else delete m[pid];next26Set(m);}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
-function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,code:t.code}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));return out;}
+function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(L.meta.exhibition)return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,code:t.code}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
+
+/* ---------- clubs: one entry per real club, tagged with every competition it plays ---------- */
+let CLUBS=null, CLUB_BY_TEAMKEY=null;
+const CLUB_STOP=new Set(["basket","basketball","basketbol","bc","kk","cb","bk","club","sport","sports","spor","team","pallacanestro","kosarkarski","baloncesto","bbc","sk","cs","csm","csu","fc"]);
+function clubTokens(name){return normClub(name).split(" ").filter(w=>w.length>=4&&!CLUB_STOP.has(w));}
+function tokEq(a,b){if(a===b)return true;const m=Math.min(a.length,b.length);return m>=5&&(a.slice(0,m)===b.slice(0,m));}
+function sameClub(a,b){
+  if(a.lg===b.lg)return false;                       // never merge inside one competition
+  const na=normClub(a.name), nb=normClub(b.name);
+  if(!na||!nb)return false;
+  if(na===nb)return true;
+  const wa=" "+na+" ", wb=" "+nb+" ";
+  if(wa.includes(wb)||wb.includes(wa))return true;   // whole-word containment only ("Aris" must not match "Paris")
+  const ta=clubTokens(a.name), tb=clubTokens(b.name);
+  if(!ta.length||!tb.length)return false;
+  let shared=0;ta.forEach(x=>{if(tb.some(y=>tokEq(x,y)))shared++;});
+  if(!shared)return false;
+  const union=new Set([...ta,...tb]).size;
+  return shared/union>=0.34;
+}
+function buildClubs(){
+  const teams=DBTEAM_LIST;
+  const parent=teams.map((_,i)=>i);
+  const find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
+  const lgSet=teams.map(t=>new Set([t.lg]));   // a club can appear only once per competition
+  const uni=(i,j)=>{const a=find(i),b=find(j);if(a===b)return;
+    for(const l of lgSet[b])if(lgSet[a].has(l))return;   // would duplicate a competition -> not the same club
+    parent[b]=a;lgSet[b].forEach(l=>lgSet[a].add(l));};
+  for(let i=0;i<teams.length;i++)for(let j=i+1;j<teams.length;j++){if(sameClub(teams[i],teams[j]))uni(i,j);}
+  const groups=new Map();
+  teams.forEach((t,i)=>{const r=find(i);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(t);});
+  CLUBS=[];CLUB_BY_TEAMKEY=new Map();
+  groups.forEach(members=>{
+    members.sort((a,b)=>b.name.length-a.name.length);   // keep the fullest official name
+    const club={key:members.map(m=>m.key).sort()[0],name:members[0].name,
+      country:(members.find(m=>m.country)||{}).country||"",
+      leagues:members.map(m=>({id:m.lg,name:m.lgName})),teams:members};
+    CLUBS.push(club);
+    members.forEach(m=>CLUB_BY_TEAMKEY.set(m.key,club));
+  });
+  CLUBS.sort((a,b)=>a.name.localeCompare(b.name));
+  return CLUBS;
+}
+function allClubs(){if(!CLUBS)allDbTeams();return CLUBS;}
+function clubForTeamKey(k){if(!CLUB_BY_TEAMKEY)allDbTeams();return CLUB_BY_TEAMKEY.get(k)||null;}
+function clubByKey(k){if(!CLUBS)allDbTeams();return CLUBS.find(c=>c.key===k)||clubForTeamKey(k)||null;}
+function canonKey(k){const c=clubForTeamKey(k);return c?c.key:k;}
 function dbTeamByKey(k){if(!DBTEAM_BYKEY)allDbTeams();return DBTEAM_BYKEY.get(k)||null;}
 function openTeamPickerProfile(pid){openTeamPicker(pid,()=>{if(typeof openProfile==="function")openProfile(pid);});}
-function next26CellHTML(p){const k=effective26(p);const t=k?dbTeamByKey(k):null;
-  if(t)return `<b>${esc(t.name)}</b><div class="bisub">${esc(t.lgName)}</div><span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 team"><span class="bioaddhint">change</span></span>`;
+function next26CellHTML(p){const k=effective26(p);const c=k?clubByKey(k):null;
+  if(c)return `<b>${esc(c.name)}</b><div class="bisub">${(c.leagues||[]).map(l=>esc(l.name)).join(" \u00b7 ")}</div><span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 team"><span class="bioaddhint">change</span></span>`;
   return `<span class="bioadd n26fa" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Assign a 26/27 team"><b>Free agent</b> <span class="bioaddhint">sign</span></span>`;}
 /* ---------- transfer approval inbox (review only, never auto-commit) ---------- */
 const TR_HANDLED_KEY="euroscout:trHandled:v1";
@@ -1516,7 +1563,7 @@ async function setEyeGrade(p,axisKey,val){
 const LEAGUE_TIER={
   euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
   bbl:0.82, lnb:0.82, il:0.80, gbl:0.86, bnxt:0.72, sbl:0.60, sl:0.78,
-  plk:0.78, bcl:0.86, rou:0.62
+  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84
 };
 function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
 /* overall stats grade 0-10 for the board headline: a production-quality measure,
@@ -2628,7 +2675,7 @@ function renderPlayers(){
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
-      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
+      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU',bsl:'BSL'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k],c.d==null?1:c.d)}</td>`).join("")}
@@ -3530,7 +3577,7 @@ function teamsModeToggle(){const md=STATE.teamsMode||"current";
 function wireTeamsToggle(){$$("[data-tmode]").forEach(b=>b.onclick=()=>{STATE.teamsMode=b.dataset.tmode;renderTeams();});}
 function reRenderTeams(){(STATE.teamsMode==="fa"?renderFreeAgents:renderTeamsNext)();}
 function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
-  const teams=allDbTeams().slice().sort((a,b)=>a.lgName.localeCompare(b.lgName)||a.name.localeCompare(b.name));
+  const teams=allClubs().slice().sort((a,b)=>a.name.localeCompare(b.name));
   const cur=effective26(p);
   closeTeamPicker();
   const ov=document.createElement("div");ov.className="tpOverlay";ov.id="tpOverlay";
@@ -3540,9 +3587,9 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
   document.body.appendChild(ov);
   const listEl=ov.querySelector("#tpList");
   const render=q=>{const qn=normClub(q||"");
-    const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||normClub(t.city).includes(qn)||normClub(t.lgName).includes(qn)):teams;
+    const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||t.teams.some(x=>normClub(x.city).includes(qn))||t.leagues.some(l=>normClub(l.name).includes(qn))):teams;
     listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
-      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}"><span class="tpName">${esc(t.name)}</span><span class="tpLg">${esc(t.lgName)}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
+      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}"><span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
     listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});};
   render("");
   const si=ov.querySelector("#tpSearch");si.oninput=()=>render(si.value);setTimeout(()=>si.focus(),30);
@@ -3592,18 +3639,18 @@ function wireTransferInbox(){
 function renderTeamsNext(){
   const m=next26Get(),pool=scoutPool();
   const byTeam=new Map();
-  pool.forEach(p=>{const k=m[p.id];if(k){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
-  const dbTeams=allDbTeams();
-  const lgs=[...new Set(dbTeams.map(t=>t.lgName))];
+  pool.forEach(p=>{const k=effective26(p,m);if(k){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
+  const clubs=allClubs();
+  const lgs=[...new Set(allDbTeams().map(t=>t.lgName))];
   const lgSel=STATE.next26Lg||"",q=normClub(STATE.next26Q||"");
   let show;
-  if(lgSel||q){show=dbTeams.filter(t=>(!lgSel||t.lgName===lgSel)&&(!q||normClub(t.name).includes(q)||normClub(t.city).includes(q)));}
-  else{show=dbTeams.filter(t=>byTeam.has(t.key));}
+  if(lgSel||q){show=clubs.filter(c=>(!lgSel||c.leagues.some(l=>l.name===lgSel))&&(!q||normClub(c.name).includes(q)||c.teams.some(t=>normClub(t.city).includes(q))));}
+  else{show=clubs.filter(c=>byTeam.has(c.key));}
   show.sort((a,b)=>((byTeam.get(b.key)||[]).length-(byTeam.get(a.key)||[]).length)||a.name.localeCompare(b.name));
   const placed=[...byTeam.values()].reduce((s,a)=>s+a.length,0);
   const teamCard=(t,i)=>{const players=(byTeam.get(t.key)||[]).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
     const rows=players.length?players.map(p=>rbRow(p,`<button class="rbAct" data-reassign="${p.id}" title="Change team">\u21c4</button><button class="rbAct del" data-drop="${p.id}" title="Remove from roster">\u2715</button>`)).join(""):`<tr class="rbEmptyRow"><td colspan="10">No players yet \u2014 add signings below.</td></tr>`;
-    return `<div class="rbClub"><div class="rbClubHead"><span class="rbClubName">${esc(t.name)}</span><span class="rbClubLg">${esc(t.lgName)}</span><span class="rbClubCount">${players.length} player${players.length===1?"":"s"}</span></div>
+    return `<div class="rbClub"><div class="rbClubHead"><span class="rbClubName">${esc(t.name)}</span>${(t.leagues||[{name:t.lgName}]).map(l=>`<span class="rbClubLg">${esc(l.name)}</span>`).join("")}<span class="rbClubCount">${players.length} player${players.length===1?"":"s"}</span></div>
       <div class="agtableWrap"><table class="agtable rbtable">${RBCOLS}<thead>${RBHEAD}</thead><tbody>${rows}</tbody></table></div>
       <div class="rbAddInline"><input class="rbTeamAdd" data-tk="${escAttr(t.key)}" data-i="${i}" placeholder="Add a player to ${escAttr(t.name)}\u2026" autocomplete="off"/><div class="rbSug" id="rbSug${i}"></div></div></div>`;};
   $("#app").innerHTML=`<div class="view">
@@ -4062,9 +4109,9 @@ function printScoutingMatchup(va,vb){
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
 const LEAGUE_FLAG={euroleague:"\uD83C\uDDEA\uD83C\uDDFA",eurocup:"\uD83C\uDDEA\uD83C\uDDFA",bcl:"\uD83C\uDDEA\uD83C\uDDFA",aba:"\uD83C\uDDEA\uD83C\uDDFA",bnxt:"\uD83C\uDDEA\uD83C\uDDFA",
   acb:"\uD83C\uDDEA\uD83C\uDDF8",lba:"\uD83C\uDDEE\uD83C\uDDF9",bbl:"\uD83C\uDDE9\uD83C\uDDEA",lnb:"\uD83C\uDDEB\uD83C\uDDF7",sbl:"\uD83C\uDDF8\uD83C\uDDEA",
-  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
+  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
 function leagueFlag(id){return LEAGUE_FLAG[id]||"\uD83C\uDDEA\uD83C\uDDFA";}
-const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8"};
+const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F"};
 const ROLE_COLORS={Guard:"#8E86C9",Forward:"#6FA39B",Big:"#C99A3C"};
 function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
 function chartColor(p,by){return by==="role"?(ROLE_COLORS[p.role]||"#9aa0aa"):(LEAGUE_COLORS[p.league]||"#9aa0aa");}
@@ -4983,7 +5030,7 @@ function openTeamBoard(k,label,hi){
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -4999,7 +5046,7 @@ function renderTeams(){
   let teams=pool.slice().sort((a,b)=>all?(STATE.data.leagues.findIndex(x=>x.meta.id===a._lid)-STATE.data.leagues.findIndex(x=>x.meta.id===b._lid))||a.rank-b.rank:((a.group||"").localeCompare(b.group||"")||a.rank-b.rank));
   if(q)teams=teams.filter(t=>normName(t.name).includes(q)||normName(t.city||"").includes(q)||normName(t.country||"").includes(q));
   if(all&&STATE.teamLgFilter)teams=teams.filter(t=>t._lid===STATE.teamLgFilter);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL"};
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">${all?"All teams":STATE.league.meta.name+" teams"}</h1>
     <div class="sub">${all?`Every club across <b>${STATE.data.leagues.length}</b> competitions \u00b7 use the chips to narrow`:`Regular season standings \u00b7 ${STATE.league.meta.season}`}</div>
@@ -5148,7 +5195,7 @@ function renderTeam(){
 /* ---------- Glossary ---------- */
 function renderGlossary(){
   const guide=[
-    ["Getting around","EuroScout covers fourteen competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus eleven domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) and Liga Nationala (Romania). The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
+    ["Getting around","EuroScout covers fifteen competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus twelve domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania) and the Turkish BSL. The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
     ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all eleven competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
     ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
     ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side \u2014 pick the two clubs playing and their full rosters appear sorted by jersey number, so you can bounce between the two benches during a live game. Tap any player for the full card, or \u21c4 Swap to flip sides."],
