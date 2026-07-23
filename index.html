@@ -623,7 +623,6 @@ body.drawer-lock{overflow:hidden}
 .pill b{color:var(--txt)}
 .pill.on{background:var(--txt);color:#fff;border-color:var(--txt)}
 .pill.on b{color:#fff}
-.tagcloud{display:flex;flex-wrap:wrap;gap:5px}
 .tagfilter{padding:4px 10px;border:1px solid var(--line);background:var(--panel);border-radius:14px;font-size:11.5px;color:var(--muted);cursor:pointer;font-family:var(--body)}
 .tagfilter:hover{border-color:var(--gold)}
 .tagfilter.on{background:var(--accent-soft);color:var(--accent-deep);border-color:var(--accent);font-weight:600}
@@ -642,11 +641,18 @@ body.drawer-lock{overflow:hidden}
 .fchip:hover{background:var(--accent);color:#fff}
 .fchipX{font-size:10px;opacity:.7}
 .agtable th.ctr,.agtable td.ctr{text-align:center}
+/* centred columns across roster / free-agent / agency tables */
+.agtable th,.agtable td{text-align:center}
+.agtable th.num,.agtable td.num{text-align:center}
+.agtable th:first-child,.agtable td.agp{text-align:left}
+.agtable td.agp .agpInner{justify-content:flex-start}
+.agtable td.agclub .agclubInner{align-items:center}
+.rbActs{text-align:center}
 .fchip:hover .fchipX{opacity:1}
 .fchip.clearall{border-color:var(--line);background:var(--panel);color:var(--muted);font-weight:500}
 .fchip.clearall:hover{border-color:var(--bad);background:var(--bad);color:#fff}
 .board{display:grid;grid-template-columns:repeat(auto-fill,minmax(345px,1fr));gap:14px}
-.scoutcard2{position:relative;display:grid;grid-template-columns:92px 1fr;grid-template-areas:"photo head" "strip strip" "summary summary" "tags tags";column-gap:15px;row-gap:11px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.15s;color:var(--txt);text-align:left}
+.scoutcard2{position:relative;display:grid;grid-template-columns:92px 1fr;grid-template-areas:"photo head" "style style" "strip strip" "dots dots" "summary summary";column-gap:15px;row-gap:11px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.15s;color:var(--txt);text-align:left}
 .scoutcard2:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-2px)}
 .scoutcard2.watched{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
 .scoutcard2 .sc2-corner{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:7px}
@@ -668,6 +674,18 @@ body.drawer-lock{overflow:hidden}
 .sc2-pos{font-size:12px;font-weight:700;padding:3px 11px;border-radius:999px}
 .scoutcard2 .cardtagbtn{border:none;background:none;font-size:13px;cursor:pointer;opacity:.4;padding:0}
 .scoutcard2 .cardtagbtn:hover{opacity:1}
+.sc2-style{grid-area:style;display:flex;align-items:center;gap:8px;border:1px solid;border-radius:10px;padding:8px 12px;flex-wrap:wrap;min-width:0}
+.sc2-styleLab{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--muted)}
+.sc2-style b{font-size:14px;font-family:var(--disp)}
+.sc2-stylePct{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.sc2-styleSec{font-size:10.5px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.sc2-dots{grid-area:dots;display:grid;grid-template-columns:1fr 1fr;gap:5px 14px}
+.sc2-drow{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.sc2-dk{font-size:11px;color:var(--muted)}
+.sc2-dd{display:flex;gap:3px;flex:0 0 auto}
+.sc2-dd i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.sc2-dd i.on{background:var(--accent)}
+.sc2-dd i.na{width:auto;height:auto;background:none}
 .sc2-strip{grid-area:strip;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:9px 2px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .sc2v{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
 .sc2v span{font-size:9.5px;color:var(--muted);font-weight:700;letter-spacing:.05em;line-height:1}
@@ -1432,11 +1450,6 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
 const WATCH_TAG="Watchlist";
-const TAG_LIBRARY=[
-  WATCH_TAG,"Shot creator","Microwave scorer","3&D","Floor spacer","Rim runner",
-  "Lob threat","Playmaker","Combo guard","Point forward","Stretch big","Rim protector",
-  "Switchable","Perimeter stopper","Motor","High feel","Two-way","Undersized","Project",
-  "Late bloomer","Sleeper","Injury risk"];
 
 /* Metric definitions for tables/bars */
 const PG_COLS = [
@@ -1712,7 +1725,7 @@ function applyOverrides(){
     const b=bioFor(p);
     p.hand=null;p.license=null;p.agent=null;p.agency=null;p.agentUrl=null;p._rgm=null;p.projLevel=null;
     if(b){ if(b.height!=null&&b.height!=="")p.height=Number(b.height); if(b.weight!=null&&b.weight!=="")p.weight=Number(b.weight);
-      if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.role){p.role=b.role;p.pos=b.role;} if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name;
+      if(b.country)p.country=b.country; if(b.pos)p.pos=b.pos; if(b.role){const _r=(b.role==="Wing"?"Forward":b.role);p.role=_r;p.pos=_r;} if(b.born!=null&&b.born!=="")p.born=Number(b.born); if(b.name)p.name=b.name;
       if(b.hand)p.hand=b.hand; if(b.license)p.license=b.license;
       if(b.agent)p.agent=b.agent; if(b.agency)p.agency=normAgency(b.agency); if(b.agentUrl)p.agentUrl=b.agentUrl; if(b.rgm)p._rgm=b.rgm;
       if(b.projLevel!=null&&b.projLevel!=="")p.projLevel=Number(b.projLevel); }
@@ -1802,7 +1815,7 @@ function openEditModal(id){
    +'<div class="editgrid">'
    +'<div class="efld" style="grid-column:1/-1"><label>Player name</label><input type="text" id="eName" value="'+esc(p.name||"")+'" autocomplete="off"/></div>'
    +efld("Height (cm)","eHeight",p.height||"")+efld("Weight (kg)","eWeight",p.weight||"")
-   +ecountryField(p.country||"")+esel("Position","ePos",p.role||"",["Guard","Wing","Big"])
+   +ecountryField(p.country||"")+esel("Position","ePos",p.role||"",["Guard","Forward","Big"])
    +efld("Year of birth","eBorn",p.born||"")+efld("Eurobasket / external profile link","eExt",p._ext||"")
    +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
    +'<div class="efld"><label>Agent</label><select id="eAgent"><option value="">— none —</option>'
@@ -2588,7 +2601,7 @@ function renderPlayers(){
       :`<select class="f" id="teamF"><option value="">All teams</option>
         ${teams.map(t=>`<option value="${t.code}" ${f.team===t.code?"selected":""}>${t.name}</option>`).join("")}</select>`}
       <select class="f" id="roleF"><option value="">All positions</option>
-        ${["Guard","Wing","Big"].map(r=>`<option ${f.role===r?"selected":""}>${r}</option>`).join("")}</select>
+        ${["Guard","Forward","Big"].map(r=>`<option ${f.role===r?"selected":""}>${r}</option>`).join("")}</select>
       <div class="seg"><button data-m="pg" class="${f.mode==="pg"?"active":""}">Per game</button>
         <button data-m="tot" class="${f.mode==="tot"?"active":""}">Totals</button>
         <button data-m="adv" class="${f.mode==="adv"?"active":""}">Advanced</button></div>
@@ -3125,9 +3138,9 @@ const SIM_KEYS=["pts40","ts","f3p","fgp","ftp","ast40","topg","usg","reb40","stl
 const ARCHETYPES=[
  {name:"Combo Guard",desc:"Scoring-first guard, low assist rate",c:"#C5824E"},
  {name:"Primary Creator",desc:"High-usage offensive engine",c:"#A96A38"},
- {name:"Floor General",desc:"Pass-first facilitator",c:"#C99A3C",roleBands:{Guard:"Floor General",Wing:"Point Forward",Big:"Playmaking Big"}},
+ {name:"Floor General",desc:"Pass-first facilitator",c:"#C99A3C",roleBands:{Guard:"Floor General",Forward:"Point Forward",Big:"Playmaking Big"}},
  {name:"Slashing Creator",desc:"Foul-drawing downhill driver",c:"#7E8CA0"},
- {name:"3&D",desc:"Shooting, defending, low usage",c:"#6E9F6A",roleBands:{Guard:"3&D Guard",Wing:"3&D Wing",Big:"3&D Forward"}},
+ {name:"3&D",desc:"Shooting, defending, low usage",c:"#6E9F6A",roleBands:{Guard:"3&D Guard",Forward:"3&D Forward",Big:"3&D Big"}},
  {name:"Complementary Guard",desc:"Low-usage backcourt role player",c:"#8C93A0"},
  {name:"Rim Protector",desc:"Shot-blocking interior anchor",c:"#6FA39B"},
  {name:"Interior Scorer",desc:"Post-scoring, rebounding big",c:"#B0663F"},
@@ -3138,7 +3151,7 @@ function archLabel(idx,p){const A=ARCHETYPES[idx];if(!A)return"";
   if(A.roleBands&&p&&p.role)return A.roleBands[p.role]||A.name;
   if(A.sizeBands&&p&&p.height){for(const b of A.sizeBands){if(p.height<=b[0])return b[1];}return A.sizeBands[A.sizeBands.length-1][1];}
   return A.name;}
-const ROLE_ORDER=["Guard","Wing","Big"];
+const ROLE_ORDER=["Guard","Forward","Big"];
 const ARCH_FILTERS=(()=>{const out=[];ARCHETYPES.forEach((A,i)=>{
   if(A.roleBands)ROLE_ORDER.forEach((r,ri)=>out.push({key:i+":"+ri,label:A.roleBands[r],c:A.c}));
   else if(A.sizeBands)A.sizeBands.forEach((b,bi)=>out.push({key:i+":"+bi,label:b[1],c:A.c}));
@@ -3228,7 +3241,7 @@ function playingStyleHTML(p){
     <div class="psRows">${rows}</div></div>`;
 }
 function simVec(p){ if(!p.pct)return null; const v=[]; for(const k of SIM_KEYS){const x=p.pct[k]; v.push(x==null?50:x);} return v; }
-const ROLE_IDX={Guard:0,Wing:1,Big:2};
+const ROLE_IDX={Guard:0,Forward:1,Big:2};
 function roleSteps(a,b){const ia=ROLE_IDX[a],ib=ROLE_IDX[b];return (ia==null||ib==null)?1:Math.abs(ia-ib);}
 function simComponents(a,b){ // returns {statSim, posSim, archSim} each 0-100
   const va=simVec(a),vb=simVec(b); if(!va||!vb)return null;
@@ -3391,13 +3404,8 @@ function levelBarometerHTML(p){
 }
 function posAbbr(p){
   const pos=(p.pos&&p.pos!=="-")?p.pos:(p.role||"");
-  const map={Guard:"G","Point Guard":"PG","Shooting Guard":"SG",Forward:"F","Small Forward":"SF","Power Forward":"PF",Wing:"W",Center:"C",Big:"C"};
+  const map={Guard:"G","Point Guard":"PG","Shooting Guard":"SG",Forward:"F","Small Forward":"SF","Power Forward":"PF",Center:"C",Big:"C"};
   return map[pos]||(pos?pos.slice(0,2).toUpperCase():"—");
-}
-function primaryArchetype(p){
-  const tags=playerTags(p).filter(t=>t!==WATCH_TAG);
-  const arch=tags.find(t=>TAG_LIBRARY.includes(t));
-  return arch||tags[0]||null;
 }
 function ageStr(p){
   if(p.age!=null)return p.age+" years";
@@ -3861,8 +3869,6 @@ function renderProfile(){
       <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
         <div><div class="nlab">Grade</div>
           <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${rec.rating>=n?"on":""}">\u2605</button>`).join("")}</div></div>
-        <div style="flex:1;min-width:220px"><div class="nlab">Tags</div>
-          <div class="tagsin" id="tags"></div></div>
       </div>
       <div class="notesgrid">
         ${noteSec("nAth","Athleticism","Frame, length, wingspan, explosiveness, speed, motor, conditioning\u2026",rep)}
@@ -3903,7 +3909,6 @@ function renderProfile(){
   requestAnimationFrame(syncDrNav);
   $$("#drawer .biochip.clk").forEach(c=>c.onclick=()=>filterByAttr(c.dataset.filter,c.dataset.val,c.dataset.lab));
   $$("#drawer .simrow").forEach(c=>c.onclick=()=>openProfile(c.dataset.id));
-  renderTags(p);
   if(!Store.canEdit()){$$("#drawer .notesec").forEach(t=>{t.readOnly=true;});$$("#eyeGrid input").forEach(s=>{s.disabled=true;});}
   const wt=$("#watchToggle");if(wt)wt.onclick=async()=>{await toggleTag(p.id,WATCH_TAG);renderProfile();};
   // eye-grade sliders → live radar + persist (debounced cloud write, instant local)
@@ -3923,17 +3928,6 @@ function renderProfile(){
   let tmr;NKEYS.forEach(k=>{const el=$("#"+k);if(el)el.oninput=()=>{$("#saveState").textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};});
 }
 
-function renderTags(p){
-  const rec=recOf(p),host=$("#tags");
-  const preset=["Buy","Watch","Pass","Upside","Ready now","Shooter","Defender","Playmaker","Injury risk"];
-  host.innerHTML=rec.tags.map(t=>`<span class="tag">${t}<button data-del="${t}">✕</button></span>`).join("")
-    +`<select class="f" id="tagAdd" style="padding:4px 8px"><option value="">+ tag</option>
-      ${preset.filter(t=>!rec.tags.includes(t)).map(t=>`<option>${t}</option>`).join("")}</select>`;
-  $$("#tags [data-del]").forEach(b=>b.onclick=async()=>{
-    await saveRec(p,{tags:recOf(p).tags.filter(x=>x!==b.dataset.del)});renderTags(p);});
-  $("#tagAdd").onchange=async e=>{if(!e.target.value)return;
-    await saveRec(p,{tags:[...recOf(p).tags,e.target.value]});renderTags(p);};
-}
 async function toggleWatch(id){const p=player(id)||{id};const on=playerTags(p).includes(WATCH_TAG);await toggleTag(id,WATCH_TAG);
   toast(on?"Removed from watchlist":"Added to watchlist");}
 
@@ -4063,7 +4057,7 @@ function printScoutingMatchup(va,vb){
 /* ---------- Charts: scatter (photo dots, choose axes) + distribution ---------- */
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
 const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0"};
-const ROLE_COLORS={Guard:"#8E86C9",Wing:"#6FA39B",Big:"#C99A3C"};
+const ROLE_COLORS={Guard:"#8E86C9",Forward:"#6FA39B",Big:"#C99A3C"};
 function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
 function chartColor(p,by){return by==="role"?(ROLE_COLORS[p.role]||"#9aa0aa"):(LEAGUE_COLORS[p.league]||"#9aa0aa");}
 function chartPool(){const c=STATE.charts;
@@ -4146,7 +4140,7 @@ function distSVG(pool,k,hi){
   </svg>`;
 }
 function chartLegendHTML(pool,by){
-  if(by==="role")return ["Guard","Wing","Big"].map(r=>`<span class="clgd"><i style="background:${ROLE_COLORS[r]}"></i>${r}</span>`).join("");
+  if(by==="role")return ["Guard","Forward","Big"].map(r=>`<span class="clgd"><i style="background:${ROLE_COLORS[r]}"></i>${r}</span>`).join("");
   const present=[...new Set(pool.map(p=>p.league))];
   return present.map(id=>{const L=STATE.data.leagues.find(l=>l.meta.id===id);return `<span class="clgd"><i style="background:${LEAGUE_COLORS[id]||'#9aa0aa'}"></i>${L?L.meta.name:id}</span>`;}).join("");
 }
@@ -4158,7 +4152,7 @@ function chartFiltersHTML(c){
     if(L)teamOpts+=L.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${t.code}"${c.fTeam===t.code?" selected":""}>${escAttr(t.name)}</option>`).join("");}
   const countries=[...new Set((c.fLeague&&c.fLeague!=="all"?(leagues.find(l=>l.meta.id===c.fLeague)||{players:[]}).players:allPlayersFlat()).filter(p=>p.qualified&&p.country).map(p=>p.country))].sort();
   const ctOpts=`<option value="">All countries</option>`+countries.map(ct=>`<option value="${escAttr(ct)}"${c.fCountry===ct?" selected":""}>${escAttr(ct)}</option>`).join("");
-  const roleOpts=`<option value="">All positions</option>`+["Guard","Wing","Big"].map(r=>`<option value="${r}"${c.fRole===r?" selected":""}>${r}</option>`).join("");
+  const roleOpts=`<option value="">All positions</option>`+["Guard","Forward","Big"].map(r=>`<option value="${r}"${c.fRole===r?" selected":""}>${r}</option>`).join("");
   return `<div class="chartfilters">
     <label class="chlab">League <select id="fLeague">${lgOpts}</select></label>
     <label class="chlab">Team <select id="fTeam"${(!c.fLeague||c.fLeague==="all")?" disabled":""}>${teamOpts}</select></label>
@@ -4516,7 +4510,6 @@ function renderWatchlist(){
   const row=p=>{
     const rec=recOf(p),og=statGradeOverall(p),band=levelBand(p),L=leagueOf(p);
     const stars=rec.rating?`<span class="wStars">${"★".repeat(rec.rating)}<span class="off">${"★".repeat(5-rec.rating)}</span></span>`:`<span class="wStars off">☆☆☆☆☆</span>`;
-    const tags=(rec.tags||[]).filter(t=>t!==WATCH_TAG).slice(0,4).map(t=>`<span class="wtag">${t}</span>`).join("");
     const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
     const form=formArrowHTML(p);
     return `<div class="wrow" data-id="${p.id}">
@@ -4629,8 +4622,6 @@ function renderScout(){
   const roleChip=([k,lab])=>{const on=s.roles.has(k);
     return `<button class="frow ${on?"on":""}" data-role="${k}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span>${lab}</button>`;};
   const statusChip=(k,lab,ct)=>`<button class="pill ${s.status===k?"on":""}" data-status="${k}">${lab}${ct!=null?` <b>${ct}</b>`:""}</button>`;
-  const tagChip=t=>{const on=s.tags.has(t);const isW=t===WATCH_TAG;
-    return `<button class="tagfilter ${on?"on":""} ${isW?"watch":""}" data-tag="${t}">${isW?"★ ":""}${t}</button>`;};
 
   $("#app").innerHTML=`<div class="scoutwrap">
     <aside class="scoutrail">
@@ -4659,11 +4650,6 @@ function renderScout(){
 
       <div class="railsec"><div class="raillab">Playing style${s.arch?` <button class="archClr" id="archClr" title="Clear">\u2715</button>`:""}</div>
         <div class="archfilters">${ARCH_FILTERS.map(a=>`<button class="archchip ${s.arch===a.key?"on":""}" data-arch="${a.key}"><span class="fdot" style="background:${s.arch===a.key?a.c:"transparent"}"></span>${a.label}</button>`).join("")}</div>
-      </div>
-
-
-      <div class="railsec"><div class="raillab">Tags</div>
-        <div class="tagcloud">${TAG_LIBRARY.filter(t=>t!==WATCH_TAG).map(t=>activeTags.includes(t)||true?tagChip(t):"").join("")}</div>
       </div>
 
       ${(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||s.q||s.arch||(s.filters&&s.filters.length))?`<button class="railclear" id="scoutClear">Clear all filters</button>`:""}
@@ -4743,38 +4729,10 @@ function renderScout(){
   $$(".board .scoutcard").forEach(c=>{
     c.onclick=e=>{
       if(e.target.closest(".cardwatch")){e.stopPropagation();const id=c.dataset.id;toggleTag(id,WATCH_TAG).then(renderScout);return;}
-      if(e.target.closest(".cardtagbtn")){e.stopPropagation();openCardTagMenu(c.dataset.id,e.target.closest(".cardtagbtn"));return;}
       openProfile(c.dataset.id);};});
   updateKbdSelection();
 }
 // Quick-tag popover on a board card — assign archetype tags without opening the profile
-function openCardTagMenu(id,anchor){
-  closeCardTagMenu();
-  const p=player(id); if(!p)return;
-  const cur=playerTags(p);
-  const menu=document.createElement("div");
-  menu.className="cardTagMenu"; menu.id="cardTagMenu";
-  menu.innerHTML=`<div class="ctmHead">Tag ${p.name.split(" ").slice(-1)[0]}</div>
-    <div class="ctmGrid">${TAG_LIBRARY.filter(t=>t!==WATCH_TAG).map(t=>`<button class="ctmTag ${cur.includes(t)?'on':''}" data-t="${escAttr(t)}">${t}</button>`).join("")}</div>`;
-  document.body.appendChild(menu);
-  const r=anchor.getBoundingClientRect();
-  menu.style.top=(window.scrollY+r.bottom+6)+"px";
-  menu.style.left=Math.max(8,Math.min(window.innerWidth-menu.offsetWidth-8,r.left))+"px";
-  menu.querySelectorAll(".ctmTag").forEach(b=>b.onclick=async e=>{e.stopPropagation();
-    await toggleTag(id,b.dataset.t); b.classList.toggle("on"); renderScout();});
-  setTimeout(()=>document.addEventListener("mousedown",cardTagOutside),0);
-}
-function cardTagOutside(e){if(!e.target.closest("#cardTagMenu")&&!e.target.closest(".cardtagbtn"))closeCardTagMenu();}
-function closeCardTagMenu(){const m=$("#cardTagMenu");if(m)m.remove();document.removeEventListener("mousedown",cardTagOutside);}
-
-/* ---------- Keyboard navigation (board) ---------- */
-let KBD_SEL=-1;
-function boardCards(){return [...document.querySelectorAll(".board .scoutcard")];}
-function updateKbdSelection(){
-  const cards=boardCards();
-  cards.forEach((c,i)=>c.classList.toggle("kbdsel",i===KBD_SEL));
-  if(KBD_SEL>=0&&cards[KBD_SEL])cards[KBD_SEL].scrollIntoView({block:"nearest"});
-}
 function moveKbd(delta){
   const cards=boardCards(); if(!cards.length)return;
   // figure columns from layout to make Up/Down move by a row
@@ -4798,7 +4756,7 @@ function jumpDrawerSection(dir){
   scr.scrollTo({top:Math.max(0,target-8),behavior:"smooth"});
 }
 function onGlobalKey(e){
-  if(e.key==="Escape"){ if($("#cardTagMenu")){closeCardTagMenu();return;} if(DRAWER_OPEN){closeDrawer();return;} }
+  if(e.key==="Escape"){ if(DRAWER_OPEN){closeDrawer();return;} }
   // don't hijack typing in inputs/textareas
   const tag=(e.target.tagName||"").toLowerCase();
   if(tag==="input"||tag==="textarea"||tag==="select"||e.target.isContentEditable)return;
@@ -4855,6 +4813,14 @@ function removeChip(key,s){
   else if(key==="sim")s.simRef=null;
   else if(key.startsWith("f:"))s.filters.splice(+key.slice(2),1);
 }
+function skillProfile(p){const q=p.pct||{};
+  const avg=(...k)=>{const v=k.map(x=>q[x]).filter(x=>x!=null&&!isNaN(x));return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null;};
+  return [{k:"Scoring",v:avg("pts40","ppg")},{k:"Shooting",v:avg("f3p","efg","ts")},
+          {k:"Playmaking",v:avg("ast40","apg")},{k:"Rebounding",v:avg("reb40","rpg")},
+          {k:"Defense",v:avg("stl40","blk40")},{k:"Efficiency",v:avg("pir","ts")}];}
+function topArch(p,n){if(!p.arch)return [];
+  return p.arch.map((w,i)=>({i,w})).sort((a,b)=>b.w-a.w).slice(0,n||3).filter(x=>x.w>=5)
+    .map(x=>({idx:x.i,w:x.w,lab:archLabel(x.i,p),c:(ARCHETYPES[x.i]||{}).c||"var(--accent)"}));}
 function scoutCard(p){
   const r=recOf(p),tags=playerTags(p);
   const watched=tags.includes(WATCH_TAG);
@@ -4865,7 +4831,6 @@ function scoutCard(p){
   const stars=`<span class="sc2-star">${"\u2605".repeat(rating)}<span class="off">${"\u2605".repeat(Math.max(0,5-rating))}</span></span><span class="sc2-rateN">${rating}/5</span>`;
   const rc=ROLE_COLORS[p.role]||"#9aa0aa";
   const summary=noteSummary(p);
-  const tagPills=tags.filter(t=>t!==WATCH_TAG).slice(0,4).map(t=>`<span class="sc2-tag">${t}</span>`).join("");
   const unscouted=scoutStatusOf(p)==="unscouted";
   return `<div class="scoutcard scoutcard2${watched?" watched":""}${unscouted?" unscouted":""}" data-id="${p.id}" tabindex="-1">
     ${p._sim!=null?`<span class="cardmatch" title="Statistical match">${p._sim}<small>match</small></span>`:""}
@@ -4875,8 +4840,13 @@ function scoutCard(p){
       <div class="sc2-name">${p.name} ${formArrowHTML(p)}${riserBadgeHTML(p)}</div>
       <div class="sc2-club">${p.teamName?esc(p.teamName):"\u2014"}${lg?`<span class="sc2-lg"> \u00b7 ${lg.meta.name}</span>`:""}</div>
       <div class="sc2-starsrow">${stars}</div>
-      <div class="sc2-posrow"><span class="sc2-pos" style="color:${rc};background:${rc}20">${posLabel(p)}</span><button class="cardtagbtn" title="Quick tag" aria-label="Quick tag">\uD83C\uDFF7</button></div>
+      <div class="sc2-posrow"><span class="sc2-pos" style="color:${rc};background:${rc}20">${posLabel(p)}</span></div>
     </div>
+    ${(()=>{const a=topArch(p,2);if(!a.length)return "";
+      const p1=a[0];
+      return `<div class="sc2-style" style="background:${p1.c}14;border-color:${p1.c}55">
+        <span class="sc2-styleLab">STYLE</span><b style="color:${p1.c}">${p1.lab}</b><span class="sc2-stylePct">${p1.w}%</span>
+        ${a[1]?`<span class="sc2-styleSec">+ ${a[1].lab} ${a[1].w}%</span>`:""}</div>`;})()}
     <div class="sc2-strip">
       <div class="sc2v"><span>HT</span><b>${p.height?p.height:"\u2014"}</b></div>
       <div class="sc2v"><span>AGE</span><b>${p.age!=null?p.age:"\u2014"}</b></div>
@@ -4887,8 +4857,8 @@ function scoutCard(p){
       <div class="sc2v"><span>TS%</span><b>${p.ts!=null?p.ts.toFixed(0):"\u2014"}</b></div>
       <div class="sc2v"><span>PIR</span><b>${p.pir!=null?p.pir.toFixed(1):"\u2014"}</b></div>
     </div>
+    ${p.qualified?`<div class="sc2-dots">${skillProfile(p).map(sk=>`<div class="sc2-drow"><span class="sc2-dk">${sk.k}</span><span class="sc2-dd">${sk.v==null?'<i class="na"></i>':Array.from({length:5},(_,i)=>`<i class="${i<Math.round(sk.v/20)?"on":""}"></i>`).join("")}</span></div>`).join("")}</div>`:""}
     <div class="sc2-summary">${summary?esc(summary):`<span class="sc2-sumph">${unscouted?"No notes yet \u2014 click to start a report \u25b8":""}</span>`}</div>
-    ${tagPills?`<div class="sc2-tags">${tagPills}</div>`:""}
   </div>`;
 }
 async function toggleTag(id,tag){
@@ -5158,7 +5128,7 @@ function renderGlossary(){
     ["Team pages","Open a team for its roster (as cards), a full stat-card panel (Basic and Advanced, tap any card for the league ranking), the group standings, and the season game log. Teams that play two competitions get the same Competitions switch as players."],
     ["Data & freshness","Numbers come from official sources: EuroLeague/EuroCup feeds and aba-liga.com box scores, reconciled game-by-game (every team\u2019s player points sum to the final score). \u201cLocal mode\u201d means your notes live in this browser only. The site is a single page \u2014 a fresh version loads when the data is updated."],
     ["Skill Card & radar","Every profile opens with a Skill Card: an 11-spoke radar of the player\u2019s percentile profile plus grouped bars across four families \u2014 Scoring, Playmaking, Rebounding and Defense. Bars and radar follow the scope switch (vs League / vs All), so the same player can be read against his own league or the whole database."],
-    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of eleven modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Wing \u00b7 26% Primary Creator.\u201d The eleven roles are Combo Guard, Primary Creator, Floor General, Slashing Creator, 3&D, Complementary Guard, Rim Protector, Interior Scorer, Energy Big, Stretch Big and Connector. They\u2019re computed with Archetypal Analysis over all eleven competitions, gated by the player\u2019s position so a role fits their size \u2014 a guard is never labelled a big. Two styles read by position: 3&D shows as 3&D Guard / Wing / Forward, and the pass-first facilitator shows as Floor General (guards), Point Forward (wings) or Playmaking Big (bigs) \u2014 so a tall guard stays a Floor General, not a big. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
+    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of eleven modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Forward \u00b7 26% Primary Creator.\u201d The eleven roles are Combo Guard, Primary Creator, Floor General, Slashing Creator, 3&D, Complementary Guard, Rim Protector, Interior Scorer, Energy Big, Stretch Big and Connector. They\u2019re computed with Archetypal Analysis over all thirteen competitions, gated by the player\u2019s position so a role fits their size \u2014 a guard is never labelled a big. Two styles read by position: 3&D shows as 3&D Guard / Forward / Big, and the pass-first facilitator shows as Floor General (guards), Point Forward (forwards) or Playmaking Big (bigs) \u2014 so a tall guard stays a Floor General, not a big. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
     ["Similar players & comp weights","Each profile lists the closest players across every league. The <b>Comp weights</b> sliders tune what \u201csimilar\u201d means, blending three components: <b>Statistical fingerprint</b> (production and shooting profile), <b>Position + size</b> (role and height), and <b>Playing style</b> (the archetype blend). Drag any slider and the list re-ranks live. \u201cFind more \u2192\u201d turns the whole board into a ranked similarity search against that player."],
     ["Compare","The <b>Compare</b> tab overlays up to four players on one skill radar with a shared stat table, so you can read strengths and gaps side by side. Pick players from any leagues."],
     ["Team needs","On a team page, <b>Team needs</b> grades the roster across the four skill families (from its best player in each), flagging where the group is a Strength, Solid, or a Need."],
