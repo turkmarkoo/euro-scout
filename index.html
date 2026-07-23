@@ -830,6 +830,7 @@ body.drawer-lock{overflow:hidden}
 .cmpBox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
 .cmpBoxH{font-family:var(--disp);font-size:13px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .cmpBoxH.in{color:#3f7a3b}.cmpBoxH.out{color:var(--bad)}.cmpBoxH.stay{color:#4a7a58}
+.faMinWrap{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--muted)}
 .faNum{width:78px;border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:5px 8px;font:inherit;font-size:12.5px;color:var(--txt)}
 .filtdash{font-size:11px;color:var(--muted)}
 .filtx{border:none;background:none;color:var(--muted);cursor:pointer;font-size:11px}
@@ -1600,7 +1601,7 @@ async function setEyeGrade(p,axisKey,val){
 const LEAGUE_TIER={
   euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
   bbl:0.82, lnb:0.82, il:0.80, gbl:0.86, bnxt:0.72, sbl:0.60, sl:0.78,
-  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86
+  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86, elb:0.68
 };
 function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
 /* overall stats grade 0-10 for the board headline: a production-quality measure,
@@ -1828,7 +1829,11 @@ function rebuildLinks(){
   // player codes are only comparable within a code-space: EuroLeague+EuroCup share FIBA codes,
   // every other league has its own local numeric ids (aba-5150 and lba-5150 are DIFFERENT people)
   const codeSpace=p=>{const lg=p.league||(String(p.id).split("-")[0]);return (lg==="euroleague"||lg==="eurocup")?"f":lg;};
-  all.forEach(p=>{const ck=codeSpace(p)+":"+p.code;(byCode[ck]=byCode[ck]||[]).push(p.id);(byName[nameKey(p)]=byName[nameKey(p)]||[]).push(p.id);});
+  all.forEach(p=>{
+    // only link by code when there IS one — leagues without player ids must not all collapse into one person
+    const c=p.code; const hasCode=(c!=null&&c!==""&&String(c)!=="null"&&String(c)!=="undefined");
+    if(hasCode){const ck=codeSpace(p)+":"+c;(byCode[ck]=byCode[ck]||[]).push(p.id);}
+    (byName[nameKey(p)]=byName[nameKey(p)]||[]).push(p.id);});
   Object.values(byCode).forEach(a=>{for(let i=1;i<a.length;i++)uni(a[0],a[i]);});
   // same (token-sorted) name links entries when birth years agree OR either side lacks one
   Object.values(byName).forEach(a=>{for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){
@@ -1836,7 +1841,8 @@ function rebuildLinks(){
     if(!A.born||!B.born||A.born===B.born)uni(a[i],a[j]);}});
   (OVR.links||[]).forEach(pr=>uni(pr[0],pr[1]));
   const groups={}; all.forEach(p=>{const r=find(p.id);(groups[r]=groups[r]||[]).push(p);});
-  all.forEach(p=>{p._grp=groups[find(p.id)];});
+  Object.values(groups).forEach(g=>{if(g.length>8)g.forEach(x=>{x._solo=true;});});   // guard against bad links
+  all.forEach(p=>{p._grp=p._solo?[p]:groups[find(p.id)];});
   // backfill missing bio fields within a merged person (e.g. ABA entry inherits weight/pos from EuroLeague entry)
   Object.values(groups).forEach(g=>{if(g.length<2)return;
     ["height","weight","country","pos","born","img","jersey"].forEach(k=>{
@@ -2712,7 +2718,7 @@ function renderPlayers(){
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
-      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU',bsl:'BSL',lkl:'LKL',vtb:'VTB'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
+      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU',bsl:'BSL',lkl:'LKL',vtb:'VTB',elb:'ELB'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k],c.d==null?1:c.d)}</td>`).join("")}
@@ -3759,13 +3765,18 @@ function renderNextRoster(club){
     box.innerHTML=hits.map(p=>`<button class="rbSugItem" data-pick="${p.id}">${p.name} <small>${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${p.teamName||""}</small></button>`).join("")||'<div class="rbSugNone">No unassigned player matches.</div>';
     box.querySelectorAll("[data-pick]").forEach(it=>it.onclick=()=>{set26(it.dataset.pick,tk);renderTeams();});});
 }
-function faState(){STATE.fa=STATE.fa||{q:"",role:"",lg:"",filters:[]};return STATE.fa;}
+function faState(){STATE.fa=STATE.fa||{q:"",role:"",lg:"",filters:[],arch:"",archMin:25};return STATE.fa;}
 function renderFreeAgents(){
   const m=next26Get(),pool=scoutPool(),f=faState();
   let list=pool.filter(p=>!m[p.id]);
   if(f.q){const qn=normNm(f.q);list=list.filter(p=>normNm(p.name).includes(qn));}
   if(f.role)list=list.filter(p=>p.role===f.role);
   if(f.lg)list=list.filter(p=>p.league===f.lg);
+  if(f.arch){const parts=String(f.arch).split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
+    const mn=+f.archMin||0;
+    list=list.filter(p=>{if(!p.arch||(p.arch[ai]||0)<mn)return false;
+      if(band!=null&&A&&A.roleBands)return p.role===ROLE_ORDER[band];
+      return true;});}
   (f.filters||[]).forEach(fl=>{const st=FILTER_STATS.find(x=>x.key===fl.key);if(!st)return;
     list=list.filter(p=>{const v=fl.key==="grade"?statGradeOverall(p):(fl.key==="height"?p.height:p[fl.key]);
       if(v==null||isNaN(v))return false;return v>=fl.min&&v<=fl.max;});});
@@ -3795,8 +3806,10 @@ function renderFreeAgents(){
       <input id="faQ" placeholder="Search player\u2026" value="${escAttr(f.q)}" autocomplete="off"/>
       <select id="faRole"><option value="">All positions</option>${["Guard","Forward","Big"].map(r=>`<option value="${r}"${f.role===r?" selected":""}>${r}s</option>`).join("")}</select>
       <select id="faLg"><option value="">All leagues</option>${lgs.map(L=>`<option value="${L.meta.id}"${f.lg===L.meta.id?" selected":""}>${esc(L.meta.name)}</option>`).join("")}</select>
+      <select id="faArch"><option value="">Any playing style</option>${ARCH_FILTERS.map(a=>`<option value="${escAttr(a.key)}"${f.arch===a.key?" selected":""}>${esc(a.label)}</option>`).join("")}</select>
+      ${f.arch?`<span class="faMinWrap">\u2265<input id="faArchMin" class="faNum" type="number" min="5" max="90" step="5" value="${f.archMin}"/>%</span>`:""}
       ${addOpts?`<select id="faAdd"><option value="">+ Add stat filter</option>${addOpts}</select>`:""}
-      ${(f.filters||[]).length?`<button class="fchip clearall" id="faClear">Clear filters</button>`:""}
+      ${((f.filters||[]).length||f.arch)?`<button class="fchip clearall" id="faClear">Clear filters</button>`:""}
     </div>
     ${(f.filters||[]).length?`<div class="filterbar">${f.filters.map((fl,i)=>{const st=FILTER_STATS.find(x=>x.key===fl.key)||{};
       return `<div class="filtrow"><span class="filtlab">${esc(st.label||fl.key)}</span>
@@ -3810,9 +3823,11 @@ function renderFreeAgents(){
   const q=$("#faQ");if(q)q.oninput=()=>{f.q=q.value;const p=q.selectionStart;renderFreeAgents();const el=$("#faQ");if(el){el.focus();try{el.setSelectionRange(p,p);}catch(e){}}};
   const r=$("#faRole");if(r)r.onchange=()=>{f.role=r.value;renderFreeAgents();};
   const l=$("#faLg");if(l)l.onchange=()=>{f.lg=l.value;renderFreeAgents();};
+  const ar=$("#faArch");if(ar)ar.onchange=()=>{f.arch=ar.value;renderFreeAgents();};
+  const am=$("#faArchMin");if(am)am.onchange=()=>{const v=parseFloat(am.value);if(!isNaN(v))f.archMin=v;renderFreeAgents();};
   const ad=$("#faAdd");if(ad)ad.onchange=()=>{const st=FILTER_STATS.find(x=>x.key===ad.value);
     if(st){f.filters.push({key:st.key,min:st.min,max:st.max});renderFreeAgents();}};
-  const fc=$("#faClear");if(fc)fc.onclick=()=>{f.filters=[];renderFreeAgents();};
+  const fc=$("#faClear");if(fc)fc.onclick=()=>{f.filters=[];f.arch="";renderFreeAgents();};
   $$(".faNum").forEach(inp=>inp.onchange=()=>{const i=+inp.dataset.fi;if(!f.filters[i])return;
     const v=parseFloat(inp.value);if(!isNaN(v))f.filters[i][inp.dataset.b]=v;renderFreeAgents();});
   $$("[data-frm]").forEach(b=>b.onclick=()=>{f.filters.splice(+b.dataset.frm,1);renderFreeAgents();});
@@ -4227,9 +4242,9 @@ function printScoutingMatchup(va,vb){
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
 const LEAGUE_FLAG={euroleague:"\uD83C\uDDEA\uD83C\uDDFA",eurocup:"\uD83C\uDDEA\uD83C\uDDFA",bcl:"\uD83C\uDDEA\uD83C\uDDFA",aba:"\uD83C\uDDEA\uD83C\uDDFA",bnxt:"\uD83C\uDDEA\uD83C\uDDFA",
   acb:"\uD83C\uDDEA\uD83C\uDDF8",lba:"\uD83C\uDDEE\uD83C\uDDF9",bbl:"\uD83C\uDDE9\uD83C\uDDEA",lnb:"\uD83C\uDDEB\uD83C\uDDF7",sbl:"\uD83C\uDDF8\uD83C\uDDEA",
-  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",vtb:"\uD83C\uDDEA\uD83C\uDDFA",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
+  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",vtb:"\uD83C\uDDEA\uD83C\uDDFA",elb:"\uD83C\uDDEA\uD83C\uDDFA",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
 function leagueFlag(id){return LEAGUE_FLAG[id]||"\uD83C\uDDEA\uD83C\uDDFA";}
-const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F",lkl:"#7AA35C",vtb:"#8E7CC3"};
+const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F",lkl:"#7AA35C",vtb:"#8E7CC3",elb:"#5FA89A"};
 const ROLE_COLORS={Guard:"#8E86C9",Forward:"#6FA39B",Big:"#C99A3C"};
 function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
 function chartColor(p,by){return by==="role"?(ROLE_COLORS[p.role]||"#9aa0aa"):(LEAGUE_COLORS[p.league]||"#9aa0aa");}
@@ -5160,7 +5175,7 @@ function openTeamBoard(k,label,hi){
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL",lkl:"LKL",vtb:"VTB"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL",lkl:"LKL",vtb:"VTB",elb:"ELB"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -5348,7 +5363,7 @@ function renderTeam(){
 /* ---------- Glossary ---------- */
 function renderGlossary(){
   const guide=[
-    ["Getting around","EuroScout covers seventeen competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus thirteen domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania), the Turkish BSL, the Lithuanian LKL and the regional VTB United League. The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
+    ["Getting around","EuroScout covers eighteen competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus thirteen domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania), the Turkish BSL, the Lithuanian LKL and the regional VTB United and Latvian-Estonian Leagues. The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
     ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all eleven competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
     ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
     ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side \u2014 pick the two clubs playing and their full rosters appear sorted by jersey number, so you can bounce between the two benches during a live game. Tap any player for the full card, or \u21c4 Swap to flip sides."],
