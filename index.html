@@ -640,6 +640,7 @@ body.drawer-lock{overflow:hidden}
 .fchip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-deep);border-radius:999px;padding:5px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:.12s}
 .fchip:hover{background:var(--accent);color:#fff}
 .fchipX{font-size:10px;opacity:.7}
+.lgflag{margin-right:6px;font-size:13px;line-height:1}
 .agtable th.ctr,.agtable td.ctr{text-align:center}
 /* centred columns across roster / free-agent / agency tables */
 .agtable th,.agtable td{text-align:center}
@@ -1445,7 +1446,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[]}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[],level:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -3139,23 +3140,26 @@ const ARCHETYPES=[
  {name:"Combo Guard",desc:"Scoring-first guard, low assist rate",c:"#C5824E"},
  {name:"Primary Creator",desc:"High-usage offensive engine",c:"#A96A38"},
  {name:"Floor General",desc:"Pass-first facilitator",c:"#C99A3C",roleBands:{Guard:"Floor General",Forward:"Point Forward",Big:"Playmaking Big"}},
- {name:"Slashing Creator",desc:"Foul-drawing downhill driver",c:"#7E8CA0"},
+ {name:"Slashing Creator",desc:"Foul-drawing downhill driver",c:"#7E8CA0",roleBands:{Guard:"Slashing Creator",Forward:"Slashing Forward",Big:"Slashing Big"}},
  {name:"3&D",desc:"Shooting, defending, low usage",c:"#6E9F6A",roleBands:{Guard:"3&D Guard",Forward:"3&D Forward",Big:"3&D Big"}},
  {name:"Complementary Guard",desc:"Low-usage backcourt role player",c:"#8C93A0"},
- {name:"Rim Protector",desc:"Shot-blocking interior anchor",c:"#6FA39B"},
- {name:"Interior Scorer",desc:"Post-scoring, rebounding big",c:"#B0663F"},
- {name:"Energy Big",desc:"Rim-running, rebounding, non-shooting big",c:"#9C6B4A"},
- {name:"Stretch Big",desc:"Floor-spacing, shooting big",c:"#8E7CC3"},
+{name:"Rim Protector",roleBands:{Guard:"Rim Protector",Forward:"Defensive Forward",Big:"Rim Protector"},desc:"Shot-blocking interior anchor",c:"#6FA39B"},
+{name:"Interior Scorer",roleBands:{Guard:"Interior Scorer",Forward:"Post Forward",Big:"Interior Scorer"},desc:"Post-scoring, rebounding big",c:"#B0663F"},
+{name:"Energy Big",roleBands:{Guard:"Energy Big",Forward:"Physical Forward",Big:"Energy Big"},desc:"Rim-running, rebounding, non-shooting big",c:"#9C6B4A"},
+{name:"Stretch Big",roleBands:{Guard:"Stretch Big",Forward:"Stretch Forward",Big:"Stretch Big"},desc:"Floor-spacing, shooting big",c:"#8E7CC3"},
  {name:"Connector",desc:"Low-usage, efficient, no-weakness glue",c:"#A8AAB0"}];
 function archLabel(idx,p){const A=ARCHETYPES[idx];if(!A)return"";
   if(A.roleBands&&p&&p.role)return A.roleBands[p.role]||A.name;
   if(A.sizeBands&&p&&p.height){for(const b of A.sizeBands){if(p.height<=b[0])return b[1];}return A.sizeBands[A.sizeBands.length-1][1];}
   return A.name;}
 const ROLE_ORDER=["Guard","Forward","Big"];
-const ARCH_FILTERS=(()=>{const out=[];ARCHETYPES.forEach((A,i)=>{
-  if(A.roleBands)ROLE_ORDER.forEach((r,ri)=>out.push({key:i+":"+ri,label:A.roleBands[r],c:A.c}));
-  else if(A.sizeBands)A.sizeBands.forEach((b,bi)=>out.push({key:i+":"+bi,label:b[1],c:A.c}));
-  else out.push({key:""+i,label:A.name,c:A.c});});return out;})();
+const ARCH_FILTERS=(()=>{const out=[],seen=new Set();
+  const add=o=>{const k=o.label;if(seen.has(k))return;seen.add(k);out.push(o);};
+  ARCHETYPES.forEach((A,i)=>{
+    if(A.roleBands)ROLE_ORDER.forEach((r,ri)=>add({key:i+":"+ri,label:A.roleBands[r],c:A.c}));
+    else if(A.sizeBands)A.sizeBands.forEach((b,bi)=>add({key:i+":"+bi,label:b[1],c:A.c}));
+    else add({key:""+i,label:A.name,c:A.c});});
+  return out;})();
 function archKeyFor(idx,p){const A=ARCHETYPES[idx];
   if(A&&A.roleBands&&p&&p.role){const ri=ROLE_ORDER.indexOf(p.role);return idx+":"+(ri<0?1:ri);}
   if(A&&A.sizeBands&&p&&p.height){for(let bi=0;bi<A.sizeBands.length;bi++){if(p.height<=A.sizeBands[bi][0])return idx+":"+bi;}return idx+":"+(A.sizeBands.length-1);}
@@ -4056,6 +4060,10 @@ function printScoutingMatchup(va,vb){
 
 /* ---------- Charts: scatter (photo dots, choose axes) + distribution ---------- */
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
+const LEAGUE_FLAG={euroleague:"\uD83C\uDDEA\uD83C\uDDFA",eurocup:"\uD83C\uDDEA\uD83C\uDDFA",bcl:"\uD83C\uDDEA\uD83C\uDDFA",aba:"\uD83C\uDDEA\uD83C\uDDFA",bnxt:"\uD83C\uDDEA\uD83C\uDDFA",
+  acb:"\uD83C\uDDEA\uD83C\uDDF8",lba:"\uD83C\uDDEE\uD83C\uDDF9",bbl:"\uD83C\uDDE9\uD83C\uDDEA",lnb:"\uD83C\uDDEB\uD83C\uDDF7",sbl:"\uD83C\uDDF8\uD83C\uDDEA",
+  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
+function leagueFlag(id){return LEAGUE_FLAG[id]||"\uD83C\uDDEA\uD83C\uDDFA";}
 const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8"};
 const ROLE_COLORS={Guard:"#8E86C9",Forward:"#6FA39B",Big:"#C99A3C"};
 function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
@@ -4407,7 +4415,7 @@ function renderExhib(){
 }
 
 /* ---------- Scout board (homepage) ---------- */
-const ROLE_OPTS=[["Guard","Guards"],["Forward","Forwards"],["Center","Centers"]];
+const ROLE_OPTS=[["Guard","Guards"],["Forward","Forwards"],["Big","Bigs"]];
 function scoutPool(){
   // one card per person (dedupe merged identities), across all league seasons.
   // Exhibitions (Summer League) are excluded here — they live on their own tab.
@@ -4554,6 +4562,7 @@ function renderScout(){
   if(s.status!=="all") pool=pool.filter(p=>scoutStatusOf(p)===s.status);
   if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
+  if(s.level!=null)  pool=pool.filter(p=>{const b=levelBand(p);return b&&b.i===s.level;});
   if(s.arch){const parts=s.arch.split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
     pool=pool.filter(p=>{if(!p.arch||(p.arch[ai]||0)<20)return false;
       if(band!=null&&A&&A.roleBands){return p.role===ROLE_ORDER[band];}
@@ -4618,7 +4627,7 @@ function renderScout(){
     </div>`:"";
 
   const lgChip=L=>{const on=s.leagues.has(L.meta.id);
-    return `<button class="frow ${on?"on":""}" data-lg="${L.meta.id}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span>${L.meta.name}<span class="fct">${L.players.length}</span></button>`;};
+    return `<button class="frow ${on?"on":""}" data-lg="${L.meta.id}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span><span class="lgflag">${leagueFlag(L.meta.id)}</span>${L.meta.name}<span class="fct">${L.players.length}</span></button>`;};
   const roleChip=([k,lab])=>{const on=s.roles.has(k);
     return `<button class="frow ${on?"on":""}" data-role="${k}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span>${lab}</button>`;};
   const statusChip=(k,lab,ct)=>`<button class="pill ${s.status===k?"on":""}" data-status="${k}">${lab}${ct!=null?` <b>${ct}</b>`:""}</button>`;
@@ -4638,6 +4647,11 @@ function renderScout(){
       <div class="railsec"><div class="raillab">Watchlist</div>
         <button class="tagfilter watch ${s.tags.has(WATCH_TAG)?"on":""}" data-tag="${WATCH_TAG}">★ Flagged for attention <b>${watchCount}</b></button>
         <button class="tagfilter riser ${s.riserOnly?"on":""}" id="riserToggle" title="Players 21 or under producing above their league's level">↑ Young risers <b>${riserCount}</b></button>
+      </div>
+
+      <div class="railsec"><div class="raillab">Projected level${s.level!=null?` <button class="archClr" id="lvlClr" title="Clear">\u2715</button>`:""}</div>
+        <div class="frows">${LEVEL_BANDS.map((lab,i)=>{const on=s.level===i;const ct=full.filter(p=>{const b=levelBand(p);return b&&b.i===i;}).length;
+          return `<button class="frow ${on?"on":""}" data-level="${i}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span>${lab}<span class="fct">${ct}</span></button>`;}).reverse().join("")}</div>
       </div>
 
       <div class="railsec"><div class="raillab">Leagues</div>
@@ -4693,10 +4707,12 @@ function renderScout(){
   $$("[data-tag]").forEach(b=>b.onclick=()=>{const t=b.dataset.tag;s.tags.has(t)?s.tags.delete(t):s.tags.add(t);renderScout();});
   const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderScout();};
   $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
+  $$("[data-level]").forEach(b=>b.onclick=()=>{const k=+b.dataset.level;s.level=(s.level===k?null:k);renderScout();});
+  const lvlClr=$("#lvlClr");if(lvlClr)lvlClr.onclick=e=>{e.stopPropagation();s.level=null;renderScout();};
   $$("[data-chip]").forEach(b=>b.onclick=()=>{removeChip(b.dataset.chip,s);renderScout();});
-  const chipClr=$("#chipClear");if(chipClr)chipClr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.simRef=null;renderScout();};
+  const chipClr=$("#chipClear");if(chipClr)chipClr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.simRef=null;s.level=null;renderScout();};
   const aClr=$("#archClr");if(aClr)aClr.onclick=(e)=>{e.stopPropagation();s.arch=null;renderScout();};
-  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];renderScout();};
+  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.level=null;renderScout();};
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
   // saved views
   const saveViewBtn=$("#saveViewBtn");if(saveViewBtn)saveViewBtn.onclick=saveCurrentView;
@@ -4798,6 +4814,7 @@ function activeChipsHTML(s){
     let txt=st.label+" ";
     if(isMin&&isMax)txt+=lo+"\u2013"+hi; else if(isMin)txt+="\u2265"+lo; else if(isMax)txt+="\u2264"+hi; else txt+="any";
     chips.push({k:"f:"+i,lab:esc2(txt)});});
+  if(s.level!=null)chips.push({k:"level",lab:"Level: "+esc2(LEVEL_BANDS[s.level])});
   if(s.simRef){const rp=player(s.simRef);if(rp)chips.push({k:"sim",lab:"Similar to "+esc2(rp.name)});}
   if(!chips.length)return "";
   return `<div class="chipbar"><span class="chipLab">Filters</span>${chips.map(c=>`<button class="fchip" data-chip="${escAttr(c.k)}" title="Remove this filter">${c.lab}<span class="fchipX">\u2715</span></button>`).join("")}<button class="fchip clearall" id="chipClear">Clear all</button></div>`;
@@ -4811,11 +4828,24 @@ function removeChip(key,s){
   else if(key==="riser")s.riserOnly=false;
   else if(key==="arch")s.arch=null;
   else if(key==="sim")s.simRef=null;
+  else if(key==="level")s.level=null;
   else if(key.startsWith("f:"))s.filters.splice(+key.slice(2),1);
+}
+function attemptsOf(p,which){ // total attempts for the season, whatever unit the league stored
+  const str=which==="3"?p.f3ma:(which==="ft"?p.ftma:p.fgma); if(!str)return null;
+  const a=parseFloat(String(str).split("-")[1]); if(isNaN(a))return null;
+  return a>=25?a:a*(p.g||0);  // per-game values are always <25 attempts; larger numbers are season totals
 }
 function skillProfile(p){const q=p.pct||{};
   const avg=(...k)=>{const v=k.map(x=>q[x]).filter(x=>x!=null&&!isNaN(x));return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null;};
-  return [{k:"Scoring",v:avg("pts40","ppg")},{k:"Shooting",v:avg("f3p","efg","ts")},
+  // shooting is percentage-driven, so a tiny sample can look elite — shrink it toward average
+  const shoot=(()=>{
+    const t3=attemptsOf(p,"3"), tfg=attemptsOf(p,"fg");
+    const shrink=(pct,att,k)=>{if(pct==null)return null;if(att==null)return pct;
+      const conf=att/(att+k); return 50+(pct-50)*conf;};
+    const parts=[shrink(q.f3p,t3,40),shrink(q.efg,tfg,60),shrink(q.ts,tfg,60)].filter(x=>x!=null);
+    return parts.length?Math.round(parts.reduce((a,b)=>a+b,0)/parts.length):null;})();
+  return [{k:"Scoring",v:avg("pts40","ppg")},{k:"Shooting",v:shoot},
           {k:"Playmaking",v:avg("ast40","apg")},{k:"Rebounding",v:avg("reb40","rpg")},
           {k:"Defense",v:avg("stl40","blk40")},{k:"Efficiency",v:avg("pir","ts")}];}
 function topArch(p,n){if(!p.arch)return [];
