@@ -1538,6 +1538,15 @@ function nextCompMap(){
     NEXTCOMP.get(ck).push({id,name:c.name,stage:t.stage||null});});});
   return NEXTCOMP;
 }
+const EURO_COMPS=new Set(["euroleague","eurocup","bcl"]);
+/* what the club actually plays in 2026/27: its domestic league(s) carry over,
+   but the European entry is taken from next season’s confirmed lists, not last season’s */
+function comps2627Label(club){
+  const dom=(club.leagues||[]).filter(l=>!EURO_COMPS.has(l.id)).map(l=>l.name);
+  const eu=nextCompsOf(club).map(c=>c.name);
+  const all=dom.concat(eu);
+  return all.length?all.join(" \u00b7 "):"\u2014";
+}
 function nextCompsOf(club){if(!club)return [];if(!CLUBS)allDbTeams();return nextCompMap().get(club.key)||[];}
 function nextCompBadges(club){const cs=nextCompsOf(club);if(!cs.length)return "";
   const AB={euroleague:"EL",eurocup:"EC",bcl:"BCL"};
@@ -3880,7 +3889,7 @@ function renderTeamsNext(){
     ${show.length?`<div class="tmGrid">${show.map(c=>{const n=(byTeam.get(c.key)||[]).length;
       return `<button class="tmCard" data-club="${escAttr(c.key)}">
         ${clubBadge(c,20)}<span class="tmName">${esc(c.name)}</span>
-        <span class="tmMeta"><span class="tmLg">${c.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(c.leagues.map(l=>l.name).join(" \u00b7 "))}</span><span class="n27wrap">${nextCompBadges(c)}</span><span class="tmN${n?"":" zero"}">${n}</span></span>
+        <span class="tmMeta"><span class="tmLg">${c.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(comps2627Label(c))}</span><span class="n27wrap">${nextCompBadges(c)}</span><span class="tmN${n?"":" zero"}">${n}</span></span>
       </button>`;}).join("")}</div>`:`<div class="empty" style="margin-top:16px">No clubs match.</div>`}
   </div>`;
   wireRosterCommon(); wireTransferInbox();
@@ -3936,7 +3945,7 @@ function renderNextRoster(club){
 function faState(){STATE.fa=STATE.fa||{q:"",role:"",lg:"",filters:[],arch:"",archMin:25};return STATE.fa;}
 function renderFreeAgents(){
   const m=next26Get(),pool=scoutPool(),f=faState();
-  let list=pool.filter(p=>!m[p.id]);
+  let list=pool.filter(p=>!effective26(p,m));   // identity-aware: an assignment on any of a player’s league entries counts
   if(f.q){const qn=normNm(f.q);list=list.filter(p=>normNm(p.name).includes(qn));}
   if(f.role)list=list.filter(p=>p.role===f.role);
   if(f.lg)list=list.filter(p=>p.league===f.lg);
@@ -5364,16 +5373,22 @@ function renderTeams(){
 }
 function renderTeamsCurrent(){
   const cur=STATE.curTeam;
-  if(cur)return renderCurRoster(cur.lg,cur.code);
+  if(cur&&cur.club){const c=allClubs().find(x=>x.key===cur.club);
+    if(c)return renderCurClubRoster(c); STATE.curTeam=null;}
+  else if(cur)return renderCurRoster(cur.lg,cur.code);
   const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly);
   const sel=STATE.curLg||"";
   const q=normClub(STATE.teamQ||"");
-  let cards=[];
-  lgs.forEach(L=>{ if(sel&&L.meta.id!==sel)return;
-    (L.teams||[]).forEach(t=>{ if(q&&!normClub(t.name).includes(q)&&!normClub(t.city||"").includes(q))return;
-      const n=L.players.filter(p=>p.team===t.code).length;
-      cards.push({lg:L.meta.id,lgName:L.meta.name,code:t.code,name:t.name,n,logo:t.logo||null});});});
-  cards.sort((a,b)=>a.lgName.localeCompare(b.lgName)||a.name.localeCompare(b.name));
+  // one card per real club — a club that plays ABA + EuroLeague appears once, not twice
+  let cards=allClubs().filter(c=>{
+      if(c.teams.some(t=>t.lg==="n2627"))return false;
+      if(sel&&!c.leagues.some(l=>l.id===sel))return false;
+      if(q&&!normClub(c.name).includes(q)&&!c.teams.some(t=>normClub(t.city||"").includes(q)))return false;
+      return true;})
+    .map(c=>({club:c,name:c.name,logo:(c.teams.find(t=>t.logo)||{}).logo||null,
+      lgList:c.leagues.map(l=>l.name).join(" \u00b7 "),lgIds:c.leagues.map(l=>l.id),
+      n:clubRoster2526(c).length}));
+  cards.sort((a,b)=>a.name.localeCompare(b.name));
   $("#app").innerHTML=`<div class="view">
     <h1 class="title">Teams \u00b7 2025/26</h1>
     <div class="sub" style="margin-bottom:14px">Pick a league, then open a club to see this season\u2019s roster.</div>
@@ -5382,16 +5397,41 @@ function renderTeamsCurrent(){
       <select id="curLgSel"><option value="">All leagues</option>${lgs.map(L=>`<option value="${L.meta.id}"${sel===L.meta.id?" selected":""}>${esc(L.meta.name)}</option>`).join("")}</select>
       <input id="curTeamQ" placeholder="Search club\u2026" value="${escAttr(STATE.teamQ||"")}" autocomplete="off"/>
     </div>
-    ${cards.length?`<div class="tmGrid">${cards.map(c=>`<button class="tmCard" data-lg="${c.lg}" data-code="${escAttr(c.code)}">
+    ${cards.length?`<div class="tmGrid">${cards.map(c=>`<button class="tmCard" data-club="${escAttr(c.club.key)}">
       ${clubBadge(c,20)}<span class="tmName">${esc(c.name)}</span>
-      <span class="tmMeta"><span class="tmLg">${leagueFlag(c.lg)} ${esc(c.lgName)}</span><span class="tmN">${c.n}</span></span>
+      <span class="tmMeta"><span class="tmLg">${c.lgIds.map(id=>leagueFlag(id)).join("")} ${esc(c.lgList)}</span><span class="tmN">${c.n}</span></span>
     </button>`).join("")}</div>`:`<div class="empty" style="margin-top:16px">No clubs match.</div>`}
   </div>`;
   wireTeamsToggle(); wireTransferInbox();
   const ls=$("#curLgSel");if(ls)ls.onchange=()=>{STATE.curLg=ls.value;renderTeams();};
   const tq=$("#curTeamQ");if(tq)tq.oninput=()=>{STATE.teamQ=tq.value;const p=tq.selectionStart;renderTeams();
     const el=$("#curTeamQ");if(el){el.focus();try{el.setSelectionRange(p,p);}catch(e){}}};
-  $$(".tmCard").forEach(b=>b.onclick=()=>{STATE.curTeam={lg:b.dataset.lg,code:b.dataset.code};renderTeams();try{window.scrollTo(0,0);}catch(e){}});
+  $$(".tmCard[data-club]").forEach(b=>b.onclick=()=>{STATE.curTeam={club:b.dataset.club};renderTeams();try{window.scrollTo(0,0);}catch(e){}});
+}
+function renderCurClubRoster(club){
+  const roster=clubRoster2526(club);
+  const logo=(club.teams.find(t=>t.logo)||{}).logo||null;
+  const ph=p=>`<span class="agpPhoto${photoOf(p)?"":" noimg"}">${photoOf(p)?`<img src="${photoOf(p)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
+  const rows=roster.map(p=>{const g=statGradeOverall(p);
+    return `<tr data-pid="${p.id}">
+      <td class="agp"><span class="agpInner">${ph(p)}<span class="agpName">${p.name}</span></span></td>
+      <td>${posLabel(p)}</td><td class="rbNat">${p.country||"\u2014"}</td>
+      <td class="num">${p.height?p.height+"cm":"\u2014"}</td><td class="num">${p.age!=null?p.age:"\u2014"}</td>
+      <td>${esc((STATE.data.leagues.find(L=>L.meta.id===p.league)||{meta:{}}).meta.name||p.league)}</td>
+      <td class="num">${p.g!=null?p.g:"\u2014"}</td>
+      <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td><td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
+      <td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
+      <td class="num"><b class="agscore">${g!=null?g.toFixed(1):"\u2014"}</b></td></tr>`;}).join("");
+  const cols=`<colgroup><col style="width:24%"><col style="width:8%"><col style="width:13%"><col style="width:7%"><col style="width:5%"><col style="width:13%"><col style="width:5%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:8%"></colgroup>`;
+  const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th>Stats from</th><th class="num">GP</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th></tr>`;
+  $("#app").innerHTML=`<div class="view">
+    <button class="btn ghost" id="curBack">\u2190 All teams</button>
+    <h1 class="title" style="margin-top:10px">${logo?`<span class="clubBadge" style="--bs:30px;vertical-align:middle"><img src="${logo}" onerror="this.parentNode.remove()"/></span>`:""}${esc(club.name)} <span class="rbClubLg">${club.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(club.leagues.map(l=>l.name).join(" \u00b7 "))}</span></h1>
+    <div class="sub" style="margin-bottom:14px">2025/26 squad across every competition \u00b7 ${roster.length} player${roster.length===1?"":"s"}</div>
+    ${roster.length?`<div class="agtableWrap"><table class="agtable rbtable">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="empty">No players recorded for this club.</div>`}
+  </div>`;
+  $("#curBack").onclick=()=>{STATE.curTeam=null;renderTeams();};
+  $$("#app tbody tr[data-pid]").forEach(tr=>tr.onclick=()=>openProfile(tr.dataset.pid));
 }
 function renderCurRoster(lgId,code){
   const L=(STATE.data.leagues||[]).find(x=>x.meta.id===lgId); if(!L){STATE.curTeam=null;return renderTeams();}
