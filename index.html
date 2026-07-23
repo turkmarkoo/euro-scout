@@ -876,6 +876,12 @@ body.drawer-lock{overflow:hidden}
 .trInbox.quiet{background:var(--panel);border-color:var(--line);color:var(--muted)}
 .trInbox{background:color-mix(in srgb,var(--gold) 7%,var(--panel));border:1px solid color-mix(in srgb,var(--gold) 35%,var(--line));border-radius:14px;padding:14px 16px;margin-bottom:18px}
 .trInboxHead{font-size:14px;margin-bottom:10px}
+.n27wrap{display:inline-flex;gap:4px;margin-left:2px}
+.n27tag{display:inline-flex;align-items:center;gap:1px;font-size:9.5px;font-weight:800;letter-spacing:.3px;padding:2px 5px;border-radius:5px;background:var(--accent-soft);color:var(--accent-deep);white-space:nowrap}
+.n27tag.euroleague{background:color-mix(in srgb,#f60 20%,var(--panel));color:#c24a00}
+.n27tag.eurocup{background:color-mix(in srgb,#06c 20%,var(--panel));color:#04519e}
+.n27tag.bcl{background:color-mix(in srgb,#0a6 20%,var(--panel));color:#067045}
+.n27tag i{font-style:normal;opacity:.65;font-size:8.5px}
 .trInboxHead b{font-size:15px}
 .trBell{margin-right:2px}
 .trHint{color:var(--muted);font-weight:400;font-size:12.5px}
@@ -1467,7 +1473,7 @@ function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data
 
 /* ---------- clubs: one entry per real club, tagged with every competition it plays ---------- */
 let CLUBS=null, CLUB_BY_TEAMKEY=null;
-const CLUB_STOP=new Set(["basket","basketball","basketbol","bc","kk","cb","bk","club","sport","sports","spor","team","pallacanestro","kosarkarski","baloncesto","bbc","sk","cs","csm","csu","fc"]);
+const CLUB_STOP=new Set(["basket","basketball","basketbol","bc","kk","cb","bk","club","sport","sports","spor","team","pallacanestro","kosarkarski","baloncesto","bbc","sk","cs","csm","csu","fc","lions","bears","giants","kings","hawks","eagles","wolves","tigers","panthers","dragons","sharks","bulls","knights","warriors","stars","seawolves","wildcats","huskies","cougars","bobcats","bulldogs","wolverines","crusaders","pioneers","raiders","rebels","spartans","titans","vikings","aggies","cardinals","falcons","gators","hornets","jaguars","mustangs","owls","rams","ravens","trojans"]);
 const CITY_SYN={munich:"munchen",muenchen:"munchen",milan:"milano",venice:"venezia",belgrade:"beograd",prague:"praha",vienna:"wien",lisbon:"lisboa",warsaw:"warszawa",cologne:"koln"};
 function clubTokens(name){return normClub(name).split(" ").filter(w=>(w.length>=4||/\d/.test(w))&&!CLUB_STOP.has(w)).map(w=>CITY_SYN[w]||w);}
 function tokEq(a,b){if(a===b)return true;const m=Math.min(a.length,b.length);return m>=5&&(a.slice(0,m)===b.slice(0,m));}
@@ -1475,6 +1481,7 @@ const CLUB_ALIAS={"barca":"fc barcelona","partizan mozzart bet":"partizan belgra
 function clubCanon(n){return CLUB_ALIAS[n]||n;}
 function sameClub(a,b){
   if(a.lg===b.lg)return false;                       // never merge inside one competition
+  if(a.lg==="n2627"||b.lg==="n2627")return false;    // 26/27 entrants are pre-checked standalone clubs
   const na=clubCanon(normClub(a.name)), nb=clubCanon(normClub(b.name));
   if(!na||!nb)return false;
   if(na===nb)return true;
@@ -1517,6 +1524,24 @@ function buildClubs(){
   return CLUBS;
 }
 function allClubs(){if(!CLUBS)allDbTeams();return CLUBS;}
+/* ---------- 2026/27 competition entry lists (who plays where next season) ---------- */
+let NEXTCOMP=null;
+function nextCompMap(){
+  if(NEXTCOMP)return NEXTCOMP;
+  NEXTCOMP=new Map();
+  const S=(STATE.data||{}).season2627; if(!S||!S.comps)return NEXTCOMP;
+  Object.entries(S.comps).forEach(([id,c])=>{(c.teams||[]).forEach(t=>{
+    if(!t.key)return;
+    const club=CLUB_BY_TEAMKEY?CLUB_BY_TEAMKEY.get(t.key):null;
+    const ck=club?club.key:t.key;
+    if(!NEXTCOMP.has(ck))NEXTCOMP.set(ck,[]);
+    NEXTCOMP.get(ck).push({id,name:c.name,stage:t.stage||null});});});
+  return NEXTCOMP;
+}
+function nextCompsOf(club){if(!club)return [];if(!CLUBS)allDbTeams();return nextCompMap().get(club.key)||[];}
+function nextCompBadges(club){const cs=nextCompsOf(club);if(!cs.length)return "";
+  const AB={euroleague:"EL",eurocup:"EC",bcl:"BCL"};
+  return cs.map(c=>`<span class="n27tag ${esc(c.id)}" title="${esc(c.name)} 2026/27${c.stage==="Q"?" \u2014 qualifying rounds":""}">${esc(AB[c.id]||c.name)}${c.stage==="Q"?"<i>Q</i>":""}</span>`).join("");}
 function clubLogo(c){if(!c)return null;
   if(c.logo)return c.logo;
   const t=(c.teams||[]).find(x=>x.logo); if(t)return t.logo;
@@ -3688,7 +3713,7 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
   const render=q=>{const qn=normClub(q||"");
     const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||t.teams.some(x=>normClub(x.city).includes(qn))||t.leagues.some(l=>normClub(l.name).includes(qn))):teams;
     listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
-      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}${(t.teams&&t.teams[0]&&t.teams[0].conf)?" \u00b7 "+esc(t.teams[0].conf):""}</span></button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
+      (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}${(t.teams&&t.teams[0]&&t.teams[0].conf)?" \u00b7 "+esc(t.teams[0].conf):""}</span>${nextCompBadges(t)}</button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
     listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});};
   render("");
   const si=ov.querySelector("#tpSearch");si.oninput=()=>render(si.value);setTimeout(()=>si.focus(),30);
@@ -3834,8 +3859,12 @@ function renderTeamsNext(){
   scoutPool().forEach(p=>{const k=effective26(p,m);if(k){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
   const clubs=allClubs();
   const lgs=[...new Set(allDbTeams().map(t=>t.lgName))];
+  const S=(STATE.data||{}).season2627, nextLgs=S&&S.comps?Object.entries(S.comps).map(([id,c])=>({id,name:c.name})):[];
   const lgSel=STATE.next26Lg||"",q=normClub(STATE.next26Q||"");
-  let show=clubs.filter(c=>(!lgSel||c.leagues.some(l=>l.name===lgSel))&&(!q||normClub(c.name).includes(q)||c.teams.some(t=>normClub(t.city).includes(q))));
+  const isNext=lgSel.startsWith("n27:"), nextId=isNext?lgSel.slice(4):"";
+  let show=clubs.filter(c=>(isNext?nextCompsOf(c).some(x=>x.id===nextId)
+      :(!lgSel||c.leagues.some(l=>l.name===lgSel)))
+    &&(!q||normClub(c.name).includes(q)||c.teams.some(t=>normClub(t.city).includes(q))));
   show.sort((a,b)=>((byTeam.get(b.key)||[]).length-(byTeam.get(a.key)||[]).length)||a.name.localeCompare(b.name));
   const placed=[...byTeam.values()].reduce((s,a)=>s+a.length,0);
   $("#app").innerHTML=`<div class="view">
@@ -3843,13 +3872,15 @@ function renderTeamsNext(){
     <div class="sub" style="margin-bottom:14px">Pick a club to build next season\u2019s squad. <b>${placed}</b> players placed so far.</div>
     ${teamsModeToggle()}
     <div class="rbFilters">
-      <select id="rbLg"><option value="">All leagues</option>${lgs.map(l=>`<option value="${escAttr(l)}"${l===lgSel?" selected":""}>${esc(l)}</option>`).join("")}</select>
+      <select id="rbLg"><option value="">All clubs</option>
+        ${nextLgs.length?`<optgroup label="Playing in 2026/27">${nextLgs.map(l=>`<option value="n27:${escAttr(l.id)}"${lgSel==="n27:"+l.id?" selected":""}>${esc(l.name)} 2026/27</option>`).join("")}</optgroup>`:""}
+        <optgroup label="2025/26 competition">${lgs.map(l=>`<option value="${escAttr(l)}"${l===lgSel?" selected":""}>${esc(l)}</option>`).join("")}</optgroup></select>
       <input id="rbClubQ" placeholder="Search club\u2026" value="${escAttr(STATE.next26Q||"")}" autocomplete="off"/>
     </div>
     ${show.length?`<div class="tmGrid">${show.map(c=>{const n=(byTeam.get(c.key)||[]).length;
       return `<button class="tmCard" data-club="${escAttr(c.key)}">
         ${clubBadge(c,20)}<span class="tmName">${esc(c.name)}</span>
-        <span class="tmMeta"><span class="tmLg">${c.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(c.leagues.map(l=>l.name).join(" \u00b7 "))}</span><span class="tmN${n?"":" zero"}">${n}</span></span>
+        <span class="tmMeta"><span class="tmLg">${c.leagues.map(l=>leagueFlag(l.id)).join("")} ${esc(c.leagues.map(l=>l.name).join(" \u00b7 "))}</span><span class="n27wrap">${nextCompBadges(c)}</span><span class="tmN${n?"":" zero"}">${n}</span></span>
       </button>`;}).join("")}</div>`:`<div class="empty" style="margin-top:16px">No clubs match.</div>`}
   </div>`;
   wireRosterCommon(); wireTransferInbox();
