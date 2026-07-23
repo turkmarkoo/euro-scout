@@ -889,6 +889,7 @@ body.drawer-lock{overflow:hidden}
 .trStatus.signed{background:color-mix(in srgb,var(--good) 18%,var(--panel));color:#3f7a3b}
 .trStatus.extended{background:color-mix(in srgb,var(--sage) 16%,var(--panel));color:#4a7a58}
 .trFrom{color:var(--muted)}
+.trLeagueTag{font-size:9.5px;font-weight:700;letter-spacing:.03em;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
 .trArrow{color:var(--muted)}
 .trDest{font-weight:700}
 .trDest.ok{color:var(--txt)}
@@ -1413,8 +1414,15 @@ function buildTransferIndex(items){
   TRANSFERS_LOADED=TRANSFERS.size>0;
 }
 async function loadTransfers(){
+  // two sources: transfers baked into the dataset (e.g. the ACB market table) and the live tracker feed
+  let items=(STATE.data&&Array.isArray(STATE.data.transfers))?STATE.data.transfers.slice():[];
   const urls=["../euroball-tracker/transfers_all.json","https://turkmarkoo.github.io/euroball-tracker/transfers_all.json"];
-  for(const u of urls){try{const j=await fetch(u,{cache:"no-cache"}).then(r=>r.json());if(j&&j.items){buildTransferIndex(j.items);return;}}catch(e){}}
+  for(const u of urls){
+    try{const j=await fetch(u,{cache:"no-cache"}).then(r=>r.json());
+      if(j&&j.items){items=items.concat(j.items);break;}
+    }catch(e){}
+  }
+  if(items.length)buildTransferIndex(items);
 }
 function nextOf(p){
   if(!TRANSFERS_LOADED||!p)return null;
@@ -1609,7 +1617,7 @@ async function setEyeGrade(p,axisKey,val){
 const LEAGUE_TIER={
   euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
   bbl:0.82, lnb:0.82, il:0.80, gbl:0.86, bnxt:0.72, sbl:0.60, sl:0.78,
-  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86, elb:0.68, nbl:0.80, slo:0.64
+  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86, elb:0.68, nbl:0.80, slo:0.40
 };
 function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
 /* overall stats grade 0-10 for the board headline: a production-quality measure,
@@ -3687,7 +3695,7 @@ function trRow(x){const {tr,p,team}=x;const st=tr.status==="extended"?"Re-signed
   return `<div class="trItem">
     <span class="agpPhoto${p.img?"":" noimg"}">${p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>
     <span class="trPlayer"><b class="trName" data-pid="${p.id}">${p.name}</b><span class="trMeta">${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${statGradeOverall(p)!=null?statGradeOverall(p).toFixed(1):"\u2014"}</span></span>
-    <span class="trMove"><span class="trStatus ${tr.status}">${st}</span><span class="trFrom">${esc(tr.from||"\u2014")}</span><span class="trArrow">\u2192</span>${dest}</span>
+    <span class="trMove"><span class="trStatus ${tr.status}">${st}</span>${tr.league?`<span class="trLeagueTag">${esc(tr.league)}</span>`:""}<span class="trFrom">${esc(tr.from||"\u2014")}</span><span class="trArrow">\u2192</span>${dest}</span>
     <span class="trActs"><button class="trBtn ok" data-approve="${escAttr(tr.id)}" data-pid="${p.id}" data-tk="${team?escAttr(team.key):""}">Approve</button><button class="trBtn no" data-reject="${escAttr(tr.id)}">Reject</button></span>
   </div>`;}
 function transferInboxHTML(){const pend=pendingTransfers();if(!pend.length)return TRANSFERS_LOADED?"":"";
