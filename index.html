@@ -3245,6 +3245,12 @@ const SKILL_GROUPS=[
   {name:"REBOUNDING",col:"var(--gold)",   items:[["Rebounding","reb40","/40"]]},
   {name:"DEFENSE",   col:"var(--sage)",   items:[["Steals","stl40","/40"],["Blocks","blk40","/40"]]},
 ];
+/* rate stats: what share of the team's action a player takes on while he is out there.
+   The % family needs team + opponent box scores, so it is only present for leagues with game logs. */
+const ADV_GROUPS=[
+  {name:"SHOT PROFILE", col:"var(--accent)", items:[["2PT Shooting","f2p","%"],["3PA share","r3a","%"],["FT rate","ftr",""],["Points per shot","pps",""]]},
+  {name:"RATE STATS",   col:"#8E86C9",       items:[["Assist %","astp","%"],["Turnover %","tovp","%"],["Rebound %","trbp","%"],["Steal %","stlp","%"],["Block %","blkp","%"]]},
+];
 const SKILL_FLAT=(()=>{const f=[];SKILL_GROUPS.forEach(g=>g.items.forEach(it=>f.push({lab:it[0],k:it[1],unit:it[2],col:g.col,ab:{"Finishing":"Fin","3PT Shooting":"3PT","Free Throws":"FT","Scoring Volume":"Vol","Efficiency":"TS","Passing":"Pass","Ball Security":"Sec","Usage":"Usg","Rebounding":"Reb","Steals":"Stl","Blocks":"Blk"}[it[0]]||it[0].slice(0,4)})));return f;})();
 function skillRadarSVG(p,pool){
   const N=SKILL_FLAT.length, cx=150, cy=150, R=108;
@@ -3300,6 +3306,25 @@ function skillRadarMulti(players,colors){
     shapes+=`<polygon points="${poly}" fill="${col}" fill-opacity="0.1" stroke="${col}" stroke-width="2"/>${dots}`;});
   return `<svg viewBox="0 0 340 330" class="skillcard-radar" style="max-width:360px">${rings}${spokes}${shapes}${labels}</svg>`;
 }
+function advCardHTML(p,pool){
+  const has=ADV_GROUPS.some(g=>g.items.some(([,k])=>p[k]!=null));
+  if(!has)return "";
+  const LOWER_IS_BETTER=new Set(["tovp"]);
+  const body=ADV_GROUPS.map(g=>{
+    const rows=g.items.filter(([,k])=>p[k]!=null).map(([lab,k,unit])=>{
+      const r=rankOf(pool,k,p); let pct=r.pct;
+      if(pct!=null&&LOWER_IS_BETTER.has(k))pct=100-pct;
+      const w=pct==null?0:pct, disp=pct==null?"\u2013":ord(pct);
+      return `<div class="scg-row"><div class="scg-lab">${lab}</div>
+        <div class="scg-track"><div class="scg-fill" style="width:${w}%;background:${g.col}"></div><div class="scg-avg"></div></div>
+        <div class="scg-val">${fmt(p[k])}${unit}<span class="scg-pct">${disp}</span></div></div>`;}).join("");
+    return rows?`<div class="scg-h" style="color:${g.col}">${g.name}</div>${rows}`:"";}).join("");
+  if(!body)return "";
+  return `<div class="panel" style="margin-top:16px"><h3>Advanced <span class="hint" style="font-weight:400">\u00b7 percentile vs ${esc(scopeLabelText())}</span></h3>
+    <div class="skillcard">${body}</div>
+    <p class="hint" style="margin-top:8px">Rate stats estimate a player\u2019s share of team production while on court. Turnover % is shaded so that lower is better.</p></div>`;
+}
+function scopeLabelText(){try{return (STATE.scopeMode==="all")?"all competitions":(leagueOf(CURRENT||{}).meta.name||"league");}catch(e){return "league";}}
 function skillCardHTML(p,pool){
   const bars=SKILL_GROUPS.map(g=>{
     const rows=g.items.map(([lab,k,unit])=>{
@@ -3392,7 +3417,17 @@ const FILTER_STATS=[
  {key:"pir",label:"PIR",min:-5,max:40,step:1},
  {key:"pts40",label:"Points / 40",min:0,max:45,step:1},
  {key:"reb40",label:"Rebounds / 40",min:0,max:20,step:1},
- {key:"ast40",label:"Assists / 40",min:0,max:15,step:1}];
+ {key:"ast40",label:"Assists / 40",min:0,max:15,step:1},
+ {key:"f2p",label:"2P%",min:0,max:80,step:1,suffix:"%"},
+ {key:"ftr",label:"FT rate (FTA/FGA)",min:0,max:1,step:0.05},
+ {key:"r3a",label:"3PA share of shots",min:0,max:100,step:5,suffix:"%"},
+ {key:"pps",label:"Points per shot",min:0,max:2,step:0.05},
+ {key:"astto",label:"Assist / turnover",min:0,max:6,step:0.25},
+ {key:"astp",label:"Assist %",min:0,max:60,step:2,suffix:"%"},
+ {key:"tovp",label:"Turnover %",min:0,max:40,step:2,suffix:"%"},
+ {key:"trbp",label:"Rebound %",min:0,max:30,step:1,suffix:"%"},
+ {key:"stlp",label:"Steal %",min:0,max:6,step:0.25,suffix:"%"},
+ {key:"blkp",label:"Block %",min:0,max:10,step:0.5,suffix:"%"}];
 function filterStat(k){return FILTER_STATS.find(x=>x.key===k);}
 function addFilter(key){if(!key)return;const st=filterStat(key);if(!st)return;
   const f=STATE.scout.filters||(STATE.scout.filters=[]);
@@ -4274,6 +4309,7 @@ function renderProfile(){
     </div>
 
     ${skillCardHTML(p,pool)}
+    ${advCardHTML(p,pool)}
     ${playingStyleHTML(p)}
     ${similarPanelHTML(p)}
 
