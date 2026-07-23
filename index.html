@@ -1601,7 +1601,7 @@ async function setEyeGrade(p,axisKey,val){
 const LEAGUE_TIER={
   euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
   bbl:0.82, lnb:0.82, il:0.80, gbl:0.86, bnxt:0.72, sbl:0.60, sl:0.78,
-  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86, elb:0.68, nbl:0.80
+  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86, elb:0.68, nbl:0.80, slo:0.64
 };
 function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
 /* overall stats grade 0-10 for the board headline: a production-quality measure,
@@ -2718,7 +2718,7 @@ function renderPlayers(){
     return `<tr data-id="${p.id}">
       <td class="l" style="color:var(--muted)">${i+1}</td>
       <td class="l"><span class="pcell">${p.img?`<img class="tavatar" src="${p.img}" loading="lazy" onerror="this.style.display='none'"/>`:''}<span class="pname">${p.name}</span> ${p.multiTeam?'<span class="badge">2TM</span>':''}</span></td>
-      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU',bsl:'BSL',lkl:'LKL',vtb:'VTB',elb:'ELB',nbl:'NBL'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
+      ${all?`<td class="l"><span class="badge">${lg?({euroleague:'EL',eurocup:'EC',aba:'ABA',il:'ISR',gbl:'GRE',plk:'PLK',bcl:'BCL',rou:'ROU',bsl:'BSL',lkl:'LKL',vtb:'VTB',elb:'ELB',nbl:'NBL',slo:'SLO'}[lg.meta.id]||lg.meta.name):''}</span></td>`:''}
       <td class="l"><span class="badge role">${p.role}</span> <span class="pteam">${p.teamName}</span></td>
       <td>${p.g}</td><td>${fmt(p.mpg)}</td>
       ${cols.map(c=>`<td>${fmt(p[c.k],c.d==null?1:c.d)}</td>`).join("")}
@@ -4242,9 +4242,9 @@ function printScoutingMatchup(va,vb){
 const CHART_STATS=[["Points / g","ppg"],["Rebounds / g","rpg"],["Assists / g","apg"],["Steals / g","spg"],["Blocks / g","bpg"],["Turnovers / g","topg"],["Minutes / g","mpg"],["FG%","fgp"],["3P%","f3p"],["FT%","ftp"],["eFG%","efg"],["TS%","ts"],["PIR","pir"],["Usage %","usg"],["PTS / 40","pts40"],["REB / 40","reb40"],["AST / 40","ast40"],["STL / 40","stl40"],["BLK / 40","blk40"],["TOV / 40","tov40"],["Age","age"],["Height","height"]];
 const LEAGUE_FLAG={euroleague:"\uD83C\uDDEA\uD83C\uDDFA",eurocup:"\uD83C\uDDEA\uD83C\uDDFA",bcl:"\uD83C\uDDEA\uD83C\uDDFA",aba:"\uD83C\uDDEA\uD83C\uDDFA",bnxt:"\uD83C\uDDEA\uD83C\uDDFA",
   acb:"\uD83C\uDDEA\uD83C\uDDF8",lba:"\uD83C\uDDEE\uD83C\uDDF9",bbl:"\uD83C\uDDE9\uD83C\uDDEA",lnb:"\uD83C\uDDEB\uD83C\uDDF7",sbl:"\uD83C\uDDF8\uD83C\uDDEA",
-  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",vtb:"\uD83C\uDDEA\uD83C\uDDFA",elb:"\uD83C\uDDEA\uD83C\uDDFA",nbl:"\uD83C\uDDE6\uD83C\uDDFA",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
+  il:"\uD83C\uDDEE\uD83C\uDDF1",gbl:"\uD83C\uDDEC\uD83C\uDDF7",plk:"\uD83C\uDDF5\uD83C\uDDF1",rou:"\uD83C\uDDF7\uD83C\uDDF4",bsl:"\uD83C\uDDF9\uD83C\uDDF7",lkl:"\uD83C\uDDF1\uD83C\uDDF9",vtb:"\uD83C\uDDEA\uD83C\uDDFA",elb:"\uD83C\uDDEA\uD83C\uDDFA",nbl:"\uD83C\uDDE6\uD83C\uDDFA",slo:"\uD83C\uDDF8\uD83C\uDDEE",sl:"\uD83C\uDDFA\uD83C\uDDF8"};
 function leagueFlag(id){return LEAGUE_FLAG[id]||"\uD83C\uDDEA\uD83C\uDDFA";}
-const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F",lkl:"#7AA35C",vtb:"#8E7CC3",elb:"#5FA89A",nbl:"#D08A3E"};
+const LEAGUE_COLORS={euroleague:"#C5824E",eurocup:"#D2925E",aba:"#6FA39B",acb:"#8E86C9",lba:"#C56B7E",bbl:"#7FB3AB",lnb:"#C99A3C",bnxt:"#6E9F6A",sbl:"#A0A6B0",il:"#5B8CB0",gbl:"#4E86C5",plk:"#C77B5A",bcl:"#5FA0C0",rou:"#B07CA8",bsl:"#C0654F",lkl:"#7AA35C",vtb:"#8E7CC3",elb:"#5FA89A",nbl:"#D08A3E",slo:"#6C93C7"};
 const ROLE_COLORS={Guard:"#8E86C9",Forward:"#6FA39B",Big:"#C99A3C"};
 function chartLabel(k){const f=CHART_STATS.find(s=>s[1]===k);return f?f[0]:k;}
 function chartColor(p,by){return by==="role"?(ROLE_COLORS[p.role]||"#9aa0aa"):(LEAGUE_COLORS[p.league]||"#9aa0aa");}
@@ -5175,7 +5175,7 @@ function openTeamBoard(k,label,hi){
   if(all){STATE.data.leagues.forEach(Lx=>{const ax=teamAgg(Lx);Lx.teams.forEach(t=>{const v=ax[t.code]?ax[t.code][k]:null;if(v!=null&&!isNaN(v))rows.push({t,lg:Lx.meta.id,lgn:Lx.meta.name,v});});});}
   else{const L=STATE.league,agg=teamAgg(L);rows=L.teams.map(t=>({t,lg:L.meta.id,lgn:L.meta.name,v:agg[t.code]?agg[t.code][k]:null})).filter(x=>x.v!=null&&!isNaN(x.v));}
   rows.sort((a,b)=>hi?b.v-a.v:a.v-b.v);
-  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL",lkl:"LKL",vtb:"VTB",elb:"ELB",nbl:"NBL"};
+  const LGB={euroleague:"EL",eurocup:"EC",aba:"ABA",acb:"ACB",lba:"LBA",bbl:"BBL",lnb:"LNB",il:"ISR",gbl:"GRE",bnxt:"BNXT",sbl:"SBL",plk:"PLK",bcl:"BCL",rou:"ROU",bsl:"BSL",lkl:"LKL",vtb:"VTB",elb:"ELB",nbl:"NBL",slo:"SLO"};
   showModal('<h3>'+label+' \u2014 '+(all?"all competitions":STATE.league.meta.name)+'</h3><div class="lbwrap"><table class="lbtable"><tbody>'+
     rows.map((r,i)=>'<tr class="'+(r.t.code===CURRENT_TEAM&&r.lg===STATE.league.meta.id?"me":"")+'" data-tc="'+r.t.code+'" data-lg="'+r.lg+'"><td class="rk">'+(i+1)+'</td><td class="l">'+r.t.name+(all?' <span class="badge">'+(LGB[r.lg]||r.lg)+'</span>':'')+'</td><td class="v">'+((k==="net"||k==="orebdiff")&&r.v>0?"+":"")+fmt(r.v)+'</td></tr>').join("")+
     '</tbody></table></div>');
@@ -5363,7 +5363,7 @@ function renderTeam(){
 /* ---------- Glossary ---------- */
 function renderGlossary(){
   const guide=[
-    ["Getting around","EuroScout covers nineteen competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus thirteen domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania), the Turkish BSL, the Lithuanian LKL the regional VTB United and Latvian-Estonian Leagues, and the Australian NBL. The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
+    ["Getting around","EuroScout covers twenty competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus thirteen domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania), the Turkish BSL, the Lithuanian LKL the regional VTB United and Latvian-Estonian Leagues, the Australian NBL and Liga OTP banka (Slovenia). The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
     ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all eleven competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
     ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
     ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side \u2014 pick the two clubs playing and their full rosters appear sorted by jersey number, so you can bounce between the two benches during a live game. Tap any player for the full card, or \u21c4 Swap to flip sides."],
