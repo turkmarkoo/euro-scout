@@ -1407,7 +1407,7 @@ const photoOf = p => {if(!p)return null;if(p.img)return p.img;
 /* ---------- 2026/27 transfers (live from euroball-tracker, same origin) ---------- */
 let TRANSFERS=new Map(), TRANSFERS_SUR=new Map(), TRANSFERS_LOADED=false, CLUB_LG=new Map();
 const normNm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();
-const normClub=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
+const normClub=s=>(s||"").toLowerCase().replace(/[\u0142]/g,"l").replace(/[\u0111]/g,"d").replace(/\u00df/g,"ss").replace(/[\u00f8]/g,"o").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[-\u2013\u2014\/&+.\u2019']/g," ").replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
 function buildTransferIndex(items){
   TRANSFERS=new Map(); TRANSFERS_SUR=new Map(); CLUB_LG=new Map();
   (items||[]).forEach(it=>{if(!it||!it.player||!it.status)return;
@@ -1467,15 +1467,24 @@ function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data
 /* ---------- clubs: one entry per real club, tagged with every competition it plays ---------- */
 let CLUBS=null, CLUB_BY_TEAMKEY=null;
 const CLUB_STOP=new Set(["basket","basketball","basketbol","bc","kk","cb","bk","club","sport","sports","spor","team","pallacanestro","kosarkarski","baloncesto","bbc","sk","cs","csm","csu","fc"]);
-function clubTokens(name){return normClub(name).split(" ").filter(w=>w.length>=4&&!CLUB_STOP.has(w));}
+const CITY_SYN={munich:"munchen",muenchen:"munchen",milan:"milano",venice:"venezia",belgrade:"beograd",prague:"praha",vienna:"wien",lisbon:"lisboa",warsaw:"warszawa",cologne:"koln"};
+function clubTokens(name){return normClub(name).split(" ").filter(w=>(w.length>=4||/\d/.test(w))&&!CLUB_STOP.has(w)).map(w=>CITY_SYN[w]||w);}
 function tokEq(a,b){if(a===b)return true;const m=Math.min(a.length,b.length);return m>=5&&(a.slice(0,m)===b.slice(0,m));}
+const CLUB_ALIAS={"barca":"fc barcelona","partizan mozzart bet":"partizan belgrade","buducnost voli":"buducnost podgorica","kids us manresa":"baxi manresa","besiktas gain":"besiktas istanbul","bahcesehir koleji":"bahcesehir college"};
+function clubCanon(n){return CLUB_ALIAS[n]||n;}
 function sameClub(a,b){
   if(a.lg===b.lg)return false;                       // never merge inside one competition
-  const na=normClub(a.name), nb=normClub(b.name);
+  const na=clubCanon(normClub(a.name)), nb=clubCanon(normClub(b.name));
   if(!na||!nb)return false;
   if(na===nb)return true;
   const wa=" "+na+" ", wb=" "+nb+" ";
   if(wa.includes(wb)||wb.includes(wa))return true;   // whole-word containment only ("Aris" must not match "Paris")
+  // stop-word-stripped subset: "AEK BC" vs "AEK Athens" ("BC" is noise)
+  const sa=na.split(" ").filter(w=>w.length>=3&&!CLUB_STOP.has(w)), sb=nb.split(" ").filter(w=>w.length>=3&&!CLUB_STOP.has(w));
+  if(sa.length&&sb.length){
+    const inb=sa.every(w=>sb.includes(w)), ina=sb.every(w=>sa.includes(w));
+    if((inb&&sa.length<sb.length)||(ina&&sb.length<sa.length))return true;
+  }
   const ta=clubTokens(a.name), tb=clubTokens(b.name);
   if(!ta.length||!tb.length)return false;
   let shared=0;ta.forEach(x=>{if(tb.some(y=>tokEq(x,y)))shared++;});
@@ -2264,7 +2273,7 @@ async function boot(){
     Object.keys(m).forEach(k=>{const p=player(k);if(!p)return;const g=gid(p);
       if(g&&g!==k){if(!m[g])m[g]=m[k];delete m[k];changed=true;}});
     if(changed)next26Set(m);}catch(e){}})();
-  render();
+  try{ render(); }catch(e){ console.error("initial render failed",e); }
   // keep other open tabs in step: roster/transfer edits made elsewhere refresh this view
   window.addEventListener("storage",e=>{
     if(!e.key)return;
@@ -4990,6 +4999,7 @@ function renderScout(){
   updateKbdSelection();
 }
 // keyboard navigation highlight on the board
+function boardCards(){return $$(".board .scoutcard");}
 function updateKbdSelection(){
   const cards=boardCards();
   cards.forEach((c,i)=>c.classList.toggle("kbdsel",i===KBD_SEL));
