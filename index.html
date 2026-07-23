@@ -636,8 +636,17 @@ body.drawer-lock{overflow:hidden}
 .scoutsort{display:flex;align-items:center;gap:8px}
 .sortlab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .scoutsort select{padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-family:var(--body);font-size:13px;color:var(--txt)}
+.chipbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 14px}
+.chipLab{font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.fchip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-deep);border-radius:999px;padding:5px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:.12s}
+.fchip:hover{background:var(--accent);color:#fff}
+.fchipX{font-size:10px;opacity:.7}
+.agtable th.ctr,.agtable td.ctr{text-align:center}
+.fchip:hover .fchipX{opacity:1}
+.fchip.clearall{border-color:var(--line);background:var(--panel);color:var(--muted);font-weight:500}
+.fchip.clearall:hover{border-color:var(--bad);background:var(--bad);color:#fff}
 .board{display:grid;grid-template-columns:repeat(auto-fill,minmax(345px,1fr));gap:14px}
-.scoutcard2{position:relative;display:grid;grid-template-columns:92px 1fr;grid-template-areas:"photo head" "vitals summary" "tags tags";column-gap:15px;row-gap:11px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.15s;color:var(--txt);text-align:left}
+.scoutcard2{position:relative;display:grid;grid-template-columns:92px 1fr;grid-template-areas:"photo head" "strip strip" "summary summary" "tags tags";column-gap:15px;row-gap:11px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.15s;color:var(--txt);text-align:left}
 .scoutcard2:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-2px)}
 .scoutcard2.watched{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
 .scoutcard2 .sc2-corner{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:7px}
@@ -659,11 +668,12 @@ body.drawer-lock{overflow:hidden}
 .sc2-pos{font-size:12px;font-weight:700;padding:3px 11px;border-radius:999px}
 .scoutcard2 .cardtagbtn{border:none;background:none;font-size:13px;cursor:pointer;opacity:.4;padding:0}
 .scoutcard2 .cardtagbtn:hover{opacity:1}
-.sc2-vitals{grid-area:vitals;display:flex;flex-direction:column;gap:5px}
-.sc2v{display:flex;justify-content:space-between;gap:6px;font-size:11.5px}
-.sc2v span{color:var(--muted);font-weight:700;letter-spacing:.04em}
-.sc2v b{font-family:var(--mono);font-weight:600}
-.sc2-summary{grid-area:summary;min-width:0;font-size:12.5px;line-height:1.5;color:var(--txt);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.sc2-strip{grid-area:strip;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:9px 2px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sc2v{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.sc2v span{font-size:9.5px;color:var(--muted);font-weight:700;letter-spacing:.05em;line-height:1}
+.sc2v b{font-family:var(--mono);font-size:13px;font-weight:600;line-height:1.1}
+.sc2v.hi b{color:var(--accent-deep)}
+.sc2-summary{grid-area:summary;-webkit-line-clamp:3;min-width:0;font-size:12.5px;line-height:1.5;color:var(--txt);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .sc2-sumph{color:var(--muted);font-style:italic}
 .sc2-tags{grid-area:tags;display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:2px}
 .sc2-tag{position:relative;font-size:12px;color:var(--txt);padding-left:14px}
@@ -1365,7 +1375,8 @@ function nextBadge(p,big){const n=nextOf(p);if(!n)return "";const m=NEXT_META[n.
 /* ---------- 2026/27 roster assignments (player -> next-season club) ---------- */
 const NEXT26_KEY="euroscout:next26:v1";
 function next26Get(){try{return JSON.parse(localStorage.getItem(NEXT26_KEY)||"{}");}catch(e){return {};}}
-function next26Set(m){try{localStorage.setItem(NEXT26_KEY,JSON.stringify(m));}catch(e){}}
+function next26Set(m){try{localStorage.setItem(NEXT26_KEY,JSON.stringify(m));}catch(e){}
+  try{Sync.stampKey(NEXT26_KEY);}catch(e){} try{Store.pushAppKey(NEXT26_KEY);}catch(e){}}
 function effective26(p,m){m=m||next26Get();return m[p.id]||null;}        // returns team key or null (manual only)
 function set26(pid,key){const m=next26Get();if(key)m[pid]=key;else delete m[pid];next26Set(m);}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
@@ -1378,7 +1389,8 @@ function next26CellHTML(p){const k=effective26(p);const t=k?dbTeamByKey(k):null;
 /* ---------- transfer approval inbox (review only, never auto-commit) ---------- */
 const TR_HANDLED_KEY="euroscout:trHandled:v1";
 function trHandledGet(){try{return JSON.parse(localStorage.getItem(TR_HANDLED_KEY)||"{}");}catch(e){return {};}}
-function trHandledSet(m){try{localStorage.setItem(TR_HANDLED_KEY,JSON.stringify(m));}catch(e){}}
+function trHandledSet(m){try{localStorage.setItem(TR_HANDLED_KEY,JSON.stringify(m));}catch(e){}
+  try{Sync.stampKey(TR_HANDLED_KEY);}catch(e){} try{Store.pushAppKey(TR_HANDLED_KEY);}catch(e){}}
 let PLAYER_BY_NAME=null;
 function playerNameIndex(){if(PLAYER_BY_NAME)return PLAYER_BY_NAME;PLAYER_BY_NAME=new Map();
   scoutPool().forEach(p=>{const n=normNm(p.name);if(!PLAYER_BY_NAME.has(n))PLAYER_BY_NAME.set(n,[]);PLAYER_BY_NAME.get(n).push(p);});return PLAYER_BY_NAME;}
@@ -1532,7 +1544,7 @@ const Store = (()=>{
   const enabled = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
   let sb=null, user=null, role=null, member=false, cache={};
   const LKEY="euroscout:records";
-  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup"];
+  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:trHandled:v1"];
   const local = {
     all(){try{return JSON.parse(localStorage.getItem(LKEY))||{}}catch(e){return{}}},
     set(o){localStorage.setItem(LKEY,JSON.stringify(o))}
@@ -1908,8 +1920,8 @@ const Sync = (()=>{
   const RT_KEY ="euroscout:records_t";   // {gid:ms} per-player edit stamps
   const KM_KEY ="euroscout:sync_km";     // {key:ms} whole-key stamps
   const FILE   ="euroscout-sync.json";
-  const DATA_KEYS =["euroscout:records","euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup"];
-  const OTHER_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup"];
+  const DATA_KEYS =["euroscout:records","euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:trHandled:v1"];
+  const OTHER_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:trHandled:v1"];
   let cfg=loadCfg(), status="idle", busy=false, pushT=null, lastPull=0, lastPush=0, lastErr="";
 
   function loadCfg(){try{return Object.assign({token:"",gistId:"",device:"",on:false},JSON.parse(localStorage.getItem(CFG_KEY)||"{}"));}catch(e){return{token:"",gistId:"",device:"",on:false};}}
@@ -2104,11 +2116,24 @@ async function boot(){
   const sc=$("#scrim");if(sc)sc.onclick=closeDrawer;
   document.addEventListener("keydown",onGlobalKey);
   render();
+  // keep other open tabs in step: roster/transfer edits made elsewhere refresh this view
+  window.addEventListener("storage",e=>{
+    if(!e.key)return;
+    if(e.key===NEXT26_KEY||e.key===TR_HANDLED_KEY){
+      updateTransferBadge();
+      if(STATE.view==="teams")renderTeams();
+      if(DRAWER_OPEN&&CURRENT)renderProfile();
+    }
+  });
   // 2026/27 transfers (from euroball-tracker) — loaded for manual review/approval only, never auto-committed
   loadTransfers().then(()=>{if(TRANSFERS_LOADED)render();});
   // deep-link: open a player if the URL points at one (#p=<id>), e.g. a shared link
   openFromHash(__DEEPHASH);
-  window.addEventListener("hashchange",()=>openFromHash(location.hash));
+  window.addEventListener("popstate",()=>{
+    const m=/^#p=(.+)$/.exec(location.hash||"");
+    if(m){const id=decodeURIComponent(m[1]);if(PROF_HIST.length&&PROF_HIST[PROF_HIST.length-1]===id)PROF_HIST.pop();openProfile(id,true);}
+    else if(DRAWER_OPEN){PROF_HIST=[];closeDrawer(true);}
+  });
   if(Store.enabled){
     // Supabase mode: gate the app behind sign-in + membership; header shows the account
     if(Store.canEdit())await Store.migrateLocalUp();
@@ -2835,13 +2860,18 @@ function wireProfileNav(p){
 }
 let CURRENT=null;
 let DRAWER_OPEN=false;
-function openProfile(id){const _p=player(id);if(!_p)return;CURRENT=id;const _L=leagueOf(_p);if(_L)STATE.league=_L;
+let PROF_HIST=[];      // ids of profiles we can step back through
+function openProfile(id,fromHist){const _p=player(id);if(!_p)return;
+  const prev=CURRENT, wasOpen=DRAWER_OPEN;
+  if(!fromHist&&wasOpen&&prev&&prev!==id)PROF_HIST.push(prev);
+  CURRENT=id;const _L=leagueOf(_p);if(_L)STATE.league=_L;
   recentPush(id);
   updateScopeLabel();
   DRAWER_OPEN=true; renderProfile(); openDrawerUI();
-  // shareable deep link: reflect the open player in the URL (#p=<id>)
-  try{const h="#p="+encodeURIComponent(id); if(location.hash!==h)history.replaceState(null,"",h);}catch(e){}
+  // shareable deep link + real history entry, so browser/mouse Back steps back instead of leaving the site
+  if(!fromHist){try{const h="#p="+encodeURIComponent(id); if(location.hash!==h)history.pushState({p:id},"",h);}catch(e){}}
 }
+function profileBack(){ if(PROF_HIST.length){history.back();} else {closeDrawer();} }
 function drawerJump(id){
   const dr=$("#drawer"), el=document.getElementById(id), scr=dr&&dr.querySelector(".dr-scroll");
   if(!el)return;
@@ -2867,13 +2897,14 @@ function openDrawerUI(){
 }
 function syncDrNav(){const dr=$("#drawer");if(!dr)return;const nav=dr.querySelector(".profnav");
   if(nav){const h=Math.round(nav.getBoundingClientRect().height)||52;dr.style.setProperty("--drnav",Math.max(44,h)+"px");}}
-function closeDrawer(){
+function closeDrawer(silent){
   const dr=$("#drawer"),sc=$("#scrim");if(dr){dr.classList.remove("on","fullpage");dr.setAttribute("aria-hidden","true");}
   if(sc)sc.classList.remove("on");
   document.body.classList.remove("drawer-lock");
   DRAWER_OPEN=false;CURRENT=null;
   // drop the deep-link hash when the profile is closed
-  try{if(/^#p=/.test(location.hash))history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+  PROF_HIST=[];
+  if(!silent){try{if(/^#p=/.test(location.hash))history.replaceState(null,"",location.pathname+location.search);}catch(e){}}
 }
 function switchComp(leagueId,id){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
   if(L){STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;}openProfile(id);}
@@ -3624,21 +3655,22 @@ function renderAgencyRoster(){
       <td class="agp"><span class="agpInner"><span class="agpPhoto${p.img?'':' noimg'}">${photo}</span><span class="agpName">${p.name}</span></span></td>
       <td>${posLabel(p)}</td>
       <td>${p.country||"\u2014"}</td>
-      <td>${p.height?p.height+"cm":"\u2014"}</td>
-      <td>${p.age!=null?p.age:"\u2014"}</td>
+      <td class="num">${p.height?p.height+"cm":"\u2014"}</td>
+      <td class="num">${p.age!=null?p.age:"\u2014"}</td>
       <td class="agclub"><span class="agclubInner"><span>${p.teamName||"\u2014"}</span><span class="agLg">${L.meta.name}</span></span></td>
       <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td>
       <td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
       <td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
-      <td class="agrate">${rt?"\u2605".repeat(rt):"\u2014"}</td>
+      <td class="agrate ctr">${rt?"\u2605".repeat(rt):"\u2014"}</td>
       <td class="num"><b class="agscore">${g!=null?g.toFixed(1):"\u2014"}</b></td>
     </tr>`;}).join("");
   $("#app").innerHTML=`<div class="view">
     <button class="btn ghost sm" onclick="backToAgencies()">\u2190 Agencies</button>
     <h1 class="title" style="margin-top:10px">${esc(name)}</h1>
     <div class="sub" style="margin-bottom:16px">${sub} \u00b7 ${players.length} player${players.length===1?"":"s"}</div>
-    ${players.length?`<div class="agtableWrap"><table class="agtable">
-      <thead><tr><th>Player</th><th>Pos</th><th>Nat</th><th>Ht</th><th>Age</th><th>Club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th>Rating</th><th class="num">Score</th></tr></thead>
+    ${players.length?`<div class="agtableWrap"><table class="agtable rbtable">
+      <colgroup><col style="width:24%"><col style="width:8%"><col style="width:14%"><col style="width:7%"><col style="width:5%"><col style="width:18%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:66px"><col style="width:6%"></colgroup>
+      <thead><tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th>Club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="ctr">Rating</th><th class="num">Score</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`:`<div class="empty">No players found for this ${kind}.</div>`}
   </div>`;
   $$(".agtable tbody tr").forEach(tr=>tr.onclick=()=>openProfile(tr.dataset.id));
@@ -3705,6 +3737,7 @@ function renderProfile(){
   const grid=(STATE.statMode==="adv"?CARD_ADV:CARD_PG);
   $("#drawer").innerHTML=`<div class="dr-scroll">
     <div class="profnav">
+      ${PROF_HIST.length?`<button class="backlink bk" onclick="profileBack()" title="Back to ${escAttr((player(PROF_HIST[PROF_HIST.length-1])||{}).name||'previous')}">\u2190 Back</button>`:""}
       <button class="backlink" onclick="closeDrawer()">\u2715 Close</button>
       <button class="backlink btt" title="Back to top" onclick="(function(){var s=document.querySelector('#drawer .dr-scroll');if(s)s.scrollTo({top:0,behavior:'smooth'});})()">\u2191 Top</button>
       <div class="seg seg-sm inscope">
@@ -4659,6 +4692,7 @@ function renderScout(){
       ${simP?simSliderHTML("readSimWeights()","simBoardWeight()"):""}
       ${simP?"":viewsBar}
       ${simP?"":recentRow}
+      ${simP?"":activeChipsHTML(s)}
       <div class="board">${pool.slice(0,180).map(scoutCard).join("")}</div>
       ${pool.length>180?`<div class="sub" style="text-align:center;margin-top:16px">Showing first 180 — narrow with filters to see more.</div>`:""}
       ${!pool.length?'<div class="empty">No players match. Loosen the filters on the left.</div>':""}
@@ -4673,6 +4707,8 @@ function renderScout(){
   $$("[data-tag]").forEach(b=>b.onclick=()=>{const t=b.dataset.tag;s.tags.has(t)?s.tags.delete(t):s.tags.add(t);renderScout();});
   const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderScout();};
   $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
+  $$("[data-chip]").forEach(b=>b.onclick=()=>{removeChip(b.dataset.chip,s);renderScout();});
+  const chipClr=$("#chipClear");if(chipClr)chipClr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.simRef=null;renderScout();};
   const aClr=$("#archClr");if(aClr)aClr.onclick=(e)=>{e.stopPropagation();s.arch=null;renderScout();};
   const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];renderScout();};
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
@@ -4695,8 +4731,8 @@ function renderScout(){
     row.addEventListener("scroll",upd,{passive:true});
     // click-drag to scroll (desktop)
     let down=false,sx=0,sl=0,moved=false;
-    row.addEventListener("pointerdown",e=>{down=true;moved=false;sx=e.clientX;sl=row.scrollLeft;row.classList.add("nadrag");});
-    window.addEventListener("pointermove",e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>4)moved=true;row.scrollLeft=sl-dx;});
+    row.addEventListener("pointerdown",e=>{down=true;moved=false;sx=e.clientX;sl=row.scrollLeft;});
+    window.addEventListener("pointermove",e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>4&&!moved){moved=true;row.classList.add("nadrag");}if(moved)row.scrollLeft=sl-dx;});
     window.addEventListener("pointerup",()=>{down=false;row.classList.remove("nadrag");});
     // suppress the click that ends a drag so it doesn't open a profile
     row.addEventListener("click",e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false;}},true);
@@ -4789,6 +4825,36 @@ function onGlobalKey(e){
 function noteSummary(p){const rep=parseReport(recOf(p).report||"");
   for(const k of ["nProj","nOff","nDef","nAth","nIntel"]){const v=rep[k];if(v&&String(v).trim())return String(v).trim();}
   return "";}
+function activeChipsHTML(s){
+  const chips=[];
+  const esc2=x=>esc(String(x));
+  if(s.q)chips.push({k:"q",lab:'Search: "'+esc2(s.q)+'"'});
+  s.leagues.forEach(id=>{const L=(STATE.data.leagues||[]).find(x=>x.meta.id===id);chips.push({k:"lg:"+id,lab:L?esc2(L.meta.name):esc2(id)});});
+  s.roles.forEach(r=>chips.push({k:"role:"+r,lab:esc2(r)}));
+  s.tags.forEach(t=>chips.push({k:"tag:"+t,lab:(t===WATCH_TAG?"\u2605 ":"")+esc2(t)}));
+  if(s.status&&s.status!=="all")chips.push({k:"status",lab:"Status: "+esc2(s.status)});
+  if(s.riserOnly)chips.push({k:"riser",lab:"Young risers"});
+  if(s.arch){const a=ARCH_FILTERS.find(x=>x.key===s.arch);chips.push({k:"arch",lab:a?esc2(a.label):"Playing style"});}
+  (s.filters||[]).forEach((f,i)=>{const st=FILTER_STATS.find(x=>x.key===f.key);if(!st)return;
+    const lo=f.min,hi=f.max;const isMin=lo>st.min,isMax=hi<st.max;
+    let txt=st.label+" ";
+    if(isMin&&isMax)txt+=lo+"\u2013"+hi; else if(isMin)txt+="\u2265"+lo; else if(isMax)txt+="\u2264"+hi; else txt+="any";
+    chips.push({k:"f:"+i,lab:esc2(txt)});});
+  if(s.simRef){const rp=player(s.simRef);if(rp)chips.push({k:"sim",lab:"Similar to "+esc2(rp.name)});}
+  if(!chips.length)return "";
+  return `<div class="chipbar"><span class="chipLab">Filters</span>${chips.map(c=>`<button class="fchip" data-chip="${escAttr(c.k)}" title="Remove this filter">${c.lab}<span class="fchipX">\u2715</span></button>`).join("")}<button class="fchip clearall" id="chipClear">Clear all</button></div>`;
+}
+function removeChip(key,s){
+  if(key==="q"){s.q="";}
+  else if(key.startsWith("lg:"))s.leagues.delete(key.slice(3));
+  else if(key.startsWith("role:"))s.roles.delete(key.slice(5));
+  else if(key.startsWith("tag:"))s.tags.delete(key.slice(4));
+  else if(key==="status")s.status="all";
+  else if(key==="riser")s.riserOnly=false;
+  else if(key==="arch")s.arch=null;
+  else if(key==="sim")s.simRef=null;
+  else if(key.startsWith("f:"))s.filters.splice(+key.slice(2),1);
+}
 function scoutCard(p){
   const r=recOf(p),tags=playerTags(p);
   const watched=tags.includes(WATCH_TAG);
@@ -4811,10 +4877,15 @@ function scoutCard(p){
       <div class="sc2-starsrow">${stars}</div>
       <div class="sc2-posrow"><span class="sc2-pos" style="color:${rc};background:${rc}20">${posLabel(p)}</span><button class="cardtagbtn" title="Quick tag" aria-label="Quick tag">\uD83C\uDFF7</button></div>
     </div>
-    <div class="sc2-vitals">
-      <div class="sc2v"><span>HEIGHT</span><b>${p.height?p.height+" cm":"\u2014"}</b></div>
-      <div class="sc2v"><span>WEIGHT</span><b>${p.weight?p.weight+" kg":"\u2014"}</b></div>
+    <div class="sc2-strip">
+      <div class="sc2v"><span>HT</span><b>${p.height?p.height:"\u2014"}</b></div>
       <div class="sc2v"><span>AGE</span><b>${p.age!=null?p.age:"\u2014"}</b></div>
+      <div class="sc2v"><span>GP</span><b>${p.g!=null?p.g:"\u2014"}</b></div>
+      <div class="sc2v hi"><span>PPG</span><b>${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</b></div>
+      <div class="sc2v hi"><span>RPG</span><b>${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</b></div>
+      <div class="sc2v hi"><span>APG</span><b>${p.apg!=null?p.apg.toFixed(1):"\u2014"}</b></div>
+      <div class="sc2v"><span>TS%</span><b>${p.ts!=null?p.ts.toFixed(0):"\u2014"}</b></div>
+      <div class="sc2v"><span>PIR</span><b>${p.pir!=null?p.pir.toFixed(1):"\u2014"}</b></div>
     </div>
     <div class="sc2-summary">${summary?esc(summary):`<span class="sc2-sumph">${unscouted?"No notes yet \u2014 click to start a report \u25b8":""}</span>`}</div>
     ${tagPills?`<div class="sc2-tags">${tagPills}</div>`:""}
@@ -5175,7 +5246,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,profileBack,$,$$});
 
 boot();
 </script>
