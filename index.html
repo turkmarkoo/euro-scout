@@ -922,6 +922,36 @@ body.drawer-lock{overflow:hidden}
 .agCardFoot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line-soft);padding-top:7px}
 .agCardStars{color:var(--gold);font-size:10px;letter-spacing:.5px}
 .agCardScore{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent-deep)}
+/* option C table: everything centred, colour on the row edge */
+.agTbl{width:100%;border-collapse:collapse;font-size:13px;min-width:820px;text-align:center}
+.agTbl thead th{font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);padding:11px 12px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+.agTbl td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle;white-space:nowrap;color:var(--txt)}
+.agTbl tbody tr{cursor:pointer}
+.agTbl tbody tr:hover{background:var(--panel2)}
+.agTblInner{display:inline-flex;align-items:center;gap:9px;justify-content:center}
+.agTbl .agpName{font-weight:600}
+.agTblClub{line-height:1.3}
+.agTblClub span{display:block;font-size:10px;color:var(--muted2)}
+.agTbl td.agTblP{position:relative;padding-left:20px}
+.agTbl td.agTblP::before{content:"";position:absolute;left:7px;top:7px;bottom:7px;width:3px;border-radius:2px}
+.agTbl tr.st-signed td.agTblP::before{background:var(--bad)}
+.agTbl tr.st-available td.agTblP::before{background:var(--good)}
+.agTbl tr.st-retired td.agTblP::before{background:var(--muted2)}
+.agTbl tr.st-retired .agpName,.agTbl tr.st-retired .agTblClub{opacity:.62}
+.tag.dotted{font-size:11.5px;font-weight:700}
+.tag.dotted i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.tag.dotted.signed{color:#9C4E36}.tag.dotted.signed i{background:var(--bad)}
+.tag.dotted.available{color:#4C7A48}.tag.dotted.available i{background:var(--good)}
+.tag.dotted.retired{color:var(--muted)}.tag.dotted.retired i{background:var(--muted2)}
+.agTbl .agRm{opacity:.3}
+.agTbl tbody tr:hover .agRm{opacity:1}
+.agTopRow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.agTopRow .agStSeg{margin-bottom:0}
+.agViewSw{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.agViewBtn{border:none;background:none;color:var(--muted);font-size:15px;line-height:1;padding:7px 12px;cursor:pointer}
+.agViewBtn:hover{background:var(--panel2)}
+.agViewBtn.on{background:var(--accent);color:#fff}
 .agNum{width:62px;border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:4px 7px;font:inherit;font-size:12px;color:var(--txt)}
 .agAddInput{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:10px 13px;font:inherit;font-size:13px;color:var(--txt)}
 .agAddInput:focus{outline:none;border-color:var(--accent)}
@@ -1620,8 +1650,10 @@ function domCompsOf(club){
   if(!club)return [];
   if(!CLUBS)allDbTeams();
   const confirmed=dom27Map().get(club.key)||[];
+  const CLUBSONLY=new Set(((STATE.data||{}).leagues||[]).filter(L=>L.meta.teamsOnly).map(L=>L.meta.id));
   const carried=(club.leagues||[]).filter(l=>!EURO_COMPS.has(l.id)&&l.id!=="n2627"&&!dom27Confirmed(l.id))
-    .map(l=>({id:l.id,name:l.name,provisional:true}));
+    // college and similar clubs-only competitions have no promotion/relegation to verify
+    .map(l=>({id:l.id,name:l.name,provisional:!CLUBSONLY.has(l.id)}));
   return confirmed.concat(carried);
 }
 /* what the club actually plays in 2026/27: its domestic league(s) carry over,
@@ -4183,7 +4215,12 @@ function careerStatus(p,m){
   return k?"signed":"available";
 }
 function agStatusTag(st,extra){return `<span class="tag pill ${st}${extra||""}">${AG_ST[st].lab}</span>`;}
-function agState(){STATE.ag=STATE.ag||{q:"",st:"",role:"",filters:[],arch:"",archMin:25};return STATE.ag;}
+function agState(){STATE.ag=STATE.ag||{q:"",st:"",role:"",filters:[],arch:"",archMin:25,view:agViewGet()};
+  if(!STATE.ag.view)STATE.ag.view=agViewGet();return STATE.ag;}
+const AGVIEW_KEY="euroscout:agview";
+function agViewGet(){try{return localStorage.getItem(AGVIEW_KEY)==="table"?"table":"cards";}catch(e){return "cards";}}
+function agViewSet(v){try{localStorage.setItem(AGVIEW_KEY,v);}catch(e){}}
+function agDot(st){return `<span class="tag dotted ${st}"><i></i>${AG_ST[st].lab}</span>`;}
 function agencyAssign(pid,kind,name){
   const p=player(pid); if(!p)return false;
   const key=gid(p)||pid;
@@ -4236,16 +4273,21 @@ function renderAgencyRoster(){
   const seg=[["","All",all.length],["available","Available",counts.available],["signed","Signed",counts.signed],["retired","Retired",counts.retired]]
     .map(([k,l,n])=>`<button class="agStBtn ${f.st===k?"on":""} ${k||"all"}" data-st="${k}">${l}<span>${n}</span></button>`).join("");
 
-  const cards=players.map(p=>{const st=careerStatus(p,m);const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
+  // a signed player is shown with his 2026/27 club and that club's 26/27 competitions,
+  // not the league his stats happen to come from
+  const lineOf=p=>{const st=careerStatus(p,m);
+    const cl=(st==="signed")?clubByKey(effective26(p,m)):null;
+    return {st,cl,club:cl?cl.name:(p.teamName||"\u2014"),
+      lg:cl?comps2627Label(cl):leagueOf(p).meta.name};};
+  const cards=players.map(p=>{const L=lineOf(p);const st=L.st;const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
     const ph=photoOf(p);
-    const club=(st==="signed")?(clubByKey(effective26(p,m))||{}).name:null;
     return `<div class="agCard st-${st}" data-id="${p.id}">
       ${agStatusTag(st," corner")}
       ${Store.canEdit()?`<button class="agCardRm" data-rm="${p.id}" title="Remove from this ${kind}">\u2715</button>`:""}
       <span class="agCardPh${ph?"":" noimg"}">${ph?`<img src="${ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>
       <div class="agCardName">${esc(p.name)}</div>
       <div class="agCardMeta">${posLabel(p)}${p.height?" \u00b7 "+p.height+"cm":""}${p.age!=null?" \u00b7 "+p.age+"y":""}</div>
-      <div class="agCardClub">${esc(club||p.teamName||"\u2014")}<span>${esc(leagueOf(p).meta.name)}</span></div>
+      <div class="agCardClub">${esc(L.club)}<span>${esc(L.lg)}</span></div>
       <div class="agCardStats"><b>${p.ppg!=null?p.ppg.toFixed(1):"\u2013"}</b> PPG <b>${p.rpg!=null?p.rpg.toFixed(1):"\u2013"}</b> REB <b>${p.apg!=null?p.apg.toFixed(1):"\u2013"}</b> AST</div>
       <div class="agCardFoot">${rt?`<span class="agCardStars">${"\u2605".repeat(rt)}</span>`:`<span></span>`}<span class="agCardScore">${g!=null?g.toFixed(1):"\u2013"}</span></div>
     </div>`;}).join("");
@@ -4258,7 +4300,13 @@ function renderAgencyRoster(){
       <input id="agAdd" class="agAddInput" placeholder="Add a player to ${escAttr(name)}\u2026" autocomplete="off"/>
       <div class="agAddResults hidden" id="agAddRes"></div>
     </div>`:""}
-    <div class="agStSeg">${seg}</div>
+    <div class="agTopRow">
+      <div class="agStSeg">${seg}</div>
+      <div class="agViewSw">
+        <button class="agViewBtn ${f.view==="cards"?"on":""}" data-v="cards" title="Card grid">\u25a6</button>
+        <button class="agViewBtn ${f.view==="table"?"on":""}" data-v="table" title="Table">\u2261</button>
+      </div>
+    </div>
     <div class="rbFilters">
       <input id="agQ" placeholder="Search player\u2026" value="${escAttr(f.q)}" autocomplete="off"/>
       <select id="agRole"><option value="">All positions</option>${["Guard","Forward","Big"].map(r=>`<option value="${r}"${f.role===r?" selected":""}>${r}s</option>`).join("")}</select>
@@ -4272,7 +4320,22 @@ function renderAgencyRoster(){
         <span class="filtdash">to</span>
         <input class="agNum" type="number" data-fi="${i}" data-b="max" value="${fl.max}" step="${st.step||1}"/>
         <button class="filtx" data-frm="${i}">\u2715</button></div>`;}).join("")}</div>`:""}
-    ${players.length?`<div class="agCards">${cards}</div>`:`<div class="empty" style="margin-top:16px">No players match these filters.</div>`}
+    ${players.length?(f.view==="table"
+      ?`<div class="agtableWrap"><table class="agTbl">
+          <thead><tr><th>Player</th><th>Pos</th><th>Nat</th><th>Ht</th><th>Age</th><th>Club 2026/27</th><th>PPG</th><th>REB</th><th>AST</th><th>Score</th><th>Status</th>${Store.canEdit()?"<th></th>":""}</tr></thead>
+          <tbody>${players.map(p=>{const L=lineOf(p);const g=statGradeOverall(p);const ph=photoOf(p);
+            return `<tr class="st-${L.st}" data-id="${p.id}">
+              <td class="agTblP"><span class="agTblInner"><span class="agpPhoto${ph?"":" noimg"}">${ph?`<img src="${ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span><span class="agpName">${esc(p.name)}</span></span></td>
+              <td>${posLabel(p)}</td><td>${esc(p.country||"\u2014")}</td>
+              <td>${p.height?p.height+"cm":"\u2014"}</td><td>${p.age!=null?p.age:"\u2014"}</td>
+              <td class="agTblClub">${esc(L.club)}<span>${esc(L.lg)}</span></td>
+              <td>${p.ppg!=null?p.ppg.toFixed(1):"\u2013"}</td><td>${p.rpg!=null?p.rpg.toFixed(1):"\u2013"}</td><td>${p.apg!=null?p.apg.toFixed(1):"\u2013"}</td>
+              <td><b class="agscore">${g!=null?g.toFixed(1):"\u2013"}</b></td>
+              <td>${agDot(L.st)}</td>
+              ${Store.canEdit()?`<td><button class="amdel agRm" data-rm="${p.id}" title="Remove from this ${kind}">\u2715</button></td>`:""}
+            </tr>`;}).join("")}</tbody></table></div>`
+      :`<div class="agCards">${cards}</div>`)
+    :`<div class="empty" style="margin-top:16px">No players match these filters.</div>`}
   </div>`;
 
   $$(".agCard").forEach(c=>c.onclick=e=>{if(e.target.closest(".agCardRm"))return;openProfile(c.dataset.id);});
@@ -4280,6 +4343,11 @@ function renderAgencyRoster(){
     const nm=(player(b.dataset.rm)||{}).name||"Player";
     agencyClear(b.dataset.rm,kind); toast(nm+" removed"); renderAgencyRoster();});
   $$(".agStBtn").forEach(b=>b.onclick=()=>{f.st=b.dataset.st;renderAgencyRoster();});
+  $$(".agViewBtn").forEach(b=>b.onclick=()=>{f.view=b.dataset.v;agViewSet(f.view);renderAgencyRoster();});
+  $$(".agTbl tbody tr").forEach(tr=>tr.onclick=e=>{if(e.target.closest(".agRm"))return;openProfile(tr.dataset.id);});
+  $$(".agTbl .agRm").forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const nm=(player(b.dataset.rm)||{}).name||"Player";
+    agencyClear(b.dataset.rm,kind); toast(nm+" removed"); renderAgencyRoster();});
   const q=$("#agQ");if(q)q.oninput=()=>{f.q=q.value;const p=q.selectionStart;renderAgencyRoster();
     const el=$("#agQ");if(el){el.focus();try{el.setSelectionRange(p,p);}catch(e){}}};
   const r=$("#agRole");if(r)r.onchange=()=>{f.role=r.value;renderAgencyRoster();};
