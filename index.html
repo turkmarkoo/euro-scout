@@ -882,6 +882,60 @@ body.drawer-lock{overflow:hidden}
 .n27tag.eurocup{background:color-mix(in srgb,#06c 20%,var(--panel));color:#04519e}
 .n27tag.bcl{background:color-mix(in srgb,#0a6 20%,var(--panel));color:#067045}
 .n27tag i{font-style:normal;opacity:.65;font-size:8.5px}
+.stRet{color:var(--muted2)}
+.agAddWrap{position:relative;margin-bottom:14px;max-width:520px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-family:var(--disp);font-weight:800;letter-spacing:.03em;white-space:nowrap}
+.tag.pill{font-size:9.5px;text-transform:uppercase;padding:3.5px 9px;border-radius:999px;color:#fff}
+.tag.pill.signed{background:var(--bad)}
+.tag.pill.available{background:var(--good)}
+.tag.pill.retired{background:var(--muted2)}
+.agStSeg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.agStBtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;
+  padding:6px 13px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.agStBtn span{font-family:var(--mono);font-size:11px;opacity:.75}
+.agStBtn:hover{background:var(--panel2)}
+.agStBtn.on{color:#fff;border-color:transparent}
+.agStBtn.on.all{background:var(--accent)}
+.agStBtn.on.available{background:var(--good)}
+.agStBtn.on.signed{background:var(--bad)}
+.agStBtn.on.retired{background:var(--muted2)}
+.agCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:12px}
+.agCard{position:relative;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line);
+  border-radius:12px;padding:14px 13px 11px;text-align:center;cursor:pointer;transition:box-shadow .12s,transform .12s}
+.agCard:hover{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
+.agCard.st-signed{border-left-color:var(--bad)}
+.agCard.st-available{border-left-color:var(--good)}
+.agCard.st-retired{border-left-color:var(--muted2);opacity:.78}
+.agCard .corner{position:absolute;top:9px;right:9px}
+.agCardRm{position:absolute;top:8px;left:8px;border:none;background:none;color:var(--muted2);cursor:pointer;font-size:12px;opacity:0;padding:2px 4px;border-radius:5px}
+.agCard:hover .agCardRm{opacity:1}
+.agCardRm:hover{color:var(--bad);background:var(--panel2)}
+.agCardPh{width:54px;height:54px;border-radius:50%;overflow:hidden;margin:6px auto 9px;background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--accent-deep)}
+.agCardPh img{width:100%;height:100%;object-fit:cover}
+.agCardName{font-weight:700;font-size:13.5px;line-height:1.25;margin-bottom:3px}
+.agCardMeta{font-size:11px;color:var(--muted);margin-bottom:6px}
+.agCardClub{font-size:11.5px;font-weight:600;line-height:1.3;margin-bottom:8px}
+.agCardClub span{display:block;font-size:10px;font-weight:400;color:var(--muted2)}
+.agCardStats{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:9px}
+.agCardStats b{color:var(--txt);font-family:var(--mono);font-size:11px}
+.agCardFoot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line-soft);padding-top:7px}
+.agCardStars{color:var(--gold);font-size:10px;letter-spacing:.5px}
+.agCardScore{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent-deep)}
+.agNum{width:62px;border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:4px 7px;font:inherit;font-size:12px;color:var(--txt)}
+.agAddInput{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:10px 13px;font:inherit;font-size:13px;color:var(--txt)}
+.agAddInput:focus{outline:none;border-color:var(--accent)}
+.agAddResults{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:11px;box-shadow:0 10px 28px rgba(0,0,0,.16);max-height:340px;overflow:auto;padding:5px}
+.agAddResults.hidden{display:none}
+.agAddRow{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;cursor:pointer}
+.agAddRow:hover{background:var(--panel2)}
+.agAddName{display:flex;flex-direction:column;font-size:13px;font-weight:600;flex:1;min-width:0}
+.agAddSub{font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agAddGo{font-size:11px;font-weight:700;color:var(--accent-deep);text-transform:uppercase;letter-spacing:.4px}
+.agRm{opacity:.35}
+.agtable tbody tr:hover .agRm{opacity:1}
+.tpItem.tpRet{color:var(--muted);font-weight:600}
+.tpItem.tpRet.cur{color:var(--accent-deep)}
 .trInboxHead b{font-size:15px}
 .trBell{margin-right:2px}
 .trHint{color:var(--muted);font-weight:400;font-size:12.5px}
@@ -1457,6 +1511,13 @@ function nextBadge(p,big){const n=nextOf(p);if(!n)return "";const m=NEXT_META[n.
 
 /* ---------- 2026/27 roster assignments (player -> next-season club) ---------- */
 const NEXT26_KEY="euroscout:next26:v1";
+/* the 26/27 map normally holds club keys. Reserved values record a career status
+   instead, so a retiring player leaves the free-agent pool without being signed anywhere. */
+const STATUS_RETIRED="__retired";
+const STATUSES={[STATUS_RETIRED]:{label:"Retired",short:"Retired",cls:"stRet"}};
+function isStatus(k){return !!(k&&STATUSES[k]);}
+function statusOf(p,m){const k=effective26(p,m);return isStatus(k)?k:null;}
+function statusLabel(k){return (STATUSES[k]||{}).label||"";}
 function next26Get(){try{return JSON.parse(localStorage.getItem(NEXT26_KEY)||"{}");}catch(e){return {};}}
 function next26Set(m){try{localStorage.setItem(NEXT26_KEY,JSON.stringify(m));}catch(e){}
   try{Sync.stampKey(NEXT26_KEY);}catch(e){} try{Store.pushAppKey(NEXT26_KEY);}catch(e){}}
@@ -1583,10 +1644,12 @@ function clubBadge(c,size){const u=clubLogo(c);
   return u?`<span class="clubBadge" style="--bs:${size||20}px"><img src="${u}" loading="lazy" onerror="this.parentNode.remove()"/></span>`:"";}
 function clubForTeamKey(k){if(!CLUB_BY_TEAMKEY)allDbTeams();return CLUB_BY_TEAMKEY.get(k)||null;}
 function clubByKey(k){if(!CLUBS)allDbTeams();return CLUBS.find(c=>c.key===k)||clubForTeamKey(k)||null;}
-function canonKey(k){const c=clubForTeamKey(k);return c?c.key:k;}
+function canonKey(k){if(isStatus(k))return k;const c=clubForTeamKey(k);return c?c.key:k;}
 function dbTeamByKey(k){if(!DBTEAM_BYKEY)allDbTeams();return DBTEAM_BYKEY.get(k)||null;}
 function openTeamPickerProfile(pid){openTeamPicker(pid,()=>{if(typeof openProfile==="function")openProfile(pid);});}
-function next26CellHTML(p){const k=effective26(p);const c=k?clubByKey(k):null;
+function next26CellHTML(p){const k=effective26(p);
+  if(isStatus(k))return `<b class="stRet">${esc(statusLabel(k))}</b><div class="bisub">not seeking a club for 2026/27</div><span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 status"><span class="bioaddhint">change</span></span>`;
+  const c=k?clubByKey(k):null;
   if(c)return `<b>${esc(c.name)}</b><div class="bisub">${(c.leagues||[]).map(l=>esc(l.name)).join(" \u00b7 ")}</div><span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 team"><span class="bioaddhint">change</span></span>`;
   return `<span class="bioadd n26fa" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Assign a 26/27 team"><b>Free agent</b> <span class="bioaddhint">sign</span></span>`;}
 /* ---------- transfer approval inbox (review only, never auto-commit) ---------- */
@@ -3805,6 +3868,7 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
   const render=q=>{const qn=normClub(q||"");
     const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||t.teams.some(x=>normClub(x.city).includes(qn))||t.leagues.some(l=>normClub(l.name).includes(qn))):teams;
     listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
+      `<button class="tpItem tpRet${cur===STATUS_RETIRED?" cur":""}" data-tk="${STATUS_RETIRED}">\u23f9 Mark as retired</button>`+
       (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}${(t.teams&&t.teams[0]&&t.teams[0].conf)?" \u00b7 "+esc(t.teams[0].conf):""}</span>${nextCompBadges(t)}</button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
     listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});};
   render("");
@@ -3948,7 +4012,7 @@ function renderTeamsNext(){
     if(c)return renderNextRoster(c); STATE.nextTeam=null;}
   const m=next26Get();
   const byTeam=new Map();
-  scoutPool().forEach(p=>{const k=effective26(p,m);if(k){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
+  scoutPool().forEach(p=>{const k=effective26(p,m);if(k&&!isStatus(k)){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
   const clubs=allClubs();
   const lgs=[...new Set(allDbTeams().map(t=>t.lgName))];
   const S=(STATE.data||{}).season2627, nextLgs=S&&S.comps?Object.entries(S.comps).map(([id,c])=>({id,name:c.name})):[];
@@ -4032,7 +4096,9 @@ function renderNextRoster(club){
 function faState(){STATE.fa=STATE.fa||{q:"",role:"",lg:"",filters:[],arch:"",archMin:25};return STATE.fa;}
 function renderFreeAgents(){
   const m=next26Get(),pool=scoutPool(),f=faState();
-  let list=pool.filter(p=>!effective26(p,m));   // identity-aware: an assignment on any of a player’s league entries counts
+  const retired=pool.filter(p=>statusOf(p,m)===STATUS_RETIRED);
+  // identity-aware: an assignment on any of a player’s league entries counts
+  let list=f.showRetired?retired.slice():pool.filter(p=>!effective26(p,m));
   if(f.q){const qn=normNm(f.q);list=list.filter(p=>normNm(p.name).includes(qn));}
   if(f.role)list=list.filter(p=>p.role===f.role);
   if(f.lg)list=list.filter(p=>p.league===f.lg);
@@ -4063,9 +4129,15 @@ function renderFreeAgents(){
   const used=new Set((f.filters||[]).map(x=>x.key));
   const addOpts=FILTER_STATS.filter(x=>!used.has(x.key)).map(x=>`<option value="${x.key}">${esc(x.label)}</option>`).join("");
   $("#app").innerHTML=`<div class="view">
-    <h1 class="title">Free agents \u00b7 2026/27</h1>
-    <div class="sub" style="margin-bottom:14px">Players not yet placed on a 2026/27 roster \u2014 <b>${list.length}</b> match${list.length===1?"":"es"}${list.length>150?", showing top 150":""}.</div>
+    <h1 class="title">${f.showRetired?"Retired":"Free agents"} \u00b7 2026/27</h1>
+    <div class="sub" style="margin-bottom:14px">${f.showRetired
+      ?`Players you have marked as retired \u2014 they are kept out of the free-agent pool. <b>${list.length}</b> player${list.length===1?"":"s"}.`
+      :`Players not yet placed on a 2026/27 roster \u2014 <b>${list.length}</b> match${list.length===1?"":"es"}${list.length>150?", showing top 150":""}.`}</div>
     ${teamsModeToggle()}
+    <div class="subnav" style="margin-bottom:12px">
+      <button class="subnavbtn ${f.showRetired?"":"on"}" id="faTabOpen">Available</button>
+      <button class="subnavbtn ${f.showRetired?"on":""}" id="faTabRet">Retired${retired.length?" ("+retired.length+")":""}</button>
+    </div>
     <div class="rbFilters">
       <input id="faQ" placeholder="Search player\u2026" value="${escAttr(f.q)}" autocomplete="off"/>
       <select id="faRole"><option value="">All positions</option>${["Guard","Forward","Big"].map(r=>`<option value="${r}"${f.role===r?" selected":""}>${r}s</option>`).join("")}</select>
@@ -4084,6 +4156,8 @@ function renderFreeAgents(){
     ${capped.length?`<div class="agtableWrap"><table class="agtable rbtable">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="empty" style="margin-top:16px">No players match these filters.</div>`}
   </div>`;
   wireRosterCommon();
+  const tO=$("#faTabOpen");if(tO)tO.onclick=()=>{f.showRetired=false;renderFreeAgents();};
+  const tR=$("#faTabRet");if(tR)tR.onclick=()=>{f.showRetired=true;renderFreeAgents();};
   const q=$("#faQ");if(q)q.oninput=()=>{f.q=q.value;const p=q.selectionStart;renderFreeAgents();const el=$("#faQ");if(el){el.focus();try{el.setSelectionRange(p,p);}catch(e){}}};
   const r=$("#faRole");if(r)r.onchange=()=>{f.role=r.value;renderFreeAgents();};
   const l=$("#faLg");if(l)l.onchange=()=>{f.lg=l.value;renderFreeAgents();};
@@ -4096,40 +4170,150 @@ function renderFreeAgents(){
     const v=parseFloat(inp.value);if(!isNaN(v))f.filters[i][inp.dataset.b]=v;renderFreeAgents();});
   $$("[data-frm]").forEach(b=>b.onclick=()=>{f.filters.splice(+b.dataset.frm,1);renderFreeAgents();});
 }
+/* assign or clear the agency/agent on a person. Keyed to the merged id so it
+   applies across every competition the player appears in, same as the edit modal. */
+/* Career status shown on agency pages.
+   signed    = placed on a 2026/27 roster
+   retired   = explicitly marked
+   available = everything else (no 26/27 club recorded) */
+const AG_ST={signed:{lab:"Signed"},available:{lab:"Available"},retired:{lab:"Retired"}};
+function careerStatus(p,m){
+  const k=effective26(p,m||next26Get());
+  if(k===STATUS_RETIRED)return "retired";
+  return k?"signed":"available";
+}
+function agStatusTag(st,extra){return `<span class="tag pill ${st}${extra||""}">${AG_ST[st].lab}</span>`;}
+function agState(){STATE.ag=STATE.ag||{q:"",st:"",role:"",filters:[],arch:"",archMin:25};return STATE.ag;}
+function agencyAssign(pid,kind,name){
+  const p=player(pid); if(!p)return false;
+  const key=gid(p)||pid;
+  if(kind==="agency")ovrSaveLocal({bio:{[key]:{agency:name}}});
+  else{const ag=agencyForAgent(name);ovrSaveLocal({bio:{[key]:ag?{agent:name,agency:ag}:{agent:name}}});}
+  applyOverrides(); return true;
+}
+function agencyClear(pid,kind){
+  const p=player(pid); if(!p)return false;
+  const key=gid(p)||pid;
+  // ovrSaveLocal strips blanks, so clear straight on the local override
+  try{const l=ovrLocal();
+    if(l.bio[key]){ if(kind==="agency"){delete l.bio[key].agency;delete l.bio[key].agent;}
+                    else delete l.bio[key].agent;
+      localStorage.setItem(OVR_KEY,JSON.stringify(l));}
+  }catch(e){}
+  OVR=ovrMerged(); applyOverrides(); return true;
+}
+function agencyForAgent(nm){const k=normName(nm);
+  const hit=scoutPool().find(x=>x.agent&&normName(x.agent)===k&&x.agency&&x.agency.trim());
+  return hit?hit.agency.trim():"";}
 function renderAgencyRoster(){
   const {kind,name}=STATE.agencyView;
-  let players;
-  if(kind==="agency"){const key=normAgency(name);players=scoutPool().filter(p=>p.agency&&normAgency(p.agency)===key);}
-  else{const key=normName(name);players=scoutPool().filter(p=>p.agent&&normName(p.agent)===key);}
+  const m=next26Get(), f=agState();
+  let all;
+  if(kind==="agency"){const key=normAgency(name);all=scoutPool().filter(p=>p.agency&&normAgency(p.agency)===key);}
+  else{const key=normName(name);all=scoutPool().filter(p=>p.agent&&normName(p.agent)===key);}
+  const counts={signed:0,available:0,retired:0};
+  all.forEach(p=>{counts[careerStatus(p,m)]++;});
+
+  let players=all.slice();
+  if(f.st)players=players.filter(p=>careerStatus(p,m)===f.st);
+  if(f.q){const qn=normNm(f.q);players=players.filter(p=>normNm(p.name).includes(qn));}
+  if(f.role)players=players.filter(p=>p.role===f.role);
+  if(f.arch){const parts=String(f.arch).split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
+    const mn=+f.archMin||0;
+    players=players.filter(p=>{if(!p.arch||(p.arch[ai]||0)<mn)return false;
+      if(band!=null&&A&&A.roleBands)return p.role===ROLE_ORDER[band];return true;});}
+  (f.filters||[]).forEach(fl=>{const st=FILTER_STATS.find(x=>x.key===fl.key);if(!st)return;
+    players=players.filter(p=>{const v=fl.key==="grade"?statGradeOverall(p):(fl.key==="height"?p.height:p[fl.key]);
+      if(v==null||isNaN(v))return false;return v>=fl.min&&v<=fl.max;});});
   players.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+
   let sub;
-  if(kind==="agent"){const ag=players.find(p=>p.agency&&p.agency.trim());sub=ag?"Agent \u00b7 "+esc(ag.agency.trim()):"Agent";}
-  else{const agents=new Set(players.filter(p=>p.agent&&p.agent.trim()).map(p=>normName(p.agent)));sub="Agency \u00b7 "+agents.size+" agent"+(agents.size===1?"":"s");}
-  const rows=players.map(p=>{const L=leagueOf(p);const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
-    const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
-    return `<tr data-id="${p.id}">
-      <td class="agp"><span class="agpInner"><span class="agpPhoto${p.img?'':' noimg'}">${photo}</span><span class="agpName">${p.name}</span></span></td>
-      <td>${posLabel(p)}</td>
-      <td>${p.country||"\u2014"}</td>
-      <td class="num">${p.height?p.height+"cm":"\u2014"}</td>
-      <td class="num">${p.age!=null?p.age:"\u2014"}</td>
-      <td class="agclub"><span class="agclubInner"><span>${p.teamName||"\u2014"}</span><span class="agLg">${L.meta.name}</span></span></td>
-      <td class="num">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td>
-      <td class="num">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
-      <td class="num">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
-      <td class="agrate ctr">${rt?"\u2605".repeat(rt):"\u2014"}</td>
-      <td class="num"><b class="agscore">${g!=null?g.toFixed(1):"\u2014"}</b></td>
-    </tr>`;}).join("");
+  if(kind==="agent"){const ag=all.find(p=>p.agency&&p.agency.trim());sub=ag?"Agent \u00b7 "+esc(ag.agency.trim()):"Agent";}
+  else{const agents=new Set(all.filter(p=>p.agent&&p.agent.trim()).map(p=>normName(p.agent)));sub="Agency \u00b7 "+agents.size+" agent"+(agents.size===1?"":"s");}
+
+  const used=new Set((f.filters||[]).map(x=>x.key));
+  const addOpts=FILTER_STATS.filter(x=>!used.has(x.key)).map(x=>`<option value="${x.key}">${esc(x.label)}</option>`).join("");
+  const seg=[["","All",all.length],["available","Available",counts.available],["signed","Signed",counts.signed],["retired","Retired",counts.retired]]
+    .map(([k,l,n])=>`<button class="agStBtn ${f.st===k?"on":""} ${k||"all"}" data-st="${k}">${l}<span>${n}</span></button>`).join("");
+
+  const cards=players.map(p=>{const st=careerStatus(p,m);const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
+    const ph=photoOf(p);
+    const club=(st==="signed")?(clubByKey(effective26(p,m))||{}).name:null;
+    return `<div class="agCard st-${st}" data-id="${p.id}">
+      ${agStatusTag(st," corner")}
+      ${Store.canEdit()?`<button class="agCardRm" data-rm="${p.id}" title="Remove from this ${kind}">\u2715</button>`:""}
+      <span class="agCardPh${ph?"":" noimg"}">${ph?`<img src="${ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>
+      <div class="agCardName">${esc(p.name)}</div>
+      <div class="agCardMeta">${posLabel(p)}${p.height?" \u00b7 "+p.height+"cm":""}${p.age!=null?" \u00b7 "+p.age+"y":""}</div>
+      <div class="agCardClub">${esc(club||p.teamName||"\u2014")}<span>${esc(leagueOf(p).meta.name)}</span></div>
+      <div class="agCardStats"><b>${p.ppg!=null?p.ppg.toFixed(1):"\u2013"}</b> PPG <b>${p.rpg!=null?p.rpg.toFixed(1):"\u2013"}</b> REB <b>${p.apg!=null?p.apg.toFixed(1):"\u2013"}</b> AST</div>
+      <div class="agCardFoot">${rt?`<span class="agCardStars">${"\u2605".repeat(rt)}</span>`:`<span></span>`}<span class="agCardScore">${g!=null?g.toFixed(1):"\u2013"}</span></div>
+    </div>`;}).join("");
+
   $("#app").innerHTML=`<div class="view">
     <button class="btn ghost sm" onclick="backToAgencies()">\u2190 Agencies</button>
     <h1 class="title" style="margin-top:10px">${esc(name)}</h1>
-    <div class="sub" style="margin-bottom:16px">${sub} \u00b7 ${players.length} player${players.length===1?"":"s"}</div>
-    ${players.length?`<div class="agtableWrap"><table class="agtable rbtable">
-      <colgroup><col style="width:24%"><col style="width:8%"><col style="width:14%"><col style="width:7%"><col style="width:5%"><col style="width:18%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:66px"><col style="width:6%"></colgroup>
-      <thead><tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th>Club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="ctr">Rating</th><th class="num">Score</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`:`<div class="empty">No players found for this ${kind}.</div>`}
+    <div class="sub" style="margin-bottom:14px">${sub} \u00b7 ${all.length} player${all.length===1?"":"s"}</div>
+    ${Store.canEdit()?`<div class="agAddWrap">
+      <input id="agAdd" class="agAddInput" placeholder="Add a player to ${escAttr(name)}\u2026" autocomplete="off"/>
+      <div class="agAddResults hidden" id="agAddRes"></div>
+    </div>`:""}
+    <div class="agStSeg">${seg}</div>
+    <div class="rbFilters">
+      <input id="agQ" placeholder="Search player\u2026" value="${escAttr(f.q)}" autocomplete="off"/>
+      <select id="agRole"><option value="">All positions</option>${["Guard","Forward","Big"].map(r=>`<option value="${r}"${f.role===r?" selected":""}>${r}s</option>`).join("")}</select>
+      <select id="agArch"><option value="">Any playing style</option>${ARCH_FILTERS.map(a=>`<option value="${escAttr(a.key)}"${f.arch===a.key?" selected":""}>${esc(a.label)}</option>`).join("")}</select>
+      ${addOpts?`<select id="agAddF"><option value="">+ Add stat filter</option>${addOpts}</select>`:""}
+      ${((f.filters||[]).length||f.arch||f.st||f.role||f.q)?`<button class="fchip clearall" id="agClear">Clear filters</button>`:""}
+    </div>
+    ${(f.filters||[]).length?`<div class="filterbar">${f.filters.map((fl,i)=>{const st=FILTER_STATS.find(x=>x.key===fl.key)||{};
+      return `<div class="filtrow"><span class="filtlab">${esc(st.label||fl.key)}</span>
+        <input class="agNum" type="number" data-fi="${i}" data-b="min" value="${fl.min}" step="${st.step||1}"/>
+        <span class="filtdash">to</span>
+        <input class="agNum" type="number" data-fi="${i}" data-b="max" value="${fl.max}" step="${st.step||1}"/>
+        <button class="filtx" data-frm="${i}">\u2715</button></div>`;}).join("")}</div>`:""}
+    ${players.length?`<div class="agCards">${cards}</div>`:`<div class="empty" style="margin-top:16px">No players match these filters.</div>`}
   </div>`;
-  $$(".agtable tbody tr").forEach(tr=>tr.onclick=()=>openProfile(tr.dataset.id));
+
+  $$(".agCard").forEach(c=>c.onclick=e=>{if(e.target.closest(".agCardRm"))return;openProfile(c.dataset.id);});
+  $$(".agCardRm").forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const nm=(player(b.dataset.rm)||{}).name||"Player";
+    agencyClear(b.dataset.rm,kind); toast(nm+" removed"); renderAgencyRoster();});
+  $$(".agStBtn").forEach(b=>b.onclick=()=>{f.st=b.dataset.st;renderAgencyRoster();});
+  const q=$("#agQ");if(q)q.oninput=()=>{f.q=q.value;const p=q.selectionStart;renderAgencyRoster();
+    const el=$("#agQ");if(el){el.focus();try{el.setSelectionRange(p,p);}catch(e){}}};
+  const r=$("#agRole");if(r)r.onchange=()=>{f.role=r.value;renderAgencyRoster();};
+  const ar=$("#agArch");if(ar)ar.onchange=()=>{f.arch=ar.value;renderAgencyRoster();};
+  const ad=$("#agAddF");if(ad)ad.onchange=()=>{const st=FILTER_STATS.find(x=>x.key===ad.value);
+    if(st){f.filters.push({key:st.key,min:st.min,max:st.max});renderAgencyRoster();}};
+  const fc=$("#agClear");if(fc)fc.onclick=()=>{STATE.ag={q:"",st:"",role:"",filters:[],arch:"",archMin:25};renderAgencyRoster();};
+  $$(".agNum").forEach(inp=>inp.onchange=()=>{const i=+inp.dataset.fi;if(!f.filters[i])return;
+    const v=parseFloat(inp.value);if(!isNaN(v))f.filters[i][inp.dataset.b]=v;renderAgencyRoster();});
+  $$("[data-frm]").forEach(b=>b.onclick=()=>{f.filters.splice(+b.dataset.frm,1);renderAgencyRoster();});
+
+  const inp=$("#agAdd"), res=$("#agAddRes");
+  if(inp){
+    const have=new Set(all.map(x=>gid(x)));
+    const paint=()=>{const qn=normNm(inp.value.trim());
+      if(qn.length<2){res.classList.add("hidden");res.innerHTML="";return;}
+      const seen=new Set(), hits=[];
+      scoutPool().forEach(x=>{const g2=gid(x); if(have.has(g2)||seen.has(g2))return;
+        if(!normNm(x.name).includes(qn))return; seen.add(g2); hits.push(x);});
+      hits.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+      res.innerHTML=hits.length?hits.slice(0,10).map(x=>{const cur=kind==="agency"?x.agency:x.agent;
+        return `<div class="agAddRow" data-add="${x.id}">
+          <span class="agpPhoto${photoOf(x)?"":" noimg"}">${photoOf(x)?`<img src="${photoOf(x)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(x.name)}</span>
+          <span class="agAddName">${esc(x.name)}<span class="agAddSub">${esc(leagueOf(x).meta.name)} \u00b7 ${esc(x.teamName||"\u2014")}${cur?" \u00b7 now: "+esc(cur):""}</span></span>
+          <span class="agAddGo">add</span></div>`;}).join(""):`<div class="gsempty">No match</div>`;
+      res.classList.remove("hidden");
+      $$("#agAddRes [data-add]").forEach(el=>el.onclick=()=>{
+        const nm=(player(el.dataset.add)||{}).name||"Player";
+        agencyAssign(el.dataset.add,kind,name);
+        toast(nm+" added to "+name);
+        inp.value="";renderAgencyRoster();});
+    };
+    inp.oninput=paint; inp.onfocus=paint;
+  }
 }
 function renderAgencies(){
   if(STATE.agencyView)return renderAgencyRoster();
