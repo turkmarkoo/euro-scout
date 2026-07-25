@@ -952,6 +952,9 @@ body.drawer-lock{overflow:hidden}
 .agViewBtn{border:none;background:none;color:var(--muted);font-size:15px;line-height:1;padding:7px 12px;cursor:pointer}
 .agViewBtn:hover{background:var(--panel2)}
 .agViewBtn.on{background:var(--accent);color:#fff}
+.oplLoad{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;font-weight:600;padding:40px 0}
+.oplSpin{width:20px;height:20px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:oplsp .7s linear infinite}
+@keyframes oplsp{to{transform:rotate(360deg)}}
 .opLgBar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
 .opLgTab{border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
 .opLgTab span{font-family:var(--mono);font-size:11px;opacity:.7}
@@ -1510,6 +1513,8 @@ body.drawer-lock{overflow:hidden}
 <script src="overrides.js"></script>
 <script src="data/data.js"></script>
 <script src="data/exhibitions.js"></script>
+<script src="data/leagues_pro.js" defer></script>
+<script src="data/leagues_ncaa.js" defer></script>
 <script>
 /* ============================ EuroScout app ============================ */
 /* Capture any deep-link hash (#p=<id>) before anything can wipe it. */
@@ -2048,12 +2053,16 @@ function applyOverrides(){
   }));
 }
 function normName(x){return (x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[\u0111\u0142]/g,"d").replace(/\u0142/g,"l").replace(/[\u015f\u0219]/g,"s").replace(/[\u0131]/g,"i").replace(/[\u0127]/g,"h").replace(/[\u00f0]/g,"d").replace(/[\u00f8]/g,"o").replace(/[\u00e6]/g,"ae").replace(/[^a-z ]/g,"").trim();}
+function allPlayersEvery(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.teamsOnly)return;L.players.forEach(p=>a.push(p));});return a;}
 function rebuildLinks(){
-  const all=allPlayersFlat(); const byId={}; all.forEach(p=>byId[p.id]=p);
+  const all=allPlayersEvery(); const byId={}; all.forEach(p=>byId[p.id]=p);
   const parent={}; all.forEach(p=>parent[p.id]=p.id);
   const find=x=>{while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;};
   const uni=(a,b)=>{if(byId[a]&&byId[b]){const ra=find(a),rb=find(b);if(ra!==rb)parent[ra]=rb;}};
   const nameKey=p=>normName(p.name).split(" ").filter(Boolean).sort().join(" ");
+  // leagues whose feed has no birth year can't be safely name-matched across leagues
+  const NO_BIO_MERGE=new Set(["ncaam"]);
+  const nameMergeable=p=>!NO_BIO_MERGE.has(p.league);
   const byCode={},byName={};
   // player codes are only comparable within a code-space: EuroLeague+EuroCup share FIBA codes,
   // every other league has its own local numeric ids (aba-5150 and lba-5150 are DIFFERENT people)
@@ -2062,8 +2071,13 @@ function rebuildLinks(){
     // only link by code when there IS one — leagues without player ids must not all collapse into one person
     const c=p.code; const hasCode=(c!=null&&c!==""&&String(c)!=="null"&&String(c)!=="undefined");
     if(hasCode){const ck=codeSpace(p)+":"+c;(byCode[ck]=byCode[ck]||[]).push(p.id);}
-    (byName[nameKey(p)]=byName[nameKey(p)]||[]).push(p.id);});
+    if(nameMergeable(p))(byName[nameKey(p)]=byName[nameKey(p)]||[]).push(p.id);});
   Object.values(byCode).forEach(a=>{for(let i=1;i<a.length;i++)uni(a[0],a[i]);});
+  // NBA-family id merge: nba / gleague / sl carry the same numeric NBA person id
+  const byNbaId={};
+  all.forEach(p=>{const nid=p._nbaId!=null?p._nbaId:((p.league==="nba"||p.league==="gleague")?p.code:null);
+    if(nid!=null&&String(nid)!==""&&String(nid)!=="null"){(byNbaId["nba:"+nid]=byNbaId["nba:"+nid]||[]).push(p.id);}});
+  Object.values(byNbaId).forEach(a=>{for(let i=1;i<a.length;i++)uni(a[0],a[i]);});
   // same (token-sorted) name links entries when birth years agree OR either side lacks one
   Object.values(byName).forEach(a=>{for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){
     const A=byId[a[i]],B=byId[a[j]];
@@ -2071,7 +2085,7 @@ function rebuildLinks(){
   // nickname variants: same surname + same birth year + first name is a prefix of the other
   // (links "Matt Hurt" to "Matthew Christopher Hurt", "Nico" to "Nicolas", etc.)
   const bucket={};
-  all.forEach(p=>{if(!p.born)return;const t=normName(p.name).split(" ").filter(Boolean);
+  all.forEach(p=>{if(!p.born||!nameMergeable(p))return;const t=normName(p.name).split(" ").filter(Boolean);
     if(t.length<2)return;const k=t[t.length-1]+"|"+p.born;(bucket[k]=bucket[k]||[]).push(p);});
   Object.values(bucket).forEach(arr=>{for(let i=0;i<arr.length;i++)for(let j=i+1;j<arr.length;j++){
     const a=normName(arr[i].name).split(" ")[0], b=normName(arr[j].name).split(" ")[0];
@@ -2437,6 +2451,7 @@ async function boot(){
   muInit();
   await Store.load();
   mergeGroupRecords();
+  loadExtraLeagues();   // stream NBA/G League, then NCAA, in the background
   const sel=$("#leagueSel");
   if(sel){ sel.innerHTML="";
     const allOpt=document.createElement("option");allOpt.value="__all__";allOpt.textContent="All leagues";sel.appendChild(allOpt);
@@ -5049,6 +5064,28 @@ function renderCompare(){
 /* ---------- Exhibitions / Events (NBA Summer League 2026) ---------- */
 let EXHIB=null, EXHIB_BYNN={};
 function roleFromHt(ht){ if(ht==null)return "Guard"; if(ht>=207)return "Center"; if(ht>=198)return "Forward"; return "Guard"; }
+async function loadExtraLeagues(){
+  const steps=[{f:"data/leagues_pro.json",label:"pro"},{f:"data/leagues_ncaa.json",label:"ncaa"}];
+  for(const st of steps){
+    let pack=null;
+    try{ pack=await (await fetch(st.f,{cache:"no-cache"})).json(); }
+    catch(e){ pack=(window.EUROSCOUT_EXTRA&&window.EUROSCOUT_EXTRA[st.label])||null; }
+    if(!pack||!pack.leagues||!pack.leagues.length)continue;
+    // add any leagues not already present
+    const have=new Set(STATE.data.leagues.map(L=>L.meta.id));
+    pack.leagues.forEach(L=>{ if(!have.has(L.meta.id)) STATE.data.leagues.push(L); });
+    // derived per-player fields the core boot computes (astto etc.) for the new leagues
+    pack.leagues.forEach(L=>L.players.forEach(p=>{
+      if(p.astto==null)p.astto=(p.topg>0)?Math.round(p.apg/p.topg*100)/100:(p.apg>0?p.apg:0);
+    }));
+    DBTEAM_LIST=null; DBTEAM_BYKEY=null; CLUBS=null; CLUB_BY_TEAMKEY=null;   // invalidate club caches
+    applyOverrides(); rebuildLinks();
+    try{ mergeGroupRecords(); }catch(e){}
+    // if the user is looking at a view that could show these, refresh it
+    if(["exhib","players","teams","agencies"].includes(STATE.view)){ try{ render(); }catch(e){} }
+    STATE._extraLoaded=(STATE._extraLoaded||[]).concat(st.label);
+  }
+}
 function injectExhibitions(raw){
   const ex=window.EUROSCOUT_EXHIBITIONS; if(!ex||!ex.players){return;}
   EXHIB=ex;
@@ -5084,7 +5121,13 @@ function exhibMatch(p){ if(!p||p.league==="sl")return null; const nn=normName(p.
 function otherLeagues(){return STATE.data.leagues.filter(L=>isOtherLeague(L.meta));}
 function renderExhib(){
   const others=otherLeagues();
-  if(!others.length){ $("#app").innerHTML='<div class="empty">No other-league data loaded.</div>'; return; }
+  if(!others.length){
+    const loading=!(STATE._extraLoaded&&STATE._extraLoaded.length>=2);
+    $("#app").innerHTML=loading
+      ? '<div class="view"><h1 class="title">Other leagues</h1><div class="sub" style="margin-bottom:14px">NBA, G League and NCAA data is loading in the background\u2026</div><div class="oplLoad"><div class="oplSpin"></div>Loading player data</div></div>'
+      : '<div class="empty">No other-league data loaded.</div>';
+    return;
+  }
   STATE.oth=STATE.oth||{lg:others[0].meta.id,q:"",role:"",country:"",mode:"pg",sort:"ppg",dir:-1,euOnly:false};
   const st=STATE.oth;
   if(!others.some(L=>L.meta.id===st.lg))st.lg=others[0].meta.id;
