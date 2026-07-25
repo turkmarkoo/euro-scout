@@ -1058,6 +1058,8 @@ body.drawer-lock{overflow:hidden}
 .rbSug:empty{display:none}
 .rbSugItem{display:block;width:100%;text-align:left;border:none;background:none;padding:8px 10px;font:inherit;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer}
 .rbSugItem small{font-weight:400;color:var(--muted)}
+.rbSugLg{font-family:var(--disp);font-size:9px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;background:var(--accent-soft);color:var(--accent-deep);padding:1.5px 5px;border-radius:5px;vertical-align:middle}
+.rbSugItem:hover .rbSugLg{background:rgba(255,255,255,.25);color:#fff}
 .rbSugItem:hover{background:var(--accent);color:#fff}
 .rbSugItem:hover small{color:#fff}
 .rbPool{margin-top:30px}
@@ -4065,14 +4067,14 @@ function clubRoster2526(club){ // this season's squad across every competition t
   return out.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
 }
 function clubRoster2627(club,m){m=m||next26Get();
-  return scoutPool().filter(p=>effective26(p,m)===club.key).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+  return assignPool().filter(p=>effective26(p,m)===club.key).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
 }
 function renderTeamsNext(){
   if(STATE.nextTeam){const c=allClubs().find(x=>x.key===STATE.nextTeam);
     if(c)return renderNextRoster(c); STATE.nextTeam=null;}
   const m=next26Get();
   const byTeam=new Map();
-  scoutPool().forEach(p=>{const k=effective26(p,m);if(k&&!isStatus(k)){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
+  assignPool().forEach(p=>{const k=effective26(p,m);if(k&&!isStatus(k)){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
   const clubs=allClubs();
   const lgs=[...new Set(allDbTeams().map(t=>t.lgName))];
   const S=(STATE.data||{}).season2627, nextLgs=S&&S.comps?Object.entries(S.comps).map(([id,c])=>({id,name:c.name})):[];
@@ -4146,11 +4148,14 @@ function renderNextRoster(club){
   wireRosterCommon();
   $$(".cmpRow[data-pid]").forEach(el=>el.addEventListener("dblclick",()=>openProfile(el.dataset.pid)));
   $$(".cmpNm").forEach(el=>el.onclick=e=>{const row=e.target.closest(".cmpRow");if(row)openProfile(row.dataset.pid);});
-  const pool=scoutPool();
+  const pool=assignPool();
   $$(".rbTeamAdd").forEach(inp=>inp.oninput=()=>{const tk=inp.dataset.tk,box=$("#rbSug0");if(!box)return;
     const qq=inp.value.toLowerCase().trim();if(qq.length<2){box.innerHTML="";return;}const qn=normNm(qq);
-    const hits=pool.filter(p=>!m[p.id]&&(p.name.toLowerCase().includes(qq)||normNm(p.name).includes(qn))).slice(0,7);
-    box.innerHTML=hits.map(p=>`<button class="rbSugItem" data-pick="${p.id}">${p.name} <small>${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${p.teamName||""}</small></button>`).join("")||'<div class="rbSugNone">No unassigned player matches.</div>';
+    // identity-aware: skip anyone already assigned on any of their league entries
+    const hits=pool.filter(p=>!effective26(p,m)&&(p.name.toLowerCase().includes(qq)||normNm(p.name).includes(qn))).slice(0,8);
+    box.innerHTML=hits.map(p=>{const L=leagueOf(p);const other=isOtherLeague(L.meta);
+      const tag=other?` <span class="rbSugLg">${esc(L.meta.name)}</span>`:"";
+      return `<button class="rbSugItem" data-pick="${p.id}">${esc(p.name)}${tag} <small>${posLabel(p)}${p.age?" \u00b7 "+p.age:""} \u00b7 ${esc(p.teamName||"")}</small></button>`;}).join("")||'<div class="rbSugNone">No unassigned player matches.</div>';
     box.querySelectorAll("[data-pick]").forEach(it=>it.onclick=()=>{set26(it.dataset.pick,tk);renderTeams();});});
 }
 function faState(){STATE.fa=STATE.fa||{q:"",role:"",lg:"",filters:[],arch:"",archMin:25};return STATE.fa;}
@@ -5147,6 +5152,16 @@ function renderExhib(){
 
 /* ---------- Scout board (homepage) ---------- */
 const ROLE_OPTS=[["Guard","Guards"],["Forward","Forwards"],["Big","Bigs"]];
+function assignPool(){
+  // like scoutPool but also includes other-league players (NBA, NCAA, G League),
+  // so a player coming to Europe can be placed on a 26/27 roster before he has a European line.
+  const seen=new Set(),out=[];
+  STATE.data.leagues.forEach(L=>{
+    if(L.meta.teamsOnly)return;
+    L.players.forEach(p=>{if(p.league==="sl")return;const g=gid(p);if(seen.has(g))return;seen.add(g);out.push(p);});
+  });
+  return out;
+}
 function scoutPool(){
   // one card per person (dedupe merged identities), across all league seasons.
   // Exhibitions (Summer League) are excluded here — they live on their own tab.
