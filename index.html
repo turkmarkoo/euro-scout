@@ -1513,8 +1513,6 @@ body.drawer-lock{overflow:hidden}
 <script src="overrides.js"></script>
 <script src="data/data.js"></script>
 <script src="data/exhibitions.js"></script>
-<script src="data/leagues_pro.js" defer></script>
-<script src="data/leagues_ncaa.js" defer></script>
 <script>
 /* ============================ EuroScout app ============================ */
 /* Capture any deep-link hash (#p=<id>) before anything can wipe it. */
@@ -5070,7 +5068,7 @@ async function loadExtraLeagues(){
     let pack=null;
     try{ pack=await (await fetch(st.f,{cache:"no-cache"})).json(); }
     catch(e){ pack=(window.EUROSCOUT_EXTRA&&window.EUROSCOUT_EXTRA[st.label])||null; }
-    if(!pack||!pack.leagues||!pack.leagues.length)continue;
+    if(!pack||!pack.leagues||!pack.leagues.length){ console.warn("extra league not loaded:",st.label,"— check that "+st.f+" is deployed"); continue; }
     // add any leagues not already present
     const have=new Set(STATE.data.leagues.map(L=>L.meta.id));
     pack.leagues.forEach(L=>{ if(!have.has(L.meta.id)) STATE.data.leagues.push(L); });
@@ -5082,9 +5080,11 @@ async function loadExtraLeagues(){
     applyOverrides(); rebuildLinks();
     try{ mergeGroupRecords(); }catch(e){}
     // if the user is looking at a view that could show these, refresh it
-    if(["exhib","players","teams","agencies"].includes(STATE.view)){ try{ render(); }catch(e){} }
     STATE._extraLoaded=(STATE._extraLoaded||[]).concat(st.label);
+    if(["exhib","players","teams","agencies"].includes(STATE.view)){ try{ render(); }catch(e){} }
   }
+  STATE._extraDone=true;
+  if(STATE.view==="exhib"){ try{ render(); }catch(e){} }
 }
 function injectExhibitions(raw){
   const ex=window.EUROSCOUT_EXHIBITIONS; if(!ex||!ex.players){return;}
@@ -5122,10 +5122,11 @@ function otherLeagues(){return STATE.data.leagues.filter(L=>isOtherLeague(L.meta
 function renderExhib(){
   const others=otherLeagues();
   if(!others.length){
-    const loading=!(STATE._extraLoaded&&STATE._extraLoaded.length>=2);
-    $("#app").innerHTML=loading
-      ? '<div class="view"><h1 class="title">Other leagues</h1><div class="sub" style="margin-bottom:14px">NBA, G League and NCAA data is loading in the background\u2026</div><div class="oplLoad"><div class="oplSpin"></div>Loading player data</div></div>'
-      : '<div class="empty">No other-league data loaded.</div>';
+    if(!STATE._extraDone){
+      $("#app").innerHTML='<div class="view"><h1 class="title">Other leagues</h1><div class="sub" style="margin-bottom:14px">NBA, G League and NCAA data is loading in the background\u2026</div><div class="oplLoad"><div class="oplSpin"></div>Loading player data</div></div>';
+    }else{
+      $("#app").innerHTML='<div class="view"><h1 class="title">Other leagues</h1><div class="empty" style="margin-top:16px">Could not load NBA / G League / NCAA data.<br><span style="font-size:12px;color:var(--muted)">Make sure <code>data/leagues_pro.json</code> and <code>data/leagues_ncaa.json</code> are deployed alongside <code>data.json</code>.</span></div></div>';
+    }
     return;
   }
   STATE.oth=STATE.oth||{lg:others[0].meta.id,q:"",role:"",country:"",mode:"pg",sort:"ppg",dir:-1,euOnly:false};
