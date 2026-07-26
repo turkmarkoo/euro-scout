@@ -1593,7 +1593,13 @@ function set26(pid,key){const m=next26Get();const p=player(pid);
   next26Set(m);}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
 function isOtherLeague(m){return !!(m&&(m.exhibition||m.excludeFromStats));}
-function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(isOtherLeague(L.meta))return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,conf:t.conference||null,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
+// A league whose TEAMS should appear in the Teams browser / roster builder even though its
+// player stats stay out of the "All competitions" pool. NBA, G League and NCAA qualify.
+const TEAMS_BROWSE_LEAGUES=new Set(["nba","gleague","ncaam"]);
+function showsTeams(m){return !!(m&&!m.teamsOnly&&!m.exhibition&&(!m.excludeFromStats||TEAMS_BROWSE_LEAGUES.has(m.id)));}
+// stat-scope leagues: the ones that belong in stats filters/percentiles (never the browse-only ones)
+function isStatLeague(m){return !!(m&&!isOtherLeague(m)&&!m.teamsOnly);}
+function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(!showsTeams(L.meta))return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,conf:t.conference||null,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
 
 /* ---------- clubs: one entry per real club, tagged with every competition it plays ---------- */
 let CLUBS=null, CLUB_BY_TEAMKEY=null;
@@ -1632,7 +1638,11 @@ function buildClubs(){
   const uni=(i,j)=>{const a=find(i),b=find(j);if(a===b)return;
     for(const l of lgSet[b])if(lgSet[a].has(l))return;   // would duplicate a competition -> not the same club
     parent[b]=a;lgSet[b].forEach(l=>lgSet[a].add(l));};
-  for(let i=0;i<teams.length;i++)for(let j=i+1;j<teams.length;j++){if(sameClub(teams[i],teams[j]))uni(i,j);}
+  const BROWSE=new Set(["nba","gleague","ncaam"]);
+  const crossOK=(a,b)=>{const ab=BROWSE.has(a.lg),bb=BROWSE.has(b.lg);
+    // never merge a browse-league team with a team from a different league (generic nicknames collide)
+    if((ab||bb)&&a.lg!==b.lg)return false; return true;};
+  for(let i=0;i<teams.length;i++)for(let j=i+1;j<teams.length;j++){if(crossOK(teams[i],teams[j])&&sameClub(teams[i],teams[j]))uni(i,j);}
   const groups=new Map();
   teams.forEach((t,i)=>{const r=find(i);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(t);});
   CLUBS=[];CLUB_BY_TEAMKEY=new Map();
@@ -4190,7 +4200,7 @@ function renderFreeAgents(){
       if(v==null||isNaN(v))return false;return v>=fl.min&&v<=fl.max;});});
   list.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
   const capped=list.slice(0,150);
-  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly);
+  const lgs=(STATE.data.leagues||[]).filter(L=>showsTeams(L.meta));
   const ph=p=>`<span class="agpPhoto${photoOf(p)?"":" noimg"}">${photoOf(p)?`<img src="${photoOf(p)}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>`;
   const cols=`<colgroup><col style="width:21%"><col style="width:8%"><col style="width:12%"><col style="width:6%"><col style="width:5%"><col style="width:15%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:78px"></colgroup>`;
   const head=`<tr><th>Player</th><th>Pos</th><th>Nat</th><th class="num">Ht</th><th class="num">Age</th><th>Current club</th><th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th><th class="num">Score</th><th></th></tr>`;
@@ -5809,7 +5819,7 @@ function renderTeamsCurrent(){
   if(cur&&cur.club){const c=allClubs().find(x=>x.key===cur.club);
     if(c)return renderCurClubRoster(c); STATE.curTeam=null;}
   else if(cur)return renderCurRoster(cur.lg,cur.code);
-  const lgs=(STATE.data.leagues||[]).filter(L=>!L.meta.exhibition&&!L.meta.teamsOnly);
+  const lgs=(STATE.data.leagues||[]).filter(L=>showsTeams(L.meta));
   const sel=STATE.curLg||"";
   const q=normClub(STATE.teamQ||"");
   // one card per real club — a club that plays ABA + EuroLeague appears once, not twice
