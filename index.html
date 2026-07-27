@@ -1540,10 +1540,35 @@ function buildTransferIndex(items){
     if(it.to&&it.league&&!/free agent/i.test(it.to)){const c=normClub(it.to);if(!CLUB_LG.has(c))CLUB_LG.set(c,it.league);}});
   TRANSFERS_LOADED=TRANSFERS.size>0;
 }
+const AUTO_APPLIED_KEY="euroscout:autoApplied:v1";
+function autoAppliedGet(){try{return JSON.parse(localStorage.getItem(AUTO_APPLIED_KEY)||"{}");}catch(e){return {};}}
+function autoAppliedSet(m){try{localStorage.setItem(AUTO_APPLIED_KEY,JSON.stringify(m));}catch(e){}
+  try{Sync.stampKey(AUTO_APPLIED_KEY);}catch(e){} try{Store.pushAppKey(AUTO_APPLIED_KEY);}catch(e){}}
+// Applies transfers flagged autoApply:true directly into the 26/27 map.
+// Safe: never overrides a manual assignment, a rejected transfer, or one the user already handled;
+// only touches players it placed itself (tracked in AUTO_APPLIED_KEY) so user edits always win.
+function applyAutoTransfers(items){
+  const handled=trHandledGet(), m=next26Get(), applied=autoAppliedGet();
+  let changed=false, count=0;
+  (items||[]).forEach(tr=>{
+    if(!tr||!tr.autoApply||(tr.status!=="signed"&&tr.status!=="extended"))return;
+    if(handled[tr.id]==="rejected")return;                 // respect an explicit reject
+    const p=playerForTransfer(tr); if(!p)return;
+    const key=gid(p);
+    // skip if this person already has ANY 26/27 assignment that WE did not place
+    if(m[key]!=null && !applied[key])return;               // manual assignment wins
+    const club=dbTeamForClub(tr.to); if(!club||!club.key)return;
+    const ck=canonKey(club.key);                            // team key -> canonical club key
+    if(m[key]===ck)return;                                  // already there
+    set26(p.id, ck); applied[key]=tr.id; changed=true; count++;
+  });
+  if(changed){autoAppliedSet(applied);}
+  return count;
+}
 async function loadTransfers(){
   // 1) transfers shipped with the dataset (e.g. the ACB market) — available immediately
   const baked=(STATE.data&&Array.isArray(STATE.data.transfers))?STATE.data.transfers.slice():[];
-  if(baked.length){buildTransferIndex(baked);try{updateTransferBadge();}catch(e){}}
+  if(baked.length){buildTransferIndex(baked);try{applyAutoTransfers(baked);}catch(e){}try{updateTransferBadge();}catch(e){}}
   // 2) live tracker feed, merged in when it answers. Timed out so a slow feed can never
   //    stop the baked transfers from showing.
   const urls=["../euroball-tracker/transfers_all.json","https://turkmarkoo.github.io/euroball-tracker/transfers_all.json"];
@@ -1552,7 +1577,7 @@ async function loadTransfers(){
       const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),4000);
       const j=await fetch(u,{cache:"no-cache",signal:ctl.signal}).then(r=>r.json());
       clearTimeout(t);
-      if(j&&j.items){buildTransferIndex(baked.concat(j.items));break;}
+      if(j&&j.items){const merged=baked.concat(j.items);buildTransferIndex(merged);try{applyAutoTransfers(merged);}catch(e){}break;}
     }catch(e){}
   }
 }
@@ -1734,7 +1759,9 @@ function trHandledSet(m){try{localStorage.setItem(TR_HANDLED_KEY,JSON.stringify(
   try{Sync.stampKey(TR_HANDLED_KEY);}catch(e){} try{Store.pushAppKey(TR_HANDLED_KEY);}catch(e){}}
 let PLAYER_BY_NAME=null;
 function playerNameIndex(){if(PLAYER_BY_NAME)return PLAYER_BY_NAME;PLAYER_BY_NAME=new Map();
-  scoutPool().forEach(p=>{const n=normNm(p.name);if(!PLAYER_BY_NAME.has(n))PLAYER_BY_NAME.set(n,[]);PLAYER_BY_NAME.get(n).push(p);});return PLAYER_BY_NAME;}
+  // assignPool (not scoutPool) so NBA / G League / NCAA players can also be resolved as transfer
+  // targets and placed on 26/27 rosters, not just European-league players.
+  assignPool().forEach(p=>{const n=normNm(p.name);if(!PLAYER_BY_NAME.has(n))PLAYER_BY_NAME.set(n,[]);PLAYER_BY_NAME.get(n).push(p);});return PLAYER_BY_NAME;}
 function playerForTransfer(tr){const cands=playerNameIndex().get(normNm(tr.player))||[];
   if(cands.length<=1)return cands[0]||null;
   if(tr.birth_year){const byY=cands.find(p=>p.born&&+p.born===+tr.birth_year);if(byY)return byY;}
@@ -5087,8 +5114,11 @@ async function loadExtraLeagues(){
       if(p.astto==null)p.astto=(p.topg>0)?Math.round(p.apg/p.topg*100)/100:(p.apg>0?p.apg:0);
     }));
     DBTEAM_LIST=null; DBTEAM_BYKEY=null; CLUBS=null; CLUB_BY_TEAMKEY=null;   // invalidate club caches
+    PLAYER_BY_NAME=null;   // invalidate transfer name index so NBA/GL/NCAA players become resolvable
     applyOverrides(); rebuildLinks();
     try{ mergeGroupRecords(); }catch(e){}
+    // now that these players + their clubs exist, apply any auto-flagged transfers targeting them
+    try{ if(TRANSFERS_LOADED){ applyAutoTransfers(STATE.data.transfers||[]); updateTransferBadge(); } }catch(e){}
     // if the user is looking at a view that could show these, refresh it
     STATE._extraLoaded=(STATE._extraLoaded||[]).concat(st.label);
     if(["exhib","players","teams","agencies"].includes(STATE.view)){ try{ render(); }catch(e){} }
