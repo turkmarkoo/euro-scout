@@ -1655,7 +1655,12 @@ function isOtherLeague(m){return !!(m&&(m.exhibition||m.excludeFromStats));}
 // A league whose TEAMS should appear in the Teams browser / roster builder even though its
 // player stats stay out of the "All competitions" pool. NBA, G League and NCAA qualify.
 const TEAMS_BROWSE_LEAGUES=new Set(["nba","gleague","ncaam"]);
-function showsTeams(m){return !!(m&&!m.teamsOnly&&!m.exhibition&&(!m.excludeFromStats||TEAMS_BROWSE_LEAGUES.has(m.id)));}
+// 26/27 new-entrant leagues: teams-only (no stats), but they ARE valid 26/27 roster destinations,
+// so their teams must appear in the Teams browser / assignment picker.
+const ENTRANT_LEAGUES=new Set(["n2627"]);
+function showsTeams(m){return !!(m&&!m.exhibition&&(
+  (!m.teamsOnly&&(!m.excludeFromStats||TEAMS_BROWSE_LEAGUES.has(m.id)))   // normal + browse-only stat leagues
+  || (m.teamsOnly&&ENTRANT_LEAGUES.has(m.id))));}                        // next-season entrants
 // stat-scope leagues: the ones that belong in stats filters/percentiles (never the browse-only ones)
 function isStatLeague(m){return !!(m&&!isOtherLeague(m)&&!m.teamsOnly);}
 function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data.leagues||[]).forEach(L=>{if(!showsTeams(L.meta))return;(L.teams||[]).forEach(t=>out.push({key:L.meta.id+"|"+t.code,name:t.name,city:t.city||"",country:t.country||"",lg:L.meta.id,lgName:L.meta.name,conf:t.conference||null,code:t.code,logo:t.logo||null}));});DBTEAM_LIST=out;DBTEAM_BYKEY=new Map(out.map(t=>[t.key,t]));buildClubs();return out;}
