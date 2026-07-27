@@ -1675,9 +1675,17 @@ const CLUB_ALIAS={"barca":"fc barcelona","partizan mozzart bet":"partizan belgra
 function clubCanon(n){return CLUB_ALIAS[n]||n;}
 function sameClub(a,b){
   if(a.lg===b.lg)return false;                       // never merge inside one competition
-  if(a.lg==="n2627"||b.lg==="n2627")return false;    // 26/27 entrants are pre-checked standalone clubs
   const na=clubCanon(normClub(a.name)), nb=clubCanon(normClub(b.name));
   if(!na||!nb)return false;
+  // 26/27 new-entrant leagues are pre-checked standalone clubs, so by default they don't merge.
+  // EXCEPTION: a promoted/relocated club we already track (e.g. Široki moving ABA2 -> ABA) should
+  // merge with its existing entry — but ONLY on an exact / whole-word-containment name match,
+  // never on fuzzy token overlap, so genuinely new clubs (e.g. Slovan Bratislava) stay standalone.
+  if(a.lg==="n2627"||b.lg==="n2627"){
+    if(na===nb)return true;
+    const wa2=" "+na+" ", wb2=" "+nb+" ";
+    return wa2.includes(wb2)||wb2.includes(wa2);
+  }
   if(na===nb)return true;
   const wa=" "+na+" ", wb=" "+nb+" ";
   if(wa.includes(wb)||wb.includes(wa))return true;   // whole-word containment only ("Aris" must not match "Paris")
@@ -1816,7 +1824,10 @@ function pendingTransfers(){
   TRANSFERS.forEach(tr=>{
     if(tr.status!=="signed"&&tr.status!=="extended")return;
     if(handled[tr.id])return;
-    const p=playerForTransfer(tr);if(!p||m[p.id])return;
+    const p=playerForTransfer(tr);if(!p)return;
+    // identity-aware: a player already assigned (by any means, incl. auto-apply on a merged
+    // identity where gid(p)!==p.id) should not still appear as pending.
+    if(effective26keys(p,m).length>0||isStatus(effective26(p,m)))return;
     out.push({tr,p,team:dbTeamForClub(tr.to)});});
   out.sort((a,b)=>(statGradeOverall(b.p)??-1)-(statGradeOverall(a.p)??-1));
   return out;}
