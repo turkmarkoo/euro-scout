@@ -1476,6 +1476,7 @@ body.drawer-lock{overflow:hidden}
 .wRemove:hover{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
 @media(max-width:640px){.wLevel,.wtags{display:none}}
 
+.biTwoway{color:#7c5cff;font-weight:600}.biTwLg{opacity:.7;font-weight:400}.tpTwoway{color:#7c5cff;font-weight:600;border-top:1px solid rgba(124,92,255,.25);border-bottom:1px solid rgba(124,92,255,.25)}
 </style>
 </head>
 <body>
@@ -1615,7 +1616,40 @@ function set26(pid,key){const m=next26Get();const p=player(pid);
   const ids=p?[gid(p),p.id].concat((p._grp||[]).map(x=>x.id)):[pid];
   [...new Set(ids)].forEach(k=>delete m[k]);          // clear every alias for this person
   if(key)m[p?gid(p):pid]=canonKey(key);
-  next26Set(m);}
+  next26Set(m);
+  // if a two-way secondary exists but is no longer a valid NBA<->G League pair with the new
+  // primary (or the player is now unassigned), drop it so rosters stay consistent.
+  try{const b=effective26b(p);if(b&&(!key||!isTwoWayPair(canonKey(key),b))){const mb=next26bGet();
+    [...new Set(ids)].forEach(k=>delete mb[k]);next26bSet(mb);}}catch(e){}}
+// --- Two-way (dual) assignment: a SECOND 26/27 club, allowed ONLY for an NBA<->G League pair. ---
+// Used for two-way contract players who appear on both an NBA and a G League roster at once.
+const NEXT26B_KEY="euroscout:next26b:v1";
+const TWOWAY_LEAGUES=new Set(["nba","gleague"]);
+function next26bGet(){try{return JSON.parse(localStorage.getItem(NEXT26B_KEY)||"{}");}catch(e){return {};}}
+function next26bSet(m){try{localStorage.setItem(NEXT26B_KEY,JSON.stringify(m));}catch(e){}
+  try{Sync.stampKey(NEXT26B_KEY);}catch(e){} try{Store.pushAppKey(NEXT26B_KEY);}catch(e){}}
+// league id a club key belongs to (from its DB teams)
+function clubLeaguesOf(key){const c=key?clubByKey(key):null;if(!c)return [];
+  return [...new Set((c.teams||[]).map(t=>t.lg).concat((c.leagues||[]).map(l=>l.id)))].filter(Boolean);}
+// is {a,b} a valid two-way pair? one club in NBA, the other in G League.
+function isTwoWayPair(ka,kb){if(!ka||!kb||ka===kb)return false;
+  const la=clubLeaguesOf(ka),lb=clubLeaguesOf(kb);
+  const aNBA=la.includes("nba"),aGL=la.includes("gleague"),bNBA=lb.includes("nba"),bGL=lb.includes("gleague");
+  return (aNBA&&bGL)||(aGL&&bNBA);}
+function effective26b(p,mb){mb=mb||next26bGet();
+  const k=mb[gid(p)]||mb[p.id]||((p._grp||[]).map(x=>mb[x.id]).find(Boolean));
+  return k?canonKey(k):null;}
+// all 26/27 club keys for a person (primary + optional two-way secondary), de-duped, statuses excluded.
+function effective26keys(p,m,mb){const out=[];const a=effective26(p,m);if(a&&!isStatus(a))out.push(a);
+  const b=effective26b(p,mb);if(b&&!isStatus(b)&&b!==a)out.push(b);return out;}
+// set/clear the secondary club. Rejects anything that is not a valid NBA<->G League pair with the primary.
+function set26b(pid,key){const p=player(pid);const mb=next26bGet();
+  const ids=p?[gid(p),p.id].concat((p._grp||[]).map(x=>x.id)):[pid];
+  [...new Set(ids)].forEach(k=>delete mb[k]);
+  if(key){const primary=effective26(p);
+    if(!isTwoWayPair(primary,canonKey(key))){try{toast("Two-way slot is only for an NBA + G League pair.");}catch(e){}next26bSet(mb);return false;}
+    mb[p?gid(p):pid]=canonKey(key);}
+  next26bSet(mb);return true;}
 let DBTEAM_LIST=null,DBTEAM_BYKEY=null;
 function isOtherLeague(m){return !!(m&&(m.exhibition||m.excludeFromStats));}
 // A league whose TEAMS should appear in the Teams browser / roster builder even though its
@@ -1750,7 +1784,9 @@ function openTeamPickerProfile(pid){openTeamPicker(pid,()=>{if(typeof openProfil
 function next26CellHTML(p){const k=effective26(p);
   if(isStatus(k))return `<b class="stRet">${esc(statusLabel(k))}</b><div class="bisub">not seeking a club for 2026/27</div><span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 status"><span class="bioaddhint">change</span></span>`;
   const c=k?clubByKey(k):null;
-  if(c)return `<b>${esc(c.name)}</b><div class="bisub">${(c.leagues||[]).map(l=>esc(l.name)).join(" \u00b7 ")}</div><span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 team"><span class="bioaddhint">change</span></span>`;
+  const bk=effective26b(p);const bc=bk?clubByKey(bk):null;
+  const twoWayLine=bc?`<div class="bisub biTwoway">\u21c4 Two-way \u00b7 ${esc(bc.name)}</div>`:"";
+  if(c)return `<b>${esc(c.name)}</b><div class="bisub">${(c.leagues||[]).map(l=>esc(l.name)).join(" \u00b7 ")}</div>${twoWayLine}<span class="bioadd n26edit" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Change 26/27 team"><span class="bioaddhint">change</span></span>`;
   return `<span class="bioadd n26fa" onclick="event.stopPropagation();openTeamPickerProfile('${p.id}')" title="Assign a 26/27 team"><b>Free agent</b> <span class="bioaddhint">sign</span></span>`;}
 /* ---------- transfer approval inbox (review only, never auto-commit) ---------- */
 const TR_HANDLED_KEY="euroscout:trHandled:v1";
@@ -1908,7 +1944,7 @@ const Store = (()=>{
   const enabled = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
   let sb=null, user=null, role=null, member=false, cache={};
   const LKEY="euroscout:records";
-  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:trHandled:v1"];
+  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1"];
   const local = {
     all(){try{return JSON.parse(localStorage.getItem(LKEY))||{}}catch(e){return{}}},
     set(o){localStorage.setItem(LKEY,JSON.stringify(o))}
@@ -2311,8 +2347,8 @@ const Sync = (()=>{
   const RT_KEY ="euroscout:records_t";   // {gid:ms} per-player edit stamps
   const KM_KEY ="euroscout:sync_km";     // {key:ms} whole-key stamps
   const FILE   ="euroscout-sync.json";
-  const DATA_KEYS =["euroscout:records","euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:trHandled:v1"];
-  const OTHER_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:trHandled:v1"];
+  const DATA_KEYS =["euroscout:records","euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1"];
+  const OTHER_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1"];
   let cfg=loadCfg(), status="idle", busy=false, pushT=null, lastPull=0, lastPush=0, lastErr="";
 
   function loadCfg(){try{return Object.assign({token:"",gistId:"",device:"",on:false},JSON.parse(localStorage.getItem(CFG_KEY)||"{}"));}catch(e){return{token:"",gistId:"",device:"",on:false};}}
@@ -2515,7 +2551,7 @@ async function boot(){
   // keep other open tabs in step: roster/transfer edits made elsewhere refresh this view
   window.addEventListener("storage",e=>{
     if(!e.key)return;
-    if(e.key===NEXT26_KEY||e.key===TR_HANDLED_KEY){
+    if(e.key===NEXT26_KEY||e.key===NEXT26B_KEY||e.key===TR_HANDLED_KEY){
       updateTransferBadge();
       if(STATE.view==="teams")renderTeams();
       if(DRAWER_OPEN&&CURRENT)renderProfile();
@@ -3977,12 +4013,34 @@ function openTeamPicker(pid,onDone){const p=player(pid);if(!p)return;
     <div class="tpList" id="tpList"></div></div>`;
   document.body.appendChild(ov);
   const listEl=ov.querySelector("#tpList");
+  // Two-way support: if this person's primary club is NBA or G League, a second (counterpart-league)
+  // club can be attached. `mode` toggles which slot the picker is assigning.
+  let mode="primary";                       // "primary" | "twoway"
+  const primaryLgs=()=>clubLeaguesOf(effective26(p));
+  const twoWayEligible=()=>{const l=primaryLgs();return l.includes("nba")||l.includes("gleague");};
+  const twoWayWant=()=>{const l=primaryLgs();return l.includes("nba")?"gleague":(l.includes("gleague")?"nba":null);};
   const render=q=>{const qn=normClub(q||"");
+    const curB=effective26b(p);
+    if(mode==="twoway"){
+      // only show clubs from the counterpart league (nba<->gleague)
+      const want=twoWayWant();
+      const twList=teams.filter(t=>clubLeaguesOf(t.key).includes(want)&&(!qn||normClub(t.name).includes(qn)));
+      listEl.innerHTML=`<button class="tpItem tpFa" data-tw="back">\u2190 Back to main club</button>`+
+        (curB?`<button class="tpItem tpFa" data-tw="">\u2715 Remove two-way club</button>`:"")+
+        (twList.length?twList.slice(0,300).map(t=>`<button class="tpItem${curB===t.key?" cur":""}" data-tw="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}</span></button>`).join(""):`<div class="tpNone">No ${want==="nba"?"NBA":"G League"} club matches "${esc(q)}".</div>`);
+      listEl.querySelectorAll("[data-tw]").forEach(b=>b.onclick=()=>{
+        const v=b.dataset.tw;
+        if(v==="back"){mode="primary";render(si?si.value:"");return;}
+        set26b(pid,v);closeTeamPicker();if(onDone)onDone(effective26(p));else reRenderTeams();});
+      return;
+    }
     const filt=qn?teams.filter(t=>normClub(t.name).includes(qn)||t.teams.some(x=>normClub(x.city).includes(qn))||t.leagues.some(l=>normClub(l.name).includes(qn))):teams;
     listEl.innerHTML=(cur?`<button class="tpItem tpFa" data-tk="">\u2190 Unassign (free agent)</button>`:"")+
       `<button class="tpItem tpRet${cur===STATUS_RETIRED?" cur":""}" data-tk="${STATUS_RETIRED}">\u23f9 Mark as retired</button>`+
+      (twoWayEligible()?`<button class="tpItem tpTwoway" data-tw="open">${curB?`\u21c4 Two-way: ${esc((clubByKey(curB)||{}).name||"")} \u2014 change`:`\u21c4 Add two-way club (${twoWayWant()==="nba"?"NBA":"G League"})`}</button>`:"")+
       (filt.length?filt.slice(0,300).map(t=>`<button class="tpItem${cur===t.key?" cur":""}" data-tk="${escAttr(t.key)}">${clubBadge(t,18)}<span class="tpName">${esc(t.name)}</span><span class="tpLg">${t.leagues.map(l=>esc(l.name)).join(" \u00b7 ")}${(t.teams&&t.teams[0]&&t.teams[0].conf)?" \u00b7 "+esc(t.teams[0].conf):""}</span>${nextCompBadges(t)}</button>`).join(""):`<div class="tpNone">No club matches "${esc(q)}".</div>`);
-    listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});};
+    listEl.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{set26(pid,b.dataset.tk);closeTeamPicker();if(onDone)onDone(b.dataset.tk);else reRenderTeams();});
+    listEl.querySelectorAll("[data-tw='open']").forEach(b=>b.onclick=()=>{mode="twoway";render("");});};
   render("");
   const si=ov.querySelector("#tpSearch");si.oninput=()=>render(si.value);setTimeout(()=>si.focus(),30);
   ov.querySelector("#tpClose").onclick=closeTeamPicker;
@@ -4116,15 +4174,15 @@ function clubRoster2526(club){ // this season's squad across every competition t
     L.players.filter(p=>p.team===t.code).forEach(p=>{const k=gid(p);if(seen.has(k))return;seen.add(k);out.push(p);});});
   return out.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
 }
-function clubRoster2627(club,m){m=m||next26Get();
-  return assignPool().filter(p=>effective26(p,m)===club.key).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
+function clubRoster2627(club,m){m=m||next26Get();const mb=next26bGet();
+  return assignPool().filter(p=>effective26keys(p,m,mb).includes(club.key)).sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
 }
 function renderTeamsNext(){
   if(STATE.nextTeam){const c=allClubs().find(x=>x.key===STATE.nextTeam);
     if(c)return renderNextRoster(c); STATE.nextTeam=null;}
   const m=next26Get();
-  const byTeam=new Map();
-  assignPool().forEach(p=>{const k=effective26(p,m);if(k&&!isStatus(k)){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});
+  const byTeam=new Map();const mb=next26bGet();
+  assignPool().forEach(p=>{effective26keys(p,m,mb).forEach(k=>{if(k&&!isStatus(k)){if(!byTeam.has(k))byTeam.set(k,[]);byTeam.get(k).push(p);}});});
   const clubs=allClubs();
   const lgs=[...new Set(allDbTeams().map(t=>t.lgName))];
   const S=(STATE.data||{}).season2627, nextLgs=S&&S.comps?Object.entries(S.comps).map(([id,c])=>({id,name:c.name})):[];
@@ -4213,7 +4271,8 @@ function renderFreeAgents(){
   const m=next26Get(),pool=scoutPool(),f=faState();
   const retired=pool.filter(p=>statusOf(p,m)===STATUS_RETIRED);
   // identity-aware: an assignment on any of a player’s league entries counts
-  let list=f.showRetired?retired.slice():pool.filter(p=>!effective26(p,m));
+  const mbAvail=next26bGet();
+  let list=f.showRetired?retired.slice():pool.filter(p=>effective26keys(p,m,mbAvail).length===0);
   if(f.q){const qn=normNm(f.q);list=list.filter(p=>normNm(p.name).includes(qn));}
   if(f.role)list=list.filter(p=>p.role===f.role);
   if(f.lg)list=list.filter(p=>p.league===f.lg);
