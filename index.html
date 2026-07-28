@@ -777,6 +777,19 @@ body.drawer-lock{overflow:hidden}
 .simlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:6px}
 .simweights{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
 .trajchart{width:100%;height:180px;margin:6px 0}
+.waPanel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.waHead{font-family:var(--disp);font-weight:700;font-size:15px;margin-bottom:9px}
+.waList{display:flex;flex-direction:column;gap:5px}
+.waRow{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 12px;cursor:pointer;text-align:left;font:inherit;color:var(--txt);transition:.12s}
+.waRow:hover{border-color:var(--accent);transform:translateX(2px)}
+.waIcon{font-size:14px;flex:0 0 auto}
+.waName{font-weight:700;font-size:13px;flex:0 0 auto}
+.waTxt{font-size:12.5px;color:var(--muted)}
+.wa-signed{border-left:3px solid var(--accent)}
+.wa-hot{border-left:3px solid #d9704e}
+.wa-cold{border-left:3px solid #6a8caf}
+.wa-high{border-left:3px solid var(--gold)}
+.wa-riser{border-left:3px solid var(--sage,#7FB3AB)}
 .trajAvgLine{stroke:var(--muted2);stroke-width:1;stroke-dasharray:4 3;opacity:.6}
 .fitwrap{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
 @media(max-width:820px){.fitwrap{grid-template-columns:1fr}}
@@ -3760,7 +3773,16 @@ function archKeyFor(idx,p){const A=ARCHETYPES[idx];
   if(A&&A.roleBands&&p&&p.role){const ri=ROLE_ORDER.indexOf(p.role);return idx+":"+(ri<0?1:ri);}
   if(A&&A.sizeBands&&p&&p.height){for(let bi=0;bi<A.sizeBands.length;bi++){if(p.height<=A.sizeBands[bi][0])return idx+":"+bi;}return idx+":"+(A.sizeBands.length-1);}
   return ""+idx;}
-function openArchFilter(key){STATE.scout.arch=key;STATE.scout.simRef=null;STATE.view="scout";
+function openArchFilter(key){
+  // normalize to a real chip key: match by the displayed label so click-through from any
+  // card/profile lands on the correct (working) archetype chip regardless of role band.
+  if(!ARCH_FILTERS.some(x=>x.key===key)){
+    const ai=+String(key).split(":")[0];
+    const lbl=(ARCH_FILTERS.find(x=>+String(x.key).split(":")[0]===ai)||{}).label;
+    const hit=ARCH_FILTERS.find(x=>x.label===lbl);
+    if(hit)key=hit.key;
+  }
+  STATE.scout.arch=key;STATE.scout.simRef=null;STATE.view="scout";
   $$("#tabs button").forEach(x=>x.classList.toggle("active",x.dataset.view==="scout"));
   closeDrawer();renderScout();}
 const FILTER_STATS=[
@@ -5679,6 +5701,45 @@ function needsAttention(pool){
 }
 
 /* ---------- Watchlist big board ---------- */
+function watchlistAlerts(pool){
+  // derive live "alerts" for flagged players from the current snapshot
+  const mm=next26Get(),mb=(typeof next26bGet==="function"?next26bGet():{});
+  const out=[];
+  pool.forEach(p=>{
+    const gl=(p.gameLog||[]);
+    // form (hot/cold): last 3 vs season PIR
+    const f=formOf(p);
+    if(f&&f.dir>0)out.push({p,kind:"hot",txt:`on a hot streak — last 3 games +${f.delta} PIR vs season`});
+    else if(f&&f.dir<0)out.push({p,kind:"cold",txt:`cooling off — last 3 games ${f.delta} PIR vs season`});
+    // season high in the most recent game
+    if(gl.length>=5){const pirs=gl.map(r=>+(r[19]||0));const last=pirs[pirs.length-1];const maxPrev=Math.max(...pirs.slice(0,-1));
+      if(last>=maxPrev&&last>0)out.push({p,kind:"high",txt:`posted a season-high ${last} PIR in the last game`});}
+    // signed for 2026/27
+    const keys=effective26keys(p,mm,mb);
+    if(keys.length){const club=clubByKey(keys[0]);if(club)out.push({p,kind:"signed",txt:`signed for 2026/27 — ${club.name}`});}
+    // young riser
+    if(riserOf(p))out.push({p,kind:"riser",txt:`young riser — strong production for age ${p.age}`});
+  });
+  // priority order + de-dupe (one alert per player, most important first)
+  const PRI={signed:0,high:1,hot:2,riser:3,cold:4};
+  out.sort((a,b)=>(PRI[a.kind]-PRI[b.kind]));
+  const seen=new Set(),uniq=[];
+  out.forEach(a=>{if(seen.has(a.p.id))return;seen.add(a.p.id);uniq.push(a);});
+  return uniq;
+}
+function watchlistAlertsHTML(pool){
+  const al=watchlistAlerts(pool);
+  if(!al.length)return "";
+  const ICON={hot:"\uD83D\uDD25",cold:"\u2744\uFE0F",high:"\u2B50",signed:"\u270D\uFE0F",riser:"\uD83D\uDE80"};
+  const rows=al.slice(0,12).map(a=>`<button class="waRow wa-${a.kind}" data-id="${a.p.id}">
+    <span class="waIcon">${ICON[a.kind]||"\u2022"}</span>
+    <span class="waName">${esc(a.p.name)}</span>
+    <span class="waTxt">${esc(a.txt)}</span></button>`).join("");
+  return `<div class="waPanel">
+    <div class="waHead">Alerts <span class="hint" style="font-weight:400;font-size:11.5px">notable changes for your flagged players</span></div>
+    <div class="waList">${rows}</div>
+  </div>`;
+}
 function renderWatchlist(){
   const rateOf=p=>{const r=recOf(p);return (r&&r.rating)||0;};
   let pool=scoutPool().filter(isWatched);
@@ -5715,9 +5776,11 @@ function renderWatchlist(){
       </div>
       <div class="wsorts"><span class="sortlab">Sort</span>${sortBtn("rating","My rating")}${sortBtn("grade","Stat grade")}${sortBtn("level","Level")}${sortBtn("age","Youngest")}${sortBtn("name","Name")}</div>
     </div>
+    ${pool.length?watchlistAlertsHTML(pool):""}
     ${pool.length?`<div class="wboard">${pool.map(row).join("")}</div>`:`<div class="empty" style="margin-top:20px">No players on your watchlist yet. Tap the ☆ star on any player card or profile to add them here.</div>`}
   </div>`;
   $$(".wsort").forEach(b=>b.onclick=()=>{STATE.watchSort=b.dataset.ws;renderWatchlist();});
+  $$(".waRow").forEach(r=>r.onclick=()=>openProfile(r.dataset.id));
   $$(".wrow").forEach(r=>r.onclick=e=>{
     if(e.target.closest("[data-rm]")){e.stopPropagation();const id=e.target.closest("[data-rm]").dataset.rm;
       toggleTag(id,WATCH_TAG).then(renderWatchlist);return;}
@@ -5739,12 +5802,16 @@ function renderScout(){
   if(s.level!=null)  pool=pool.filter(p=>{const b=levelBand(p);return b&&b.i===s.level;});
   if(s.next26){const mm=next26Get(),mb=(typeof next26bGet==="function"?next26bGet():{});
     pool=pool.filter(p=>{const assigned=effective26keys(p,mm,mb).length>0||isStatus(effective26(p,mm));return s.next26==="free"?!assigned:assigned;});}
-  if(s.arch){const parts=s.arch.split(":");const ai=+parts[0];const band=parts.length>1?+parts[1]:null;const A=ARCHETYPES[ai];
-    pool=pool.filter(p=>{if(!p.arch||(p.arch[ai]||0)<20)return false;
-      if(band!=null&&A&&A.roleBands){return p.role===ROLE_ORDER[band];}
-      if(band!=null&&A&&A.sizeBands){const h=p.height;if(!h)return band===1;
-        const prev=band===0?0:A.sizeBands[band-1][0];return h>prev&&h<=A.sizeBands[band][0];}
-      return true;});}
+  if(s.arch){const parts=s.arch.split(":");const ai=+parts[0];const A=ARCHETYPES[ai];
+    // the chip's label (e.g. "Interior Scorer") — match any player who both expresses this
+    // archetype meaningfully AND whose role-appropriate label for it equals the chip label.
+    const chip=(ARCH_FILTERS.find(x=>x.key===s.arch)||{}).label;
+    pool=pool.filter(p=>{
+      if(!p.arch||(p.arch[ai]||0)<15)return false;        // archetype must be meaningfully present
+      if(!A||(!A.roleBands&&!A.sizeBands))return true;     // plain archetype: no role/size gating
+      if(!chip)return true;
+      return archLabel(ai,p)===chip;                       // player's displayed label for this archetype matches the chip
+    });}
   {(s.filters||[]).forEach(f=>{const st=filterStat(f.key);if(!st)return;
     const active=f.min>st.min||f.max<st.max; if(!active)return;
     pool=pool.filter(p=>{const v=(f.key==="grade")?statGradeOverall(p):p[f.key];return v!=null&&v>=f.min&&v<=f.max;});});}
