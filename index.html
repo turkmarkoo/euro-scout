@@ -660,6 +660,21 @@ body.drawer-lock{overflow:hidden}
 .sc2-grade{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent-deep);background:var(--accent-soft);border-radius:8px;padding:2px 8px}
 .scoutcard2 .cardwatch{position:static;border:none;background:none;font-size:18px;line-height:1;color:var(--gold);cursor:pointer;padding:0}
 .scoutcard2 .cardwatch:not(.on){color:var(--line)}
+.scoutcard2 .cardcmp{position:static;border:none;background:none;font-size:16px;line-height:1;color:var(--line);cursor:pointer;padding:0;font-weight:700}
+.scoutcard2 .cardcmp:hover{color:var(--accent)}
+.scoutcard2 .cardcmp.on{color:var(--accent)}
+.role-viewer .cardcmp{display:none}
+#cmpBar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:200;max-width:calc(100vw - 24px)}
+.cmpBarInner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--accent);border-radius:13px;box-shadow:var(--shadow-lift);padding:9px 12px}
+.cmpBarLab{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.cmpChip{display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:3px 6px 3px 9px;font-size:12.5px;font-weight:600}
+.cmpChipX{border:none;background:none;color:var(--muted2);cursor:pointer;font-size:15px;line-height:1;padding:0 2px}
+.cmpChipX:hover{color:var(--danger,#c0564f)}
+.cmpGo{border:none;background:var(--accent);color:#fff;font-weight:700;font-size:12.5px;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit}
+.cmpGo:disabled{opacity:.45;cursor:not-allowed}
+.cmpClr{border:none;background:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline}
+#miniToast{position:fixed;left:50%;transform:translateX(-50%);bottom:74px;z-index:210;background:var(--txt);color:var(--panel);font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;opacity:0;pointer-events:none;transition:opacity .2s}
+#miniToast.show{opacity:.94}
 .scoutcard2 .cardmatch{position:absolute;top:14px;left:14px}
 .sc2-photo{grid-area:photo;width:88px;height:88px;border-radius:50%;overflow:hidden;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--accent-deep)}
 .sc2-photo img{width:100%;height:100%;object-fit:cover}
@@ -2995,6 +3010,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   const tt=TOPTAB[v];
   if(tt)$$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===tt));
   updateTransferBadge();
+  if(typeof paintCompareBar==="function")paintCompareBar();
 }
 function goView(v){STATE.view=v;render();}
 function statsSubNav(active){
@@ -3817,6 +3833,39 @@ function setSimRef(id){
 function clearSimRef(){ STATE.scout.simRef=null; renderScout(); }
 function simBoardWeight(){ readSimWeights(); renderScout(); }
 
+/* ---------- Add-to-compare: manage the shared compare slots from anywhere ---------- */
+function compareSlots(){ if(!STATE.compare.slots)STATE.compare.slots=[null,null,null,null]; return STATE.compare.slots; }
+function inCompare(id){ const g=gid(player(id)||{id}); return compareSlots().some(s=>s&&gid(player(s)||{id:s})===g); }
+function compareCount(){ return compareSlots().filter(Boolean).length; }
+function toggleCompare(id){
+  const slots=compareSlots();
+  const g=gid(player(id)||{id});
+  const at=slots.findIndex(s=>s&&gid(player(s)||{id:s})===g);
+  if(at>=0){ slots[at]=null; }                                  // already in -> remove
+  else{ const free=slots.indexOf(null); if(free<0){ toastMsg&&toastMsg("Compare is full (4 max)"); return; } slots[free]=id; }
+  // keep non-null slots packed to the front for tidy display
+  const filled=slots.filter(Boolean); STATE.compare.slots=[filled[0]||null,filled[1]||null,filled[2]||null,filled[3]||null];
+  paintCompareBar();
+  if(typeof DRAWER_OPEN!=="undefined"&&DRAWER_OPEN&&typeof renderProfile==="function")renderProfile();
+  if(STATE.view==="scout")renderScout(); else if(STATE.view==="compare")renderCompare();
+}
+function clearCompare(){ STATE.compare.slots=[null,null,null,null]; paintCompareBar(); if(STATE.view==="scout")renderScout(); else if(STATE.view==="compare")renderCompare(); }
+function openCompare(){ goView("compare"); }
+// tiny non-blocking toast (used for "compare full" etc.)
+function toastMsg(msg){ let t=document.getElementById("miniToast"); if(!t){t=document.createElement("div");t.id="miniToast";document.body.appendChild(t);} t.textContent=msg; t.className="show"; clearTimeout(t._h); t._h=setTimeout(()=>t.className="",1900); }
+// floating compare bar: shows picked players + jump-to-compare
+function paintCompareBar(){
+  let bar=document.getElementById("cmpBar");
+  const picked=compareSlots().map(id=>id?player(id):null).filter(Boolean);
+  if(picked.length===0){ if(bar)bar.remove(); return; }
+  if(!bar){ bar=document.createElement("div"); bar.id="cmpBar"; document.body.appendChild(bar); }
+  const chips=picked.map(p=>`<span class="cmpChip">${esc(p.name)}<button class="cmpChipX" data-cmpx="${p.id}" title="Remove" aria-label="Remove">\u00d7</button></span>`).join("");
+  bar.innerHTML=`<div class="cmpBarInner"><span class="cmpBarLab">Compare</span>${chips}
+    <button class="cmpGo" ${picked.length>=2?"":"disabled"} onclick="openCompare()">Compare ${picked.length}\u2009\u2192</button>
+    <button class="cmpClr" onclick="clearCompare()" title="Clear all">Clear</button></div>`;
+  bar.querySelectorAll(".cmpChipX").forEach(b=>b.onclick=()=>toggleCompare(b.dataset.cmpx));
+}
+
 function openLeaguePlayers(lgid){const L=STATE.data.leagues.find(l=>l.meta.id===lgid);
   if(L){STATE.allLeagues=false;STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=lgid;}
   STATE.filters.country="";STATE.filters.born="";STATE.filters.role="";STATE.filters.team="";STATE.filters.q="";
@@ -4636,6 +4685,7 @@ function renderProfile(){
             </div>
             <div class="ph-actions">
               <button class="btn ghost sm" onclick="drawerJump('reportPanel')">Notes</button>
+              <button class="btn ghost sm" onclick="toggleCompare('${p.id}')" title="${inCompare(p.id)?'In compare — click to remove':'Add this player to the comparison'}">\u21c6 ${inCompare(p.id)?'In compare':'Compare'}</button>
               <button class="btn ghost sm" onclick="copyPlayerLink('${p.id}',this)" title="Copy a shareable link to this player">🔗 Copy link</button>
               <button class="btn ghost sm" onclick="exportPlayerReport('${p.id}')" title="Open a printable one-page report (Save as PDF or print)">🖨 Report</button>
               <a class="btn ghost sm" href="${realgmSearchURL(p)}" target="_blank" rel="noopener" title="Search this player on RealGM">↗ RealGM</a>
@@ -5662,6 +5712,7 @@ function renderScout(){
   // board cards: click opens; watch star toggles; tag button opens quick-tag menu
   $$(".board .scoutcard").forEach(c=>{
     c.onclick=e=>{
+      if(e.target.closest(".cardcmp")){e.stopPropagation();toggleCompare(c.dataset.id);return;}
       if(e.target.closest(".cardwatch")){e.stopPropagation();const id=c.dataset.id;toggleTag(id,WATCH_TAG).then(renderScout);return;}
       openProfile(c.dataset.id);};});
   updateKbdSelection();
@@ -5791,7 +5842,7 @@ function scoutCard(p){
   const unscouted=scoutStatusOf(p)==="unscouted";
   return `<div class="scoutcard scoutcard2${watched?" watched":""}${unscouted?" unscouted":""}" data-id="${p.id}" tabindex="-1">
     ${p._sim!=null?`<span class="cardmatch" title="Statistical match">${p._sim}<small>match</small></span>`:""}
-    <div class="sc2-corner">${og!=null?`<span class="sc2-grade" title="Overall stats grade">${og.toFixed(1)}</span>`:""}<button class="cardwatch ${watched?"on":""}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"\u2605":"\u2606"}</button></div>
+    <div class="sc2-corner">${og!=null?`<span class="sc2-grade" title="Overall stats grade">${og.toFixed(1)}</span>`:""}<button class="cardcmp ${inCompare(p.id)?"on":""}" title="${inCompare(p.id)?"In compare \u2014 click to remove":"Add to compare"}" aria-label="Toggle compare">\u21c6</button><button class="cardwatch ${watched?"on":""}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"\u2605":"\u2606"}</button></div>
     <div class="sc2-photo${_ph?"":" noimg"}">${photo||initials(p.name)}</div>
     <div class="sc2-head">
       <div class="sc2-name">${p.name} ${formArrowHTML(p)}${riserBadgeHTML(p)}</div>
