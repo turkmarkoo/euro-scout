@@ -271,16 +271,16 @@ table.glog th,table.glog td{padding:6px 9px}
 .gsearch{position:relative}
 .gsearch input{background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:8px 14px;border-radius:999px;font-size:13px;width:190px;outline:none;transition:width .18s,border-color .12s;box-shadow:var(--shadow)}
 .gsearch input:focus{border-color:var(--accent2);width:240px}
-.gsresults{position:absolute;top:calc(100% + 6px);right:0;width:330px;max-height:64vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lift);z-index:120;padding:6px}
-.gsitem{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer}
+.gsresults{position:absolute;top:calc(100% + 6px);right:0;width:400px;max-width:calc(100vw - 32px);max-height:64vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lift);z-index:120;padding:6px}
+.gsitem{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer}
 .gsitem:hover,.gsitem.active{background:var(--panel2)}
 .gsitem img{width:32px;height:32px;border-radius:8px;object-fit:cover;object-position:top;background:var(--panel2);flex-shrink:0}
 .gsitem .gi{flex:1;min-width:0}
-.gsitem .gn{font-family:var(--disp);font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gsitem .gn{font-family:var(--disp);font-weight:600;font-size:14px;line-height:1.25;overflow-wrap:anywhere}
 .gsitem .gm{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--mono)}
-.gsitem .glg{font-size:10px;font-weight:700;padding:2px 8px;border-radius:7px;background:var(--chip);color:var(--muted);flex-shrink:0;font-family:var(--mono)}
+.gsitem .glg{font-size:10px;font-weight:700;padding:2px 8px;border-radius:7px;background:var(--chip);color:var(--muted);flex-shrink:0;font-family:var(--mono);margin-top:1px;white-space:nowrap}
 .gsempty{padding:16px;color:var(--muted);font-size:12.5px;text-align:center}
-@media(max-width:640px){.gsearch input{width:130px}.gsearch input:focus{width:150px}.gsresults{width:280px}}
+@media(max-width:640px){.gsearch input{width:130px}.gsearch input:focus{width:150px}.gsresults{width:calc(100vw - 32px)}}
 
 /* team page */
 .teamhead{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
