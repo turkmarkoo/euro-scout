@@ -776,6 +776,56 @@ body.drawer-lock{overflow:hidden}
 @media(max-width:640px){.scg-row{grid-template-columns:96px 1fr 92px;gap:7px}.sc-radar{flex-basis:100%}}
 .simlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:6px}
 .simweights{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+.trajchart{width:100%;height:180px;margin:6px 0}
+.trajAvgLine{stroke:var(--muted2);stroke-width:1;stroke-dasharray:4 3;opacity:.6}
+.fitwrap{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+@media(max-width:820px){.fitwrap{grid-template-columns:1fr}}
+.fitbrief{position:sticky;top:12px}
+.fitgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.fitgrid label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.fitgrid select{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 9px;font:inherit;font-size:13px;color:var(--txt);text-transform:none;font-weight:500}
+.fitweights{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:6px}
+.fw-head{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.fw-row{display:grid;grid-template-columns:96px 1fr 28px;align-items:center;gap:8px;margin:5px 0}
+.fw-lab{font-size:11.5px;color:var(--txt2,var(--txt))}
+.fw-row input[type=range]{width:100%}
+.fw-v{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);text-align:right}
+.fitbriefFoot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.fitlist{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.fitrow{display:grid;grid-template-columns:auto 40px 1fr auto auto;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:9px 13px;cursor:pointer;text-align:left;font:inherit;color:var(--txt);transition:.13s}
+.fitrow:hover{border-color:var(--accent);transform:translateX(2px)}
+.fitScore{display:flex;flex-direction:column;align-items:center;line-height:1;min-width:34px}
+.fitScore b{font-size:19px;color:var(--accent-deep,#b06a34);font-family:var(--disp)}
+.fitScore span{font-size:8.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted2)}
+.fitPhoto{width:40px;height:40px;border-radius:9px;overflow:hidden;background:var(--panel);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted2);font-size:13px}
+.fitPhoto img{width:100%;height:100%;object-fit:cover;object-position:top}
+.fitMain{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fitName{font-family:var(--disp);font-weight:600;font-size:14px}
+.fitFA{font-size:9px;font-weight:700;background:var(--sage,#7FB3AB);color:#0f322d;border-radius:4px;padding:1px 4px;vertical-align:middle}
+.fitMeta{font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fitStats{font-size:11.5px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.fitStats b{color:var(--txt);font-weight:700}
+.fitGrade{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--txt);min-width:30px;text-align:right}
+.trajAvgLab{fill:var(--muted);font-size:10px;font-family:var(--mono)}
+.trajYlab{fill:var(--muted2);font-size:9px;font-family:var(--mono)}
+.trajRoll{stroke:var(--accent-deep,#b06a34);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.trajMetric{display:flex;gap:4px}
+.trajMbtn{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:3px 10px;font:inherit;font-size:11.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.trajMbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.trajTrend{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;margin:4px 0 2px}
+.trajArrow{font-size:12px}
+.traj-up{color:var(--sage,#4f8c7f)}.traj-down{color:var(--accent-deep,#b06a34)}.traj-flat{color:var(--muted)}
+.trajLegend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px}
+.trajLegend i{display:inline-block;vertical-align:middle;margin-right:4px}
+.tlgBar{width:9px;height:9px;border-radius:2px}.tlgBar.up{background:var(--sage,#7FB3AB)}.tlgBar.dn{background:var(--accent,#D2925E)}
+.tlgLine{width:16px;height:2.4px;background:var(--accent-deep,#b06a34);border-radius:2px}
+.simquick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;margin:10px 0}
+.simquickLab{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.simqSel{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 9px;font:inherit;font-size:12.5px;color:var(--txt);cursor:pointer}
+.simqChip{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 11px;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.simqChip:hover{border-color:var(--accent)}
+.simqChip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.simqClear{border:none;background:none;color:var(--muted);font-size:11.5px;cursor:pointer;text-decoration:underline}
 .psSummary{font-size:14px;color:var(--txt);margin:2px 0 10px;line-height:1.5}
 .psBar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin-bottom:12px}
 .psBar>span{display:block;height:100%}
@@ -1859,10 +1909,10 @@ function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show"
 
 const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
-  compare:{slots:[null,null,null,null]}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
+  compare:{slots:[null,null,null,null]}, fit:{role:"",arch:"",ageMax:"",levelMin:"",contract:"",minGrade:0,wStyle:50,wProd:30,wAge:20}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,arch:null,filters:[],level:null,next26:null}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,simAgeMax:null,simLevelMin:null,simFreeOnly:false,arch:null,filters:[],level:null,next26:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -2996,6 +3046,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="players")   renderPlayers();
   else if(v==="compare") renderCompare();
   else if(v==="charts") renderCharts();
+  else if(v==="fit") renderFitFinder();
   else if(v==="agencies") renderAgencies();
   else if(v==="transfers") renderTransfers();
   else if(v==="watchlist") renderWatchlist();
@@ -3006,7 +3057,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
   else if(v==="team") renderTeam();
   else if(v==="profile") renderProfile();
   // centralized top-tab highlighting (compare/charts group under Stats; team under Teams)
-  const TOPTAB={scout:"scout",players:"players",compare:"players",charts:"players",agencies:"agencies",transfers:"transfers",teams:"teams",team:"teams",scouting:"scouting",watchlist:"watchlist",exhib:"exhib",glossary:"glossary"};
+  const TOPTAB={scout:"scout",players:"players",compare:"players",charts:"players",fit:"players",agencies:"agencies",transfers:"transfers",teams:"teams",team:"teams",scouting:"scouting",watchlist:"watchlist",exhib:"exhib",glossary:"glossary"};
   const tt=TOPTAB[v];
   if(tt)$$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===tt));
   updateTransferBadge();
@@ -3014,7 +3065,7 @@ function render(){if(typeof scheduleSticky==="function")scheduleSticky();
 }
 function goView(v){STATE.view=v;render();}
 function statsSubNav(active){
-  return `<div class="subnav">${[["players","Stats"],["compare","Compare"],["charts","Charts"]].map(([v,l])=>`<button class="subnavbtn ${active===v?"on":""}" onclick="goView('${v}')">${l}</button>`).join("")}</div>`;
+  return `<div class="subnav">${[["players","Stats"],["compare","Compare"],["charts","Charts"],["fit","Fit Finder"]].map(([v,l])=>`<button class="subnavbtn ${active===v?"on":""}" onclick="goView('${v}')">${l}</button>`).join("")}</div>`;
 }
 
 function allTeamsFlat(){const a=[];STATE.data.leagues.forEach(L=>{if(L.meta.exhibition||L.meta.teamsOnly)return;L.teams.forEach(t=>a.push({...t,_lid:L.meta.id}));});return a;}
@@ -3259,7 +3310,58 @@ function shotChartSVG(p){
     <span class="hint">Box size = shot volume · label = made/attempted.</span></div></div></div>`;
 }
 
-/* ---------- Game log ---------- */
+/* ---------- Season trajectory: per-game form across the season with a rolling trend ---------- */
+function seasonTrajectoryHTML(p){
+  // combine gamelog(s) chronologically across this player's competitions
+  const grp=(p._grp&&p._grp.length>1)?p._grp:[p];
+  let games=[];
+  grp.forEach(x=>{const L=leagueOf(x);(x.gameLog||[]).forEach(r=>games.push({dt:r[0],pir:+(r[19]||0),pts:+(r[7]||0),lg:L.meta.id}));});
+  games=games.filter(g=>g.dt).sort((a,b)=>a.dt<b.dt?-1:1);
+  if(games.length<5)return "";                                   // need a meaningful sample
+  const metricSel=STATE._trajMetric||"pir";
+  const val=g=>metricSel==="pts"?g.pts:g.pir;
+  const vals=games.map(val);
+  const n=vals.length;
+  const seasonAvg=vals.reduce((a,b)=>a+b,0)/n;
+  // rolling average (window 5)
+  const win=Math.min(5,Math.max(3,Math.round(n/6)));
+  const roll=vals.map((_,i)=>{const s=Math.max(0,i-win+1);const seg=vals.slice(s,i+1);return seg.reduce((a,b)=>a+b,0)/seg.length;});
+  // first-third vs last-third average (trend read)
+  const third=Math.max(2,Math.round(n/3));
+  const early=vals.slice(0,third).reduce((a,b)=>a+b,0)/third;
+  const late=vals.slice(-third).reduce((a,b)=>a+b,0)/third;
+  const trendDelta=+(late-early).toFixed(1);
+  // chart geometry
+  const W=620,H=180,padL=34,padR=12,padT=14,padB=22;
+  const maxV=Math.max(...vals,seasonAvg)*1.1||1, minV=Math.min(0,...vals);
+  const x=i=>padL+(W-padL-padR)*(n===1?0.5:i/(n-1));
+  const y=v=>padT+(H-padT-padB)*(1-(v-minV)/((maxV-minV)||1));
+  // bars for each game (colored vs season avg), rolling line, avg line
+  const bars=vals.map((v,i)=>{const bx=x(i),by=y(Math.max(v,0)),bh=Math.abs(y(Math.max(v,0))-y(0));const up=v>=seasonAvg;
+    return `<rect x="${bx-2.2}" y="${v>=0?by:y(0)}" width="4.4" height="${Math.max(1,bh)}" rx="1.5" fill="${up?'var(--sage,#7FB3AB)':'var(--accent,#D2925E)'}" opacity="0.55"/>`;}).join("");
+  const rollPts=roll.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const avgY=y(seasonAvg);
+  const yticks=[minV,seasonAvg,maxV].map(v=>`<text x="4" y="${(y(v)+3).toFixed(1)}" class="trajYlab">${Math.round(v)}</text>`).join("");
+  const chart=`<svg viewBox="0 0 ${W} ${H}" class="trajchart" preserveAspectRatio="none">
+    <line x1="${padL}" x2="${W-padR}" y1="${avgY.toFixed(1)}" y2="${avgY.toFixed(1)}" class="trajAvgLine"/>
+    <text x="${W-padR}" y="${(avgY-4).toFixed(1)}" class="trajAvgLab" text-anchor="end">season avg ${seasonAvg.toFixed(1)}</text>
+    ${bars}
+    <polyline points="${rollPts}" class="trajRoll" fill="none"/>
+    ${yticks}
+  </svg>`;
+  const dir=trendDelta>=2?"up":trendDelta<=-2?"down":"flat";
+  const dirTxt=dir==="up"?`Trending up (+${trendDelta} late-season)`:dir==="down"?`Cooling off (${trendDelta} late-season)`:"Steady across the season";
+  const dirIcon=dir==="up"?"\u25b2":dir==="down"?"\u25bc":"\u25ac";
+  const mBtn=(k,l)=>`<button class="trajMbtn ${metricSel===k?'on':''}" onclick="setTrajMetric('${k}')">${l}</button>`;
+  return `<div class="panel" style="margin-top:16px">
+    <div class="sc-cardhead"><h3 style="margin:0">Season trajectory <span class="hint" style="font-weight:400;font-size:12px">game-by-game form, ${win}-game rolling trend</span></h3>
+      <div class="trajMetric">${mBtn("pir","PIR")}${mBtn("pts","Points")}</div></div>
+    <div class="trajTrend traj-${dir}"><span class="trajArrow">${dirIcon}</span> ${dirTxt}</div>
+    ${chart}
+    <div class="trajLegend"><span><i class="tlgBar up"></i> above season avg</span><span><i class="tlgBar dn"></i> below</span><span><i class="tlgLine"></i> rolling avg</span></div>
+  </div>`;
+}
+function setTrajMetric(k){STATE._trajMetric=k;if(typeof renderProfile==="function")renderProfile();}
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
 function fullDate(dt){if(!dt||dt.length<10)return dt||"\u2014";
   const y=dt.slice(0,4),m=+dt.slice(5,7),d=+dt.slice(8,10);
@@ -3830,8 +3932,24 @@ function setSimRef(id){
   closeDrawer(); renderScout();
   try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){}
 }
-function clearSimRef(){ STATE.scout.simRef=null; renderScout(); }
+function clearSimRef(){ STATE.scout.simRef=null; STATE.scout.simAgeMax=null; STATE.scout.simLevelMin=null; STATE.scout.simFreeOnly=false; renderScout(); }
 function simBoardWeight(){ readSimWeights(); renderScout(); }
+
+/* ---------- Recruitment quick-filters, shown only in "similar to X" mode ---------- */
+function simQuickFiltersHTML(s){
+  const ages=[["","Any age"],[23,"U23"],[25,"U25"],[28,"U28"]];
+  const levels=[["","Any level"],[4,"EuroLeague"],[3,"EuroCup+"],[2,"Top level+"]];
+  const ageOpts=ages.map(([v,l])=>`<option value="${v}" ${String(s.simAgeMax??"")===String(v)?"selected":""}>${l}</option>`).join("");
+  const lvlOpts=levels.map(([v,l])=>`<option value="${v}" ${String(s.simLevelMin??"")===String(v)?"selected":""}>${l}</option>`).join("");
+  return `<div class="simquick">
+    <span class="simquickLab">Recruit filters</span>
+    <select id="simAgeMax" class="simqSel" title="Only players at or below this age">${ageOpts}</select>
+    <select id="simLevelMin" class="simqSel" title="Only players projected at this level or higher">${lvlOpts}</select>
+    <button id="simFreeOnly" class="simqChip ${s.simFreeOnly?"on":""}" title="Only players without a 2026/27 club">Free agents 26/27</button>
+    ${(s.simAgeMax||s.simLevelMin!=null&&s.simLevelMin!==""||s.simFreeOnly)?`<button class="simqClear" onclick="simClearRecruit()">reset</button>`:""}
+  </div>`;
+}
+function simClearRecruit(){ const s=STATE.scout; s.simAgeMax=null; s.simLevelMin=null; s.simFreeOnly=false; renderScout(); }
 
 /* ---------- Add-to-compare: manage the shared compare slots from anywhere ---------- */
 function compareSlots(){ if(!STATE.compare.slots)STATE.compare.slots=[null,null,null,null]; return STATE.compare.slots; }
@@ -4797,6 +4915,7 @@ function renderProfile(){
     ${playingStyleHTML(p)}
     ${similarPanelHTML(p)}
 
+    ${seasonTrajectoryHTML(p)}
     <div class="panel" style="margin-top:16px">
       <h3>Game log${(p._grp&&p._grp.length>1)?' — all competitions':' · '+p.g+' games'}</h3>
       ${gameLogTable(p)}
@@ -5137,6 +5256,104 @@ function renderCharts(){
     else{(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document);}};
   $$(".scdot").forEach(d=>d.onclick=()=>openProfile(d.dataset.id));
 }
+/* ---------- Fit Finder: score players against a recruitment brief ---------- */
+function fitArchList(){ return ARCH_FILTERS; }  // {key,label,c}
+// score one player 0..100 against the current brief
+function fitScore(p,f){
+  if(!p.pct)return null;
+  // hard filters first
+  if(f.role&&p.role!==f.role)return null;
+  if(f.ageMax&&!(p.age!=null&&p.age<=+f.ageMax))return null;
+  if(f.levelMin!==""&&f.levelMin!=null){const b=levelBand(p);if(!(b&&b.i>=+f.levelMin))return null;}
+  if(f.contract==="free"){const mm=next26Get(),mb=(typeof next26bGet==="function"?next26bGet():{});
+    if(effective26keys(p,mm,mb).length>0||isStatus(effective26(p,mm)))return null;}
+  const og=statGradeOverall(p,{raw:true}); if(f.minGrade&&(og==null||og<+f.minGrade))return null;
+  // weighted components
+  const w=fitWeights(f);
+  // 1) style match: how strongly the player expresses the target archetype
+  let style=0.5;
+  if(f.arch){const parts=f.arch.split(":");const ai=+parts[0];
+    const av=(p.arch&&p.arch[ai]!=null)?p.arch[ai]/100:0;      // archetype weight (stored 0..100)
+    style=Math.max(0,Math.min(1,av));
+  }
+  // 2) production: overall stat grade normalized (grade ~0..10)
+  const prod=Math.max(0,Math.min(1,((og==null?4:og))/10));
+  // 3) age: younger scores higher within a 18..34 band (recruitment upside)
+  const age=p.age==null?0.5:Math.max(0,Math.min(1,(34-p.age)/(34-18)));
+  const score=100*(w.style*style + w.prod*prod + w.age*age);
+  return Math.round(score);
+}
+function fitWeights(f){const s=(+f.wStyle||0),p=(+f.wProd||0),a=(+f.wAge||0);const t=(s+p+a)||1;return{style:s/t,prod:p/t,age:a/t};}
+function renderFitFinder(){
+  const f=STATE.fit;
+  const roleOpts=["","Guard","Forward","Big"].map(r=>`<option value="${r}" ${f.role===r?"selected":""}>${r||"Any role"}</option>`).join("");
+  const archOpts=`<option value="">Any style</option>`+fitArchList().map(a=>`<option value="${a.key}" ${f.arch===a.key?"selected":""}>${a.label}</option>`).join("");
+  const ageOpts=[["","Any age"],[21,"U21"],[23,"U23"],[25,"U25"],[28,"U28"]].map(([v,l])=>`<option value="${v}" ${String(f.ageMax)===String(v)?"selected":""}>${l}</option>`).join("");
+  const lvlOpts=[["","Any level"],[4,"EuroLeague"],[3,"EuroCup+"],[2,"Top level+"],[1,"Mid-level+"]].map(([v,l])=>`<option value="${v}" ${String(f.levelMin)===String(v)?"selected":""}>${l}</option>`).join("");
+  const conOpts=[["","Any status"],["free","Free agents 26/27 only"]].map(([v,l])=>`<option value="${v}" ${f.contract===v?"selected":""}>${l}</option>`).join("");
+  // score the pool
+  let pool=scoutPool().filter(p=>p.qualified);
+  const scored=pool.map(p=>({p,s:fitScore(p,f)})).filter(x=>x.s!=null).sort((a,b)=>b.s-a.s).slice(0,60);
+  const rows=scored.map(({p,s})=>{
+    const L=leagueOf(p),og=statGradeOverall(p),b=levelBand(p);
+    const mm=next26Get(),mb=(typeof next26bGet==="function"?next26bGet():{});
+    const assigned=effective26keys(p,mm,mb).length>0||isStatus(effective26(p,mm));
+    const photo=p.img?`<img src="${p.img}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
+    const styleLab=(topArch(p,1)[0]||{}).lab||"";
+    return `<button class="fitrow" data-id="${p.id}">
+      <span class="fitScore"><b>${s}</b><span>fit</span></span>
+      <span class="fitPhoto${p.img?'':' noimg'}">${photo}</span>
+      <span class="fitMain"><span class="fitName">${esc(p.name)}${assigned?'':' <span class="fitFA">FA</span>'}</span>
+        <span class="fitMeta">${esc(p.teamName)} \u00b7 ${L.meta.name}${p.age?" \u00b7 "+p.age+"y":""}${styleLab?" \u00b7 "+styleLab:""}</span></span>
+      <span class="fitStats"><b>${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</b>p <b>${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</b>r <b>${p.apg!=null?p.apg.toFixed(1):"\u2014"}</b>a</span>
+      <span class="fitGrade" title="${b?b.label+' level':''}">${og!=null?og.toFixed(1):"\u2014"}</span>
+    </button>`;}).join("");
+  const wRow=(id,lab,val)=>`<div class="fw-row"><span class="fw-lab">${lab}</span>
+    <input type="range" min="0" max="100" step="5" value="${val}" id="${id}" oninput="fitW()"/><b class="fw-v" id="${id}v">${val}</b></div>`;
+  document.getElementById("app").innerHTML=`
+  ${statsSubNav("fit")}
+  <div class="fitwrap">
+    <div class="fitbrief panel">
+      <h3 style="margin-top:0">Recruitment brief <span class="hint" style="font-weight:400;font-size:12px">score every player against the profile you need</span></h3>
+      <div class="fitgrid">
+        <label>Role<select id="fitRole">${roleOpts}</select></label>
+        <label>Target style<select id="fitArch">${archOpts}</select></label>
+        <label>Age<select id="fitAge">${ageOpts}</select></label>
+        <label>Min level<select id="fitLevel">${lvlOpts}</select></label>
+        <label>Availability<select id="fitContract">${conOpts}</select></label>
+        <label>Min stat grade<select id="fitGrade">${[0,4,5,6,7,8].map(v=>`<option value="${v}" ${+f.minGrade===v?"selected":""}>${v?v+"+":"Any"}</option>`).join("")}</select></label>
+      </div>
+      <div class="fitweights">
+        <div class="fw-head">Weighting <span class="hint" style="font-size:11px">what matters most for this signing</span></div>
+        ${wRow("fwStyle","Style match",f.wStyle)}
+        ${wRow("fwProd","Production",f.wProd)}
+        ${wRow("fwAge","Youth / upside",f.wAge)}
+      </div>
+      <div class="fitbriefFoot">
+        <button class="btn ghost sm" onclick="fitReset()">Reset brief</button>
+        <span class="hint">${scored.length} match${scored.length===1?"":"es"}</span>
+      </div>
+    </div>
+    <div class="fitresults panel">
+      <div class="sc-cardhead"><h3 style="margin:0">Best fits</h3>
+        <span class="hint" style="font-size:12px">ranked by fit score</span></div>
+      ${scored.length?`<div class="fitlist">${rows}</div>`:'<div class="empty">No players match this brief. Loosen the filters.</div>'}
+    </div>
+  </div>`;
+  // wire
+  const bind=(id,key,isNum)=>{const e=document.getElementById(id);if(e)e.onchange=()=>{STATE.fit[key]=isNum?(e.value===""?"":e.value):e.value;renderFitFinder();};};
+  bind("fitRole","role");bind("fitArch","arch");bind("fitAge","ageMax",true);bind("fitLevel","levelMin",true);bind("fitContract","contract");bind("fitGrade","minGrade",true);
+  document.querySelectorAll(".fitrow").forEach(r=>r.onclick=()=>openProfile(r.dataset.id));
+  $$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view==="players"));
+  if(typeof paintCompareBar==="function")paintCompareBar();
+}
+function fitW(){const g=id=>+(document.getElementById(id)||{value:0}).value;
+  STATE.fit.wStyle=g("fwStyle");STATE.fit.wProd=g("fwProd");STATE.fit.wAge=g("fwAge");
+  ["fwStyle","fwProd","fwAge"].forEach(id=>{const v=document.getElementById(id+"v");if(v)v.textContent=g(id);});
+  // re-score without full re-render for snappy sliders? simplest: debounce a re-render
+  clearTimeout(fitW._t);fitW._t=setTimeout(renderFitFinder,180);}
+function fitReset(){STATE.fit={role:"",arch:"",ageMax:"",levelMin:"",contract:"",minGrade:0,wStyle:50,wProd:30,wAge:20};renderFitFinder();}
+
 function renderCompare(){
   const groups=[]; const seen=new Set();
   allPlayersFlat().forEach(p=>{const g=gid(p);if(seen.has(g))return;seen.add(g);
@@ -5535,7 +5752,13 @@ function renderScout(){
     pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn)||noteText(p).includes(q));}
   // sort
   const rateOf=p=>{const r=recOf(p);return r&&r.rating||0;};
-  if(simP){ pool.forEach(p=>p._sim=simMatch(simP,p)); pool=pool.filter(p=>p._sim!=null); pool.sort((a,b)=>b._sim-a._sim); }
+  if(simP){
+    // recruitment quick-filters (sim mode only)
+    if(s.simAgeMax) pool=pool.filter(p=>p.age!=null&&p.age<=+s.simAgeMax);
+    if(s.simLevelMin!=null&&s.simLevelMin!=="") pool=pool.filter(p=>{const b=levelBand(p);return b&&b.i>=+s.simLevelMin;});
+    if(s.simFreeOnly){const mm=next26Get(),mb=(typeof next26bGet==="function"?next26bGet():{});
+      pool=pool.filter(p=>!(effective26keys(p,mm,mb).length>0||isStatus(effective26(p,mm))));}
+    pool.forEach(p=>p._sim=simMatch(simP,p)); pool=pool.filter(p=>p._sim!=null); pool.sort((a,b)=>b._sim-a._sim); }
   else if(s.arch){const ai=+s.arch.split(":")[0]; pool.sort((a,b)=>(b.arch?b.arch[ai]:0)-(a.arch?a.arch[ai]:0));}
   else if(s.sort==="grade")      pool.sort((a,b)=>(statGradeOverall(b)??-1)-(statGradeOverall(a)??-1));
   else if(s.sort==="form")   pool.sort((a,b)=>{const fa=formOf(a),fb=formOf(b);return (fb?fb.delta:-999)-(fa?fa.delta:-999);});
@@ -5655,6 +5878,7 @@ function renderScout(){
       </div>
       ${simP?"":filterBarHTML(s)}
       ${simP?"":naStrip}
+      ${simP?simQuickFiltersHTML(s):""}
       ${simP?simSliderHTML("readSimWeights()","simBoardWeight()"):""}
       ${simP?"":viewsBar}
       ${simP?"":recentRow}
@@ -5672,6 +5896,9 @@ function renderScout(){
   $$("[data-status]").forEach(b=>b.onclick=()=>{s.status=b.dataset.status;renderScout();});
   $$("[data-tag]").forEach(b=>b.onclick=()=>{const t=b.dataset.tag;s.tags.has(t)?s.tags.delete(t):s.tags.add(t);renderScout();});
   const sortSel=$("#scoutSort");if(sortSel)sortSel.onchange=()=>{s.sort=sortSel.value;renderScout();};
+  const simAge=$("#simAgeMax");if(simAge)simAge.onchange=()=>{s.simAgeMax=simAge.value||null;renderScout();};
+  const simLvl=$("#simLevelMin");if(simLvl)simLvl.onchange=()=>{s.simLevelMin=simLvl.value===""?null:simLvl.value;renderScout();};
+  const simFree=$("#simFreeOnly");if(simFree)simFree.onclick=()=>{s.simFreeOnly=!s.simFreeOnly;renderScout();};
   $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
   $$("[data-level]").forEach(b=>b.onclick=()=>{const k=+b.dataset.level;s.level=(s.level===k?null:k);renderScout();});
   $$("[data-n26]").forEach(b=>b.onclick=()=>{const k=b.dataset.n26;s.next26=(s.next26===k?null:k);renderScout();});
@@ -6278,7 +6505,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,profileBack,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,simClearRecruit,setTrajMetric,renderFitFinder,fitW,fitReset,toggleCompare,clearCompare,openCompare,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,profileBack,$,$$});
 
 boot();
 </script>
