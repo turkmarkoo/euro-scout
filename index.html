@@ -594,6 +594,12 @@ body.drawer-lock{overflow:hidden}
 
 .tablewrap.stickytbl{max-height:calc(100vh - var(--stick-top,110px) - 18px);overflow:auto}
 .stickytbl thead th{z-index:5}
+/* keep the # and PLAYER columns pinned to the left when scrolling the stats table sideways */
+.stickytbl table td:nth-child(1),.stickytbl table th:nth-child(1){position:sticky;left:0;z-index:4;background:var(--panel);width:44px;min-width:44px;max-width:44px;box-sizing:border-box}
+.stickytbl table td:nth-child(2),.stickytbl table th:nth-child(2){position:sticky;left:44px;z-index:4;background:var(--panel)}
+.stickytbl thead th:nth-child(1),.stickytbl thead th:nth-child(2){z-index:6;background:var(--panel2)}
+.stickytbl table td:nth-child(2),.stickytbl table th:nth-child(2){box-shadow:1px 0 0 var(--line)}
+.stickytbl tbody tr:hover td:nth-child(1),.stickytbl tbody tr:hover td:nth-child(2){background:var(--panel2)}
 .hproxy{overflow-x:auto;overflow-y:hidden;height:14px;border-radius:8px;margin-bottom:2px;display:none}
 .hproxy>div{height:1px}
 .hproxy::-webkit-scrollbar{height:10px}
@@ -1371,6 +1377,8 @@ body.drawer-lock{overflow:hidden}
 .lvlab{font-weight:500}.lvlab.on{font-weight:700}
 .ph-comps{margin-top:14px}
 .prohero .comptab{background:rgba(255,255,255,.16);color:#fff;border:0}
+.ph-pill.team.clk{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.ph-pill.team.clk:hover{background:rgba(255,255,255,.28)}
 .prohero .comptab.active{background:#fff;color:var(--accent-deep)}
 /* bio + summary panel (below the sticky hero) */
 .ph-bio{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 26px}
@@ -3384,6 +3392,15 @@ function openTeamRoster(leagueId,code){openTeamIn(leagueId,code);
 function openTeamIn(leagueId,code){const L=STATE.data.leagues.find(x=>x.meta.id===leagueId);
   if(L){STATE.allLeagues=false;STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;updateScopeLabel();}
   openTeam(code);}
+// open a team roster from a player profile: resolve the team by code, else by teamName
+function openTeamFromProfile(leagueId,teamName,teamCode){
+  const L=STATE.data.leagues.find(x=>x.meta.id===leagueId); if(!L){return;}
+  let t=teamCode&&L.teams.find(x=>x.code===teamCode);
+  if(!t&&teamName)t=L.teams.find(x=>x.name===teamName||x.teamName===teamName);
+  if(!t){toastMsg&&toastMsg("No team page for "+(teamName||"this club"));return;}
+  closeDrawer();
+  STATE.allLeagues=false;STATE.league=L;const sel=$("#leagueSel");if(sel)sel.value=leagueId;updateScopeLabel();
+  openTeam(t.code);}
 function gameLogTable(p){
   const grp=(p._grp&&p._grp.length>1)?p._grp:[p];
   const secs=grp.filter(x=>x.gameLog&&x.gameLog.length);
@@ -4818,6 +4835,7 @@ function renderProfile(){
             <div class="ph-nrow"><h1>${p.name}</h1>${p.country?`<span class="ph-flag" title="${p.country}">${flagEmoji(p.country)||isoOf(p.country)||""}</span>`:""}<button class="bigstar ${isWatched(p)?'on':''}" id="watchToggle" title="${isWatched(p)?'On watchlist — tap to remove':'Add to watchlist'}">${isWatched(p)?'★':'☆'}</button></div>
             <div class="ph-pills">
               <span class="ph-pill lg" onclick="openLeaguePlayers('${p.league}')">${L.meta.name}</span>
+              ${(p.teamName||p.team)?`<span class="ph-pill team clk" onclick="openTeamFromProfile('${p.league}','${escAttr(p.teamName||'')}','${escAttr(p.team||'')}')" title="Open ${esc(p.teamName||'team')} roster">${esc(p.teamName||p.team)}</span>`:""}
               <span class="ph-pill arch">${posLabel(p)}</span>
               ${p.multiTeam?'<span class="ph-pill soft">2 clubs</span>':''}
               ${p.qualified?'':'<span class="ph-pill soft">below min</span>'}
@@ -6364,7 +6382,7 @@ function renderTeam(){
   const L=STATE.league, t=L.teams.find(x=>x.code===CURRENT_TEAM);
   if(!t){STATE.view="teams";render();return;}
   const jn=p=>{const v=(p.jersey===0||p.jersey==="0")?0:parseInt(p.jersey);return isNaN(v)?999:v;};
-  const roster=L.players.filter(p=>p.team===t.code).sort((a,b)=>jn(a)-jn(b)||b.ppg-a.ppg);
+  const roster=L.players.filter(p=>p.team===t.code||(t.name&&p.teamName===t.name)||(t.teamName&&p.teamName===t.teamName)).sort((a,b)=>jn(a)-jn(b)||b.ppg-a.ppg);
   const grp=teamGroup(L.meta.id,t.code);
   const agg=teamAgg(L)[t.code]||{};
   const mkCards=list=>list.map(([k,lab,hi])=>{
@@ -6572,7 +6590,7 @@ function showModal(html,wide){let m=$("#modal");if(!m){m=document.createElement(
 function hideModal(){const m=$("#modal");if(m)m.remove();}
 
 // expose for inline event handlers (which run in global scope)
-Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,simClearRecruit,setTrajMetric,renderFitFinder,fitW,fitReset,toggleCompare,clearCompare,openCompare,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,profileBack,$,$$});
+Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,openTeamFromProfile,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,simClearRecruit,setTrajMetric,renderFitFinder,fitW,fitReset,toggleCompare,clearCompare,openCompare,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,profileBack,$,$$});
 
 boot();
 </script>
