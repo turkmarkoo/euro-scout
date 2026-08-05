@@ -615,11 +615,13 @@ body.drawer-lock{overflow:hidden}
 .scoutrail{position:sticky;top:120px;align-self:start;display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - 140px);overflow-y:auto;padding-right:4px}
 /* Filter rail: toggle button, collapse (desktop), off-canvas drawer (touch/narrow) */
 .headleft{display:flex;align-items:flex-start;gap:12px;min-width:0}
-.railToggle{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;background:var(--panel);border:1px solid var(--line);color:var(--txt);font-family:var(--disp);font-weight:600;font-size:12.5px;padding:8px 12px;border-radius:9px;cursor:pointer;box-shadow:var(--shadow);line-height:1;margin-top:2px}
-.railToggle:hover{border-color:var(--accent)}
+.railToggle{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;background:var(--accent);border:1px solid var(--accent);color:#fff;font-family:var(--disp);font-weight:700;font-size:12.5px;padding:8px 13px;border-radius:9px;cursor:pointer;box-shadow:var(--shadow);line-height:1;margin-top:2px}
+.railToggle:hover{filter:brightness(1.05)}
 .railToggle .rtIcon{font-size:14px;line-height:1}
 .raildim{display:none}
-.railClose{display:none}
+.railClose{align-self:flex-end;display:inline-flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--disp);font-weight:600;font-size:11px;padding:5px 10px;border-radius:8px;cursor:pointer;line-height:1}
+.railClose:hover{border-color:var(--accent);color:var(--txt)}
+.railClose .rcArr{font-size:9px}
 @media(min-width:821px){
   .scoutwrap.rail-hidden{grid-template-columns:1fr}
   .scoutwrap.rail-hidden .scoutrail{display:none}
@@ -722,7 +724,18 @@ body.drawer-lock{overflow:hidden}
 .eststar:hover{color:var(--gold)}
 .eststar.on{color:var(--gold)}
 .estrtn{font-size:11px;font-weight:700;color:var(--gold);margin-left:2px}
-@media(max-width:900px){.estable{font-size:12px}.estclubcell{max-width:150px}}
+/* star rating shown as glyphs next to the GRD grade */
+.estgrdcell{white-space:nowrap}
+.estgradestars{color:var(--gold);font-size:9px;letter-spacing:1px;margin-left:6px;vertical-align:middle}
+/* frozen left columns (rank / compare / player) so names stay visible on horizontal scroll */
+.estable td.c1,.estable th.c1{position:sticky;left:0;width:40px;min-width:40px;box-sizing:border-box}
+.estable td.c2,.estable th.c2{position:sticky;left:40px;width:36px;min-width:36px;box-sizing:border-box}
+.estable td.c3,.estable th.c3{position:sticky;left:76px;min-width:190px;box-sizing:border-box}
+.estable td.c1,.estable td.c2,.estable td.c3{background:var(--panel);z-index:2}
+.estable th.c1,.estable th.c2,.estable th.c3{background:var(--panel2);z-index:4}
+.estr:hover td.c1,.estr:hover td.c2,.estr:hover td.c3{background:var(--panel2)}
+.estable td.c3,.estable th.c3{box-shadow:7px 0 8px -7px rgba(0,0,0,.22);border-right:1px solid var(--line)}
+@media(max-width:900px){.estable{font-size:12px}.estclubcell{max-width:150px}.estable td.c3,.estable th.c3{min-width:150px}}
 .scoutcard2{position:relative;display:grid;grid-template-columns:92px 1fr;grid-template-areas:"photo head" "style style" "strip strip" "dots dots" "summary summary";column-gap:15px;row-gap:11px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.15s;color:var(--txt);text-align:left}
 .scoutcard2:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-2px)}
 .scoutcard2.watched{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
@@ -814,7 +827,7 @@ body.drawer-lock{overflow:hidden}
     padding:18px 14px 24px;margin:0;max-height:100vh;overflow-y:auto;align-self:auto;
     transform:translateX(-100%);transition:transform .26s ease}
   .scoutwrap.rail-open .scoutrail{transform:none}
-  .railClose{display:block;position:absolute;top:10px;right:10px;background:transparent;border:0;font-size:18px;color:var(--muted);cursor:pointer;line-height:1;padding:4px}
+  .railClose{align-self:flex-end;margin-bottom:2px}
   .raildim{display:none;position:fixed;inset:0;background:rgba(20,20,25,.4);z-index:150}
   .scoutwrap.rail-open .raildim{display:block}
   .railsec{min-width:0}
@@ -6013,7 +6026,7 @@ function renderScout(){
   $("#app").innerHTML=`<div class="scoutwrap${s.railHidden?" rail-hidden":""}${s.railOpen?" rail-open":""}">
     <div class="raildim" id="raildim"></div>
     <aside class="scoutrail">
-      <button class="railClose" id="railClose" title="Hide filters" aria-label="Hide filters">\u2715</button>
+      <button class="railClose" id="railClose" title="Hide the filters" aria-label="Hide filters"><span class="rcArr">\u25c0</span> Hide</button>
       <div class="railsearch"><input type="text" id="scoutQ" placeholder="Search name or notes…" value="${escAttr(s.q)}" autocomplete="off"/></div>
 
       <div class="railsec"><div class="raillab">Status</div>
@@ -6289,7 +6302,10 @@ function applyRailClasses(){const wrap=document.querySelector(".scoutwrap");if(!
   wrap.classList.toggle("rail-hidden",!!STATE.scout.railHidden);
   wrap.classList.toggle("rail-open",!!STATE.scout.railOpen);
   const tog=document.getElementById("railToggle");
-  if(tog){const shown=railIsNarrow()?STATE.scout.railOpen:!STATE.scout.railHidden;tog.setAttribute("aria-expanded",shown?"true":"false");}}
+  if(tog){const narrow=railIsNarrow();const shown=narrow?STATE.scout.railOpen:!STATE.scout.railHidden;
+    tog.setAttribute("aria-expanded",shown?"true":"false");
+    const lab=tog.querySelector(".rtLab");
+    if(lab)lab.textContent=narrow?"Filters":(STATE.scout.railHidden?"Show filters":"Hide filters");}}
 function toggleRail(){const s=STATE.scout;
   if(railIsNarrow()){s.railOpen=!s.railOpen;}
   else{s.railHidden=!s.railHidden;try{localStorage.setItem(RAIL_KEY,s.railHidden?"1":"0");}catch(e){}}
@@ -6369,48 +6385,49 @@ function statusDotsHTML(p){
 function scoutTable(pool,s){
   const ts=s.tsort||{key:"grade",dir:-1};
   const th=(key,label,opts)=>{opts=opts||{};const on=ts.key===key;
-    return `<th class="esth${opts.left?" l":""} srt${on?" on":""}" data-sort="${key}"${opts.title?` title="${escAttr(opts.title)}"`:""}>${label}${on?(ts.dir<0?" \u2193":" \u2191"):""}</th>`;};
+    return `<th class="esth${opts.left?" l":""} srt${on?" on":""}${opts.cls?" "+opts.cls:""}" data-sort="${key}"${opts.title?` title="${escAttr(opts.title)}"`:""}>${label}${on?(ts.dir<0?" \u2193":" \u2191"):""}</th>`;};
   const head=`<thead><tr>
-    <th class="esth nr">#</th>
-    <th class="esth nr"></th>
-    ${th("name","Player",{left:true})}
+    <th class="esth nr c1">#</th>
+    <th class="esth nr c2"></th>
+    ${th("name","Player",{left:true,cls:"c3"})}
     ${th("born","Born",{title:"Birth year"})}
     <th class="esth">Pos</th>
     ${th("ht","HT",{title:"Height (cm)"})}
     <th class="esth l">Club \u00b7 Competition</th>
     ${th("g","G",{title:"Games played"})}
     ${th("min","MIN",{title:"Minutes per game"})}
-    ${th("grade","GRD",{title:"Overall stats grade \u2014 EuroScout's headline metric"})}
+    ${th("grade","GRD",{title:"Overall stats grade + my star rating"})}
     <th class="esth srt${ts.key==="form"?" on":""}" data-sort="form" title="Recent form (last 3 vs season PIR)">Form${ts.key==="form"?(ts.dir<0?" \u2193":" \u2191"):""}</th>
     ${th("pir","PIR")}
     ${th("pts","PTS")}
     ${th("reb","REB")}
     ${th("ast","AST")}
     ${th("ts","TS%",{title:"True shooting %"})}
-    <th class="esth" title="My rating / watchlist">\u2605</th>
+    <th class="esth" title="Watchlist">\u2605</th>
   </tr></thead>`;
   const rows=pool.map((p,i)=>{
     const og=statGradeOverall(p), lg=leagueOf(p), _ph=photoOf(p);
     const rc=ROLE_COLORS[p.role]||"#9aa0aa";
     const rating=(recOf(p).rating)||0, watched=isWatched(p);
+    const stars=rating?`<span class="estgradestars" title="My rating: ${rating}/5">${"\u2605".repeat(rating)}</span>`:"";
     return `<tr class="estr" data-id="${p.id}" tabindex="-1">
-      <td class="estrk">${i+1}</td>
-      <td class="estadd"><button class="estcmp ${inCompare(p.id)?"on":""}" data-cmp="${p.id}" title="${inCompare(p.id)?"In compare \u2014 click to remove":"Add to compare"}" aria-label="Toggle compare">\u21c6</button></td>
-      <td class="estplayer l"><span class="estp">${statusDotsHTML(p)}<span class="estav${_ph?"":" noimg"}">${_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>${p.country?`<span class="estflag" title="${escAttr(p.country)}">${flagEmoji(p.country)||isoOf(p.country)||""}</span>`:""}<span class="estname">${esc(p.name)}${formArrowHTML(p)}</span></span></td>
+      <td class="estrk c1">${i+1}</td>
+      <td class="estadd c2"><button class="estcmp ${inCompare(p.id)?"on":""}" data-cmp="${p.id}" title="${inCompare(p.id)?"In compare \u2014 click to remove":"Add to compare"}" aria-label="Toggle compare">\u21c6</button></td>
+      <td class="estplayer l c3"><span class="estp">${statusDotsHTML(p)}<span class="estav${_ph?"":" noimg"}">${_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>${p.country?`<span class="estflag" title="${escAttr(p.country)}">${flagEmoji(p.country)||isoOf(p.country)||""}</span>`:""}<span class="estname">${esc(p.name)}${formArrowHTML(p)}</span></span></td>
       <td class="estdim">${p.born!=null?p.born:"\u2014"}</td>
       <td><span class="estpos" style="color:${rc};background:${rc}1e">${posLabel(p)}</span></td>
       <td class="estdim">${p.height!=null?p.height:"\u2014"}</td>
       <td class="estclubcell l"><span class="estclub">${p.teamName?esc(p.teamName):"\u2014"}</span><span class="estcomp">${lg?esc(lg.meta.name):""}</span></td>
       <td>${p.g!=null?p.g:"\u2014"}</td>
       <td>${p.mpg!=null?p.mpg.toFixed(1):"\u2014"}</td>
-      <td class="estgrdcell">${og!=null?`<b class="estgrade">${og.toFixed(1)}</b>`:"\u2014"}</td>
+      <td class="estgrdcell">${og!=null?`<b class="estgrade">${og.toFixed(1)}</b>`:"\u2014"}${stars}</td>
       <td class="estform">${sparklineHTML(p)}</td>
       <td>${p.pir!=null?p.pir.toFixed(1):"\u2014"}</td>
       <td class="hi">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td>
       <td class="hi">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
       <td class="hi">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
       <td>${p.ts!=null?p.ts.toFixed(0):"\u2014"}</td>
-      <td class="estrt"><button class="eststar ${watched?"on":""}" data-star="${p.id}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"\u2605":"\u2606"}</button>${rating?`<span class="estrtn" title="My rating">${rating}</span>`:""}</td>
+      <td class="estrt"><button class="eststar ${watched?"on":""}" data-star="${p.id}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"\u2605":"\u2606"}</button></td>
     </tr>`;
   }).join("");
   return `<div class="estwrap"><table class="estable">${head}<tbody>${rows}</tbody></table></div>`;
