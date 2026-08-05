@@ -659,6 +659,59 @@ body.drawer-lock{overflow:hidden}
 .fchip.clearall{border-color:var(--line);background:var(--panel);color:var(--muted);font-weight:500}
 .fchip.clearall:hover{border-color:var(--bad);background:var(--bad);color:#fff}
 .board{display:grid;grid-template-columns:repeat(auto-fill,minmax(345px,1fr));gap:14px}
+/* ---- Scout view toggle + dense table view ---- */
+.scoutTools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.viewseg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:2px;gap:2px}
+.vsegbtn{font-family:var(--disp);font-size:12px;font-weight:600;color:var(--muted);background:transparent;border:0;border-radius:7px;padding:6px 12px;cursor:pointer;letter-spacing:.02em;line-height:1;transition:background .12s,color .12s}
+.vsegbtn:hover{color:var(--txt)}
+.vsegbtn.on{background:var(--panel);color:var(--accent-deep);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.estwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.estable{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+.estable th.esth{position:static;font-family:var(--disp);font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:10px 8px;white-space:nowrap;border-bottom:1px solid var(--line);background:var(--panel2);text-align:right}
+.estable th.esth.l{text-align:left}
+.estable th.esth.nr{width:1%;padding-left:12px;padding-right:6px}
+.estable th.srt{cursor:pointer;user-select:none}
+.estable th.srt:hover{color:var(--txt)}
+.estable th.srt.on{color:var(--accent-deep)}
+.estable td{padding:7px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line-soft);font-variant-numeric:tabular-nums;color:var(--txt)}
+.estable td.l{text-align:left}
+.estable tbody tr:last-child td{border-bottom:0}
+.estr{cursor:pointer;transition:background .1s}
+.estr:hover{background:var(--panel2)}
+.estable td.hi{font-weight:700}
+.estrk{color:var(--muted2);font-size:12px;padding-left:12px}
+.estadd{padding:0 4px}
+.estcmp{width:22px;height:22px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;font-size:12px;line-height:1;transition:.12s}
+.estcmp:hover{color:var(--txt);border-color:var(--muted2)}
+.estcmp.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.estp{display:flex;align-items:center;gap:8px;min-width:0}
+.stdots{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto}
+.stdot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.stdot.sc{background:var(--good)}
+.stdot.un{background:var(--line);border:1px solid var(--muted2)}
+.stri{color:var(--gold);font-size:8px;line-height:1}
+.estav{width:26px;height:26px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line)}
+.estav img{width:100%;height:100%;object-fit:cover}
+.estav.noimg{background:var(--chip)}
+.estflag{font-size:14px;flex:0 0 auto;line-height:1}
+.estname{font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.estdim{color:var(--muted)}
+.estpos{display:inline-block;font-family:var(--disp);font-size:10px;font-weight:700;letter-spacing:.03em;padding:3px 7px;border-radius:6px}
+.estclubcell{max-width:230px}
+.estclub{display:block;font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.estcomp{display:block;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.estgrade{font-family:var(--disp);font-weight:800;font-size:14px;color:var(--accent-deep)}
+.estform{text-align:right}
+.spk{display:inline-flex;align-items:center;gap:5px;justify-content:flex-end}
+.spk svg{display:block}
+.spkd{font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}
+.spkna{color:var(--muted2)}
+.estrt{white-space:nowrap}
+.eststar{background:transparent;border:0;cursor:pointer;color:var(--muted2);font-size:14px;line-height:1;padding:2px}
+.eststar:hover{color:var(--gold)}
+.eststar.on{color:var(--gold)}
+.estrtn{font-size:11px;font-weight:700;color:var(--gold);margin-left:2px}
+@media(max-width:900px){.estable{font-size:12px}.estclubcell{max-width:150px}}
 .scoutcard2{position:relative;display:grid;grid-template-columns:92px 1fr;grid-template-areas:"photo head" "style style" "strip strip" "dots dots" "summary summary";column-gap:15px;row-gap:11px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:.15s;color:var(--txt);text-align:left}
 .scoutcard2:hover{border-color:var(--accent);box-shadow:var(--shadow-lift);transform:translateY(-2px)}
 .scoutcard2.watched{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
@@ -1933,7 +1986,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   compare:{slots:[null,null,null,null]}, fit:{role:"",arch:"",ageMax:"",levelMin:"",contract:"",minGrade:0,wStyle:50,wProd:30,wAge:20}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,simAgeMax:null,simLevelMin:null,simFreeOnly:false,arch:null,filters:[],level:null,next26:null}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,simAgeMax:null,simLevelMin:null,simFreeOnly:false,arch:null,filters:[],level:null,next26:null,view:"cards",tsort:{key:"grade",dir:-1}}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -5807,6 +5860,7 @@ function renderWatchlist(){
 
 function renderScout(){
   const s=STATE.scout;
+  if(!s._viewInit){try{const v=localStorage.getItem(SCOUT_VIEW_KEY);if(v==="table"||v==="cards")s.view=v;}catch(e){}s._viewInit=1;}
   KBD_SEL=-1;
   const simP=s.simRef?player(s.simRef):null; if(s.simRef&&!simP)s.simRef=null;
   let pool=scoutPool();
@@ -5851,6 +5905,9 @@ function renderScout(){
   else if(s.sort==="ppg")   pool.sort((a,b)=>(b.ppg||0)-(a.ppg||0));
   else if(s.sort==="name")  pool.sort((a,b)=>a.name.localeCompare(b.name));
   else if(s.sort==="age")   pool.sort((a,b)=>(a.age||99)-(b.age||99));
+
+  // table view has its own column-driven ordering (sim mode keeps match order)
+  if(s.view==="table" && !simP) pool=sortPoolForTable(pool,s.tsort);
 
   // counts for rail
   const full=scoutPool();
@@ -5949,17 +6006,23 @@ function renderScout(){
           <h1 class="title" style="margin:0">${simP?"Similar to "+esc(simP.name):(s.arch?(ARCH_FILTERS.find(a=>a.key===s.arch)||{}).label+"s":"Scout board")}</h1>
           <div class="sub" style="margin-top:2px">${simP?`${pool.length} player${pool.length!==1?"s":""} by statistical match \u00b7 refine with the filters on the left`:`${pool.length} player${pool.length!==1?"s":""}${s.arch?" tagged \u2014 ranked by archetype fit":(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||(s.filters&&s.filters.length)?" match your filters":" across eleven competitions")}`}</div>
         </div>
-        ${simP?`<button class="btn ghost sm" onclick="clearSimRef()">\u2715 Exit similar</button>`:`<div class="scoutsort">
-          <span class="sortlab">Sort</span>
-          <select id="scoutSort">
-            <option value="grade"${s.sort==="grade"?" selected":""}>Stats grade</option>
-            <option value="form"${s.sort==="form"?" selected":""}>Trending (hot form)</option>
-            <option value="myrating"${s.sort==="myrating"?" selected":""}>My rating</option>
-            <option value="ppg"${s.sort==="ppg"?" selected":""}>Points</option>
-            <option value="age"${s.sort==="age"?" selected":""}>Youngest</option>
-            <option value="name"${s.sort==="name"?" selected":""}>Name</option>
-          </select>
-        </div>`}
+        <div class="scoutTools">
+          <div class="viewseg" role="tablist" aria-label="Player view">
+            <button class="vsegbtn ${s.view!=="table"?"on":""}" data-sview="cards" title="Card view" role="tab" aria-selected="${s.view!=="table"}">\u25a6 Cards</button>
+            <button class="vsegbtn ${s.view==="table"?"on":""}" data-sview="table" title="Table view" role="tab" aria-selected="${s.view==="table"}">\u2637 Table</button>
+          </div>
+          ${simP?`<button class="btn ghost sm" onclick="clearSimRef()">\u2715 Exit similar</button>`:`<div class="scoutsort">
+            <span class="sortlab">Sort</span>
+            <select id="scoutSort">
+              <option value="grade"${s.sort==="grade"?" selected":""}>Stats grade</option>
+              <option value="form"${s.sort==="form"?" selected":""}>Trending (hot form)</option>
+              <option value="myrating"${s.sort==="myrating"?" selected":""}>My rating</option>
+              <option value="ppg"${s.sort==="ppg"?" selected":""}>Points</option>
+              <option value="age"${s.sort==="age"?" selected":""}>Youngest</option>
+              <option value="name"${s.sort==="name"?" selected":""}>Name</option>
+            </select>
+          </div>`}
+        </div>
       </div>
       ${simP?"":filterBarHTML(s)}
       ${simP?"":naStrip}
@@ -5968,8 +6031,8 @@ function renderScout(){
       ${simP?"":viewsBar}
       ${simP?"":recentRow}
       ${simP?"":activeChipsHTML(s)}
-      <div class="board">${pool.slice(0,180).map(scoutCard).join("")}</div>
-      ${pool.length>180?`<div class="sub" style="text-align:center;margin-top:16px">Showing first 180 — narrow with filters to see more.</div>`:""}
+      ${s.view==="table"?scoutTable(pool.slice(0,300),s):`<div class="board">${pool.slice(0,180).map(scoutCard).join("")}</div>`}
+      ${pool.length>(s.view==="table"?300:180)?`<div class="sub" style="text-align:center;margin-top:16px">Showing first ${s.view==="table"?300:180} — narrow with filters to see more.</div>`:""}
       ${!pool.length?'<div class="empty">No players match. Loosen the filters on the left.</div>':""}
     </section>
   </div>`;
@@ -6027,6 +6090,18 @@ function renderScout(){
       if(e.target.closest(".cardcmp")){e.stopPropagation();toggleCompare(c.dataset.id);return;}
       if(e.target.closest(".cardwatch")){e.stopPropagation();const id=c.dataset.id;toggleTag(id,WATCH_TAG).then(renderScout);return;}
       openProfile(c.dataset.id);};});
+  // view toggle (cards <-> table), persisted
+  $$("[data-sview]").forEach(b=>b.onclick=()=>{if(s.view===b.dataset.sview)return;s.view=b.dataset.sview;try{localStorage.setItem(SCOUT_VIEW_KEY,s.view);}catch(e){}renderScout();});
+  // table header sorting
+  $$(".estable th[data-sort]").forEach(th=>th.onclick=()=>{
+    const k=th.dataset.sort, cur=s.tsort||{key:"grade",dir:-1};
+    if(cur.key===k)cur.dir=-cur.dir; else{cur.key=k;cur.dir=(k==="name"||k==="born")?1:-1;}
+    s.tsort=cur; renderScout();});
+  // table rows: click opens profile; compare / watch buttons handled inline
+  $$(".estable .estr").forEach(row=>row.onclick=e=>{
+    if(e.target.closest(".estcmp")){e.stopPropagation();toggleCompare(row.dataset.id);return;}
+    if(e.target.closest(".eststar")){e.stopPropagation();toggleTag(row.dataset.id,WATCH_TAG).then(renderScout);return;}
+    openProfile(row.dataset.id);});
   updateKbdSelection();
 }
 // keyboard navigation highlight on the board
@@ -6141,6 +6216,110 @@ function skillProfile(p){const q=p.pct||{};
 function topArch(p,n){if(!p.arch)return [];
   return p.arch.map((w,i)=>({i,w})).sort((a,b)=>b.w-a.w).slice(0,n||3).filter(x=>x.w>=5)
     .map(x=>({idx:x.i,w:x.w,lab:archLabel(x.i,p),c:(ARCHETYPES[x.i]||{}).c||"var(--accent)"}));}
+/* ---------- Scout TABLE view (dense, sortable list) ---------- */
+const SCOUT_VIEW_KEY="euroscout:scoutView";
+function tableColVal(p,key){
+  switch(key){
+    case "grade": return statGradeOverall(p);
+    case "form":  {const f=formOf(p);return f?f.delta:null;}
+    case "born":  return p.born!=null?+p.born:null;
+    case "ht":    return p.height!=null?+p.height:null;
+    case "g":     return p.g;
+    case "min":   return p.mpg;
+    case "pir":   return p.pir;
+    case "pts":   return p.ppg;
+    case "reb":   return p.rpg;
+    case "ast":   return p.apg;
+    case "ts":    return p.ts;
+    case "name":  return p.name;
+    default:      return null;
+  }
+}
+function sortPoolForTable(pool,ts){
+  const key=(ts&&ts.key)||"grade", dir=(ts&&ts.dir)||-1;
+  const arr=pool.slice();
+  arr.sort((a,b)=>{
+    let va=tableColVal(a,key), vb=tableColVal(b,key);
+    if(key==="name")return dir*String(va).localeCompare(String(vb));
+    va=(va==null||isNaN(va))?-Infinity:va; vb=(vb==null||isNaN(vb))?-Infinity:vb;
+    if(va===vb){const ga=statGradeOverall(a)??-1,gb=statGradeOverall(b)??-1;if(ga!==gb)return gb-ga;return a.name.localeCompare(b.name);}
+    return dir*(va-vb);
+  });
+  return arr;
+}
+// inline SVG sparkline of recent game PIR, coloured by hot/cold form
+function sparklineHTML(p){
+  const gl=p.gameLog||[];
+  if(gl.length<3)return `<span class="spkna">\u2014</span>`;
+  const N=Math.min(12,gl.length);
+  const series=gl.slice(-N).map(r=>+(r[19]||0));
+  const f=formOf(p);
+  const col=f&&f.dir>0?"var(--good)":f&&f.dir<0?"var(--bad)":"var(--muted2)";
+  const min=Math.min(...series),max=Math.max(...series),rng=(max-min)||1;
+  const W=58,H=18,pad=2;
+  const pts=series.map((v,i)=>[pad+(i*(W-2*pad)/(N-1)),H-pad-((v-min)/rng)*(H-2*pad)]);
+  const d=pts.map((pt,i)=>(i?"L":"M")+pt[0].toFixed(1)+" "+pt[1].toFixed(1)).join(" ");
+  const last=pts[pts.length-1];
+  const delta=f?f.delta:null;
+  const dtxt=delta==null?"":`<span class="spkd" style="color:${col}">${delta>0?"\u25b2":delta<0?"\u25bc":"\u2192"}${delta>0?"+":""}${delta}</span>`;
+  return `<span class="spk"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}" fill="none" stroke="${col}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="1.8" fill="${col}"/></svg>${dtxt}</span>`;
+}
+function statusDotsHTML(p){
+  const scouted=scoutStatusOf(p)==="scouted";
+  let h=`<span class="stdot ${scouted?"sc":"un"}" title="${scouted?"Scouted":"To scout"}"></span>`;
+  if(riserOf(p))h+=`<span class="stri" title="Young riser">\u25b2</span>`;
+  return `<span class="stdots">${h}</span>`;
+}
+function scoutTable(pool,s){
+  const ts=s.tsort||{key:"grade",dir:-1};
+  const th=(key,label,opts)=>{opts=opts||{};const on=ts.key===key;
+    return `<th class="esth${opts.left?" l":""} srt${on?" on":""}" data-sort="${key}"${opts.title?` title="${escAttr(opts.title)}"`:""}>${label}${on?(ts.dir<0?" \u2193":" \u2191"):""}</th>`;};
+  const head=`<thead><tr>
+    <th class="esth nr">#</th>
+    <th class="esth nr"></th>
+    ${th("name","Player",{left:true})}
+    ${th("born","Born",{title:"Birth year"})}
+    <th class="esth">Pos</th>
+    ${th("ht","HT",{title:"Height (cm)"})}
+    <th class="esth l">Club \u00b7 Competition</th>
+    ${th("g","G",{title:"Games played"})}
+    ${th("min","MIN",{title:"Minutes per game"})}
+    ${th("grade","GRD",{title:"Overall stats grade \u2014 EuroScout's headline metric"})}
+    <th class="esth srt${ts.key==="form"?" on":""}" data-sort="form" title="Recent form (last 3 vs season PIR)">Form${ts.key==="form"?(ts.dir<0?" \u2193":" \u2191"):""}</th>
+    ${th("pir","PIR")}
+    ${th("pts","PTS")}
+    ${th("reb","REB")}
+    ${th("ast","AST")}
+    ${th("ts","TS%",{title:"True shooting %"})}
+    <th class="esth" title="My rating / watchlist">\u2605</th>
+  </tr></thead>`;
+  const rows=pool.map((p,i)=>{
+    const og=statGradeOverall(p), lg=leagueOf(p), _ph=photoOf(p);
+    const rc=ROLE_COLORS[p.role]||"#9aa0aa";
+    const rating=(recOf(p).rating)||0, watched=isWatched(p);
+    return `<tr class="estr" data-id="${p.id}" tabindex="-1">
+      <td class="estrk">${i+1}</td>
+      <td class="estadd"><button class="estcmp ${inCompare(p.id)?"on":""}" data-cmp="${p.id}" title="${inCompare(p.id)?"In compare \u2014 click to remove":"Add to compare"}" aria-label="Toggle compare">\u21c6</button></td>
+      <td class="estplayer l"><span class="estp">${statusDotsHTML(p)}<span class="estav${_ph?"":" noimg"}">${_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name)}</span>${p.country?`<span class="estflag" title="${escAttr(p.country)}">${flagEmoji(p.country)||isoOf(p.country)||""}</span>`:""}<span class="estname">${esc(p.name)}${formArrowHTML(p)}</span></span></td>
+      <td class="estdim">${p.born!=null?p.born:"\u2014"}</td>
+      <td><span class="estpos" style="color:${rc};background:${rc}1e">${posLabel(p)}</span></td>
+      <td class="estdim">${p.height!=null?p.height:"\u2014"}</td>
+      <td class="estclubcell l"><span class="estclub">${p.teamName?esc(p.teamName):"\u2014"}</span><span class="estcomp">${lg?esc(lg.meta.name):""}</span></td>
+      <td>${p.g!=null?p.g:"\u2014"}</td>
+      <td>${p.mpg!=null?p.mpg.toFixed(1):"\u2014"}</td>
+      <td class="estgrdcell">${og!=null?`<b class="estgrade">${og.toFixed(1)}</b>`:"\u2014"}</td>
+      <td class="estform">${sparklineHTML(p)}</td>
+      <td>${p.pir!=null?p.pir.toFixed(1):"\u2014"}</td>
+      <td class="hi">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td>
+      <td class="hi">${p.rpg!=null?p.rpg.toFixed(1):"\u2014"}</td>
+      <td class="hi">${p.apg!=null?p.apg.toFixed(1):"\u2014"}</td>
+      <td>${p.ts!=null?p.ts.toFixed(0):"\u2014"}</td>
+      <td class="estrt"><button class="eststar ${watched?"on":""}" data-star="${p.id}" title="${watched?"On watchlist":"Add to watchlist"}" aria-label="Toggle watchlist">${watched?"\u2605":"\u2606"}</button>${rating?`<span class="estrtn" title="My rating">${rating}</span>`:""}</td>
+    </tr>`;
+  }).join("");
+  return `<div class="estwrap"><table class="estable">${head}<tbody>${rows}</tbody></table></div>`;
+}
+
 function scoutCard(p){
   const r=recOf(p),tags=playerTags(p);
   const watched=tags.includes(WATCH_TAG);
