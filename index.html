@@ -727,6 +727,11 @@ body.drawer-lock{overflow:hidden}
 /* star rating shown as glyphs next to the GRD grade */
 .estgrdcell{white-space:nowrap}
 .estgradestars{color:var(--gold);font-size:9px;letter-spacing:1px;margin-left:6px;vertical-align:middle}
+.estratecell{text-align:center;white-space:nowrap}
+.estratestars{color:var(--gold);font-size:10px;letter-spacing:1px;white-space:nowrap}
+.estrate0{color:var(--muted2)}
+.ratestarslab{color:var(--gold);letter-spacing:1px;font-size:11px}
+.ratelabplus{color:var(--muted);margin-left:1px}
 /* frozen left columns (rank / compare / player) so names stay visible on horizontal scroll */
 .estable td.c1,.estable th.c1{position:sticky;left:0;width:40px;min-width:40px;box-sizing:border-box}
 .estable td.c2,.estable th.c2{position:sticky;left:40px;width:36px;min-width:36px;box-sizing:border-box}
@@ -2021,7 +2026,7 @@ const STATE = {data:null, league:null, view:"scout", allLeagues:false,
   compare:{slots:[null,null,null,null]}, fit:{role:"",arch:"",ageMax:"",levelMin:"",contract:"",minGrade:0,wStyle:50,wProd:30,wAge:20}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,simAgeMax:null,simLevelMin:null,simFreeOnly:false,arch:null,filters:[],level:null,next26:null,view:"cards",tsort:{key:"grade",dir:-1},railHidden:false,railOpen:false}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,simAgeMax:null,simLevelMin:null,simFreeOnly:false,arch:null,filters:[],level:null,next26:null,view:"cards",tsort:{key:"grade",dir:-1},railHidden:false,railOpen:false,ratingMin:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -5938,6 +5943,7 @@ function renderScout(){
   if(s.status!=="all") pool=pool.filter(p=>scoutStatusOf(p)===s.status);
   if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
+  if(s.ratingMin!=null){pool=pool.filter(p=>{const r=(recOf(p).rating)||0;return s.ratingMin==="u"?r===0:r>=s.ratingMin;});}
   if(s.level!=null)  pool=pool.filter(p=>{const b=levelBand(p);return b&&b.i===s.level;});
   if(s.next26){const mm=next26Get(),mb=(typeof next26bGet==="function"?next26bGet():{});
     pool=pool.filter(p=>{const assigned=effective26keys(p,mm,mb).length>0||isStatus(effective26(p,mm));return s.next26==="free"?!assigned:assigned;});}
@@ -6042,6 +6048,14 @@ function renderScout(){
         <button class="tagfilter riser ${s.riserOnly?"on":""}" id="riserToggle" title="Players 21 or under producing above their league's level">↑ Young risers <b>${riserCount}</b></button>
       </div>
 
+      <div class="railsec"><div class="raillab">My rating${s.ratingMin!=null?` <button class="archClr" id="rateClr" title="Clear">\u2715</button>`:""}</div>
+        <div class="frows">${[5,4,3,2,1].map(n=>{const on=s.ratingMin===n;const ct=full.filter(p=>((recOf(p).rating)||0)>=n).length;
+          return `<button class="frow ${on?"on":""}" data-ratemin="${n}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span><span class="ratestarslab">${"\u2605".repeat(n)}</span>${n<5?"<span class=\"ratelabplus\">+</span>":""}<span class="fct">${ct}</span></button>`;}).join("")}
+          ${(()=>{const on=s.ratingMin==="u";const ct=full.filter(p=>((recOf(p).rating)||0)===0).length;
+            return `<button class="frow ${on?"on":""}" data-ratemin="u"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span>Unrated<span class="fct">${ct}</span></button>`;})()}
+        </div>
+      </div>
+
       <div class="railsec"><div class="raillab">2026/27${s.next26?` <button class="archClr" id="n26Clr" title="Clear">\u2715</button>`:""}</div>
         <div class="pillrow">
           <button class="pill ${s.next26==="free"?"on":""}" data-n26="free">Free agents</button>
@@ -6066,7 +6080,7 @@ function renderScout(){
         <div class="archfilters">${ARCH_FILTERS.map(a=>`<button class="archchip ${s.arch===a.key?"on":""}" data-arch="${a.key}"><span class="fdot" style="background:${s.arch===a.key?a.c:"transparent"}"></span>${a.label}</button>`).join("")}</div>
       </div>
 
-      ${(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||s.q||s.arch||(s.filters&&s.filters.length))?`<button class="railclear" id="scoutClear">Clear all filters</button>`:""}
+      ${(s.leagues.size||s.roles.size||s.tags.size||s.status!=="all"||s.q||s.arch||(s.filters&&s.filters.length)||s.ratingMin!=null)?`<button class="railclear" id="scoutClear">Clear all filters</button>`:""}
     </aside>
 
     <section class="scoutmain">
@@ -6121,13 +6135,15 @@ function renderScout(){
   const simFree=$("#simFreeOnly");if(simFree)simFree.onclick=()=>{s.simFreeOnly=!s.simFreeOnly;renderScout();};
   $$("[data-arch]").forEach(b=>b.onclick=()=>{const k=b.dataset.arch;s.arch=(s.arch===k?null:k);renderScout();});
   $$("[data-level]").forEach(b=>b.onclick=()=>{const k=+b.dataset.level;s.level=(s.level===k?null:k);renderScout();});
+  $$("[data-ratemin]").forEach(b=>b.onclick=()=>{const v=b.dataset.ratemin;const k=(v==="u"?"u":+v);s.ratingMin=(s.ratingMin===k?null:k);renderScout();});
+  const rateClr=$("#rateClr");if(rateClr)rateClr.onclick=e=>{e.stopPropagation();s.ratingMin=null;renderScout();};
   $$("[data-n26]").forEach(b=>b.onclick=()=>{const k=b.dataset.n26;s.next26=(s.next26===k?null:k);renderScout();});
   const n26c=$("#n26Clr");if(n26c)n26c.onclick=e=>{e.stopPropagation();s.next26=null;renderScout();};
   const lvlClr=$("#lvlClr");if(lvlClr)lvlClr.onclick=e=>{e.stopPropagation();s.level=null;renderScout();};
   $$("[data-chip]").forEach(b=>b.onclick=()=>{removeChip(b.dataset.chip,s);renderScout();});
   const chipClr=$("#chipClear");if(chipClr)chipClr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.simRef=null;s.level=null;s.next26=null;renderScout();};
   const aClr=$("#archClr");if(aClr)aClr.onclick=(e)=>{e.stopPropagation();s.arch=null;renderScout();};
-  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.level=null;s.next26=null;renderScout();};
+  const clr=$("#scoutClear");if(clr)clr.onclick=()=>{s.q="";s.leagues.clear();s.roles.clear();s.tags.clear();s.status="all";s.riserOnly=false;s.arch=null;s.filters=[];s.level=null;s.next26=null;s.ratingMin=null;renderScout();};
   const riserBtn=$("#riserToggle");if(riserBtn)riserBtn.onclick=()=>{s.riserOnly=!s.riserOnly;renderScout();};
   // saved views
   const saveViewBtn=$("#saveViewBtn");if(saveViewBtn)saveViewBtn.onclick=saveCurrentView;
@@ -6333,6 +6349,7 @@ function initRailSwipe(){
 function tableColVal(p,key){
   switch(key){
     case "grade": return statGradeOverall(p);
+    case "rating": return (recOf(p).rating)||0;
     case "form":  {const f=formOf(p);return f?f.delta:null;}
     case "born":  return p.born!=null?+p.born:null;
     case "ht":    return p.height!=null?+p.height:null;
@@ -6396,7 +6413,8 @@ function scoutTable(pool,s){
     <th class="esth l">Club \u00b7 Competition</th>
     ${th("g","G",{title:"Games played"})}
     ${th("min","MIN",{title:"Minutes per game"})}
-    ${th("grade","GRD",{title:"Overall stats grade + my star rating"})}
+    ${th("grade","GRD",{title:"Overall stats grade"})}
+    ${th("rating","My \u2605",{title:"My star rating (1-5)"})}
     <th class="esth srt${ts.key==="form"?" on":""}" data-sort="form" title="Recent form (last 3 vs season PIR)">Form${ts.key==="form"?(ts.dir<0?" \u2193":" \u2191"):""}</th>
     ${th("pir","PIR")}
     ${th("pts","PTS")}
@@ -6409,7 +6427,6 @@ function scoutTable(pool,s){
     const og=statGradeOverall(p), lg=leagueOf(p), _ph=photoOf(p);
     const rc=ROLE_COLORS[p.role]||"#9aa0aa";
     const rating=(recOf(p).rating)||0, watched=isWatched(p);
-    const stars=rating?`<span class="estgradestars" title="My rating: ${rating}/5">${"\u2605".repeat(rating)}</span>`:"";
     return `<tr class="estr" data-id="${p.id}" tabindex="-1">
       <td class="estrk c1">${i+1}</td>
       <td class="estadd c2"><button class="estcmp ${inCompare(p.id)?"on":""}" data-cmp="${p.id}" title="${inCompare(p.id)?"In compare \u2014 click to remove":"Add to compare"}" aria-label="Toggle compare">\u21c6</button></td>
@@ -6420,7 +6437,8 @@ function scoutTable(pool,s){
       <td class="estclubcell l"><span class="estclub">${p.teamName?esc(p.teamName):"\u2014"}</span><span class="estcomp">${lg?esc(lg.meta.name):""}</span></td>
       <td>${p.g!=null?p.g:"\u2014"}</td>
       <td>${p.mpg!=null?p.mpg.toFixed(1):"\u2014"}</td>
-      <td class="estgrdcell">${og!=null?`<b class="estgrade">${og.toFixed(1)}</b>`:"\u2014"}${stars}</td>
+      <td class="estgrdcell">${og!=null?`<b class="estgrade">${og.toFixed(1)}</b>`:"\u2014"}</td>
+      <td class="estratecell">${rating?`<span class="estratestars" title="My rating: ${rating}/5">${"\u2605".repeat(rating)}</span>`:`<span class="estrate0">\u2013</span>`}</td>
       <td class="estform">${sparklineHTML(p)}</td>
       <td>${p.pir!=null?p.pir.toFixed(1):"\u2014"}</td>
       <td class="hi">${p.ppg!=null?p.ppg.toFixed(1):"\u2014"}</td>
