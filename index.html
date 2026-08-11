@@ -1731,12 +1731,15 @@ function applyAutoTransfers(items){
   const handled=trHandledGet(), m=next26Get(), applied=autoAppliedGet();
   let changed=false, count=0;
   (items||[]).forEach(tr=>{
-    if(!tr||!tr.autoApply||(tr.status!=="signed"&&tr.status!=="extended"))return;
+    const isRet=(tr.status==="retired");
+    if(!tr||!tr.autoApply||(!isRet&&tr.status!=="signed"&&tr.status!=="extended"))return;
     if(handled[tr.id]==="rejected")return;                 // respect an explicit reject
     const p=playerForTransfer(tr); if(!p)return;
     const key=gid(p);
     // skip if this person already has ANY 26/27 assignment that WE did not place
     if(m[key]!=null && !applied[key])return;               // manual assignment wins
+    if(isRet){ if(m[key]===STATUS_RETIRED)return;           // bake a career status, not a club
+      set26(p.id,STATUS_RETIRED); applied[key]=tr.id; changed=true; count++; return; }
     const club=dbTeamForClub(tr.to); if(!club||!club.key)return;
     const ck=canonKey(club.key);                            // team key -> canonical club key
     if(m[key]===ck)return;                                  // already there
@@ -4617,7 +4620,7 @@ function renderFreeAgents(){
   const retired=pool.filter(p=>statusOf(p,m)===STATUS_RETIRED);
   // identity-aware: an assignment on any of a player’s league entries counts
   const mbAvail=next26bGet();
-  let list=f.showRetired?retired.slice():pool.filter(p=>effective26keys(p,m,mbAvail).length===0);
+  let list=f.showRetired?retired.slice():pool.filter(p=>effective26keys(p,m,mbAvail).length===0&&statusOf(p,m)!==STATUS_RETIRED);
   if(f.q){const qn=normNm(f.q);list=list.filter(p=>normNm(p.name).includes(qn));}
   if(f.role)list=list.filter(p=>p.role===f.role);
   if(f.lg)list=list.filter(p=>p.league===f.lg);
