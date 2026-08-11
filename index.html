@@ -1848,9 +1848,9 @@ function allDbTeams(){if(DBTEAM_LIST)return DBTEAM_LIST;const out=[];(STATE.data
 let CLUBS=null, CLUB_BY_TEAMKEY=null;
 const CLUB_STOP=new Set(["basket","basketball","basketbol","bc","kk","cb","bk","club","sport","sports","spor","team","pallacanestro","kosarkarski","baloncesto","bbc","sk","cs","csm","csu","fc","lions","bears","giants","kings","hawks","eagles","wolves","tigers","panthers","dragons","sharks","bulls","knights","warriors","stars","seawolves","wildcats","huskies","cougars","bobcats","bulldogs","wolverines","crusaders","pioneers","raiders","rebels","spartans","titans","vikings","aggies","cardinals","falcons","gators","hornets","jaguars","mustangs","owls","rams","ravens","trojans"]);
 const CITY_SYN={munich:"munchen",muenchen:"munchen",milan:"milano",venice:"venezia",belgrade:"beograd",prague:"praha",vienna:"wien",lisbon:"lisboa",warsaw:"warszawa",cologne:"koln"};
-function clubTokens(name){return normClub(name).split(" ").filter(w=>(w.length>=4||/\d/.test(w))&&!CLUB_STOP.has(w)).map(w=>CITY_SYN[w]||w);}
+function clubTokens(name){return normClub(name).split(" ").filter(w=>(w.length>=3||/\d/.test(w))&&!CLUB_STOP.has(w)).map(w=>CITY_SYN[w]||w);}
 function tokEq(a,b){if(a===b)return true;const m=Math.min(a.length,b.length);return m>=5&&(a.slice(0,m)===b.slice(0,m));}
-const CLUB_ALIAS={"barca":"fc barcelona","partizan mozzart bet":"partizan belgrade","buducnost voli":"buducnost podgorica","kids us manresa":"baxi manresa","besiktas gain":"besiktas istanbul","bahcesehir koleji":"bahcesehir college"};
+const CLUB_ALIAS={"barca":"fc barcelona","partizan mozzart bet":"partizan belgrade","buducnost voli":"buducnost podgorica","kids us manresa":"baxi manresa","besiktas gain":"besiktas istanbul","bahcesehir koleji":"bahcesehir college","aek bc":"aek athens","petrolina aek":"petrolina aek larnaca"};
 function clubCanon(n){return CLUB_ALIAS[n]||n;}
 function sameClub(a,b){
   if(a.lg===b.lg)return false;                       // never merge inside one competition
@@ -1874,7 +1874,7 @@ function sameClub(a,b){
     const inb=sa.every(w=>sb.includes(w)), ina=sb.every(w=>sa.includes(w));
     if((inb&&sa.length<sb.length)||(ina&&sb.length<sa.length))return true;
   }
-  const ta=clubTokens(a.name), tb=clubTokens(b.name);
+  const ta=clubTokens(na), tb=clubTokens(nb);
   if(!ta.length||!tb.length)return false;
   let shared=0;ta.forEach(x=>{if(tb.some(y=>tokEq(x,y)))shared++;});
   if(!shared)return false;
@@ -2097,7 +2097,7 @@ async function setEyeGrade(p,axisKey,val){
 const LEAGUE_TIER={
   euroleague:1.00, eurocup:0.90, acb:0.90, aba:0.84, lba:0.82,
   bbl:0.82, lnb:0.82, il:0.80, gbl:0.86, bnxt:0.72, sbl:0.60, sl:0.78,
-  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86, elb:0.68, nbl:0.80, slo:0.40
+  plk:0.78, bcl:0.86, rou:0.62, bsl:0.84, lkl:0.80, vtb:0.86, elb:0.68, nbl:0.80, slo:0.40, enbl:0.50
 };
 function leagueTier(p){return LEAGUE_TIER[p.league]!=null?LEAGUE_TIER[p.league]:0.75;}
 /* overall stats grade 0-10 for the board headline: a production-quality measure,
