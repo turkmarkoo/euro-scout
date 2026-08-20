@@ -2820,7 +2820,7 @@ function fallbackCopy(text,cb){
 function exportPlayerReport(id){
   const p=player(id); if(!p)return;
   const L=leagueOf(p), rec=recOf(p), rep=parseReport(rec.report);
-  const t=L.teams.find(x=>x.code===p.team);
+  const t=(L.teams||[]).find(x=>x.code===p.team);
   const grade=statGradeOverall(p), band=levelBand(p);
   const radar=scoutRadarSVG(p);
   const eg=eyeGrades(p);
@@ -4929,7 +4929,7 @@ function renderProfile(){
   const p=player(CURRENT);
   if(!p){closeDrawer();return;}
   const L=STATE.league,rec=recOf(p);
-  const t=L.teams.find(x=>x.code===p.team);
+  const t=(L.teams||[]).find(x=>x.code===p.team);
   const rep=parseReport(rec.report);
   const pool=scopePool(p), scopeName=leagueOf(p).meta.name;
   const grid=(STATE.statMode==="adv"?CARD_ADV:CARD_PG);
