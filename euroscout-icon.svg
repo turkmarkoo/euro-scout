@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<rect x="0" y="0" width="512" height="512" rx="112" fill="#0F2C45"/>
+<circle cx="256" cy="256" r="137" fill="none" stroke="#7FA8C9" stroke-width="14"/>
+<g stroke="#7FA8C9" stroke-width="14" stroke-linecap="round">
+<line x1="256" y1="55" x2="256" y2="137"/>
+<line x1="256" y1="375" x2="256" y2="457"/>
+<line x1="55" y1="256" x2="137" y2="256"/>
+<line x1="375" y1="256" x2="457" y2="256"/>
+</g>
+<circle cx="256" cy="256" r="69" fill="#EE7A3C"/>
+<g fill="none" stroke="#0F2C45" stroke-width="11" stroke-linecap="round">
+<path d="M256 187 V325"/>
+<path d="M187 256 H325"/>
+<path d="M206 210 q50 46 100 0"/>
+<path d="M206 302 q50 -46 100 0"/>
+</g>
+<text x="46" y="476" font-family="Helvetica,Arial,sans-serif" font-size="62" font-weight="700" fill="#7FA8C9">MT</text>
+</svg>
