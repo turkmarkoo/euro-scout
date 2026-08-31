@@ -1,0 +1,68 @@
+EuroScout AI summary — Cloudflare Worker setup (one time, ~5 minutes)
+=====================================================================
+
+You'll do this once. After it, the "AI summary" button works on your PC,
+iPad and phone with no key pasted anywhere.
+
+------------------------------------------------------------------
+STEP 1 — Create the worker
+------------------------------------------------------------------
+1. Go to https://dash.cloudflare.com  (make a free account if you don't
+   have one — no credit card needed for Workers).
+2. Left sidebar: "Compute (Workers)"  ->  "Create"  ->  "Create Worker".
+3. Give it a name, e.g.  euroscout-ai   ->  "Deploy" (deploys a placeholder).
+4. Click "Edit code". Delete everything in the editor, paste the FULL
+   contents of worker.js, then click "Deploy" (top right).
+
+------------------------------------------------------------------
+STEP 2 — Add your Anthropic key as a secret
+------------------------------------------------------------------
+1. Still on the worker page: "Settings" tab -> "Variables and Secrets"
+   (older UI: "Settings" -> "Variables" -> "Add variable").
+2. Add a variable:
+      Name:  ANTHROPIC_API_KEY
+      Value: your key from console.anthropic.com  (starts with sk-ant-)
+   Click "Encrypt" so it's stored as a Secret, then "Save".
+   (The key lives only here, encrypted on Cloudflare. It is never sent to
+    your website or any device.)
+
+------------------------------------------------------------------
+STEP 3 — Copy the worker URL
+------------------------------------------------------------------
+On the worker's page you'll see its URL, something like:
+      https://euroscout-ai.YOURNAME.workers.dev
+Copy it.
+
+------------------------------------------------------------------
+STEP 4 — Tell EuroScout the URL
+------------------------------------------------------------------
+Open your site's  config.js  (the file you edit yourself) and add ONE line:
+
+      window.SCOUT_AI_URL = "https://euroscout-ai.YOURNAME.workers.dev";
+
+Re-upload config.js. That's it — the AI summary button now uses the worker
+on every device, and never asks for a key.
+
+------------------------------------------------------------------
+TESTING IT
+------------------------------------------------------------------
+- Open a player, write a couple of bullet notes, hit "AI summary".
+- If it says "Origin not allowed": your site's address isn't in the
+  ALLOWED_ORIGINS list at the top of worker.js. Add it and re-deploy.
+  (turkmarkoo.github.io is already included.)
+- If it says "missing ANTHROPIC_API_KEY secret": redo Step 2.
+- Quick check the worker is alive: opening the worker URL in a browser
+  should say "POST only" — that's expected (it only accepts POSTs).
+
+------------------------------------------------------------------
+NOTES
+------------------------------------------------------------------
+- Cost: each summary is a fraction of a cent. Cloudflare's free tier is
+  100,000 requests/day — you'll never hit it.
+- Change the AI's writing style anytime by editing SYSTEM_PROMPT in
+  worker.js and re-deploying — no need to touch the website.
+- Want it cheaper/faster? Change MODEL to "claude-haiku-4-5-20251001".
+- To switch providers later (Gemini free tier, OpenAI), only worker.js
+  changes — the website stays the same. Ask and I'll give you that version.
+- If you ever remove SCOUT_AI_URL from config.js, the button falls back to
+  asking for a key on the device (the old behaviour) — nothing breaks.

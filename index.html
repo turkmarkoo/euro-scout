@@ -343,7 +343,21 @@ tbody tr.clickteam:hover .pname{color:var(--accent)}
 .nsec{display:flex;flex-direction:column}
 .nlab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-bottom:6px}
 textarea.notesec{min-height:94px}
-textarea.notesec.bulleted{line-height:1.85;padding-left:13px}
+.blist{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:6px;min-height:44px}
+.bl-ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.bl-item{display:flex;align-items:flex-start;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px;position:relative}
+.bl-over{border-color:var(--accent)}
+.bl-dragging{opacity:.4}
+.bl-grip{flex:none;cursor:grab;color:var(--muted2);font-size:13px;line-height:1.5;user-select:none;padding-top:1px;letter-spacing:-2px;touch-action:none}
+.bl-grip:active{cursor:grabbing}
+.bl-txt{flex:1;font-size:14px;line-height:1.55;color:var(--txt);outline:none;min-width:0;word-break:break-word}
+.bl-txt:empty::before{content:attr(data-ph);color:var(--muted2)}
+.bl-del{flex:none;background:none;border:0;color:var(--muted2);font-size:12px;cursor:pointer;padding:0 2px;line-height:1.4;opacity:.55}
+.bl-del:hover{opacity:1;color:var(--accent)}
+.bl-addrow{margin-top:5px}
+.bl-add{width:100%;border:1px dashed var(--line);background:transparent;border-radius:8px;padding:7px 9px;font-size:12.5px;color:var(--muted2);cursor:pointer;font-family:var(--body);text-align:left}
+.bl-add:hover{border-color:var(--accent);color:var(--accent)}
+.role-viewer .bl-grip,.role-viewer .bl-del,.role-viewer .bl-addrow{display:none}
 .aiBtn{background:#0F2C45;color:#fff;border:0;display:inline-flex;align-items:center;gap:6px}
 .aiBtn:hover{background:#16405f}
 .aiBtn[disabled]{opacity:.55;cursor:default}
@@ -3757,7 +3771,67 @@ function parseReport(raw){if(!raw)return{};if(typeof raw==="object")return raw;
   try{const o=JSON.parse(raw);if(o&&typeof o==="object")return o;}catch(e){}return {nProj:raw};}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function noteSec(id,label,ph,rep){return '<div class="nsec"><div class="nlab">'+label+'</div>'
-  +'<textarea class="notesec bulleted" id="'+id+'" placeholder="'+ph+'">'+esc(rep[id]||"")+'</textarea></div>';}
+  +'<div class="blist" id="'+id+'" data-ph="'+escAttr(ph)+'"></div></div>';}
+/* ---------- bullet-list note editor (HoopScout-style): draggable contenteditable rows ---------- */
+function bulletParse(txt){ if(!txt)return [];
+  return String(txt).split(/\r?\n/)
+    .map(l=>l.replace(/^\s*(?:[\u2022\u2023\u2043\u25aa\u25cf\u00b7*\u2013\u2014\-]|\d+[.)])\s+/,'').replace(/^\s*[\u2022\u2023\u2043\u25aa\u25cf\u00b7*\u2013\u2014\-]\s*/,'').trim())
+    .filter(Boolean); }
+function placeCaretEnd(el){ if(!el)return; el.focus(); try{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r);}catch(e){} }
+function makeBulletList(host,initial,ph,onChange){
+  host.classList.add("blist");host.innerHTML="";
+  const ul=document.createElement("ul");ul.className="bl-ul";host.appendChild(ul);
+  const addRow=document.createElement("div");addRow.className="bl-addrow";
+  const addBtn=document.createElement("button");addBtn.type="button";addBtn.className="bl-add";addBtn.textContent="+ Add note";
+  addRow.appendChild(addBtn);host.appendChild(addRow);
+  let dragEl=null;
+  const emit=()=>{if(onChange)onChange();};
+  const serialize=()=>[...ul.querySelectorAll(".bl-txt")].map(t=>t.textContent.trim()).filter(Boolean).map(t=>"\u2022 "+t).join("\n");
+  function mkItem(text){
+    const li=document.createElement("li");li.className="bl-item";
+    const grip=document.createElement("span");grip.className="bl-grip";grip.textContent="\u22ee\u22ee";grip.title="Drag to reorder";grip.setAttribute("draggable","true");
+    const txt=document.createElement("span");txt.className="bl-txt";txt.contentEditable="true";txt.spellcheck=true;txt.dataset.ph=ph||"Add a note\u2026";txt.textContent=text||"";
+    const del=document.createElement("button");del.type="button";del.className="bl-del";del.title="Delete";del.textContent="\u2715";
+    li.append(grip,txt,del);
+    txt.addEventListener("keydown",e=>{
+      if(e.key==="Enter"){e.preventDefault();
+        let before=txt.textContent,after="";
+        const sel=getSelection();
+        if(sel&&sel.rangeCount){const r=sel.getRangeAt(0);const pre=document.createRange();pre.selectNodeContents(txt);try{pre.setEnd(r.endContainer,r.endOffset);before=pre.toString();after=txt.textContent.slice(before.length);}catch(_){}}
+        txt.textContent=before;const nl=mkItem(after);li.after(nl);placeCaretEnd(nl.querySelector(".bl-txt"));emit();
+      }else if(e.key==="Backspace"&&txt.textContent===""){e.preventDefault();
+        const prev=li.previousElementSibling;
+        if(prev){const pt=prev.querySelector(".bl-txt");li.remove();placeCaretEnd(pt);}
+        else if(ul.children.length>1){li.remove();placeCaretEnd(ul.querySelector(".bl-txt"));}
+        emit();
+      }
+    });
+    txt.addEventListener("input",()=>{if(!txt.textContent.trim())txt.innerHTML="";emit();});
+    txt.addEventListener("paste",e=>{e.preventDefault();
+      const data=((e.clipboardData||window.clipboardData).getData("text")||"");
+      const parts=bulletParse(data);
+      if(parts.length<=1){document.execCommand("insertText",false,parts.length?parts[0]:data.replace(/\s+/g," ").trim());emit();return;}
+      let anchor=li;const rest=parts.slice();
+      if(txt.textContent.trim()===""){txt.textContent=rest.shift();}
+      rest.forEach(pp=>{const nl=mkItem(pp);anchor.after(nl);anchor=nl;});
+      placeCaretEnd(anchor.querySelector(".bl-txt"));emit();
+    });
+    del.addEventListener("click",()=>{li.remove();if(!ul.children.length)ul.appendChild(mkItem(""));emit();});
+    grip.addEventListener("dragstart",e=>{dragEl=li;li.classList.add("bl-dragging");e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain","");}catch(_){}});
+    grip.addEventListener("dragend",()=>{if(dragEl)dragEl.classList.remove("bl-dragging");ul.querySelectorAll(".bl-over").forEach(x=>x.classList.remove("bl-over"));dragEl=null;emit();});
+    li.addEventListener("dragover",e=>{if(!dragEl||dragEl===li)return;e.preventDefault();const r=li.getBoundingClientRect();li._after=(e.clientY-r.top)/r.height>0.5;ul.querySelectorAll(".bl-over").forEach(x=>x.classList.remove("bl-over"));li.classList.add("bl-over");});
+    li.addEventListener("drop",e=>{if(!dragEl||dragEl===li)return;e.preventDefault();li.classList.remove("bl-over");if(li._after)li.after(dragEl);else li.before(dragEl);emit();});
+    let tDrag=false;
+    grip.addEventListener("touchstart",()=>{tDrag=true;dragEl=li;li.classList.add("bl-dragging");},{passive:true});
+    grip.addEventListener("touchmove",e=>{if(!tDrag)return;e.preventDefault();const t=e.touches[0];const over=document.elementFromPoint(t.clientX,t.clientY);const oli=over&&over.closest?over.closest(".bl-item"):null;if(oli&&oli!==li&&ul.contains(oli)){const r=oli.getBoundingClientRect();if((t.clientY-r.top)/r.height>0.5)oli.after(li);else oli.before(li);}},{passive:false});
+    grip.addEventListener("touchend",()=>{if(tDrag){tDrag=false;li.classList.remove("bl-dragging");dragEl=null;emit();}});
+    return li;
+  }
+  const lines=bulletParse(initial);if(!lines.length)lines.push("");
+  lines.forEach(l=>ul.appendChild(mkItem(l)));
+  addBtn.addEventListener("click",()=>{const nl=mkItem("");ul.appendChild(nl);placeCaretEnd(nl.querySelector(".bl-txt"));});
+  return {serialize,focus:()=>placeCaretEnd(ul.querySelector(".bl-txt"))};
+}
 function filterByAttr(kind,val,label){if(DRAWER_OPEN)closeDrawer();
   STATE.allLeagues=true;
   if(kind==="country")STATE.filters.country=val;
@@ -5094,7 +5168,7 @@ function renderProfile(){
         ${noteSec("nIntel","Intel","Role & minutes, coach trust, leadership, character, injuries, development timeline, off-court\u2026",rep)}
       </div>
       <div style="margin-top:14px"><div class="nlab">Projection / verdict</div>
-        <textarea class="notesec bulleted" id="nProj" placeholder="Role projection, ceiling & floor, fit, comparisons, overall verdict\u2026">${esc(rep.nProj||rep.overall||"")}</textarea></div>
+        <div class="blist" id="nProj" data-ph="Role projection, ceiling & floor, fit, comparisons, overall verdict\u2026"></div></div>
       <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn" id="saveBtn">Save report</button>
         <button class="btn aiBtn" id="aiSumBtn" title="Turn your bullet notes into a readable summary">\u2728 AI summary</button>
@@ -5144,23 +5218,17 @@ function renderProfile(){
   });
   const NKEYS=["nAth","nOff","nDef","nIntel","nProj"];
   let aiSummaryText=(rep.summary||"");
-  const gather=()=>{const o={};NKEYS.forEach(k=>{const el=$("#"+k);if(el)o[k]=el.value;});if(aiSummaryText)o.summary=aiSummaryText;return o;};
-  const saveReport=async(msg)=>{await saveRec(p,{report:JSON.stringify(gather())});$("#saveState").textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
+  const bulletEditors={};
+  let tmr;
+  const readField=k=>bulletEditors[k]?bulletEditors[k].serialize():"";
+  const gather=()=>{const o={};NKEYS.forEach(k=>{o[k]=readField(k);});if(aiSummaryText)o.summary=aiSummaryText;return o;};
+  const saveReport=async(msg)=>{await saveRec(p,{report:JSON.stringify(gather())});const ss=$("#saveState");if(ss)ss.textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
+  const markDirty=()=>{const ss=$("#saveState");if(ss)ss.textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};
+  const canEditRep=Store.canEdit();
+  NKEYS.forEach(k=>{const host=$("#"+k);if(host){const init=(k==="nProj"?(rep.nProj||rep.overall):rep[k])||"";
+    bulletEditors[k]=makeBulletList(host,init,host.dataset.ph||"",markDirty);
+    if(!canEditRep)host.querySelectorAll(".bl-txt").forEach(t=>t.contentEditable="false");}});
   $("#saveBtn").onclick=()=>{saveReport("saved").then(()=>toast("Report saved"));};
-  let tmr;NKEYS.forEach(k=>{const el=$("#"+k);if(el)el.oninput=()=>{$("#saveState").textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};});
-
-  // ---- bullet-point behaviour: Enter starts a new "• " line; empty field seeds one ----
-  $$("#drawer .notesec.bulleted").forEach(el=>{
-    el.addEventListener("keydown",e=>{
-      if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();
-        const s=el.selectionStart,en=el.selectionEnd,v=el.value;
-        el.value=v.slice(0,s)+"\n\u2022 "+v.slice(en);
-        el.selectionStart=el.selectionEnd=s+3;
-        el.dispatchEvent(new Event("input"));}
-    });
-    el.addEventListener("focus",()=>{if(!el.value.trim()){el.value="\u2022 ";el.selectionStart=el.selectionEnd=2;}});
-    el.addEventListener("blur",()=>{const t=el.value.trim();if(t==="\u2022"||t==="\u2022 "||t===""){if(el.value!==""){el.value="";el.dispatchEvent(new Event("input"));}}});
-  });
 
   // ---- AI summary: turns the bullet notes into readable prose in the scout's own voice ----
   const AI_KEY_LS="euroscout:aiKey";                       // stored ONLY in this browser, never synced/committed
@@ -5181,25 +5249,34 @@ function renderProfile(){
     const ki=$("#aiKeyIn");if(ki)ki.onkeydown=e=>{if(e.key==="Enter")$("#aiKeySave").click();};
   }
   async function runSummary(){
-    const key=localStorage.getItem(AI_KEY_LS);
-    if(!key){showKeyForm();return;}
+    const proxy=(window.SCOUT_AI_URL||"").trim();
     const secs=[["Athleticism","nAth"],["Offense","nOff"],["Defense","nDef"],["Intel","nIntel"],["Projection / verdict","nProj"]];
-    const notes=secs.map(([lab,k])=>{const el=$("#"+k);const v=el?el.value.trim():"";return v?(lab+":\n"+v):"";}).filter(Boolean).join("\n\n");
+    const notes=secs.map(([lab,k])=>{const v=readField(k).trim();return v?(lab+":\n"+v):"";}).filter(Boolean).join("\n\n");
     if(!notes){toast("Write some notes first");return;}
+    const key=proxy?null:localStorage.getItem(AI_KEY_LS);
+    if(!proxy&&!key){showKeyForm();return;}
     const btn=$("#aiSumBtn");if(btn){btn.disabled=true;}
     if(sumCard){sumCard.classList.add("on");sumCard.innerHTML='<div class="aiSumHead"><span class="nlab">AI summary</span></div><div class="hint">Writing your summary\u2026</div>';}
     const grade=recOf(p).rating;
     const sys="You turn a professional basketball scout's shorthand bullet notes into a clean, readable scouting summary. Write flowing prose, 2\u20134 short paragraphs. Use the scout's OWN words, terminology and judgements \u2014 do not add observations, statistics, comparisons or opinions they did not write, and never soften, hedge or inflate their verdict. Keep it tight and direct, the way a scout talks. Output only the summary: no preamble, no headings, no bullet points.";
     const usr="Player: "+p.name+(grade?(" \u2014 scout's grade "+grade+"/5"):"")+"\n\nMy bullet notes:\n\n"+notes;
     try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:AI_MODEL,max_tokens:800,system:sys,messages:[{role:"user",content:usr}]})});
-      const data=await r.json();
-      if(data.error)throw new Error(data.error.message||"API error");
-      const txt=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+      let txt;
+      if(proxy){
+        const r=await fetch(proxy,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({player:p.name,grade,notes})});
+        const data=await r.json().catch(()=>({error:"Bad response from AI proxy ("+r.status+")"}));
+        if(data.error)throw new Error(data.error);
+        txt=(data.summary||"").trim();
+      }else{
+        const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:AI_MODEL,max_tokens:800,system:sys,messages:[{role:"user",content:usr}]})});
+        const data=await r.json();
+        if(data.error)throw new Error(data.error.message||"API error");
+        txt=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+      }
       if(!txt)throw new Error("Empty response");
       aiSummaryText=txt;renderSum();saveReport("summary saved");
     }catch(e){
-      const msg=String(e&&e.message||e);const authErr=/401|authentication|x-api-key|invalid.*key|credit/i.test(msg);
+      const msg=String(e&&e.message||e);const authErr=!proxy&&/401|authentication|x-api-key|invalid.*key|credit/i.test(msg);
       if(sumCard)sumCard.innerHTML='<div class="aiSumHead"><span class="nlab">AI summary</span></div><div class="hint" style="color:#c0392b">Couldn\'t generate: '+esc(msg)+'. '+(authErr?'<a href="#" id="aiReset">Re-enter key</a>':'')+'</div>';
       const rz=$("#aiReset");if(rz)rz.onclick=ev=>{ev.preventDefault();localStorage.removeItem(AI_KEY_LS);showKeyForm();};
     } finally { if(btn)btn.disabled=false; }
