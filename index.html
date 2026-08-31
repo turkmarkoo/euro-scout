@@ -612,6 +612,19 @@ body.drawer-lock{overflow:hidden}
 .gcard h4{margin:0 0 6px;font-family:var(--disp);font-weight:700;font-size:14px;color:var(--accent-deep);letter-spacing:.01em}
 .gcard p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
 .gcard b{color:var(--txt);font-weight:600}
+.glosswrap{max-width:1080px}
+.glosssearchbar{position:relative;margin:16px 0 10px}
+.glosssearch{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px 12px 38px;font-size:14px;color:var(--txt);outline:none;font-family:var(--body)}
+.glosssearch:focus{border-color:var(--accent)}
+.glosssearchbar::before{content:"\2315";position:absolute;left:13px;top:46%;transform:translateY(-50%);color:var(--muted2);font-size:17px}
+.glossnav{position:sticky;top:0;z-index:6;display:flex;flex-wrap:wrap;gap:7px;padding:9px 0;background:var(--bg);margin-bottom:4px}
+.glossnav a{font-size:12px;padding:5px 11px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer;text-decoration:none;white-space:nowrap}
+.glossnav a:hover{border-color:var(--accent);color:var(--accent)}
+.glosssec{margin-top:22px;scroll-margin-top:58px}
+.glosssec>h3{font-family:var(--disp);font-size:16.5px;color:var(--txt);margin:0 0 9px;letter-spacing:.01em}
+.glosssec>.gsub{font-size:12.5px;color:var(--muted2);margin:-4px 0 11px}
+.glossgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:11px}
+.glossnores{color:var(--muted2);font-size:14px;padding:24px 2px}
 .gloss dd b{color:var(--txt);font-weight:600}
 
 /* radar footer chips + average key */
@@ -6983,90 +6996,110 @@ function renderTeam(){
 
 /* ---------- Glossary ---------- */
 function renderGlossary(){
-  const guide=[
-    ["Getting around","EuroScout covers twenty competitions for the 2025\u201326 season \u2014 three European competitions (EuroLeague, EuroCup, Basketball Champions League) plus thirteen domestic leagues: ABA (Adriatic), Liga ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), BNXT (Belgium/Netherlands), SBL Herr (Sweden), the Israeli Super League, the Greek Basket League, the Orlen Basket Liga (Poland) Liga Nationala (Romania), the Turkish BSL, the Lithuanian LKL the regional VTB United and Latvian-Estonian Leagues, the Australian NBL and Liga OTP banka (Slovenia). The home <b>Players</b> board is your at-a-glance grid \u2014 every player as a card with a skill radar, star grade and tags, filterable down the left by league, position, tags and watchlist. Click any card for the full profile. The top tabs switch between this board, the <b>Stats</b> table, the <b>Teams</b> list, the <b>Exhibitions</b> board, the <b>Compare</b> tool and this <b>Glossary</b>. The search box up top jumps straight to any player, and any player profile has its own shareable link."],
-    ["Competition scope (vs League / vs All)","The switch in the header controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them among qualified players/teams in their own competition; <b>vs All</b> pools all eleven competitions together \u2014 useful for asking \u201cwho is the best rebounder across everything?\u201d. It changes the rank badges everywhere, not the raw numbers."],
-    ["The player card (side panel)","Clicking any player slides in a scouting card from the right while your list stays put behind it. Close it with \u2715, the Esc key, or by clicking outside. Inside the card the arrows \u2039 \u203a step through the current team\u2019s roster, and the dropdown jumps to any teammate \u2014 built for flipping between players during a live game. The header stays pinned as you scroll."],
-    ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side \u2014 pick the two clubs playing and their full rosters appear sorted by jersey number, so you can bounce between the two benches during a live game. Tap any player for the full card, or \u21c4 Swap to flip sides."],
-    ["Scouting notes & ratings","Every player card has a star rating, a watchlist toggle, tags, and a structured report (Athleticism, Offense, Defense, Intel, Projection). Everything auto-saves in your browser. Notes are stored <b>per person</b>, so a note written on a player\u2019s EuroLeague card shows on his ABA card too."],
-    ["One player, many competitions","A player who appears in more than one competition (or changed clubs mid-season) is merged into a single identity. His card shows a <b>Competitions</b> switch and a combined game log with a separator per competition. Linking is automatic (by ID and by name+birth-year); anything missed can be fixed by hand."],
-    ["Editing & overrides","The \u270e Edit button on a card lets you correct bio details (height, weight, country, position, birth year), add an external profile link, or manually link two entries as the same person. The <b>Country</b> field is a type-to-search dropdown \u2014 start typing and pick from the list, or enter any country by hand. Nationality always shows on the profile even when it\u2019s blank (as \u201c\u2014 add\u201d), so you can spot missing data and fill it in. Your edits save to the shared database (or locally in local mode) and can be exported to bake in permanently."],
-    ["Team pages","Open a team for its roster (as cards), a full stat-card panel (Basic and Advanced, tap any card for the league ranking), the group standings, and the season game log. Teams that play two competitions get the same Competitions switch as players."],
-    ["Data & freshness","Numbers come from official sources: EuroLeague/EuroCup feeds and aba-liga.com box scores, reconciled game-by-game (every team\u2019s player points sum to the final score). \u201cLocal mode\u201d means your notes live in this browser only. The site is a single page \u2014 a fresh version loads when the data is updated."],
-    ["Skill Card & radar","Every profile opens with a Skill Card: an 11-spoke radar of the player\u2019s percentile profile plus grouped bars across four families \u2014 Scoring, Playmaking, Rebounding and Defense. Bars and radar follow the scope switch (vs League / vs All), so the same player can be read against his own league or the whole database."],
-    ["Playing style (archetypes)","Each profile shows a <b>Playing style</b> blend \u2014 a probabilistic mix of eleven modern roles derived purely from the box-score profile, e.g. \u201c43% Interior Scorer \u00b7 31% 3&D Forward \u00b7 26% Primary Creator.\u201d The eleven roles are Combo Guard, Primary Creator, Floor General, Slashing Creator, 3&D, Complementary Guard, Rim Protector, Interior Scorer, Energy Big, Stretch Big and Connector. They\u2019re computed with Archetypal Analysis over all thirteen competitions, gated by the player\u2019s position so a role fits their size \u2014 a guard is never labelled a big. Two styles read by position: 3&D shows as 3&D Guard / Forward / Big, and the pass-first facilitator shows as Floor General (guards), Point Forward (forwards) or Playmaking Big (bigs) \u2014 so a tall guard stays a Floor General, not a big. Primary / Secondary / Tertiary are the three strongest roles; the stacked bar shows the full mix."],
-    ["Similar players & comp weights","Each profile lists the closest players across every league. The <b>Comp weights</b> sliders tune what \u201csimilar\u201d means, blending three components: <b>Statistical fingerprint</b> (production and shooting profile), <b>Position + size</b> (role and height), and <b>Playing style</b> (the archetype blend). Drag any slider and the list re-ranks live. \u201cFind more \u2192\u201d turns the whole board into a ranked similarity search against that player."],
-    ["Compare","The <b>Compare</b> tab overlays up to four players on one skill radar with a shared stat table, so you can read strengths and gaps side by side. Pick players from any leagues."],
-    ["Team needs","On a team page, <b>Team needs</b> grades the roster across the four skill families (from its best player in each), flagging where the group is a Strength, Solid, or a Need."],
-    ["Trending","Sort the board by <b>Trending</b> (form) to surface players hot or cold relative to their own season \u2014 based on their last three games\u2019 efficiency vs their average. (Leagues without game logs, such as the Greek league, don\u2019t carry form.)"],
-    ["Charts","The <b>Charts</b> tab plots the pool two ways: a <b>scatter</b> of any two stats (dots are player photos, dashed lines are the medians) and a <b>distribution</b> histogram of any single stat. Filter by league, team, country and position, type a name to highlight it, and resize with \u2212/+ or full screen. Big pools are capped to the most-played players so it stays fast \u2014 add a filter to narrow to an exact set."],
-    ["Keyboard shortcuts","Inside a profile: \u2190/\u2192 step to the previous/next player, <b>j</b>/<b>k</b> (or <b>[</b>/<b>]</b>) jump between sections, <b>t</b> returns to the top, and <b>Esc</b> closes the card."],
-    ["Agents & agencies","Where an agent is known, the profile shows it \u2014 click to see that agent\u2019s other players, or the agency to see everyone under its roster grouped by agent."],
-  ];
-  const groups=[
-    ["Box-score stats",[
+  const S=[
+    {id:"overview",title:"Getting around",cards:[
+      ["What EuroScout is","A scouting board spanning <b>40+ competitions</b> for the 2025\u201326 season \u2014 Europe\u2019s top leagues and cups, the NBA / G League / NCAA, and leagues across the Americas and Asia-Pacific. The home <b>Players</b> board shows every player as a card with a skill radar, star grade and tags; filter down the left and click any card for the full profile."],
+      ["Leagues covered","<b>Pan-European:</b> EuroLeague, EuroCup, Champions League (BCL), FIBA Europe Cup, ENBL. <b>Top domestic:</b> ACB (Spain), Lega A (Italy), BBL (Germany), Betclic \u00c9lite (France), Greek Basket League, Turkish BSL, ABA, VTB United, LKL (Lithuania), Israeli Super League, BNXT (Belgium/Netherlands). <b>More of Europe:</b> ABA 2, Primera FEB, Poland, Romania, Hungary, Croatia, Bulgaria, Czechia, Sweden, Finland, Portugal, Slovenia, Latvian\u2013Estonian. <b>Americas:</b> NBA, G League, NCAA, CEBL (Canada), BSN (Puerto Rico), Liga Nacional (Argentina), NBB (Brazil). <b>Asia-Pacific:</b> NBL (Australia), CBA (China), B.League (Japan), KBL (Korea), PBA (Philippines)."],
+      ["The tabs","The top tabs switch between the <b>Players</b> board, <b>Teams</b>, <b>Agencies</b>, <b>Transfers</b>, the <b>Stats</b> table, the <b>Scouting</b> matchup, <b>Watchlist</b>, <b>Other leagues</b> and this <b>Glossary</b>. The search box up top jumps to any player, and every profile has a shareable link."],
+      ["vs League / vs All","The header switch controls what a player or team is <b>ranked against</b>. <b>vs League</b> ranks them within their own competition; <b>vs All</b> pools every competition together \u2014 e.g. \u201cbest rebounder across everything?\u201d. It changes the rank badges, not the raw numbers."],
+    ]},
+    {id:"player",title:"The player card",cards:[
+      ["Side panel & navigation","Clicking a player slides in a scouting card from the right while your list stays put. Close with \u2715, Esc, or clicking outside. Inside, \u2039 \u203a step through the roster and the dropdown jumps to any teammate. Keyboard: \u2190/\u2192 prev/next, <b>j</b>/<b>k</b> (or <b>[</b>/<b>]</b>) between sections, <b>t</b> to top, <b>Esc</b> to close."],
+      ["Skill card & radar","Each profile opens with an 11-spoke radar of the player\u2019s percentile profile, plus grouped bars across four families \u2014 Scoring, Playmaking, Rebounding and Defense. Radar and bars follow the vs League / vs All scope."],
+      ["Playing style (archetypes)","A probabilistic blend of eleven modern roles read from the box score \u2014 e.g. \u201c43% Interior Scorer \u00b7 31% 3&amp;D Forward \u00b7 26% Primary Creator.\u201d Roles are gated by position so a guard is never labelled a big. Full list in <b>Rankings & methodology</b>."],
+      ["Similar players & comp weights","Every profile lists the closest players across all leagues. The <b>Comp weights</b> sliders blend three things \u2014 statistical fingerprint, position + size, and playing style. Drag to re-rank live; \u201cFind more \u2192\u201d turns the whole board into a similarity search."],
+      ["One player, many competitions","A player in more than one competition (or who changed clubs mid-season) is merged into one identity, with a <b>Competitions</b> switch and a combined game log. Linking is automatic by ID and by name + birth-year."],
+      ["Eurobasket link","The <b>\u2197 Eurobasket</b> button opens that player\u2019s exact Eurobasket page where it\u2019s known (imported from your database), or a name search otherwise."],
+      ["Editing & overrides","The \u270e Edit button corrects bio details (height, weight, country, position, birth year) or manually links two entries as the same person. Edits save to your account and can be exported to bake in permanently."],
+    ]},
+    {id:"notes",title:"Notes, ratings & scouting",cards:[
+      ["Scouting report (bullet notes)","Each profile has a structured report in five fields \u2014 <b>Athleticism, Offense, Defense, Intel, Projection / Verdict</b> \u2014 written as bullet points. Press Enter for a new bullet, drag the grip to reorder, \u2715 to delete. Pasting a bulleted list (\u2022, -, *, 1.) splits it into separate bullets automatically."],
+      ["Text version","The <b>Text version</b> button turns your bullets into a clean, readable paragraph per section \u2014 handy for copying into a written report. Instant, no setup."],
+      ["Star rating","Rate a player 1\u20135 stars on the card or in the report. Ratings save to your account, sync across your devices, and drive the <b>My rating</b> filter and sorting."],
+      ["Watchlist, flags & risers","Star a player to your <b>Watchlist</b>, flag one \u201cfor attention\u201d, and use <b>Young risers</b> to surface breakout under-age players. Filter the board by any of these on the left."],
+      ["Card summary","On the player card your notes show as a short summary \u2014 your Projection / Verdict if you\u2019ve written one, otherwise a couple of your offense and defense points."],
+      ["Scouting matchup","The <b>Scouting</b> tab lines up two teams side by side, rosters sorted by jersey number, so you can bounce between both benches during a live game. \u21c4 Swap flips sides."],
+      ["Your data syncs","Notes, ratings, tags and watchlist save to your account and appear on every device you sign in on. Notes are stored <b>per person</b>, so a note on a player\u2019s EuroLeague card shows on his ABA card too."],
+    ]},
+    {id:"tools",title:"Compare, charts & team tools",cards:[
+      ["Compare","The <b>Compare</b> tab overlays up to four players on one skill radar with a shared stat table \u2014 read strengths and gaps side by side, across any leagues."],
+      ["Charts","The <b>Charts</b> tab plots the pool two ways: a <b>scatter</b> of any two stats (dots are player photos, dashed lines the medians) and a <b>distribution</b> histogram of any single stat. Filter, highlight a name, resize or full-screen."],
+      ["Team pages & Team needs","Open a team for its roster, Basic/Advanced stat cards (tap for the league ranking), standings and game log. <b>Team needs</b> grades the roster across the four skill families \u2014 Strength, Solid, or Need."],
+      ["Trending (form)","Sort the board by <b>Trending</b> to surface players hot or cold vs their own season \u2014 their last three games\u2019 efficiency against their average. Leagues without game logs don\u2019t carry form."],
+    ]},
+    {id:"box",title:"Stats \u2014 per game",cards:[
       ["PPG / RPG / APG","Points, rebounds and assists per game."],
       ["SPG / BPG / TOPG","Steals, blocks and turnovers per game."],
-      ["MIN / MPG","Minutes per game."],
-      ["OREB / DREB","Offensive and defensive rebounds. (ABA game logs carry total rebounds only, so some ABA splits are unavailable.)"],
+      ["MPG","Minutes per game."],
+      ["OREB / DREB","Offensive and defensive rebounds. (Some leagues\u2019 logs carry total rebounds only, so a few splits are unavailable.)"],
       ["FG% / 3P% / FT%","Field-goal, three-point and free-throw shooting percentages."],
-      ["2P% / 3PA / FTA","Two-point %, three-point attempts, free-throw attempts (per game where shown)."],
+      ["2P% / 3PA / FTA","Two-point %, three-point attempts, free-throw attempts."],
       ["+/-","Point differential while the player was on the floor, per game."],
-      ["GP / G","Games played."],
-    ]],
-    ["Advanced & efficiency",[
+      ["GP","Games played."],
+    ]},
+    {id:"adv",title:"Stats \u2014 advanced & efficiency",cards:[
       ["eFG%","Effective field-goal % \u2014 credits a made three as 1.5\u00d7 a two: (FG + 0.5\u00d73P) / FGA."],
-      ["TS%","True shooting % \u2014 points per shooting possession, including free throws: PTS / (2\u00d7(FGA + 0.44\u00d7FTA))."],
-      ["USG%","Usage \u2014 share of team possessions a player finishes: (FGA + 0.44\u00d7FTA + TOV) relative to the team. How much offense he shoulders."],
+      ["TS%","True shooting % \u2014 points per shooting possession incl. free throws: PTS / (2\u00d7(FGA + 0.44\u00d7FTA))."],
+      ["USG%","Usage \u2014 share of team possessions a player finishes: FGA + 0.44\u00d7FTA + TOV. How much offense he shoulders."],
       ["A/TO","Assist-to-turnover ratio \u2014 playmaking economy."],
-      ["PER-40 (PTS/40\u2026)","Any stat projected to 40 minutes, so bench and starter production can be compared on equal footing."],
-      ["PIR","Performance Index Rating \u2014 EuroLeague\u2019s official all-round valuation, taken from the box score and averaged per game."],
-      ["FTr","Free-throw rate \u2014 how often a player gets to the line relative to shot attempts (FTA / FGA)."],
-    ]],
-    ["Team stats",[
-      ["PPG FOR / PPG VS","Points a team scores / allows per game."],
-      ["NET / GM","Average scoring margin per game (points for minus against)."],
-      ["PACE","Estimated possessions per game \u2014 how fast a team plays. (Estimated without offensive rebounds, consistent across teams.)"],
+      ["PER-40","Any stat projected to 40 minutes, so bench and starter production compare on equal footing."],
+      ["PIR","Performance Index Rating \u2014 EuroLeague\u2019s official all-round box-score valuation, per game."],
+      ["FTr","Free-throw rate \u2014 how often a player reaches the line relative to shots (FTA / FGA)."],
+    ]},
+    {id:"team",title:"Stats \u2014 team",cards:[
+      ["PPG For / Vs","Points a team scores / allows per game."],
+      ["NET","Average scoring margin per game (points for minus against)."],
+      ["PACE","Estimated possessions per game \u2014 how fast a team plays."],
       ["ORTG / DRTG","Offensive / defensive rating \u2014 points scored / allowed per 100 possessions."],
-      ["AST% / TOV%","Share of made baskets that are assisted / share of possessions ending in a turnover."],
-      ["3PA RATE / FT RATE","How three-point-happy a team is, and how often it reaches the line, relative to its shots."],
-      ["REB DIFF","Rebounding margin vs opponents per game."],
-      ["OPP FG% / OPP 3P% / OPP eFG%","What a team lets opponents shoot \u2014 defensive shooting quality."],
-      ["PF / PA","Points For / Points Against (season totals, shown in standings)."],
-    ]],
-    ["Ranking & comparison",[
-      ["Percentile","Where a player ranks among qualified players. 90th percentile = better than 90% of peers. The colored bars on a card show this at a glance."],
-      ["Rank badge (e.g. 4th/237)","Place out of the qualified pool, in the current scope (vs League or vs All). Green = elite, gold = solid, clay = below the pack."],
-      ["Qualified","Players meeting the minutes/games minimum \u2014 the baseline for percentiles and leaderboards, so garbage-time lines don\u2019t skew the ranks."],
+      ["AST% / TOV%","Share of made baskets assisted / share of possessions ending in a turnover."],
+      ["3PA rate / FT rate","How three-happy a team is, and how often it reaches the line, relative to its shots."],
+      ["REB diff","Rebounding margin vs opponents per game."],
+      ["OPP FG% / 3P% / eFG%","What a team lets opponents shoot \u2014 defensive shooting quality."],
+      ["PF / PA","Points For / Against (season totals, in standings)."],
+    ]},
+    {id:"method",title:"Rankings & methodology",cards:[
+      ["Percentile","Where a player ranks among qualified peers. 90th percentile = better than 90%. The coloured bars on a card show this at a glance."],
+      ["Rank badge (e.g. 4th / 237)","Place out of the qualified pool in the current scope. Green = elite, gold = solid, clay = below the pack."],
+      ["Qualified","Players meeting the minutes / games minimum \u2014 the baseline for percentiles and leaderboards, so garbage-time lines don\u2019t skew ranks."],
       ["Z-score","How many standard deviations above/below average \u2014 the basis for fair cross-competition comparison."],
-      ["Shrinkage","Small-sample rates (e.g. a 3-game 60% from three) are pulled toward the average so tiny samples don\u2019t top leaderboards."],
-    ]],
-    ["Roster & identity",[
-      ["Jersey #","Squad number, shown before the name and used to sort rosters (#0 first). Most ABA youth players have no assigned number and appear last."],
+      ["Shrinkage","Small-sample rates (a 3-game 60% from three) are pulled toward average, so tiny samples don\u2019t top leaderboards."],
+      ["The eleven archetypes","Combo Guard, Primary Creator, Floor General, Slashing Creator, 3&amp;D, Complementary Guard, Rim Protector, Interior Scorer, Energy Big, Stretch Big, Connector \u2014 from Archetypal Analysis across all competitions, gated by position. 3&amp;D reads by size (Guard / Forward / Big); the facilitator reads as Floor General / Point Forward / Playmaking Big."],
+    ]},
+    {id:"roster",title:"Roster & identity",cards:[
+      ["Jersey #","Squad number, shown before the name and used to sort rosters (#0 first)."],
       ["2 clubs / 2TM","Player suited up for two teams; his totals are combined into one entry."],
-      ["Competitions switch","Appears on players/teams active in more than one competition \u2014 switch the view between them; the game log can show them all with separators."],
-      ["Group (A / B)","EuroCup is split into groups; standings on a team page show only that team\u2019s own group."],
-    ]],
+      ["Competitions switch","Appears on players/teams active in more than one competition \u2014 switch the view; the game log can show them all with separators."],
+      ["Group (A / B)","EuroCup is split into groups; a team page\u2019s standings show only that team\u2019s own group."],
+      ["Agents & agencies","Where an agent is known, the profile shows it \u2014 click an agent to see his other players, or the agency to see everyone under its roster."],
+    ]},
   ];
-  const guideHTML=guide.map(([t,d])=>`<div class="gcard"><h4>${t}</h4><p>${d}</p></div>`).join("");
+  const clean=s=>escAttr(String(s).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").toLowerCase());
+  const secHTML=S.map(sec=>`<section class="glosssec" id="gs-${sec.id}"><h3>${sec.title}</h3>
+    <div class="glossgrid">${sec.cards.map(([t,d])=>`<div class="gcard" data-s="${clean(t+" "+d)}"><h4>${t}</h4><p>${d}</p></div>`).join("")}</div></section>`).join("");
   const fr=freshnessRows();
-  const freshHTML=`<div class="panel" style="margin-top:14px"><h3>Data freshness</h3>
-    <div class="sub" style="margin-bottom:10px">Data last built <b>${freshLabel(dataBuildDate())}</b>${dataBuildDate()?` (${dataBuildDate()})`:""}. Each league below shows its most recent game in the dataset.</div>
-    <div class="freshgrid">${fr.map(r=>`<div class="freshrow"><span class="freshdot ${daysAgo(r.last)!=null&&daysAgo(r.last)<45?'ok':'old'}"></span><span class="freshlg">${r.name}</span><span class="freshval">${r.label}</span><span class="freshdate">${r.last||"—"}</span></div>`).join("")}</div>
-  </div>`;
-  const groupsHTML=groups.map(([title,items])=>`
-    <div class="panel" style="margin-top:14px">
-      <h3>${title}</h3>
-      <dl class="gloss">${items.map(([t,d])=>`<dt>${t}</dt><dd>${d}</dd>`).join("")}</dl>
-    </div>`).join("");
-  $("#app").innerHTML=`<div class="view">
+  const freshHTML=`<section class="glosssec" id="gs-data"><h3>Data & freshness</h3>
+    <div class="gsub">Data last built <b>${freshLabel(dataBuildDate())}</b>${dataBuildDate()?` (${dataBuildDate()})`:""}. Each league shows its most recent game in the dataset.</div>
+    <div class="freshgrid">${fr.map(r=>`<div class="freshrow"><span class="freshdot ${daysAgo(r.last)!=null&&daysAgo(r.last)<45?'ok':'old'}"></span><span class="freshlg">${r.name}</span><span class="freshval">${r.label}</span><span class="freshdate">${r.last||"\u2014"}</span></div>`).join("")}</div></section>`;
+  const navHTML=S.map(sec=>`<a data-t="gs-${sec.id}">${sec.title}</a>`).join("")+`<a data-t="gs-data">Data & freshness</a>`;
+  $("#app").innerHTML=`<div class="view glosswrap">
     <h1 class="title">Glossary &amp; guide</h1>
     <div class="sub">How EuroScout works, and what every number means.</div>
-    <div class="panel"><h3>How it works</h3><div class="gguide">${guideHTML}</div></div>
+    <div class="glosssearchbar"><input id="glossSearch" class="glosssearch" placeholder="Search the glossary\u2026" autocomplete="off"></div>
+    <nav class="glossnav">${navHTML}</nav>
+    ${secHTML}
     ${freshHTML}
-    ${groupsHTML}
-    <p class="hint" style="margin:14px 2px 0">EuroScout is a scouting tool, not an official source \u2014 always sanity-check against live viewing. Stats reflect the 2025\u201326 season as last built.</p>
+    <div class="glossnores" id="glossNoRes" style="display:none">No matches \u2014 try another word.</div>
+    <p class="hint" style="margin:16px 2px 0">EuroScout is a scouting tool, not an official source \u2014 always sanity-check against live viewing. Stats reflect the 2025\u201326 season as last built.</p>
   </div>`;
+  const si=$("#glossSearch");
+  if(si)si.oninput=()=>{const q=si.value.trim().toLowerCase();let any=false;
+    $$(".gcard").forEach(c=>{const m=!q||(c.dataset.s||"").includes(q);c.style.display=m?"":"none";if(m)any=true;});
+    $$(".glosssec").forEach(sec=>{const cards=sec.querySelectorAll(".gcard");
+      if(!cards.length){sec.style.display=q?"none":"";return;}
+      sec.style.display=[...cards].some(c=>c.style.display!=="none")?"":"none";});
+    const nav=$(".glossnav");if(nav)nav.style.display=q?"none":"";
+    const nr=$("#glossNoRes");if(nr)nr.style.display=(q&&!any)?"":"none";};
+  $$(".glossnav a").forEach(a=>a.onclick=e=>{e.preventDefault();const t=document.getElementById(a.dataset.t);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});});
 }
 
 
