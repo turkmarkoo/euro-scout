@@ -358,6 +358,14 @@ textarea.notesec{min-height:94px}
 .bl-add{width:100%;border:1px dashed var(--line);background:transparent;border-radius:8px;padding:7px 9px;font-size:12.5px;color:var(--muted2);cursor:pointer;font-family:var(--body);text-align:left}
 .bl-add:hover{border-color:var(--accent);color:var(--accent)}
 .role-viewer .bl-grip,.role-viewer .bl-del,.role-viewer .bl-addrow{display:none}
+.txtSumCard{margin-top:14px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:none}
+.txtSumCard.on{display:block}
+.txtSumHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.txtSumHead .nlab{margin:0}
+.txtSumCard .sumSec{margin-bottom:11px}
+.txtSumCard .sumSec:last-child{margin-bottom:0}
+.txtSumCard .sumSec p{margin:3px 0 0;line-height:1.62;font-size:14px;color:var(--txt)}
+.btn.sm{padding:4px 10px;font-size:12px}
 
 /* HoopScout-style percentile bars */
 .bars{display:flex;flex-direction:column;gap:11px}
@@ -1721,6 +1729,7 @@ body.drawer-lock{overflow:hidden}
 <script src="overrides.js"></script>
 <script src="data/data.js"></script>
 <script src="data/exhibitions.js"></script>
+<script src="data/notion-import.js"></script>
 <script>
 /* ============================ EuroScout app ============================ */
 /* Capture any deep-link hash (#p=<id>) before anything can wipe it. */
@@ -4368,7 +4377,11 @@ function realgmSearchURL(p){
    numeric id isn't in our data and their on-site search is a POST form (no clean GET).
    So: if the user saved an exact Eurobasket profile URL (_ext) we use it; otherwise we
    deep-link a site-scoped search that surfaces the player's Eurobasket page as the top hit. */
+function ebNorm(s){return (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z]/g,"");}
+function ebKey(p){return p?ebNorm(p.name)+"|"+(p.born||""):"";}
 function eurobasketURL(p){
+  const direct=(window.EUROSCOUT_EBLINKS||{})[ebKey(p)];   // exact player page imported from Notion
+  if(direct)return direct;
   if(p&&p._ext&&/eurobasket\.com/i.test(p._ext))return p._ext;
   const terms=[p.name,p.country||"","basketball"].filter(Boolean).join(" ");
   return "https://www.google.com/search?q="+encodeURIComponent("site:basketball.eurobasket.com "+terms);
@@ -5019,6 +5032,8 @@ function renderProfile(){
   const L=STATE.league,rec=recOf(p);
   const t=(L.teams||[]).find(x=>x.code===p.team);
   const rep=parseReport(rec.report);
+  try{ if(!(rec.report&&String(rec.report).trim())){ const _seed=(window.EUROSCOUT_NOTE_SEED||{})[ebKey(p)];
+    if(_seed)Object.keys(_seed).forEach(k=>{rep[k]=_seed[k];}); } }catch(e){}
   const pool=scopePool(p), scopeName=leagueOf(p).meta.name;
   const grid=(STATE.statMode==="adv"?CARD_ADV:CARD_PG);
   $("#drawer").innerHTML=`<div class="dr-scroll">
@@ -5158,10 +5173,12 @@ function renderProfile(){
       </div>
       <div style="margin-top:14px"><div class="nlab">Projection / verdict</div>
         <div class="blist" id="nProj" data-ph="Role projection, ceiling & floor, fit, comparisons, overall verdict\u2026"></div></div>
-      <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+      <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn" id="saveBtn">Save report</button>
+        <button class="btn" id="txtSumBtn" title="Turn the bullets into a readable text version">Text version</button>
         <span class="hint">${Store.enabled?(Store.user?"Saving to your cloud account":"Sign in to sync to cloud \u2014 saving locally for now"):"Local mode \u2014 saved in this browser"}</span>
       </div>
+      <div class="txtSumCard" id="txtSumCard"></div>
     </div>
 
     ${skillCardHTML(p,pool)}
@@ -5215,6 +5232,28 @@ function renderProfile(){
     bulletEditors[k]=makeBulletList(host,init,host.dataset.ph||"",markDirty);
     if(!canEditRep)host.querySelectorAll(".bl-txt").forEach(t=>t.contentEditable="false");}});
   $("#saveBtn").onclick=()=>{saveReport("saved").then(()=>toast("Report saved"));};
+
+  // ---- "Text version": deterministic bullets -> readable prose (no AI) ----
+  const toSentence=b=>{b=(b||"").trim().replace(/^[\u2022\u2023\u2043\u25aa\u25cf\u00b7*\u2013\u2014\-]\s*/,"");if(!b)return"";b=b.charAt(0).toUpperCase()+b.slice(1);if(!/[.!?]$/.test(b))b+=".";return b;};
+  const txtCard=$("#txtSumCard");
+  function buildTextVersion(){
+    const secs=[["Athleticism","nAth"],["Offense","nOff"],["Defense","nDef"],["Intel","nIntel"],["Projection / verdict","nProj"]];
+    const html=[],plain=[];
+    secs.forEach(([lab,k])=>{const bl=bulletParse(readField(k));if(!bl.length)return;
+      const prose=bl.map(toSentence).filter(Boolean).join(" ");
+      html.push('<div class="sumSec"><div class="nlab">'+esc(lab)+'</div><p>'+esc(prose)+'</p></div>');
+      plain.push(lab.toUpperCase()+"\n"+prose);});
+    return {html:html.join(""),plain:plain.join("\n\n")};
+  }
+  const txtBtn=$("#txtSumBtn");
+  if(txtBtn)txtBtn.onclick=()=>{const v=buildTextVersion();
+    if(!v.plain){toast("Write some notes first");return;}
+    if(!txtCard)return;
+    txtCard.classList.add("on");
+    txtCard.innerHTML='<div class="txtSumHead"><span class="nlab">Text version</span><span style="display:flex;gap:6px"><button class="btn sm" id="txtCopy">Copy</button><button class="btn sm" id="txtHide">Hide</button></span></div>'+v.html;
+    $("#txtCopy").onclick=()=>{try{navigator.clipboard.writeText(v.plain);toast("Copied");}catch(e){toast("Copy failed");}};
+    $("#txtHide").onclick=()=>{txtCard.classList.remove("on");txtCard.innerHTML="";};
+  };
 }
 
 async function toggleWatch(id){const p=player(id)||{id};const on=playerTags(p).includes(WATCH_TAG);await toggleTag(id,WATCH_TAG);
