@@ -2206,7 +2206,7 @@ const Store = (()=>{
   const enabled = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
   let sb=null, user=null, role=null, member=false, cache={};
   const LKEY="euroscout:records";
-  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1"];
+  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1","euroscout:notionApplied:v1"];
   const local = {
     all(){try{return JSON.parse(localStorage.getItem(LKEY))||{}}catch(e){return{}}},
     set(o){localStorage.setItem(LKEY,JSON.stringify(o))}
@@ -2271,6 +2271,18 @@ const Store = (()=>{
         updated_by:user.email},{onConflict:"player_id"});}catch(e){}
     }
   }
+  async function bulkSet(items){
+    if(enabled && !canEdit()) return 0;
+    if(!items||!items.length) return 0;
+    items.forEach(it=>{cache[it.id]={...get(it.id),...it.rec};});
+    local.set(cache);
+    if(sb && user && canEdit()){
+      const rows=items.map(it=>{const r=cache[it.id];return{player_id:it.id,report:r.report,rating:r.rating,
+        tags:r.tags,watch:r.watch,board:r.board,eye:r.eye,updated_at:new Date().toISOString(),updated_by:user.email};});
+      for(let i=0;i<rows.length;i+=500){try{await sb.from("scouting").upsert(rows.slice(i,i+500),{onConflict:"player_id"});}catch(e){}}
+    }
+    return items.length;
+  }
   async function pushAppKey(k){
     if(!sb||!user||!canEdit())return;
     let v=null;try{v=JSON.parse(localStorage.getItem(k));}catch(e){v=localStorage.getItem(k);}
@@ -2291,7 +2303,7 @@ const Store = (()=>{
   }
   return {
     get enabled(){return enabled}, get user(){return user}, get role(){return role}, get member(){return member},
-    canEdit, initSB, load, get, save, pushAppKey, migrateLocalUp, resolveMembership,
+    canEdit, initSB, load, get, save, bulkSet, pushAppKey, migrateLocalUp, resolveMembership,
     async signIn(email){if(!sb)return;const redirect=location.origin+location.pathname;
       const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:redirect}});if(error)throw error;},
     async signInPassword(email,password){if(!sb)return;
@@ -2830,6 +2842,7 @@ async function boot(){
   if(Store.enabled){
     // Supabase mode: gate the app behind sign-in + membership; header shows the account
     if(Store.canEdit())await Store.migrateLocalUp();
+    if(Store.canEdit())await applyImportedData();
     applyRoleClass(); applyAuthGate(); startPendingPoll();
   }else{
     // local mode: single-user gist sync (pull on open, auto-push on edits)
@@ -2855,7 +2868,7 @@ function fallbackCopy(text,cb){
 /* ---------- Printable one-page player report (Save as PDF / print / screenshot) ---------- */
 function exportPlayerReport(id){
   const p=player(id); if(!p)return;
-  const L=leagueOf(p), rec=recOf(p), rep=parseReport(rec.report);
+  const L=leagueOf(p), rec=recOf(p), rep=effectiveReport(p);
   const t=(L.teams||[]).find(x=>x.code===p.team);
   const grade=statGradeOverall(p), band=levelBand(p);
   const radar=scoutRadarSVG(p);
@@ -2866,7 +2879,7 @@ function exportPlayerReport(id){
   const keyStats=KEY.map(([lab,k])=>{const v=p[k];return `<div class="ks"><div class="kv">${v!=null&&!isNaN(v)?(k.endsWith("p")||k==="ts"?fmt(v)+"%":fmt(v)):"—"}</div><div class="kk">${lab}</div></div>`;}).join("");
   const noteBlock=(lab,val)=>val?`<div class="nb"><div class="nbh">${lab}</div><div class="nbt">${esc(val).replace(/\n/g,"<br>")}</div></div>`:"";
   const notesHtml=[["Athleticism",rep.nAth],["Offense",rep.nOff],["Defense",rep.nDef],["Intel",rep.nIntel],["Projection / verdict",rep.nProj||rep.overall]].map(([l,v])=>noteBlock(l,v)).join("")||'<div class="hint">No written report yet.</div>';
-  const stars=rec.rating?("★".repeat(rec.rating)+"☆".repeat(5-rec.rating)):"☆☆☆☆☆";
+  const _rt=effRating(p);const stars=_rt?("★".repeat(_rt)+"☆".repeat(5-_rt)):"☆☆☆☆☆";
   const tags=(rec.tags||[]).filter(x=>x!==WATCH_TAG);
   const css=document.querySelector("style").textContent;
   const win=window.open("","_blank");
@@ -3150,6 +3163,7 @@ async function onAuthChange(){
   if(Store.user && Store.member){
     await Store.load();
     if(Store.canEdit())await Store.migrateLocalUp();
+    if(Store.canEdit())await applyImportedData();
     try{OVR=ovrMerged();rebuildLinks();applyOverrides();STATE._tagg=null;}catch(e){}
     applyRoleClass(); applyAuthGate(); render(); startPendingPoll();
   }else{
@@ -4382,6 +4396,32 @@ function effectiveReport(p){const rec=recOf(p);const rep=parseReport(rec.report)
   if(!(rec.report&&String(rec.report).trim())){const s=(window.EUROSCOUT_NOTE_SEED||{})[ebKey(p)];if(s)Object.keys(s).forEach(k=>{rep[k]=s[k];});}
   return rep;}
 function effRating(p){const r=recOf(p);if(r&&r.rating)return r.rating;return (window.EUROSCOUT_RATING_SEED||{})[ebKey(p)]||0;}
+/* One-time migration: write imported Notion ratings + notes into the user's own account
+   (so they persist, sync across devices, and behave like ratings you set yourself).
+   Never overwrites a rating/report you've already set; runs once per player, tracked in a
+   synced app key so it won't fight your later edits. */
+async function applyImportedData(){
+  const rs=window.EUROSCOUT_RATING_SEED||{}, ns=window.EUROSCOUT_NOTE_SEED||{};
+  if(!Object.keys(rs).length && !Object.keys(ns).length) return;
+  if(!(Store.enabled && Store.user && Store.canEdit())) return;
+  const DONE_KEY="euroscout:notionApplied:v1";
+  let done={};try{done=JSON.parse(localStorage.getItem(DONE_KEY)||"{}");}catch(e){}
+  const seen=new Set(); const items=[]; let changed=false;
+  (allPlayersFlat()||[]).forEach(p=>{
+    const g=gid(p); if(!g||seen.has(g))return; seen.add(g);
+    if(done[g])return;                                   // already handled this person
+    const k=ebKey(p); const sr=rs[k], sn=ns[k];
+    if(!sr && !sn)return;
+    const cur=Store.get(g)||{}; const rec={};
+    if(sr && !(cur.rating>0)) rec.rating=sr;              // don't overwrite a rating you set
+    if(sn && !(cur.report && String(cur.report).trim())) rec.report=JSON.stringify(sn);
+    done[g]=1; changed=true;
+    if(Object.keys(rec).length) items.push({id:g,rec});
+  });
+  if(changed){try{localStorage.setItem(DONE_KEY,JSON.stringify(done));}catch(e){} try{Store.pushAppKey(DONE_KEY);}catch(e){}}
+  if(items.length){ const n=await Store.bulkSet(items);
+    try{toast("Imported "+n+" rating"+(n===1?"":"s")+" & notes from Notion \u2014 saved to your account");}catch(e){} }
+}
 function eurobasketURL(p){
   const direct=(window.EUROSCOUT_EBLINKS||{})[ebKey(p)];   // exact player page imported from Notion
   if(direct)return direct;
@@ -4430,7 +4470,7 @@ function agentRosterList(matchFn){
     ((statGradeOverall(b,{raw:true})??-1)-(statGradeOverall(a,{raw:true})??-1))||a.name.localeCompare(b.name));
 }
 function arowHTML(p){const L=leagueOf(p),rec=recOf(p),g=statGradeOverall(p,{raw:true});
-  const stars=rec&&rec.rating?"\u2605".repeat(rec.rating):"";
+  const _rt=effRating(p);const stars=_rt?"\u2605".repeat(_rt):"";
   return `<div class="arow" data-id="${p.id}">
     ${p.img?`<img class="aav" src="${p.img}" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<span class="aav anoimg"></span>'}
     <span class="an">${p.name}</span>
@@ -4872,7 +4912,7 @@ function renderAgencyRoster(){
     const cl=(st==="signed")?clubByKey(effective26(p,m)):null;
     return {st,cl,club:cl?cl.name:(p.teamName||"\u2014"),
       lg:cl?comps2627Label(cl):leagueOf(p).meta.name};};
-  const cards=players.map(p=>{const L=lineOf(p);const st=L.st;const g=statGradeOverall(p);const rec=recOf(p);const rt=(rec&&rec.rating)||0;
+  const cards=players.map(p=>{const L=lineOf(p);const st=L.st;const g=statGradeOverall(p);const rec=recOf(p);const rt=effRating(p);
     const ph=photoOf(p);
     return `<div class="agCard st-${st}" data-id="${p.id}">
       ${agStatusTag(st," corner")}
@@ -5290,7 +5330,7 @@ function rosterCardHTML(p){
   const rec=recOf(p),og=statGradeOverall(p);
   const watched=isWatched(p);
   const jersey=(p.jersey!=null&&p.jersey!=="")?p.jersey:"–";
-  const stars=rec.rating?`<span class="rcStars">${"★".repeat(rec.rating)}<span class="off">${"★".repeat(5-rec.rating)}</span></span>`:`<span class="rcStars off">☆☆☆☆☆</span>`;
+  const _rt=effRating(p);const stars=_rt?`<span class="rcStars">${"★".repeat(_rt)}<span class="off">${"★".repeat(5-_rt)}</span></span>`:`<span class="rcStars off">☆☆☆☆☆</span>`;
   const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
   return `<button class="rosterRow${watched?" watched":""}" data-id="${p.id}">
     <span class="rrNum">${jersey}</span>
@@ -5342,7 +5382,7 @@ function printScoutingMatchup(va,vb){
     if(!r)return `<div class="pcol"><div class="pteam">—</div></div>`;
     const rows=r.players.map(p=>{const rec=recOf(p),og=statGradeOverall(p);
       const jersey=(p.jersey!=null&&p.jersey!=="")?p.jersey:"–";
-      const stars=rec.rating?"★".repeat(rec.rating):"";
+      const _rt=effRating(p);const stars=_rt?"★".repeat(_rt):"";
       return `<tr><td class="j">${jersey}</td><td class="nm">${esc(p.name)}${stars?` <span class="st">${stars}</span>`:""}<div class="sub2">${(p.pos&&p.pos!=="-")?p.pos:(p.role||"")}${p.height?" · "+p.height+"cm":""}${p.age?" · "+p.age+"y":""}</div></td><td class="g">${og!=null?og.toFixed(1):"—"}</td><td class="note"></td></tr>`;}).join("");
     return `<div class="pcol"><div class="pteam">${esc(r.t.name)} <span class="plg">${esc(r.L.meta.name)}</span></div>
       <table class="ptbl"><thead><tr><td>#</td><td>Player</td><td>Gr</td><td>Notes</td></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -6018,7 +6058,7 @@ function watchlistAlertsHTML(pool){
   </div>`;
 }
 function renderWatchlist(){
-  const rateOf=p=>{const r=recOf(p);return (r&&r.rating)||0;};
+  const rateOf=p=>effRating(p);
   let pool=scoutPool().filter(isWatched);
   const sort=STATE.watchSort;
   if(sort==="rating")     pool.sort((a,b)=>rateOf(b)-rateOf(a)||((statGradeOverall(b)??-1)-(statGradeOverall(a)??-1)));
@@ -6029,7 +6069,7 @@ function renderWatchlist(){
   const sortBtn=(k,lab)=>`<button class="wsort ${sort===k?'on':''}" data-ws="${k}">${lab}</button>`;
   const row=p=>{
     const rec=recOf(p),og=statGradeOverall(p),band=levelBand(p),L=leagueOf(p);
-    const stars=rec.rating?`<span class="wStars">${"★".repeat(rec.rating)}<span class="off">${"★".repeat(5-rec.rating)}</span></span>`:`<span class="wStars off">☆☆☆☆☆</span>`;
+    const _rt=effRating(p);const stars=_rt?`<span class="wStars">${"★".repeat(_rt)}<span class="off">${"★".repeat(5-_rt)}</span></span>`:`<span class="wStars off">☆☆☆☆☆</span>`;
     const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:initials(p.name);
     const form=formArrowHTML(p);
     return `<div class="wrow" data-id="${p.id}">
@@ -6079,7 +6119,7 @@ function renderScout(){
   if(s.status!=="all") pool=pool.filter(p=>scoutStatusOf(p)===s.status);
   if(s.tags.size)    pool=pool.filter(p=>{const t=playerTags(p);return [...s.tags].every(tag=>t.includes(tag));});
   if(s.riserOnly)    pool=pool.filter(p=>riserOf(p));
-  if(s.ratingMin!=null){pool=pool.filter(p=>{const r=(recOf(p).rating)||0;return s.ratingMin==="u"?r===0:r>=s.ratingMin;});}
+  if(s.ratingMin!=null){pool=pool.filter(p=>{const r=effRating(p);return s.ratingMin==="u"?r===0:r>=s.ratingMin;});}
   if(s.level!=null)  pool=pool.filter(p=>{const b=levelBand(p);return b&&b.i===s.level;});
   if(s.next26){const mm=next26Get(),mb=(typeof next26bGet==="function"?next26bGet():{});
     pool=pool.filter(p=>{const assigned=effective26keys(p,mm,mb).length>0||isStatus(effective26(p,mm));return s.next26==="free"?!assigned:assigned;});}
@@ -6185,9 +6225,9 @@ function renderScout(){
       </div>
 
       <div class="railsec"><div class="raillab">My rating${s.ratingMin!=null?` <button class="archClr" id="rateClr" title="Clear">\u2715</button>`:""}</div>
-        <div class="frows">${[5,4,3,2,1].map(n=>{const on=s.ratingMin===n;const ct=full.filter(p=>((recOf(p).rating)||0)>=n).length;
+        <div class="frows">${[5,4,3,2,1].map(n=>{const on=s.ratingMin===n;const ct=full.filter(p=>(effRating(p))>=n).length;
           return `<button class="frow ${on?"on":""}" data-ratemin="${n}"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span><span class="ratestarslab">${"\u2605".repeat(n)}</span>${n<5?"<span class=\"ratelabplus\">+</span>":""}<span class="fct">${ct}</span></button>`;}).join("")}
-          ${(()=>{const on=s.ratingMin==="u";const ct=full.filter(p=>((recOf(p).rating)||0)===0).length;
+          ${(()=>{const on=s.ratingMin==="u";const ct=full.filter(p=>(effRating(p))===0).length;
             return `<button class="frow ${on?"on":""}" data-ratemin="u"><span class="fdot" style="background:${on?"var(--gold)":"transparent"}"></span>Unrated<span class="fct">${ct}</span></button>`;})()}
         </div>
       </div>
@@ -6491,7 +6531,7 @@ function initRailSwipe(){
 function tableColVal(p,key){
   switch(key){
     case "grade": return statGradeOverall(p);
-    case "rating": return (recOf(p).rating)||0;
+    case "rating": return effRating(p);
     case "form":  {const f=formOf(p);return f?f.delta:null;}
     case "born":  return p.born!=null?+p.born:null;
     case "ht":    return p.height!=null?+p.height:null;
@@ -6568,7 +6608,7 @@ function scoutTable(pool,s){
   const rows=pool.map((p,i)=>{
     const og=statGradeOverall(p), lg=leagueOf(p), _ph=photoOf(p);
     const rc=ROLE_COLORS[p.role]||"#9aa0aa";
-    const rating=(recOf(p).rating)||0, watched=isWatched(p);
+    const rating=effRating(p), watched=isWatched(p);
     return `<tr class="estr" data-id="${p.id}" tabindex="-1">
       <td class="estrk c1">${i+1}</td>
       <td class="estadd c2"><button class="estcmp ${inCompare(p.id)?"on":""}" data-cmp="${p.id}" title="${inCompare(p.id)?"In compare \u2014 click to remove":"Add to compare"}" aria-label="Toggle compare">\u21c6</button></td>
