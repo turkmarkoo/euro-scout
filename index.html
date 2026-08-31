@@ -4279,7 +4279,7 @@ function personGrade(p){
 const STAR_LEVEL_GRADE={1:3.0,2:5.0,3:6.8,4:8.2,5:9.4};
 function autoLevelGrade(p){
   const prod=personGrade(p);
-  const rating=(recOf(p)||{}).rating||0;
+  const rating=effRating(p);
   if(!rating) return prod;               // unrated → production only
   const target=STAR_LEVEL_GRADE[rating];
   if(prod==null) return target;          // rated but no stats → use rating
@@ -4311,7 +4311,7 @@ function levelBarometerHTML(p){
     return `<div class="lvrow${on?' on':''}"><span class="lvdot${on?' on':below?' below':''}"></span><span class="lvlab${on?' on':''}">${lab}</span></div>`;
   }).reverse().join("");
   const fillPct=Math.round(((b.i+1)/n)*100);
-  const rated=!b.manual && ((recOf(p)||{}).rating||0)>0;
+  const rated=!b.manual && effRating(p)>0;
   const tag=b.manual?`<span class="bar-tag manual" title="You set this level manually">set</span>`
     :(rated?`<span class="bar-tag rated" title="Blended with your star rating">★</span>`:"");
   const tip=b.manual?"Projected level — set manually in Edit bio"
@@ -4381,6 +4381,7 @@ function ebKey(p){return p?ebNorm(p.name)+"|"+(p.born||""):"";}
 function effectiveReport(p){const rec=recOf(p);const rep=parseReport(rec.report);
   if(!(rec.report&&String(rec.report).trim())){const s=(window.EUROSCOUT_NOTE_SEED||{})[ebKey(p)];if(s)Object.keys(s).forEach(k=>{rep[k]=s[k];});}
   return rep;}
+function effRating(p){const r=recOf(p);if(r&&r.rating)return r.rating;return (window.EUROSCOUT_RATING_SEED||{})[ebKey(p)]||0;}
 function eurobasketURL(p){
   const direct=(window.EUROSCOUT_EBLINKS||{})[ebKey(p)];   // exact player page imported from Notion
   if(direct)return direct;
@@ -5085,7 +5086,7 @@ function renderProfile(){
             </div>
             <div class="ph-myrate" title="Your scouting rating — set it in the report panel below">
               <div class="ph-rlab">My rating</div>
-              <div class="ph-stars" role="group" aria-label="Your rating">${[1,2,3,4,5].map(n=>`<button class="phstar ${rec.rating>=n?'on':''}" data-hn="${n}">★</button>`).join("")}</div>
+              <div class="ph-stars" role="group" aria-label="Your rating">${[1,2,3,4,5].map(n=>`<button class="phstar ${effRating(p)>=n?'on':''}" data-hn="${n}">★</button>`).join("")}</div>
             </div>
           </div>
           ${levelBarometerHTML(p)}
@@ -5161,7 +5162,7 @@ function renderProfile(){
       <h3>Scouting report <span class="savestate" id="saveState"></span></h3>
       <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
         <div><div class="nlab">Grade</div>
-          <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${rec.rating>=n?"on":""}">\u2605</button>`).join("")}</div></div>
+          <div class="rating" id="rating">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${effRating(p)>=n?"on":""}">\u2605</button>`).join("")}</div></div>
       </div>
       <div class="notesgrid">
         ${noteSec("nAth","Athleticism","Frame, length, wingspan, explosiveness, speed, motor, conditioning\u2026",rep)}
@@ -5905,7 +5906,7 @@ function noteText(p){const r=recOf(p);if(!r)return "";
 function isWatched(p){return playerTags(p).includes(WATCH_TAG);}
 function scoutStatusOf(p){
   const r=recOf(p);
-  const rated=(r&&(r.rating>0||(r.eye&&Object.keys(r.eye).length)||(r.report&&r.report.trim())));
+  const rated=(r&&(r.rating>0||(r.eye&&Object.keys(r.eye).length)||(r.report&&r.report.trim())))||(window.EUROSCOUT_RATING_SEED||{})[ebKey(p)]||(window.EUROSCOUT_NOTE_SEED||{})[ebKey(p)];
   return rated?"scouted":"unscouted";
 }
 /* ---------- Home-board features: form, young-riser, recently-viewed, saved views ---------- */
@@ -6098,7 +6099,7 @@ function renderScout(){
   if(s.q){const q=s.q.toLowerCase(),qn=normName(s.q);
     pool=pool.filter(p=>p.name.toLowerCase().includes(q)||normName(p.name).includes(qn)||noteText(p).includes(q));}
   // sort
-  const rateOf=p=>{const r=recOf(p);return r&&r.rating||0;};
+  const rateOf=p=>effRating(p);
   if(simP){
     // recruitment quick-filters (sim mode only)
     if(s.simAgeMax) pool=pool.filter(p=>p.age!=null&&p.age<=+s.simAgeMax);
@@ -6598,7 +6599,7 @@ function scoutCard(p){
   const og=statGradeOverall(p);
   const lg=leagueOf(p);
   const _ph=photoOf(p);const photo=_ph?`<img src="${_ph}" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"/>`:"";
-  const rating=r.rating||0;
+  const rating=effRating(p);
   const stars=`<span class="sc2-star">${"\u2605".repeat(rating)}<span class="off">${"\u2605".repeat(Math.max(0,5-rating))}</span></span><span class="sc2-rateN">${rating}/5</span>`;
   const rc=ROLE_COLORS[p.role]||"#9aa0aa";
   const summary=noteSummary(p);
