@@ -2493,19 +2493,18 @@ function openEditModal(id){
    +efld("Height (cm)","eHeight",p.height||"")+efld("Weight (kg)","eWeight",p.weight||"")
    +ecountryField(p.country||"")+esel("Position","ePos",p.role||"",["Guard","Forward","Big"])
    +efld("Year of birth","eBorn",p.born||"")+efld("Eurobasket / external profile link","eExt",p._ext||"")
-   +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])+efld("RealGM player URL (optional)","eRgm",p._rgm||"")
+   +esel("Dominant hand","eHand",p.hand||"",["Right","Left"])
    +'<div class="efld"><label>Agent</label><select id="eAgent"><option value="">— none —</option>'
      +agentList().map(a=>'<option value="'+esc(a)+'"'+(a===(p.agent||"")?' selected':'')+'>'+esc(a)+'</option>').join("")
      +'<option value="__new"'+((p.agent&&!agentList().includes(p.agent))?' selected':'')+'>+ add new agent…</option></select></div>'
    +efld("New agent name","eAgentNew",(p.agent&&!agentList().includes(p.agent))?p.agent:"")
    +esel("Agency","eAgency",p.agency||"",agencyList())+efld("Add new agency","eAgencyNew","")
-   +efld("RealGM agent-client URL","eAgentUrl",p.agentUrl||"")
    +'<div class="efld"><label>Projected level</label><select id="eProj">'
      +'<option value="">Auto (production + your rating)</option>'
      +LEVEL_BANDS.map((lab,i)=>'<option value="'+i+'"'+((p.projLevel!=null&&Number(p.projLevel)===i)?' selected':'')+'>'+lab+'</option>').reverse().join("")
      +'</select></div>'
    +'</div>'
-   +'<div class="hint" style="margin-top:6px">Bio edits apply to this player across every competition. Agency dropdown lists agencies you\u2019ve added \u2014 type a new one in \u201cAdd new agency\u201d to save it. Paste a RealGM agent-client page URL to link the agency.</div>'
+   +'<div class="hint" style="margin-top:6px">Bio edits apply to this player across every competition. Agency dropdown lists agencies you\u2019ve added \u2014 type a new one in \u201cAdd new agency\u201d to save it.</div>'
    +'<div class="nlab" style="margin-top:16px">Linked competitions ('+grp.length+')</div>'
    +'<div>'+grp.map(x=>'<div class="lnkrow"><span>'+esc(leagueOf(x).meta.name)+' \u00b7 '+esc(x.teamName)+(x.id===id?' <b>(this profile)</b>':'')+'</span>'+(x.id!==id?'<button class="btn ghost sm" data-open="'+x.id+'">Open</button>':'')+'</div>').join("")+'</div>'
    +'<div class="nlab" style="margin-top:12px">Link another player (same person, other competition)</div>'
@@ -4379,6 +4378,9 @@ function realgmSearchURL(p){
    deep-link a site-scoped search that surfaces the player's Eurobasket page as the top hit. */
 function ebNorm(s){return (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z]/g,"");}
 function ebKey(p){return p?ebNorm(p.name)+"|"+(p.born||""):"";}
+function effectiveReport(p){const rec=recOf(p);const rep=parseReport(rec.report);
+  if(!(rec.report&&String(rec.report).trim())){const s=(window.EUROSCOUT_NOTE_SEED||{})[ebKey(p)];if(s)Object.keys(s).forEach(k=>{rep[k]=s[k];});}
+  return rep;}
 function eurobasketURL(p){
   const direct=(window.EUROSCOUT_EBLINKS||{})[ebKey(p)];   // exact player page imported from Notion
   if(direct)return direct;
@@ -4419,8 +4421,7 @@ function agentCellHTML(p){
   const ce=agency?encodeURIComponent(agency).replace(/'/g,"%27"):"";
   const agentEl=agent?`<span class="agentchip" onclick="openAgentRoster('${ae}')" title="Show ${escAttr(agent)}'s players">${agent}</span>`:"";
   const agencyEl=agency?`<span class="agencychip" onclick="openAgencyRoster('${ce}')" title="Show all ${escAttr(agency)} players">${agency}</span>`:"";
-  const ext=url?` <a href="${escAttr(url)}" target="_blank" rel="noopener" class="agentext" title="Open agent profile" onclick="event.stopPropagation()">\u2197</a>`:"";
-  return `${agentEl}${agent&&agency?" ":""}${agencyEl}${ext}`;
+  return `${agentEl}${agent&&agency?" ":""}${agencyEl}`;
 }
 /* Agent/agency rosters — one card per person, sorted by raw stat grade */
 function agentRosterList(matchFn){
@@ -5031,9 +5032,7 @@ function renderProfile(){
   if(!p){closeDrawer();return;}
   const L=STATE.league,rec=recOf(p);
   const t=(L.teams||[]).find(x=>x.code===p.team);
-  const rep=parseReport(rec.report);
-  try{ if(!(rec.report&&String(rec.report).trim())){ const _seed=(window.EUROSCOUT_NOTE_SEED||{})[ebKey(p)];
-    if(_seed)Object.keys(_seed).forEach(k=>{rep[k]=_seed[k];}); } }catch(e){}
+  const rep=effectiveReport(p);
   const pool=scopePool(p), scopeName=leagueOf(p).meta.name;
   const grid=(STATE.statMode==="adv"?CARD_ADV:CARD_PG);
   $("#drawer").innerHTML=`<div class="dr-scroll">
@@ -5075,7 +5074,6 @@ function renderProfile(){
               <button class="btn ghost sm" onclick="toggleCompare('${p.id}')" title="${inCompare(p.id)?'In compare — click to remove':'Add this player to the comparison'}">\u21c6 ${inCompare(p.id)?'In compare':'Compare'}</button>
               <button class="btn ghost sm" onclick="copyPlayerLink('${p.id}',this)" title="Copy a shareable link to this player">🔗 Copy link</button>
               <button class="btn ghost sm" onclick="exportPlayerReport('${p.id}')" title="Open a printable one-page report (Save as PDF or print)">🖨 Report</button>
-              <a class="btn ghost sm" href="${realgmSearchURL(p)}" target="_blank" rel="noopener" title="Search this player on RealGM">↗ RealGM</a>
               <a class="btn ghost sm" href="${eurobasketURL(p)}" target="_blank" rel="noopener" title="Find this player on Eurobasket.com">↗ Eurobasket</a>
               ${(p._ext&&!/eurobasket\.com/i.test(p._ext))?`<a class="btn ghost sm" href="${p._ext}" target="_blank" rel="noopener">↗ Profile link</a>`:''}
             </div>
@@ -6389,9 +6387,15 @@ function onGlobalKey(e){
   else if(e.key==="Enter"&&KBD_SEL>=0){e.preventDefault();openProfile(cards[KBD_SEL].dataset.id);}
   else if((e.key==="w"||e.key==="W")&&KBD_SEL>=0){e.preventDefault();toggleTag(cards[KBD_SEL].dataset.id,WATCH_TAG).then(renderScout);}
 }
-function noteSummary(p){const rep=parseReport(recOf(p).report||"");
-  for(const k of ["nProj","nOff","nDef","nAth","nIntel"]){const v=rep[k];if(v&&String(v).trim())return String(v).trim();}
-  return "";}
+function noteSummary(p){
+  const rep=effectiveReport(p);
+  const bl=k=>{const v=rep[k];return v?String(v).split("\n").map(x=>x.replace(/^[\u2022\u2023\u2043\u25aa\u25cf\u00b7*\u2013\u2014\-]\s*/,"").trim()).filter(Boolean):[];};
+  const sent=t=>{t=(t||"").trim();if(!t)return"";t=t.charAt(0).toUpperCase()+t.slice(1);return /[.!?]$/.test(t)?t:t+".";};
+  // Projection / verdict is the summary; if empty, fall back to a few offense + defense notes
+  let pts=bl("nProj");
+  if(!pts.length)pts=bl("nOff").slice(0,2).concat(bl("nDef").slice(0,1));
+  return pts.map(sent).filter(Boolean).join(" ");
+}
 function activeChipsHTML(s){
   const chips=[];
   const esc2=x=>esc(String(x));
