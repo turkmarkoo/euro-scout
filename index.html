@@ -358,17 +358,6 @@ textarea.notesec{min-height:94px}
 .bl-add{width:100%;border:1px dashed var(--line);background:transparent;border-radius:8px;padding:7px 9px;font-size:12.5px;color:var(--muted2);cursor:pointer;font-family:var(--body);text-align:left}
 .bl-add:hover{border-color:var(--accent);color:var(--accent)}
 .role-viewer .bl-grip,.role-viewer .bl-del,.role-viewer .bl-addrow{display:none}
-.aiBtn{background:#0F2C45;color:#fff;border:0;display:inline-flex;align-items:center;gap:6px}
-.aiBtn:hover{background:#16405f}
-.aiBtn[disabled]{opacity:.55;cursor:default}
-.aiSumCard{margin-top:14px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:none}
-.aiSumCard.on{display:block}
-.aiSumHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
-.aiSumHead .nlab{margin:0}
-.aiSumBody{line-height:1.72;font-size:14px;white-space:pre-wrap;color:var(--txt)}
-.btn.sm{padding:4px 10px;font-size:12px}
-.aiKeyIn{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--txt);font-family:var(--mono);font-size:12.5px;outline:none}
-.aiKeyIn:focus{border-color:var(--accent2)}
 
 /* HoopScout-style percentile bars */
 .bars{display:flex;flex-direction:column;gap:11px}
@@ -5169,12 +5158,10 @@ function renderProfile(){
       </div>
       <div style="margin-top:14px"><div class="nlab">Projection / verdict</div>
         <div class="blist" id="nProj" data-ph="Role projection, ceiling & floor, fit, comparisons, overall verdict\u2026"></div></div>
-      <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
         <button class="btn" id="saveBtn">Save report</button>
-        <button class="btn aiBtn" id="aiSumBtn" title="Turn your bullet notes into a readable summary">\u2728 AI summary</button>
         <span class="hint">${Store.enabled?(Store.user?"Saving to your cloud account":"Sign in to sync to cloud \u2014 saving locally for now"):"Local mode \u2014 saved in this browser"}</span>
       </div>
-      <div class="aiSumCard" id="aiSumCard"></div>
     </div>
 
     ${skillCardHTML(p,pool)}
@@ -5217,11 +5204,10 @@ function renderProfile(){
     };
   });
   const NKEYS=["nAth","nOff","nDef","nIntel","nProj"];
-  let aiSummaryText=(rep.summary||"");
   const bulletEditors={};
   let tmr;
   const readField=k=>bulletEditors[k]?bulletEditors[k].serialize():"";
-  const gather=()=>{const o={};NKEYS.forEach(k=>{o[k]=readField(k);});if(aiSummaryText)o.summary=aiSummaryText;return o;};
+  const gather=()=>{const o={};NKEYS.forEach(k=>{o[k]=readField(k);});return o;};
   const saveReport=async(msg)=>{await saveRec(p,{report:JSON.stringify(gather())});const ss=$("#saveState");if(ss)ss.textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
   const markDirty=()=>{const ss=$("#saveState");if(ss)ss.textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};
   const canEditRep=Store.canEdit();
@@ -5229,60 +5215,6 @@ function renderProfile(){
     bulletEditors[k]=makeBulletList(host,init,host.dataset.ph||"",markDirty);
     if(!canEditRep)host.querySelectorAll(".bl-txt").forEach(t=>t.contentEditable="false");}});
   $("#saveBtn").onclick=()=>{saveReport("saved").then(()=>toast("Report saved"));};
-
-  // ---- AI summary: turns the bullet notes into readable prose in the scout's own voice ----
-  const AI_KEY_LS="euroscout:aiKey";                       // stored ONLY in this browser, never synced/committed
-  const AI_MODEL=(window.SCOUT_AI_MODEL||"claude-sonnet-5");
-  const sumCard=$("#aiSumCard");
-  function renderSum(){ if(!sumCard)return;
-    if(aiSummaryText){ sumCard.classList.add("on");
-      sumCard.innerHTML='<div class="aiSumHead"><span class="nlab">AI summary</span><span style="display:flex;gap:6px"><button class="btn sm" id="aiCopy">Copy</button><button class="btn sm" id="aiRegen">Regenerate</button></span></div><div class="aiSumBody">'+esc(aiSummaryText)+'</div>';
-      $("#aiCopy").onclick=()=>{try{navigator.clipboard.writeText(aiSummaryText);toast("Summary copied");}catch(e){toast("Copy failed");}};
-      $("#aiRegen").onclick=()=>runSummary();
-    } else { sumCard.classList.remove("on"); sumCard.innerHTML=""; }
-  }
-  function showKeyForm(){ if(!sumCard)return; sumCard.classList.add("on");
-    sumCard.innerHTML='<div class="aiSumHead"><span class="nlab">Connect AI</span></div>'
-      +'<div class="hint" style="margin-bottom:9px">Paste your Anthropic API key once. It\'s saved only in this browser \u2014 never uploaded, synced, or committed to your site.</div>'
-      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="aiKeyIn" class="aiKeyIn" type="password" placeholder="sk-ant-\u2026" autocomplete="off"/><button class="btn" id="aiKeySave">Save key</button></div>';
-    $("#aiKeySave").onclick=()=>{const k=($("#aiKeyIn").value||"").trim();if(!k)return;localStorage.setItem(AI_KEY_LS,k);toast("AI connected");runSummary();};
-    const ki=$("#aiKeyIn");if(ki)ki.onkeydown=e=>{if(e.key==="Enter")$("#aiKeySave").click();};
-  }
-  async function runSummary(){
-    const proxy=(window.SCOUT_AI_URL||"").trim();
-    const secs=[["Athleticism","nAth"],["Offense","nOff"],["Defense","nDef"],["Intel","nIntel"],["Projection / verdict","nProj"]];
-    const notes=secs.map(([lab,k])=>{const v=readField(k).trim();return v?(lab+":\n"+v):"";}).filter(Boolean).join("\n\n");
-    if(!notes){toast("Write some notes first");return;}
-    const key=proxy?null:localStorage.getItem(AI_KEY_LS);
-    if(!proxy&&!key){showKeyForm();return;}
-    const btn=$("#aiSumBtn");if(btn){btn.disabled=true;}
-    if(sumCard){sumCard.classList.add("on");sumCard.innerHTML='<div class="aiSumHead"><span class="nlab">AI summary</span></div><div class="hint">Writing your summary\u2026</div>';}
-    const grade=recOf(p).rating;
-    const sys="You turn a professional basketball scout's shorthand bullet notes into a clean, readable scouting summary. Write flowing prose, 2\u20134 short paragraphs. Use the scout's OWN words, terminology and judgements \u2014 do not add observations, statistics, comparisons or opinions they did not write, and never soften, hedge or inflate their verdict. Keep it tight and direct, the way a scout talks. Output only the summary: no preamble, no headings, no bullet points.";
-    const usr="Player: "+p.name+(grade?(" \u2014 scout's grade "+grade+"/5"):"")+"\n\nMy bullet notes:\n\n"+notes;
-    try{
-      let txt;
-      if(proxy){
-        const r=await fetch(proxy,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({player:p.name,grade,notes})});
-        const data=await r.json().catch(()=>({error:"Bad response from AI proxy ("+r.status+")"}));
-        if(data.error)throw new Error(data.error);
-        txt=(data.summary||"").trim();
-      }else{
-        const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:AI_MODEL,max_tokens:800,system:sys,messages:[{role:"user",content:usr}]})});
-        const data=await r.json();
-        if(data.error)throw new Error(data.error.message||"API error");
-        txt=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
-      }
-      if(!txt)throw new Error("Empty response");
-      aiSummaryText=txt;renderSum();saveReport("summary saved");
-    }catch(e){
-      const msg=String(e&&e.message||e);const authErr=!proxy&&/401|authentication|x-api-key|invalid.*key|credit/i.test(msg);
-      if(sumCard)sumCard.innerHTML='<div class="aiSumHead"><span class="nlab">AI summary</span></div><div class="hint" style="color:#c0392b">Couldn\'t generate: '+esc(msg)+'. '+(authErr?'<a href="#" id="aiReset">Re-enter key</a>':'')+'</div>';
-      const rz=$("#aiReset");if(rz)rz.onclick=ev=>{ev.preventDefault();localStorage.removeItem(AI_KEY_LS);showKeyForm();};
-    } finally { if(btn)btn.disabled=false; }
-  }
-  const aiBtn=$("#aiSumBtn");if(aiBtn)aiBtn.onclick=()=>runSummary();
-  renderSum();
 }
 
 async function toggleWatch(id){const p=player(id)||{id};const on=playerTags(p).includes(WATCH_TAG);await toggleTag(id,WATCH_TAG);
