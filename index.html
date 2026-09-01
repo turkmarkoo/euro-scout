@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>EuroScout · European Basketball Scouting</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -55,7 +55,7 @@ input,textarea,select{font-family:inherit}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
 
 /* Header */
-header{position:sticky;top:0;z-index:90;background:var(--bg);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:90;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 .hwrap{display:flex;align-items:center;gap:16px;padding:12px 20px;max-width:1440px;margin:0 auto;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.02em;cursor:pointer;user-select:none;line-height:1}
 .logo:hover{opacity:.92}
