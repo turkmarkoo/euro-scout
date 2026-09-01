@@ -366,6 +366,9 @@ textarea.notesec{min-height:94px}
 .txtSumCard .sumSec:last-child{margin-bottom:0}
 .txtSumCard .sumSec p{margin:3px 0 0;line-height:1.62;font-size:14px;color:var(--txt)}
 .btn.sm{padding:4px 10px;font-size:12px}
+.statsum{margin-top:14px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.statsum .nlab{margin:0 0 6px}
+.statsum p{margin:0;font-size:13.5px;line-height:1.6;color:var(--txt)}
 
 /* HoopScout-style percentile bars */
 .bars{display:flex;flex-direction:column;gap:11px}
@@ -5235,6 +5238,7 @@ function renderProfile(){
 
     ${skillCardHTML(p,pool)}
     ${advCardHTML(p,pool)}
+    ${statSummaryPanelHTML(p)}
     ${playingStyleHTML(p)}
     ${similarPanelHTML(p)}
 
@@ -6441,6 +6445,29 @@ function onGlobalKey(e){
   else if(e.key==="Enter"&&KBD_SEL>=0){e.preventDefault();openProfile(cards[KBD_SEL].dataset.id);}
   else if((e.key==="w"||e.key==="W")&&KBD_SEL>=0){e.preventDefault();toggleTag(cards[KBD_SEL].dataset.id,WATCH_TAG).then(renderScout);}
 }
+function statSummary(p){
+  const pc=p.pct||{}; if(pc.ppg==null)return "";                     // needs percentiles (qualified players only)
+  const L=leagueOf(p); const scope=(L&&L.meta&&L.meta.name)||"";
+  const topPct=v=>Math.max(1,100-Math.round(v));
+  const band=(v,a,b,c,d)=>v>=90?a:v>=72?b:v>=45?c:d;
+  const T=[]; const add=(pct,pos,s)=>{if(pct!=null)T.push({p:pct,pos:pos,s:s});};
+  add(pc.ppg, pc.ppg>=58, `${band(pc.ppg,"Exceptional","Prolific","Capable","Low-volume")} scorer at ${(p.ppg||0).toFixed(1)} ppg${scope?` (top ${topPct(pc.ppg)}% ${scope})`:""}`);
+  add(pc.ts, pc.ts>=52, `${band(pc.ts,"elite","strong","solid","below-average")} shooting efficiency (${(p.ts||0).toFixed(1)}% TS)`);
+  if(pc.ast40!=null){const ato=p.topg>0?p.apg/p.topg:null;
+    add(pc.ast40, pc.ast40>=58, `${band(pc.ast40,"elite","strong","capable","limited")} facilitator with ${(p.ast40||0).toFixed(1)} AST/40${ato?` and ${ato.toFixed(1)} AST/TO`:""}`);}
+  add(pc.reb40, pc.reb40>=58, `${band(pc.reb40,"elite","strong","solid","limited")} rebounder (${(p.reb40||0).toFixed(1)} REB/40)`);
+  if(pc.stl40!=null&&pc.blk40!=null){const d=(pc.stl40+pc.blk40)/2;
+    add(d, d>=58, `${band(d,"disruptive","active","steady","low-activity")} defender (${(p.stl40||0).toFixed(1)} STL, ${(p.blk40||0).toFixed(1)} BLK /40)`);}
+  if(pc.f3p!=null&&(p.r3a==null||p.r3a>=0.28)) add(pc.f3p, pc.f3p>=58, `${band(pc.f3p,"excellent","reliable","streaky","poor")} outside shot (${(p.f3p||0).toFixed(1)}% 3P)`);
+  const str=T.filter(t=>t.pos).sort((a,b)=>b.p-a.p);
+  const weak=T.filter(t=>!t.pos).sort((a,b)=>a.p-b.p);
+  const pick=str.slice(0,3).map(t=>t.s);
+  if(weak.length&&weak[0].p<=22)pick.push(weak[0].s);
+  if(!pick.length)T.sort((a,b)=>b.p-a.p).slice(0,2).forEach(t=>pick.push(t.s));
+  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+  return pick.length?pick.map(cap).join(". ")+".":"";
+}
+function statSummaryPanelHTML(p){const s=statSummary(p);return s?`<div class="statsum"><div class="nlab">Stat summary</div><p>${esc(s)}</p></div>`:"";}
 function noteSummary(p){
   const rep=effectiveReport(p);
   const bl=k=>{const v=rep[k];return v?String(v).split("\n").map(x=>x.replace(/^[\u2022\u2023\u2043\u25aa\u25cf\u00b7*\u2013\u2014\-]\s*/,"").trim()).filter(Boolean):[];};
@@ -6655,7 +6682,7 @@ function scoutCard(p){
   const rating=effRating(p);
   const stars=`<span class="sc2-star">${"\u2605".repeat(rating)}<span class="off">${"\u2605".repeat(Math.max(0,5-rating))}</span></span><span class="sc2-rateN">${rating}/5</span>`;
   const rc=ROLE_COLORS[p.role]||"#9aa0aa";
-  const summary=noteSummary(p);
+  const summary=statSummary(p);
   const unscouted=scoutStatusOf(p)==="unscouted";
   return `<div class="scoutcard scoutcard2${watched?" watched":""}${unscouted?" unscouted":""}" data-id="${p.id}" tabindex="-1">
     ${p._sim!=null?`<span class="cardmatch" title="Statistical match">${p._sim}<small>match</small></span>`:""}
@@ -6683,7 +6710,7 @@ function scoutCard(p){
       <div class="sc2v"><span>PIR</span><b>${p.pir!=null?p.pir.toFixed(1):"\u2014"}</b></div>
     </div>
     ${p.qualified?`<div class="sc2-dots">${skillProfile(p).map(sk=>`<div class="sc2-drow"><span class="sc2-dk">${sk.k}</span><span class="sc2-dd">${sk.v==null?'<i class="na"></i>':Array.from({length:5},(_,i)=>`<i class="${i<Math.round(sk.v/20)?"on":""}"></i>`).join("")}</span></div>`).join("")}</div>`:""}
-    <div class="sc2-summary">${summary?esc(summary):`<span class="sc2-sumph">${unscouted?"No notes yet \u2014 click to start a report \u25b8":""}</span>`}</div>
+    <div class="sc2-summary">${summary?esc(summary):`<span class="sc2-sumph">Not enough minutes for a stat read</span>`}</div>
   </div>`;
 }
 async function toggleTag(id,tag){
