@@ -104,6 +104,11 @@ nav.tabs button:hover{color:var(--txt)}
 .role-viewer #eyeGrid input,.role-viewer .tagpick{pointer-events:none}
 .role-viewer .biedit,.role-viewer .agentext{display:none}
 body.embedded .embnote{display:block}
+/* Framed in the hub there is no browser chrome to balance against, so the
+   1440px cap just leaves dead space on a wide monitor. */
+body.embedded main,body.embedded .hwrap{max-width:none}
+body.embedded .scoutwrap{max-width:none}
+body.embedded .drawer.fullpage>.dr-scroll>*:not(.profnav){max-width:1400px}
 .embnote{display:none;background:var(--panel2);border-bottom:1px solid var(--line);
   padding:5px 12px;font-size:12px;opacity:.75;text-align:center}
 .role-viewer .notesec{background:var(--panel2)}
