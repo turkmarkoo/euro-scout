@@ -2894,9 +2894,17 @@ function exportPlayerReport(id){
   const KEY=[["PTS","ppg"],["REB","rpg"],["AST","apg"],["STL","spg"],["BLK","bpg"],["MIN","mpg"],["TS%","ts"],["3P%","f3p"],["PIR","pir"]];
   const keyStats=KEY.map(([lab,k])=>{const v=p[k];return `<div class="ks"><div class="kv">${v!=null&&!isNaN(v)?(k.endsWith("p")||k==="ts"?fmt(v)+"%":fmt(v)):"—"}</div><div class="kk">${lab}</div></div>`;}).join("");
   const noteBlock=(lab,val)=>val?`<div class="nb"><div class="nbh">${lab}</div><div class="nbt">${esc(val).replace(/\n/g,"<br>")}</div></div>`:"";
-  const notesHtml=[["Athleticism",rep.nAth],["Offense",rep.nOff],["Defense",rep.nDef],["Intel",rep.nIntel],["Projection / verdict",rep.nProj||rep.overall]].map(([l,v])=>noteBlock(l,v)).join("")||'<div class="hint">No written report yet.</div>';
+  const notesHtml=[["Athleticism",rep.nAth],["Offense",rep.nOff],["Defense",rep.nDef],["Intel",rep.nIntel]].map(([l,v])=>noteBlock(l,v)).join("")||'<div class="hint">No written notes yet.</div>';
   const _rt=effRating(p);const stars=_rt?("★".repeat(_rt)+"☆".repeat(5-_rt)):"☆☆☆☆☆";
   const tags=(rec.tags||[]).filter(x=>x!==WATCH_TAG);
+  const statSum=statSummary(p);
+  const pc=p.pct||{};
+  const rankRows=[["Scoring","ppg"],["Efficiency","ts"],["Outside shot","f3p"],["Rebounding","reb40"],["Playmaking","ast40"],["Perimeter D","stl40"],["Rim protect","blk40"],["Usage","usg"]].filter(([l,k])=>pc[k]!=null).map(([l,k])=>{const v=Math.round(pc[k]);const top=Math.max(1,100-v);const col=v>=75?"#4a8f6b":v>=45?"var(--accent)":"#c0603f";const lbl=v>=50?("top "+top+"%"):(v+"th pctl");return `<div class="rb"><span class="rbl">${l}</span><span class="rbt"><span class="rbf" style="width:${Math.max(4,v)}%;background:${col}"></span></span><span class="rbn">${lbl}</span></div>`;}).join("");
+  const advArr=[["eFG%",p.efg!=null?fmt(p.efg)+"%":"\u2014"],["USG",fmt(p.usg)],["AST/TO",p.topg>0?fmt(p.apg/p.topg):"\u2014"],["PTS/40",fmt(p.pts40)],["REB/40",fmt(p.reb40)],["AST/40",fmt(p.ast40)],["FTr",p.ftr!=null?(+p.ftr).toFixed(2):"\u2014"],["PPS",p.pps!=null?(+p.pps).toFixed(2):"\u2014"]];
+  const advStrip=advArr.map(([l,v])=>`<div class="ks"><div class="kv">${v}</div><div class="kk">${l}</div></div>`).join("");
+  const comps=(typeof similarPlayers==="function")?similarPlayers(p,{qualifiedOnly:true}).slice(0,4):[];
+  const compHtml=comps.map(({p:q,match})=>`<span class="rpt-comp">${esc(q.name)}<i>${esc(leagueOf(q).meta.name)}</i><b>${match}</b></span>`).join("");
+  const verdictBody=(rep.nProj&&String(rep.nProj).trim())?esc(String(rep.nProj).replace(/\u2022/g,"").replace(/\s*\n+\s*/g," ").trim()):(statSum||"");
   const css=document.querySelector("style").textContent;
   const win=window.open("","_blank");
   if(!win){toast("Allow pop-ups to export the report");return;}
@@ -2936,6 +2944,23 @@ function exportPlayerReport(id){
   .rpt-bar{display:flex;gap:10px;justify-content:center;margin:10px 0 18px}
   .rpt-bar button{padding:8px 18px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:13px}
   .rpt-bar button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .rpt-summary{background:var(--accent-soft);border-radius:9px;padding:10px 14px;font-size:13.5px;line-height:1.5;color:var(--accent-deep);margin-bottom:16px;font-weight:500}
+  .rlab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin:2px 0 6px}
+  .rpt-adv{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:16px}
+  .rpt-ranks{margin-bottom:16px}
+  .rb{display:flex;align-items:center;gap:10px;margin:5px 0;font-size:12px;break-inside:avoid}
+  .rb .rbl{width:96px;color:var(--muted);flex:none}
+  .rb .rbt{flex:1;height:8px;background:var(--line-soft);border-radius:5px;overflow:hidden}
+  .rb .rbf{height:100%;border-radius:5px}
+  .rb .rbn{width:66px;text-align:right;color:var(--muted2);font-size:11px;flex:none}
+  .rpt-comps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .rpt-comp{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-size:12.5px;display:flex;align-items:baseline;gap:6px}
+  .rpt-comp i{color:var(--muted2);font-size:10.5px;font-style:normal}
+  .rpt-comp b{color:var(--accent-deep);font-size:11px}
+  .rpt-verdict{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:8px;padding:11px 15px;margin-top:8px;break-inside:avoid}
+  .rpt-verdict .vh{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:5px}
+  .rpt-verdict .vt{font-size:13.5px;line-height:1.55;color:var(--txt)}
+  .rpt-verdict .vg{margin-top:7px;font-size:12px;color:var(--muted);font-weight:600}
   @media print{.rpt-bar{display:none}}
   </style></head><body>
   <div class="rpt-bar">
@@ -2955,6 +2980,7 @@ function exportPlayerReport(id){
       ${band?`<div class="band">${band.label}${band.manual?" (set)":""}</div>`:""}
     </div>
   </div>
+  ${statSum?`<div class="rpt-summary">${esc(statSum)}</div>`:""}
   <div class="rpt-cols">
     <div class="rpt-radar">${radar}<div class="hint" style="text-align:center;margin-top:4px">Gold = your eye · Teal dashed = stats</div></div>
     <div>
@@ -2962,8 +2988,13 @@ function exportPlayerReport(id){
     </div>
   </div>
   <div class="rpt-keys">${keyStats}</div>
+  <div class="rlab">Advanced</div>
+  <div class="rpt-adv">${advStrip}</div>
+  ${rankRows?`<div class="rlab">Where he ranks \u00b7 ${esc(L.meta.name)}</div><div class="rpt-ranks">${rankRows}</div>`:""}
+  ${compHtml?`<div class="rlab">Comparable players</div><div class="rpt-comps">${compHtml}</div>`:""}
   ${tags.length?`<div class="rpt-tags">${tags.map(x=>`<span class="rpt-tag">${esc(x)}</span>`).join("")}</div>`:""}
-  <div class="rpt-notes"><h3 style="font-size:14px;margin:0 0 8px">Scouting report</h3>${notesHtml}</div>
+  <div class="rpt-notes"><h3 style="font-size:14px;margin:0 0 8px">Scouting notes</h3>${notesHtml}</div>
+  ${verdictBody?`<div class="rpt-verdict"><div class="vh">Verdict</div><div class="vt">${verdictBody}</div><div class="vg">Grade ${grade!=null?grade.toFixed(1):"\u2014"}${band?" \u00b7 "+esc(band.label):""} \u00b7 ${stars}</div></div>`:""}
   <div class="rpt-ft"><span>EuroScout · ${esc(p.name)}</span><span>Generated ${new Date().toLocaleDateString()}</span></div>
   </body></html>`;
   win.document.open();win.document.write(doc);win.document.close();
