@@ -2899,7 +2899,7 @@ function exportPlayerReport(id){
   const tags=(rec.tags||[]).filter(x=>x!==WATCH_TAG);
   const statSum=statSummary(p);
   const pc=p.pct||{};
-  const rankRows=[["Scoring","ppg"],["Efficiency","ts"],["Outside shot","f3p"],["Rebounding","reb40"],["Playmaking","ast40"],["Perimeter D","stl40"],["Rim protect","blk40"],["Usage","usg"]].filter(([l,k])=>pc[k]!=null).map(([l,k])=>{const v=Math.round(pc[k]);const top=Math.max(1,100-v);const col=v>=75?"#4a8f6b":v>=45?"var(--accent)":"#c0603f";const lbl=v>=50?("top "+top+"%"):(v+"th pctl");return `<div class="rb"><span class="rbl">${l}</span><span class="rbt"><span class="rbf" style="width:${Math.max(4,v)}%;background:${col}"></span></span><span class="rbn">${lbl}</span></div>`;}).join("");
+  const rankRows=[["Scoring","ppg"],["Efficiency","ts"],["Outside shot","f3p"],["Rebounding","reb40"],["Playmaking","ast40"],["Perimeter D","stl40"],["Rim protect","blk40"],["Usage","usg"]].filter(([l,k])=>pc[k]!=null).map(([l,k])=>{const v=Math.round(pc[k]);const top=Math.max(1,100-v);const col=v>=75?"#3E8E63":v>=45?"#C5824E":"#BC5A3C";const lbl=v>=50?("top "+top+"%"):(v+"th pctl");return `<div class="rb"><span class="rbl">${l}</span><span class="rbt"><span class="rbf" style="width:${Math.max(6,v)}%;background:${col}"></span></span><span class="rbn" style="color:${col}">${lbl}</span></div>`;}).join("");
   const advArr=[["eFG%",p.efg!=null?fmt(p.efg)+"%":"\u2014"],["USG",fmt(p.usg)],["AST/TO",p.topg>0?fmt(p.apg/p.topg):"\u2014"],["PTS/40",fmt(p.pts40)],["REB/40",fmt(p.reb40)],["AST/40",fmt(p.ast40)],["FTr",p.ftr!=null?(+p.ftr).toFixed(2):"\u2014"],["PPS",p.pps!=null?(+p.pps).toFixed(2):"\u2014"]];
   const advStrip=advArr.map(([l,v])=>`<div class="ks"><div class="kv">${v}</div><div class="kk">${l}</div></div>`).join("");
   const comps=(typeof similarPlayers==="function")?similarPlayers(p,{qualifiedOnly:true}).slice(0,4):[];
@@ -2911,7 +2911,7 @@ function exportPlayerReport(id){
   const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(p.name)} — Scouting report</title>
   <style>${css}
   @page{size:A4;margin:14mm}
-  body{background:#fff;color:var(--txt);font-family:var(--body);margin:0;padding:22px;max-width:960px}
+  body{background:#fff;color:var(--txt);font-family:var(--body);margin:0;padding:22px;max-width:960px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rpt-hd{display:flex;gap:18px;align-items:center;border-bottom:2px solid var(--accent);padding-bottom:14px;margin-bottom:16px}
   .rpt-ph{width:78px;height:78px;border-radius:12px;overflow:hidden;background:var(--accent-soft);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--accent-deep)}
   .rpt-ph img{width:100%;height:100%;object-fit:cover}
@@ -2944,15 +2944,16 @@ function exportPlayerReport(id){
   .rpt-bar{display:flex;gap:10px;justify-content:center;margin:10px 0 18px}
   .rpt-bar button{padding:8px 18px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:13px}
   .rpt-bar button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .rpt-summary{background:var(--accent-soft);border-radius:9px;padding:10px 14px;font-size:13.5px;line-height:1.5;color:var(--accent-deep);margin-bottom:16px;font-weight:500}
+  .rpt-summary{background:var(--accent-soft);border-radius:9px;padding:11px 15px;font-size:13.5px;line-height:1.55;color:var(--txt);margin-bottom:16px}
+  .rpt-summary .vlab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:5px}
   .rlab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin:2px 0 6px}
   .rpt-adv{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:16px}
   .rpt-ranks{margin-bottom:16px}
-  .rb{display:flex;align-items:center;gap:10px;margin:5px 0;font-size:12px;break-inside:avoid}
-  .rb .rbl{width:96px;color:var(--muted);flex:none}
-  .rb .rbt{flex:1;height:8px;background:var(--line-soft);border-radius:5px;overflow:hidden}
-  .rb .rbf{height:100%;border-radius:5px}
-  .rb .rbn{width:66px;text-align:right;color:var(--muted2);font-size:11px;flex:none}
+  .rb{display:flex;align-items:center;gap:12px;margin:6px 0;font-size:12.5px;break-inside:avoid}
+  .rb .rbl{width:96px;color:var(--txt);flex:none}
+  .rb .rbt{flex:1;height:11px;background:#EAE3D6;border-radius:6px;overflow:hidden}
+  .rb .rbf{height:100%;border-radius:6px}
+  .rb .rbn{width:64px;text-align:right;font-size:11px;font-weight:700;flex:none}
   .rpt-comps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .rpt-comp{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-size:12.5px;display:flex;align-items:baseline;gap:6px}
   .rpt-comp i{color:var(--muted2);font-size:10.5px;font-style:normal}
@@ -2980,7 +2981,7 @@ function exportPlayerReport(id){
       ${band?`<div class="band">${band.label}${band.manual?" (set)":""}</div>`:""}
     </div>
   </div>
-  ${statSum?`<div class="rpt-summary">${esc(statSum)}</div>`:""}
+  ${verdictBody?`<div class="rpt-summary"><div class="vlab">Verdict</div>${verdictBody}</div>`:""}
   <div class="rpt-cols">
     <div class="rpt-radar">${radar}<div class="hint" style="text-align:center;margin-top:4px">Gold = your eye · Teal dashed = stats</div></div>
     <div>
@@ -2994,7 +2995,6 @@ function exportPlayerReport(id){
   ${compHtml?`<div class="rlab">Comparable players</div><div class="rpt-comps">${compHtml}</div>`:""}
   ${tags.length?`<div class="rpt-tags">${tags.map(x=>`<span class="rpt-tag">${esc(x)}</span>`).join("")}</div>`:""}
   <div class="rpt-notes"><h3 style="font-size:14px;margin:0 0 8px">Scouting notes</h3>${notesHtml}</div>
-  ${verdictBody?`<div class="rpt-verdict"><div class="vh">Verdict</div><div class="vt">${verdictBody}</div><div class="vg">Grade ${grade!=null?grade.toFixed(1):"\u2014"}${band?" \u00b7 "+esc(band.label):""} \u00b7 ${stars}</div></div>`:""}
   <div class="rpt-ft"><span>EuroScout · ${esc(p.name)}</span><span>Generated ${new Date().toLocaleDateString()}</span></div>
   </body></html>`;
   win.document.open();win.document.write(doc);win.document.close();
