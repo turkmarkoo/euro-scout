@@ -103,6 +103,9 @@ nav.tabs button:hover{color:var(--txt)}
 .role-viewer #watchToggle,.role-viewer #rating button,.role-viewer .phstar,
 .role-viewer #eyeGrid input,.role-viewer .tagpick{pointer-events:none}
 .role-viewer .biedit,.role-viewer .agentext{display:none}
+body.embedded .embnote{display:block}
+.embnote{display:none;background:var(--panel2);border-bottom:1px solid var(--line);
+  padding:5px 12px;font-size:12px;opacity:.75;text-align:center}
 .role-viewer .notesec{background:var(--panel2)}
 .agswitch{margin-top:14px;font-size:12.5px;color:var(--accent-deep);cursor:pointer;text-align:center;font-weight:600}
 .agswitch:hover{text-decoration:underline}
@@ -1739,6 +1742,7 @@ body.drawer-lock{overflow:hidden}
 </header>
 <main id="app"><div class="empty">Loading data…</div></main>
 <div id="toast" class="toast"></div>
+<div class="embnote">Viewing from Dragons Hub — read only. Open EuroScout directly and sign in to make changes.</div>
 <div id="authgate" class="authgate hidden"><div class="agbox" id="agBox"></div></div>
 
 <script src="config.js"></script>
@@ -2860,6 +2864,8 @@ async function boot(){
     if(Store.canEdit())await Store.migrateLocalUp();
     if(Store.canEdit())await applyImportedData();
     applyRoleClass(); applyAuthGate(); startPendingPoll();
+    // framed and not signed in: no gate to dismiss, so draw the app now
+    if(embedReadOnly()) render();
   }else{
     // local mode: single-user gist sync (pull on open, auto-push on edits)
     renderHeaderAuth();
@@ -3087,11 +3093,32 @@ function wireGlobalSearch(){
   document.addEventListener("click",e=>{if(!e.target.closest(".gsearch"))close();});
 }
 
+/* ---------- embedded read-only mode ----------
+   Dragons Hub frames this page and passes ?embed=1&mode=read. In that case we
+   skip the sign-in overlay and run as a viewer, so nobody has to log in twice.
+
+   This is convenience, not security: the referrer can be forged and the data
+   files are public anyway. It must never unlock editing — mode=edit is honoured
+   only after a real Supabase sign-in, which the checks below still require. */
+const EMBED = (function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    if(q.get("embed") !== "1") return null;
+    if(window.self === window.top) return null;          // must actually be framed
+    const allow = ["https://dragonshub.mtscouting.com"];
+    const ref = document.referrer || "";
+    if(!allow.some(function(o){ return ref.indexOf(o) === 0; })) return null;
+    return { mode: q.get("mode") === "edit" ? "edit" : "read" };
+  }catch(e){ return null; }
+})();
+function embedReadOnly(){ return !!EMBED && !(Store.user && Store.member); }
+
 /* ---------- auth gate + roles (Supabase shared-team mode) ---------- */
 function applyRoleClass(){
-  const viewer=Store.enabled && Store.member && Store.role==="viewer";
+  const viewer=(Store.enabled && Store.member && Store.role==="viewer") || embedReadOnly();
   document.body.classList.toggle("role-viewer",viewer);
-  document.body.classList.toggle("role-editor",Store.enabled && Store.canEdit());
+  document.body.classList.toggle("role-editor",Store.enabled && Store.canEdit() && !embedReadOnly());
+  document.body.classList.toggle("embedded",!!EMBED);
 }
 function renderHeaderAuth(){
   const b=$("#authBtn"); if(!b)return;
@@ -3107,7 +3134,12 @@ function renderHeaderAuth(){
     if(Store.canEdit())refreshPending();
   }else{
     b.classList.remove("acctbtn","acct-viewer");
-    b.textContent="Sign in"; b.title="Sign in to EuroScout"; b.onclick=()=>applyAuthGate();
+    if(embedReadOnly()){
+      b.textContent="Read only"; b.title="Opened from Dragons Hub \u2014 viewing only";
+      b.onclick=null;
+    }else{
+      b.textContent="Sign in"; b.title="Sign in to EuroScout"; b.onclick=()=>applyAuthGate();
+    }
   }
 }
 async function refreshPending(){
@@ -3199,7 +3231,7 @@ function renderAuthGate(){
 }
 function applyAuthGate(){
   const g=$("#authgate"); if(!g)return;
-  const blocked = Store.enabled && !(Store.user && Store.member);
+  const blocked = Store.enabled && !(Store.user && Store.member) && !EMBED;
   g.classList.toggle("hidden",!blocked);
   if(blocked)renderAuthGate();
   renderHeaderAuth();
