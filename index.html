@@ -3724,6 +3724,47 @@ function drawerJump(id){
     scr.scrollTo({top:Math.max(0,top),behavior:"smooth"});
   } else { el.scrollIntoView({behavior:"smooth",block:"start"}); }
 }
+
+/* ── Dragons Hub ──────────────────────────────────────────────────────
+   When this page is opened inside the hub (it passes ?embed=1&from=dragonshub),
+   a Shortlist button appears on a profile and hands the player over: name,
+   birth year, position, club and a link straight back to this profile. The hub
+   adds him to its shortlist, so nothing is retyped.
+
+   Only active inside a frame that says it is the hub, so nothing changes when
+   the page is opened normally.                                            */
+const HUB_EMBED = (function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    return q.get('embed') === '1' && q.get('from') === 'dragonshub' && window.self !== window.top;
+  }catch(e){ return false; }
+})();
+
+function sendToHub(){
+  const p = CURRENT ? player(CURRENT) : null;
+  if(!p){ toast('Open a player first.'); return; }
+  const L = leagueOf(p) || { meta:{} };
+  let club = p.teamName || '';
+  if(!club && L.teams){ const t = L.teams.find(x => x.code === p.team); if(t) club = t.name || ''; }
+  const link = location.origin + location.pathname + '#p=' + encodeURIComponent(p.id);
+  try{
+    window.parent.postMessage({
+      type: 'shortlist:add',
+      from: 'euroscout',
+      player: {
+        id: String(p.id),
+        name: p.name || '',
+        born: p.born ? String(p.born) : '',
+        position: p.role || (p.pos && p.pos !== '-' ? p.pos : ''),
+        club: club,
+        league: (L.meta && L.meta.name) || '',
+        url: link
+      }
+    }, '*');
+    toast('Sent to the shortlist');
+  }catch(e){ toast('Could not reach the hub'); }
+}
+
 function openDrawerUI(){
   const dr=$("#drawer"),sc=$("#scrim");if(!dr)return;
   dr.classList.add("on","fullpage");dr.setAttribute("aria-hidden","false");
@@ -5127,6 +5168,7 @@ function renderProfile(){
     <div class="profnav">
       ${PROF_HIST.length?`<button class="backlink bk" onclick="profileBack()" title="Back to ${escAttr((player(PROF_HIST[PROF_HIST.length-1])||{}).name||'previous')}">\u2190 Back</button>`:""}
       <button class="backlink" onclick="closeDrawer()">\u2715 Close</button>
+      ${HUB_EMBED?`<button class="backlink" onclick="sendToHub()" title="Add this player to the Dragons Hub shortlist">\u2795 Shortlist</button>`:``}
       <button class="backlink btt" title="Back to top" onclick="(function(){var s=document.querySelector('#drawer .dr-scroll');if(s)s.scrollTo({top:0,behavior:'smooth'});})()">\u2191 Top</button>
       <div class="seg seg-sm inscope">
         <button onclick="setScopeMode('league')" class="${STATE.profileScope!=='all'?'active':''}">vs&nbsp;Lg</button>
