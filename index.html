@@ -3197,8 +3197,20 @@ function renderAuthGate(){
   [em,pass].forEach(el=>{if(el)el.onkeydown=e=>{if(e.key==="Enter"&&!form)submit();};});
   const sw=$("#agSwitch"); if(sw)sw.onclick=()=>{AG_MODE=su?"signin":"signup";renderAuthGate();};
 }
+const HUB_EMBED = (function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    return q.get('embed') === '1' && q.get('from') === 'dragonshub' && window.self !== window.top;
+  }catch(e){ return false; }
+})();
+
 function applyAuthGate(){
   const g=$("#authgate"); if(!g)return;
+  /* Inside the Dragons Hub this page is a read-only view for people the hub has
+     already authenticated, so it must never put its own gate in front of them.
+     It was also showing "Access revoked" during the moment before membership
+     had loaded, which is not the same thing as having been removed. */
+  if(typeof HUB_EMBED!=="undefined" && HUB_EMBED){ g.classList.add("hidden"); renderHeaderAuth(); return; }
   const blocked = Store.enabled && !(Store.user && Store.member);
   g.classList.toggle("hidden",!blocked);
   if(blocked)renderAuthGate();
@@ -3733,12 +3745,7 @@ function drawerJump(id){
 
    Only active inside a frame that says it is the hub, so nothing changes when
    the page is opened normally.                                            */
-const HUB_EMBED = (function(){
-  try{
-    const q = new URLSearchParams(location.search);
-    return q.get('embed') === '1' && q.get('from') === 'dragonshub' && window.self !== window.top;
-  }catch(e){ return false; }
-})();
+
 
 function sendToHub(){
   const p = CURRENT ? player(CURRENT) : null;
