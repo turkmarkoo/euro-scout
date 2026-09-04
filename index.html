@@ -1453,9 +1453,6 @@ body.drawer-lock{overflow:hidden}
 .drawer.fullpage .profnav .backlink{font-weight:600;font-size:15px}
 .drawer.fullpage .pnav-btn{width:34px;height:34px;border-radius:9px;font-size:18px}
 .drawer.fullpage>.dr-scroll>*:not(.profnav){max-width:1120px;margin-left:auto;margin-right:auto}
-.pf-cols{columns:2;column-gap:18px;max-width:1120px;margin:0 auto}
-.pf-cols>*{break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 16px !important;max-width:none !important}
-@media(max-width:860px){.pf-cols{columns:1}}
 .drawer.fullpage .panel{border:1px solid var(--line);border-radius:16px;margin-left:max(20px,calc((100vw - 1120px)/2));margin-right:max(20px,calc((100vw - 1120px)/2))}
 /* Sticky identity header: the brown card stays pinned under the nav bar. It has its own
    solid gradient, and the wrapper gets a solid page-colored backdrop so nothing shows through. */
@@ -5214,7 +5211,6 @@ function renderProfile(){
       </div>
       <div class="hint" style="margin-top:6px">Matched by name, height and nationality. ${m.teamName}.</div>
     </div>`;})()}
-    <div class="pf-cols">
     <div class="panel" style="margin-top:16px">
       <h3>Event averages \u00b7 ${p.g} GP</h3>
       <div class="scope-row">
@@ -5278,7 +5274,6 @@ function renderProfile(){
     ${similarPanelHTML(p)}
 
     ${seasonTrajectoryHTML(p)}
-    </div>
     <div class="panel" style="margin-top:16px">
       <h3>Game log${(p._grp&&p._grp.length>1)?' — all competitions':' · '+p.g+' games'}</h3>
       ${gameLogTable(p)}
