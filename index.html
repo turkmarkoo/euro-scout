@@ -103,14 +103,6 @@ nav.tabs button:hover{color:var(--txt)}
 .role-viewer #watchToggle,.role-viewer #rating button,.role-viewer .phstar,
 .role-viewer #eyeGrid input,.role-viewer .tagpick{pointer-events:none}
 .role-viewer .biedit,.role-viewer .agentext{display:none}
-body.embedded .embnote{display:block}
-/* Framed in the hub there is no browser chrome to balance against, so the
-   1440px cap just leaves dead space on a wide monitor. */
-body.embedded main,body.embedded .hwrap{max-width:none}
-body.embedded .scoutwrap{max-width:none}
-body.embedded .drawer.fullpage>.dr-scroll>*:not(.profnav){max-width:1400px}
-.embnote{display:none;background:var(--panel2);border-bottom:1px solid var(--line);
-  padding:5px 12px;font-size:12px;opacity:.75;text-align:center}
 .role-viewer .notesec{background:var(--panel2)}
 .agswitch{margin-top:14px;font-size:12.5px;color:var(--accent-deep);cursor:pointer;text-align:center;font-weight:600}
 .agswitch:hover{text-decoration:underline}
@@ -1461,6 +1453,9 @@ body.drawer-lock{overflow:hidden}
 .drawer.fullpage .profnav .backlink{font-weight:600;font-size:15px}
 .drawer.fullpage .pnav-btn{width:34px;height:34px;border-radius:9px;font-size:18px}
 .drawer.fullpage>.dr-scroll>*:not(.profnav){max-width:1120px;margin-left:auto;margin-right:auto}
+.pf-cols{columns:2;column-gap:18px;max-width:1120px;margin:0 auto}
+.pf-cols>*{break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 16px !important;max-width:none !important}
+@media(max-width:860px){.pf-cols{columns:1}}
 .drawer.fullpage .panel{border:1px solid var(--line);border-radius:16px;margin-left:max(20px,calc((100vw - 1120px)/2));margin-right:max(20px,calc((100vw - 1120px)/2))}
 /* Sticky identity header: the brown card stays pinned under the nav bar. It has its own
    solid gradient, and the wrapper gets a solid page-colored backdrop so nothing shows through. */
@@ -1747,7 +1742,6 @@ body.drawer-lock{overflow:hidden}
 </header>
 <main id="app"><div class="empty">Loading data…</div></main>
 <div id="toast" class="toast"></div>
-<div class="embnote">Viewing from Dragons Hub — read only. Open EuroScout directly and sign in to make changes.</div>
 <div id="authgate" class="authgate hidden"><div class="agbox" id="agBox"></div></div>
 
 <script src="config.js"></script>
@@ -2869,8 +2863,6 @@ async function boot(){
     if(Store.canEdit())await Store.migrateLocalUp();
     if(Store.canEdit())await applyImportedData();
     applyRoleClass(); applyAuthGate(); startPendingPoll();
-    // framed and not signed in: no gate to dismiss, so draw the app now
-    if(embedReadOnly()) render();
   }else{
     // local mode: single-user gist sync (pull on open, auto-push on edits)
     renderHeaderAuth();
@@ -3098,32 +3090,11 @@ function wireGlobalSearch(){
   document.addEventListener("click",e=>{if(!e.target.closest(".gsearch"))close();});
 }
 
-/* ---------- embedded read-only mode ----------
-   Dragons Hub frames this page and passes ?embed=1&mode=read. In that case we
-   skip the sign-in overlay and run as a viewer, so nobody has to log in twice.
-
-   This is convenience, not security: the referrer can be forged and the data
-   files are public anyway. It must never unlock editing — mode=edit is honoured
-   only after a real Supabase sign-in, which the checks below still require. */
-const EMBED = (function(){
-  try{
-    const q = new URLSearchParams(location.search);
-    if(q.get("embed") !== "1") return null;
-    if(window.self === window.top) return null;          // must actually be framed
-    const allow = ["https://dragonshub.mtscouting.com"];
-    const ref = document.referrer || "";
-    if(!allow.some(function(o){ return ref.indexOf(o) === 0; })) return null;
-    return { mode: q.get("mode") === "edit" ? "edit" : "read" };
-  }catch(e){ return null; }
-})();
-function embedReadOnly(){ return !!EMBED && !(Store.user && Store.member); }
-
 /* ---------- auth gate + roles (Supabase shared-team mode) ---------- */
 function applyRoleClass(){
-  const viewer=(Store.enabled && Store.member && Store.role==="viewer") || embedReadOnly();
+  const viewer=Store.enabled && Store.member && Store.role==="viewer";
   document.body.classList.toggle("role-viewer",viewer);
-  document.body.classList.toggle("role-editor",Store.enabled && Store.canEdit() && !embedReadOnly());
-  document.body.classList.toggle("embedded",!!EMBED);
+  document.body.classList.toggle("role-editor",Store.enabled && Store.canEdit());
 }
 function renderHeaderAuth(){
   const b=$("#authBtn"); if(!b)return;
@@ -3139,12 +3110,7 @@ function renderHeaderAuth(){
     if(Store.canEdit())refreshPending();
   }else{
     b.classList.remove("acctbtn","acct-viewer");
-    if(embedReadOnly()){
-      b.textContent="Read only"; b.title="Opened from Dragons Hub \u2014 viewing only";
-      b.onclick=null;
-    }else{
-      b.textContent="Sign in"; b.title="Sign in to EuroScout"; b.onclick=()=>applyAuthGate();
-    }
+    b.textContent="Sign in"; b.title="Sign in to EuroScout"; b.onclick=()=>applyAuthGate();
   }
 }
 async function refreshPending(){
@@ -3236,7 +3202,7 @@ function renderAuthGate(){
 }
 function applyAuthGate(){
   const g=$("#authgate"); if(!g)return;
-  const blocked = Store.enabled && !(Store.user && Store.member) && !EMBED;
+  const blocked = Store.enabled && !(Store.user && Store.member);
   g.classList.toggle("hidden",!blocked);
   if(blocked)renderAuthGate();
   renderHeaderAuth();
@@ -5248,6 +5214,7 @@ function renderProfile(){
       </div>
       <div class="hint" style="margin-top:6px">Matched by name, height and nationality. ${m.teamName}.</div>
     </div>`;})()}
+    <div class="pf-cols">
     <div class="panel" style="margin-top:16px">
       <h3>Event averages \u00b7 ${p.g} GP</h3>
       <div class="scope-row">
@@ -5311,6 +5278,7 @@ function renderProfile(){
     ${similarPanelHTML(p)}
 
     ${seasonTrajectoryHTML(p)}
+    </div>
     <div class="panel" style="margin-top:16px">
       <h3>Game log${(p._grp&&p._grp.length>1)?' — all competitions':' · '+p.g+' games'}</h3>
       ${gameLogTable(p)}
