@@ -68,6 +68,7 @@ function esProjection(p){
  LEVEL_BANDS.map((name,i)=>({name,i})).reverse().forEach(({name,i})=>select.appendChild(new Option(name,String(i))));select.value=p.projLevel==null?'':String(p.projLevel);select.disabled=!Store.canEdit();
  select.onchange=async()=>{if(!Store.canEdit())return;await window.wfFlushReport?.();ovrSaveLocal({bio:{[gid(p)||p.id]:{projLevel:select.value}}});renderProfile();toast('Projected level saved');};
  panel.append(labelEl,select,esEl('p','hint',(band?.manual?'Manual assessment: ':'Automatic estimate: ')+label));$('#es-panel-Scouting')?.prepend(panel);
+ const rating=$('#drawer .ph-rating'),top=$('#drawer .ph-top'),actions=$('#drawer .ph-actions');if(rating&&top){const assessment=esEl('div','es-assessment-cards');assessment.append(ladder,rating);top.appendChild(assessment);if(actions){actions.classList.add('es-header-action-row');top.after(actions);}}
 }
 const esEditOriginal=openEditModal;openEditModal=function(id){esEditOriginal(id);const box=$('#modal .modalbox');if(!box||!$('#editSave'))return;box.classList.add('es-edit-modal');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','Edit player');
  const heading=box.querySelector('h3'),close=box.querySelector('.close'),head=esEl('div','es-edit-head');heading.textContent='Edit player';head.append(heading);if(close){close.setAttribute('aria-label','Close editor');head.append(close);}box.prepend(head);
