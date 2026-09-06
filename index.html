@@ -1709,7 +1709,7 @@ body.drawer-lock{overflow:hidden}
 
 .biTwoway{color:#7c5cff;font-weight:600}.biTwLg{opacity:.7;font-weight:400}.tpTwoway{color:#7c5cff;font-weight:600;border-top:1px solid rgba(124,92,255,.25);border-bottom:1px solid rgba(124,92,255,.25)}
 </style>
-<link rel="stylesheet" href="euroscout-ui.css?v=20260906-2">
+<link rel="stylesheet" href="euroscout-ui.css?v=20260906-4">
 </head>
 <body>
 <header>
@@ -2387,7 +2387,7 @@ let OVR={links:[],bio:{},ext:{}};
 function ovrSaveLocal(patch){
   if(!Store.canEdit())return;
   const l=ovrLocal();
-  if(patch.bio)Object.keys(patch.bio).forEach(id=>{const clean={};Object.keys(patch.bio[id]).forEach(k=>{const v=patch.bio[id][k];if(v!=null&&v!=="")clean[k]=v;});l.bio[id]={...(l.bio[id]||{}),...clean};});
+  if(patch.bio)Object.keys(patch.bio).forEach(id=>{const clean={};Object.keys(patch.bio[id]).forEach(k=>{const v=patch.bio[id][k];if(v!=null&&(v!==""||k==="projLevel"))clean[k]=v;});l.bio[id]={...(l.bio[id]||{}),...clean};});
   if(patch.ext)Object.keys(patch.ext).forEach(id=>{if(patch.ext[id])l.ext[id]=patch.ext[id];else delete l.ext[id];});
   if(patch.links)patch.links.forEach(pr=>{if(!l.links.some(x=>(x[0]===pr[0]&&x[1]===pr[1])||(x[0]===pr[1]&&x[1]===pr[0])))l.links.push(pr);});
   localStorage.setItem(OVR_KEY,JSON.stringify(l));
@@ -5369,8 +5369,10 @@ function renderProfile(){
   let tmr;
   const readField=k=>bulletEditors[k]?bulletEditors[k].serialize():"";
   const gather=()=>{const o={};NKEYS.forEach(k=>{o[k]=readField(k);});return o;};
-  const saveReport=async(msg)=>{await saveRec(p,{report:JSON.stringify(gather())});const ss=$("#saveState");if(ss)ss.textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
-  const markDirty=()=>{const ss=$("#saveState");if(ss)ss.textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};
+  let wfDirty=false;
+  const saveReport=async(msg)=>{clearTimeout(tmr);wfDirty=false;await saveRec(p,{report:JSON.stringify(gather())});const ss=$("#saveState");if(ss)ss.textContent="✓ "+(msg||"saved")+" "+new Date().toLocaleTimeString();};
+  window.wfFlushReport=()=>wfDirty?saveReport('saved'):Promise.resolve();
+  const markDirty=()=>{wfDirty=true;const ss=$("#saveState");if(ss)ss.textContent="editing…";clearTimeout(tmr);tmr=setTimeout(()=>saveReport("autosaved"),1200);};
   const canEditRep=Store.canEdit();
   NKEYS.forEach(k=>{const host=$("#"+k);if(host){const init=(k==="nProj"?(rep.nProj||rep.overall):rep[k])||"";
     bulletEditors[k]=makeBulletList(host,init,host.dataset.ph||"",markDirty);
@@ -7235,7 +7237,8 @@ Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,
 </script>
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true"></aside>
-<script src="euroscout-ui.js?v=20260906-2"></script>
+<script src="euroscout-ui.js?v=20260906-4"></script>
+<script src="euroscout-workflow.js?v=20260906-4"></script>
 <script>esSetup();boot();</script>
 </body>
 </html>

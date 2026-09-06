@@ -40,7 +40,7 @@ function esProfileLayout(p){const panesLater=[];const root=$('#drawer .dr-scroll
  else if(/Season trajectory/.test(heading))main.appendChild(n);
  else panes.Stats.appendChild(n);});
  const verdict=esPanel('Scout verdict'),rep=effectiveReport(p);verdict.appendChild(esEl('p','es-verdict',rep.nProj||rep.overall||'No projection recorded yet.'));verdict.appendChild(esButton('Open scouting notes →',()=>esSelectTab('Notes')));side.appendChild(verdict);const shooting=esPanel('Shot chart');shooting.innerHTML+='<div class="hint">'+esc(leagueOf(p).meta.name)+' · Zone shooting</div>'+shotChartSVG(p);panes.Shooting.appendChild(shooting);const reports=esPanel('Reports & links');reports.appendChild(esButton('Print / save player report as PDF',()=>exportPlayerReport(p.id)));reports.appendChild(esButton('Open written scouting report',()=>esSelectTab('Notes')));reports.appendChild(esButton('Copy player link',e=>copyPlayerLink(p.id)));panes.Reports.appendChild(reports);
- const visual=esPanel('Statistical profile');[['Scoring','ppg'],['Playmaking','apg'],['Efficiency','ts'],['Rebounding','rpg']].forEach(([label,key])=>{const pct=rankOf(scopePool(p),key,p).pct;const row=esEl('div','es-percentile');row.appendChild(esEl('span',null,label));row.appendChild(esEl('b',null,pct==null?'—':Math.round(pct)));const track=esEl('div','es-track'),fill=esEl('i');fill.style.width=(pct||0)+'%';track.appendChild(fill);row.appendChild(track);visual.appendChild(row);});visual.appendChild(esEl('p','hint','Percentiles vs '+(STATE.profileScope==='all'?'all players':'league')+' · Full detail in Stats'));main.appendChild(visual);Array.from(root.children).filter(n=>n!==nav&&n!==hero&&n!==tabs&&!n.classList.contains('es-tabpanel')).forEach(n=>panes.Stats.appendChild(n));esSelectTab(ES.tab);$('#drawer').prepend(nav);if(!Store.canEdit()){$$('#drawer .phstar,#drawer #rating button').forEach(b=>b.disabled=true);$('#drawer .biopanel-edit')?.setAttribute('hidden','');$('#drawer #saveBtn')?.setAttribute('hidden','');}
+ const visual=esPanel('Statistical profile');[['Scoring','ppg'],['Playmaking','apg'],['Efficiency','ts'],['Rebounding','rpg']].forEach(([label,key])=>{const pct=rankOf(scopePool(p),key,p).pct;const row=esEl('div','es-percentile');row.appendChild(esEl('span',null,label));row.appendChild(esEl('b',null,pct==null?'—':Math.round(pct)));const track=esEl('div','es-track'),fill=esEl('i');fill.style.width=(pct||0)+'%';track.appendChild(fill);row.appendChild(track);visual.appendChild(row);});visual.appendChild(esEl('p','hint','Percentiles vs '+(STATE.profileScope==='all'?'all players':'league')+' · Full detail in Stats'));main.appendChild(visual);Array.from(root.children).filter(n=>n!==nav&&n!==hero&&n!==tabs&&!n.classList.contains('es-tabpanel')).forEach(n=>panes.Stats.appendChild(n));esSelectTab(ES.tab);$('#drawer').prepend(nav,tabs);esProjection(p);if(!Store.canEdit()){$$('#drawer .phstar,#drawer #rating button').forEach(b=>b.disabled=true);$('#drawer .biopanel-edit')?.setAttribute('hidden','');$('#drawer #saveBtn')?.setAttribute('hidden','');}
 }
 const esProfileBase=renderProfile;renderProfile=function(){esProfileBase();const p=player(CURRENT);if(p)esProfileLayout(p);};
 const esJumpBase=drawerJump;drawerJump=function(id){const n=document.getElementById(id),pane=n?.closest('.es-tabpanel');if(pane)esSelectTab(pane.dataset.tab);esJumpBase(id);};
@@ -53,3 +53,27 @@ const esHeaderAuthBase=renderHeaderAuth;renderHeaderAuth=function(){esHeaderAuth
 /* Navigation changes close the profile while its own tabs leave editors mounted. */
 const esGoViewBase=goView;goView=function(view){if(DRAWER_OPEN)closeDrawer();ES.returnPlayer=null;esGoViewBase(view);};
 document.addEventListener('click',e=>{if(e.target.closest('#tabs [data-view]')){if(DRAWER_OPEN)closeDrawer();ES.returnPlayer=null;}},true);
+
+// Keep the scout's projection separate from statistical analysis.
+function esProjection(p){
+ $$('#drawer .barometer').forEach(n=>n.remove());
+ const band=levelBand(p),label=band?.label||'Not available';
+ const badge=esButton('Projected level · '+label,()=>{esSelectTab('Scouting');$('#esProjection')?.scrollIntoView({block:'start'});},'es-level-badge');
+ badge.title=band?.manual?'Your manual projection':'Automatic projection from production and your rating';
+ $('#drawer .ph-id')?.appendChild(badge);
+ const panel=esPanel('Projected level');panel.id='esProjection';
+ panel.appendChild(esEl('p','hint','Your assessment applies across every competition. Choose a level, or use the automatic estimate.'));
+ const labelEl=esEl('label','es-level-label','Your projection');labelEl.htmlFor='esLevel';
+ const select=esEl('select','es-select');select.id='esLevel';select.appendChild(new Option('Automatic (production + your rating)',''));
+ LEVEL_BANDS.forEach((name,i)=>select.appendChild(new Option(name,String(i))));select.value=p.projLevel==null?'':String(p.projLevel);select.disabled=!Store.canEdit();
+ select.onchange=async()=>{if(!Store.canEdit())return;await window.wfFlushReport?.();ovrSaveLocal({bio:{[gid(p)||p.id]:{projLevel:select.value}}});renderProfile();toast('Projected level saved');};
+ panel.append(labelEl,select,esEl('p','hint',(band?.manual?'Manual assessment: ':'Automatic estimate: ')+label));$('#es-panel-Scouting')?.prepend(panel);
+}
+const esEditOriginal=openEditModal;openEditModal=function(id){esEditOriginal(id);const box=$('#modal .modalbox');if(!box||!$('#editSave'))return;box.classList.add('es-edit-modal');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','Edit player');
+ const heading=box.querySelector('h3'),close=box.querySelector('.close'),head=esEl('div','es-edit-head');heading.textContent='Edit player';head.append(heading);if(close){close.setAttribute('aria-label','Close editor');head.append(close);}box.prepend(head);
+ const sub=esEl('p','es-edit-sub',player(id)?.name||'');head.append(sub);
+ const grid=box.querySelector('.editgrid');const groups=[['Identity',['eName','eHeight','eWeight','eCountry','ePos','eBorn','eHand','eExt']],['Representation',['eAgent','eAgentNew','eAgency','eAgencyNew']],['Scouting assessment',['eProj']]];
+ groups.forEach(([title,ids])=>{const section=esEl('section','es-edit-section');section.appendChild(esEl('h4',null,title));const fields=esEl('div','es-edit-fields');ids.forEach(id=>{const field=document.getElementById(id)?.closest('.efld');if(field)fields.appendChild(field);});section.appendChild(fields);grid.appendChild(section);});
+ const footer=$('#editSave').parentElement;footer.classList.add('es-edit-footer');const extra=esEl('details','es-edit-tools');extra.appendChild(esEl('summary',null,'Backup tools'));Array.from(footer.children).filter(n=>n.id!=='editSave').forEach(n=>extra.appendChild(n));footer.before(extra);footer.prepend(esButton('Cancel',hideModal));
+ box.querySelectorAll('.efld').forEach(f=>{const l=f.querySelector('label'),input=f.querySelector('input,select');if(l&&input)l.htmlFor=input.id;});
+};window.openEditModal=openEditModal;
