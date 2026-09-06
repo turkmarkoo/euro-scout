@@ -19,7 +19,7 @@
 <meta name="apple-mobile-web-app-title" content="EuroScout">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#F6F4EE; --bg2:#F0ECE3; --panel:#FFFFFF; --panel2:#FBFAF5; --line:#E7E2D6; --line-soft:#EFEBE1;
@@ -1709,6 +1709,7 @@ body.drawer-lock{overflow:hidden}
 
 .biTwoway{color:#7c5cff;font-weight:600}.biTwLg{opacity:.7;font-weight:400}.tpTwoway{color:#7c5cff;font-weight:600;border-top:1px solid rgba(124,92,255,.25);border-bottom:1px solid rgba(124,92,255,.25)}
 </style>
+<link rel="stylesheet" href="euroscout-ui.css">
 </head>
 <body>
 <header>
@@ -2077,12 +2078,12 @@ function updateTransferBadge(){const btn=$('#tabs button[data-view="transfers"]'
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
 
-const STATE = {data:null, league:null, view:"scout", allLeagues:false,
+const STATE = {data:null, league:null, view:"dashboard", allLeagues:false,
   filters:{q:"",team:"",role:"",country:"",born:"",qual:true,mode:"pg"}, sort:{key:"ppg",dir:-1},
   compare:{slots:[null,null,null,null]}, fit:{role:"",arch:"",ageMax:"",levelMin:"",contract:"",minGrade:0,wStyle:50,wProd:30,wAge:20}, scouting:{a:null,b:null}, watchSort:"rating", profileScope:"league", statMode:"pg",
   charts:{type:"scatter", x:"pts40", y:"ts", dist:"pir", colorBy:"league", fLeague:null, fTeam:"", fCountry:"", fRole:"", hi:null, size:600},
   sim:{stat:0.4,pos:0.35,arch:0.25},
-  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,simAgeMax:null,simLevelMin:null,simFreeOnly:false,arch:null,filters:[],level:null,next26:null,view:"cards",tsort:{key:"grade",dir:-1},railHidden:false,railOpen:false,ratingMin:null}};
+  scout:{q:"",leagues:new Set(),roles:new Set(),tags:new Set(),status:"all",sort:"grade",riserOnly:false,simRef:null,simAgeMax:null,simLevelMin:null,simFreeOnly:false,arch:null,filters:[],level:null,next26:null,view:"table",tsort:{key:"grade",dir:-1},railHidden:true,railOpen:false,ratingMin:null}};
 
 /* Tag vocabulary — "Watchlist" is a tag so flagged players surface in the board.
    Curated archetype/skill tags a scout reaches for; free tags still allowed on the card. */
@@ -2222,7 +2223,7 @@ const Store = (()=>{
   const enabled = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
   let sb=null, user=null, role=null, member=false, cache={};
   const LKEY="euroscout:records";
-  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1","euroscout:notionApplied:v1"];
+  const APP_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1","euroscout:notionApplied:v1","euroscout:dashboardOrder:v1"];
   const local = {
     all(){try{return JSON.parse(localStorage.getItem(LKEY))||{}}catch(e){return{}}},
     set(o){localStorage.setItem(LKEY,JSON.stringify(o))}
@@ -2259,7 +2260,7 @@ const Store = (()=>{
       try{const {data,error}=await sb.from("scouting").select("*");
         if(!error && data){
           if(data.length){const c={};data.forEach(r=>{c[r.player_id]={report:r.report||"",
-            rating:r.rating||0,tags:r.tags||[],watch:!!r.watch,board:r.board??null,eye:r.eye||{}};});
+            rating:r.rating||0,tags:r.tags||[],watch:!!r.watch,board:r.board??null,eye:r.eye||{},updated_at:r.updated_at||""};});
             cache=c;local.set(cache);}
           else if(!canEdit()){cache={};local.set(cache);} // viewer: empty shared set (don't show stale local)
           // editor + empty DB: keep local cache so migrateLocalUp() can push it up
@@ -2300,9 +2301,10 @@ const Store = (()=>{
     return items.length;
   }
   async function pushAppKey(k){
-    if(!sb||!user||!canEdit())return;
+    if(!enabled)return true;
+    if(!sb||!user||!canEdit())return false;
     let v=null;try{v=JSON.parse(localStorage.getItem(k));}catch(e){v=localStorage.getItem(k);}
-    try{await sb.from("appdata").upsert({k,v,updated_at:new Date().toISOString()},{onConflict:"k"});}catch(e){}
+    try{const {error}=await sb.from("appdata").upsert({k,v,updated_at:new Date().toISOString()},{onConflict:"k"});return !error;}catch(e){return false;}
   }
   // first-run migration: if the shared DB is empty and this editor has local work, push it up
   async function migrateLocalUp(){
@@ -2467,7 +2469,12 @@ function rebuildLinks(){
 }
 function gid(p){return (p&&p._grp&&p._grp.length)?p._grp.map(x=>x.id).sort()[0]:(p?p.id:null);}
 function recOf(p){return Store.get(gid(p));}
-async function saveRec(p,patch){return Store.save(gid(p),patch);}
+async function saveRec(p,patch){
+ const old=recOf(p),report=parseReport(old.report);
+ if(Object.prototype.hasOwnProperty.call(patch,'report')){const next=parseReport(patch.report);const plain=r=>{const c={...r};delete c._notesUpdated;return JSON.stringify(c);};next._notesUpdated=plain(next)!==plain(report)?new Date().toISOString():(report._notesUpdated||old.updated_at||'');patch={...patch,report:JSON.stringify(next)};}
+ else if(old.report&&!report._notesUpdated&&old.updated_at){patch={...patch,report:JSON.stringify({...report,_notesUpdated:old.updated_at})};}
+ return Store.save(gid(p),patch);
+}
 function mergeGroupRecords(){
   const seen=new Set();
   allPlayersFlat().forEach(p=>{
@@ -2636,8 +2643,8 @@ const Sync = (()=>{
   const RT_KEY ="euroscout:records_t";   // {gid:ms} per-player edit stamps
   const KM_KEY ="euroscout:sync_km";     // {key:ms} whole-key stamps
   const FILE   ="euroscout-sync.json";
-  const DATA_KEYS =["euroscout:records","euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1"];
-  const OTHER_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1"];
+  const DATA_KEYS =["euroscout:records","euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1","euroscout:dashboardOrder:v1"];
+  const OTHER_KEYS=["euroscout:overrides","euroscout:agents","euroscout:agencies","euroscout:views","euroscout:matchup","euroscout:next26:v1","euroscout:next26b:v1","euroscout:trHandled:v1","euroscout:dashboardOrder:v1"];
   let cfg=loadCfg(), status="idle", busy=false, pushT=null, lastPull=0, lastPush=0, lastErr="";
 
   function loadCfg(){try{return Object.assign({token:"",gistId:"",device:"",on:false},JSON.parse(localStorage.getItem(CFG_KEY)||"{}"));}catch(e){return{token:"",gistId:"",device:"",on:false};}}
@@ -2734,7 +2741,7 @@ const Sync = (()=>{
   /* ---- status pill ---- */
   function setPill(s){status=s;renderPill();}
   function renderPill(){
-    const b=document.getElementById("authBtn"); if(!b)return;
+    const b=document.getElementById(Store.enabled?"esSyncButton":"authBtn"); if(!b)return;
     b.classList.add("syncpill"); b.classList.remove("s-ok","s-err","s-sync","s-off","s-dirty");
     if(!configured()){b.textContent="\u21c5 Sync off";b.classList.add("s-off");b.title="Cross-device sync is off — tap to set up";return;}
     if(status==="sync"){b.textContent="\u21c5 Syncing\u2026";b.classList.add("s-sync");}
@@ -3351,7 +3358,8 @@ function scopeChips(){
 }
 function renderPlayers(){
   const all=STATE.allLeagues, f=STATE.filters;
-  const cols = f.mode==="tot"?TOTALS_COLS:(f.mode==="adv"?ADV_COLS:PG_COLS);
+  let cols = f.mode==="tot"?TOTALS_COLS:(f.mode==="adv"?ADV_COLS:PG_COLS);
+  if(f.mode==='pg'&&window.ES_STATS_GROUP){const keys=window.ES_STATS_GROUP==='scoring'?['ppg','fgp','f3p','ftp','ts','pir']:['apg','topg','spg','rpg','pir'];cols=cols.filter(c=>keys.includes(c.k));}
   const teams = all?[]:[...new Set(STATE.league.players.map(p=>p.team))].sort().map(c=>STATE.league.teams.find(t=>t.code===c)).filter(Boolean);
   const base = all?allPlayersFlat():STATE.league.players;
   const totalP=base.length, totalQ=base.filter(p=>p.qualified).length;
@@ -3542,7 +3550,7 @@ function ppaColor(m,a,three){const ppa=(m*(three?3:2))/a;
   return `rgb(${r},${g},${b})`;}
 function shotChartSVG(p){
   const S=p.shots;
-  if(!S||!Object.keys(S).length) return '<p class="hint">Shot-location data not loaded for this player. Run <code>scraper_shots.py</code> to populate shot charts (see README).</p>';
+  if(!S||!Object.keys(S).length) return '<p class="hint">Shot-location data is not available for this player yet.</p>';
   const maxA=Math.max(1,...Object.values(S).map(v=>v[1]));
   let tm=0,ta=0,t3m=0,t3a=0,svg=`<svg viewBox="0 0 300 260" class="shotchart">`;
   svg+=`<rect x="1.5" y="1.5" width="297" height="257" rx="8" fill="var(--bg2)" stroke="var(--line)"/>`;
@@ -6615,7 +6623,7 @@ function topArch(p,n){if(!p.arch)return [];
 const SCOUT_VIEW_KEY="euroscout:scoutView";
 /* ---------- Filter rail: collapse on desktop, off-canvas drawer on touch/narrow ---------- */
 const RAIL_KEY="euroscout:railHidden";
-function railIsNarrow(){try{return window.matchMedia("(max-width:820px)").matches;}catch(e){return false;}}
+function railIsNarrow(){try{return window.matchMedia("(max-width:1000px)").matches;}catch(e){return false;}}
 function applyRailClasses(){const wrap=document.querySelector(".scoutwrap");if(!wrap)return;
   wrap.classList.toggle("rail-hidden",!!STATE.scout.railHidden);
   wrap.classList.toggle("rail-open",!!STATE.scout.railOpen);
@@ -7224,9 +7232,10 @@ function hideModal(){const m=$("#modal");if(m)m.remove();}
 // expose for inline event handlers (which run in global scope)
 Object.assign(window,{STATE,render,hideModal,openProfile,closeDrawer,drawerJump,setScopeMode,switchComp,openTeam,openTeamIn,openTeamRoster,openTeamFromProfile,setScope,glToggle,wireProfileNav,openGlobal,openLeaguePlayers,openEditModal,showPhoto,toggleTheme,openAgentRoster,openAgencyRoster,setSimRef,clearSimRef,refreshSimPanel,simBoardWeight,simClearRecruit,setTrajMetric,renderFitFinder,fitW,fitReset,toggleCompare,clearCompare,openCompare,openArchFilter,addFilter,removeFilter,clearFilters,drLive,goView,renderAgencies,openAgencyPage,backToAgencies,openTeamPickerProfile,profileBack,$,$$});
 
-boot();
 </script>
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<script src="euroscout-ui.js"></script>
+<script>esSetup();boot();</script>
 </body>
 </html>
